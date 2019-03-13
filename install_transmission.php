@@ -8,17 +8,16 @@
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
     <li class="breadcrumb-item"><a href="packages.php">Packages</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Install Plex</li>
+    <li class="breadcrumb-item active" aria-current="page">Install Transmission</li>
   </ol>
 </nav>
 
-  <h2>Install Deluge</h2>
+  <h2>Install Transmission</h2>
   <ul>
   	<li>A group called download will be created.</li>
   	<li>We will create a share called downloads based on the volume you select.</li>
   	<li>You will need to assign users to the download group if you want users to access the download share.</li>
-  	<li>We will also create a directory called deluge under the docker share.</li>
-  	<li>When Installation is done you can access deluge by going to http://yourIP:32400</li>
+  	<li>When Installation is done you can access Transmission by going to http://yourIP:9091</li>
  
   <form method="post" action="post.php">
 
@@ -38,7 +37,7 @@
 
 	  </select>
 	  </div>
- 	<button type="submit" name="install_deluge" class="btn btn-primary">Submit</button>
+ 	<button type="submit" name="install_transmission" class="btn btn-primary">Submit</button>
 	 
 	</form>
 </main>

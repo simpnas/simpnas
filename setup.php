@@ -1,8 +1,4 @@
-<?php 
-    include("header.php");
-    exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nobody | grep -v nogroup", $group_array);
-    array_push(array_unshift($group_array, "users")); //add users and moves users to the beginning of array
-?>
+<?php include("header.php"); ?>
 
 <main role="main" class="col-md-12 ml-sm-auto col-lg-12 pt-3 px-4">
   <nav aria-label="breadcrumb">
@@ -18,19 +14,12 @@
 	    <label>Name:</label>
 	    <input type="text" class="form-control" name="hostname">
 	  </div>
-	  <button type="submit" name="general_edit" class="btn btn-primary">Submit</button>
-	</form>
-  <h4>Set the Administrator/Root Password</h4>
-  <form method="post" action="post.php">
+	  <h4>Set the Administrator/Root Password</h4>
 	  <div class="form-group">
 	    <label>Password:</label>
 	    <input type="password" class="form-control" name="password">
 	  </div>
-	  <button type="submit" name="change_root_password" class="btn btn-primary">Submit</button>
-	</form>
-
-  <h4>Select a disk and create your first volume<small>Home Directories and Docker Shares will be added</h4>
-  <form method="post" action="post.php">
+	  <h4>Select a disk and create your first volume <small>Home Directories and Docker Shares will be added</small></h4>
 	  <div class="form-group">
 	    <label>Disk:</label>
 	    <select class="form-control" name="disk">
@@ -57,14 +46,9 @@
 	  </div>
 	  <div class="form-group">
 	    <label>Volume Name:</label>
-	    <input type="text" class="form-control" name="name">
+	    <input type="text" class="form-control" name="volume_name">
 	  </div>
-	  
-	  <button type="submit" name="volume_add" class="btn btn-primary">Submit</button>
-	</form>
-
-	<h4>Add your first User</h4>
-  <form method="post" action="post.php">
+	  <h4>Add your first User</h4>
 	  <div class="form-group">
 	    <label>Username:</label>
 	    <input type="text" class="form-control" name="username">
@@ -73,10 +57,8 @@
 	    <label for="pwd">Password:</label>
 	    <input type="password" class="form-control" name="password">
 	  </div>
-	  <button type="submit" name="user_add" class="btn btn-primary">Submit</button>
+	  <button type="submit" name="setup" class="btn btn-primary">Submit</button>
 	</form>
-
-	
 </main>
 
 <?php include("footer.php"); ?>

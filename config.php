@@ -1,6 +1,6 @@
 <?php
 	
-	$system_disk = "";
-	$home_directory = "";
+	$config_docker_volume = "vol1";
+	$config_home_volume = "vol1";
 	
 ?>

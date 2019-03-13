@@ -33,7 +33,7 @@
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="shares.php">
-                  <span data-feather="folder"></span>
+                  <span data-feather="share-2"></span>
                   Shares
                 </a>
               </li>
@@ -81,6 +81,36 @@
               </li>
               
             </ul>
+
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+              <span>Installed</span>
+            </h6>
+            <ul class="nav flex-column mb-2">
+              <li class="nav-item">
+                <a class="nav-link" href="https://<?php echo gethostname(); ?>" target="_blank">
+                  <span data-feather="cloud"></span>
+                  Nextcloud
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="http://<?php echo gethostname(); ?>:32400/web" target="_blank">
+                  <span data-feather="video"></span>
+                  Plex
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="http://<?php echo gethostname(); ?>:8112" target="_blank">
+                  <span data-feather="download"></span>
+                  Deluge
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="power.php">
+                  <span data-feather="file-text"></span>
+                  Dokuwiki
+                </a>
+              </li>
+            </ul>                      
 
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
               <span>Maintenance</span>

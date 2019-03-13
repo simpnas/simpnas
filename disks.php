@@ -49,7 +49,7 @@
               $hdd_power_on_days = floor($hdd_power_on_days);
              $hdd_bad_blocks = exec("smartctl -a $hdd | grep 'Reallocated_Sector_Ct'|awk '{ print $10 '}");
             $hdd_type = exec("smartctl -i $hdd | grep 'Rotation Rate'|cut -d' ' -f 6-");
-            $hdd_health = exec("smartctl -H $hdd | grep 'SMART overall-health'|awk '{ print $6 '}");
+            //$hdd_health = exec("smartctl -H $hdd | grep 'SMART overall-health'|awk '{ print $6 '}");
   
               //$hdd_size = exec("df -h | grep '$hdd'|awk '{ print $2 '}");
               //$hdd_used = exec("df -h | grep '$hdd'|awk '{ print $3 '}");

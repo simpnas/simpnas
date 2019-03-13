@@ -8,22 +8,19 @@
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
     <li class="breadcrumb-item"><a href="packages.php">Packages</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Install Plex</li>
+    <li class="breadcrumb-item active" aria-current="page">Install Dokuwiki</li>
   </ol>
 </nav>
 
-  <h2>Install Plex</h2>
+  <h2>Install Dokuwiki</h2>
   <ul>
-  	<li>A group called media will be created.</li>
-  	<li>We will create a share called media based on the volume you select with the following subdirectories: movies and tvshow</li>
-  	<li>You will need to assign users to the media group if you want users to access the media share.</li>
-  	<li>We will also create a directory called plex under the docker share.</li>
-  	<li>When Installation is done you can access and setup plex by going to http://yourIP:32400</li>
+  	<li>We will also create a directory called dokuwiki under the docker volume.</li>
+  	<li>When Installation is done you can access dokuwiki by going to http://yourIP:8080</li>
  
   <form method="post" action="post.php">
 
 	  <div class="form-group">
-	    <label>Volume to create Media Share:</label>
+	    <label>Volume for Data Files:</label>
 	    <select class="form-control" name="volume">
 	  	<option></option>
 	  	<?php
@@ -38,7 +35,7 @@
 
 	  </select>
 	  </div>
- 	<button type="submit" name="install_plex" class="btn btn-primary">Submit</button>
+ 	<button type="submit" name="install_dokuwiki" class="btn btn-primary">Submit</button>
 	 
 	</form>
 </main>

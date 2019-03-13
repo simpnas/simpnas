@@ -14,6 +14,7 @@
     $free_memory = exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
     $free_memory = floor($free_memory);
 
+    $uptime = exec("uptime");
 
     $num_of_users = count($username_array);
     $num_of_groups = count($group_array);
@@ -36,28 +37,64 @@
               </button>
             </div>
           </div>
-
-          <p>Users: <?php echo $num_of_users; ?></p>
-          <p>Groups: <?php echo $num_of_groups; ?></p>
-          <p>Disks: <?php echo $num_of_disks; ?></p>
-          <p>Volumes: <?php echo $num_of_volumes; ?></p>
-          <p>Shares: Not yet Available</p>
-
-          RAM
-          <div class="progress">
-              <div class="progress-bar" role="progressbar" style="width: <?php echo $free_memory; ?>%"></div>
-          
-          </div>
-
+          <div class="alert alert-warning" role="alert">
+			  This is a warning alert—check it out!
+		  </div>
+		  <div class="alert alert-success" role="alert">
+			  System is running just fine!
+		  </div>
+          <div class="row">
+	          <div class="col-md-2">
+		          <div class="card text-center">
+					  <div class="card-body">
+					    <h5 class="card-title">Users</h5>
+					    <p class="card-text"><?php echo $num_of_users; ?></p>
+					  </div>
+					</div>
+				</div>
+				<div class="col-md-2">
+		          <div class="card text-center">
+					  <div class="card-body">
+					    <h5 class="card-title">Groups</h5>
+					    <p class="card-text"><?php echo $num_of_groups; ?></p>
+					  </div>
+					</div>
+				</div>
+				<div class="col-md-2">
+		          <div class="card text-center">
+					  <div class="card-body">
+					    <h5 class="card-title">Disks</h5>
+					    <p class="card-text"><?php echo $num_of_disks; ?></p>
+					  </div>
+					</div>
+				</div>
+				<div class="col-md-2">
+		          <div class="card text-center">
+					  <div class="card-body">
+					    <h5 class="card-title">Volumes</h5>
+					    <p class="card-text"><?php echo $num_of_volumes; ?></p>
+					  </div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+	        <div class="col-md-6">
+	          RAM
+	          <div class="progress">
+	              <div class="progress-bar" role="progressbar" style="width: <?php echo $free_memory; ?>%"></div>
+	          
+	          </div>
+	        </div>
+	        </div>
+	        <div class="row">
           <?php
           	foreach($volume_array as $volume){
           ?>
-            	<canvas id="doughnutChart<?php echo $volume; ?>" width="300" height="50"></canvas>
+            	<div class="col-md-4">
+            		<canvas id="doughnutChart<?php echo $volume; ?>"></canvas>
+            	</div>
           <?php	} ?>
-         
-
-         <canvas id="doughnut-chart" width="300" height="50"></canvas>
-         <canvas id="doughnut-chart2" width="300" height="50"></canvas>
+         	</div>
 
           <canvas class="my-4" id="myChart" width="900" height="380"></canvas>
         </main>

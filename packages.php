@@ -22,7 +22,7 @@
                 <tr>
                   <td>Nextcloud</td>
                   <td>Access and share your files anywhere over the Internet</td>
-                  <td><a href="install_nextcloud.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+                  <td><a href="install_nextcloud.php" class="btn btn-outline-success"><span data-feather="download"></span></a></td>
                 </tr>
                 <tr>
                   <td>Plex</td>
@@ -30,14 +30,39 @@
                   <td><a href="install_plex.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
                 </tr>
                 <tr>
-                  <td>Deluge</td>
-                  <td>BitTorrent Web Client</td>
-                  <td><a href="install_deluge.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
-                </tr>
-                <tr>
                   <td>Dokuwiki</td>
                   <td>Make some Notes</td>
-                  <td><a href="install_plex.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+                  <td><a href="install_dokuwiki.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+                </tr>
+                <tr>
+                  <td>Syncthing</td>
+                  <td>Sync those Thingx</td>
+                  <td><a href="post.php?install_syncthing" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+                </tr>
+                <tr>
+                  <td>Transmission</td>
+                  <td>Torrent some Movies</td>
+                  <td><a href="install_transmission.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+                </tr>
+                <tr>
+                  <td>Emby</td>
+                  <td>Turn your NAS into a video streaming platform</td>
+                  <td><a href="install_emby.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+                </tr>
+                <tr>
+                  <td>Unifi</td>
+                  <td>Turn your NAS into a video streaming platform</td>
+                  <td><a href="post.php?install_unifi" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+                </tr>
+                <tr>
+                  <td>OpenVPN Server</td>
+                  <td>Turn your NAS a VPN Server</td>
+                  <td><a href="post.php?install_openvpn" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+                </tr>
+                <tr>
+                  <td>Lychee</td>
+                  <td>Web Photo Viewer</td>
+                  <td><a href="install_lychee.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
                 </tr>
               </tbody>
             </table>
