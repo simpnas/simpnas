@@ -12,15 +12,15 @@ if(isset($_POST['user_add']))
   $username = $_POST['username'];
   $password = $_POST['password'];
  
-  exec ("echo -e '$password\n$password' | adduser -G users $username -h /mnt/$config_home_volume/homes/$username");
-  exec ("echo -e '$password\n$password' | smbpasswd -as $username");
+  exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/homes/$username $username -p $password");
+  exec ("echo '$password\n$password' | smbpasswd -a $username");
   if(isset($_POST['group'])){
   	$group_array = $_POST['group'];
   	foreach($group_array as $group){
     	exec ("adduser $username $group");
   	}
   }
-  exec ("chmod -R 700 /mnt/$config_home_volume/homes/$username");
+  exec ("chmod -R 700 /$config_mount_target/$config_home_volume/homes/$username");
   
   echo "<script>window.location = 'users.php'</script>";
 }
@@ -59,17 +59,16 @@ if(isset($_POST['general_edit']))
   exec("echo $hostname > /etc/hostname");
   exec("echo '127.0.0.1     $hostname localhost.localdomain localhost' > /etc/hosts");
   exec("hostname $hostname");
-  exec("service networking restart");
+  //exec("service networking restart");
   echo "<script>window.location = 'general.php'</script>";
 }
 
 
-if(isset($_GET['unmount_hdd']))
+if(isset($_GET['unmount_volume']))
 {
-  $hdd = $_GET['unmount_hdd'];
-  $hdd = $hdd."1";
-  exec ("sudo umount $hdd");
-  echo "<script>window.location = 'disk_list.php'</script>";
+  $vol = $_GET['unmount_volume'];
+  exec ("umount /$config_mount_target/$vol");
+  echo "<script>window.location = 'volumes.php'</script>";
 }
 
 if(isset($_GET['delete_volume']))
@@ -78,10 +77,10 @@ if(isset($_GET['delete_volume']))
   //check to make sure no shares are linked to the volume
   //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
   //the code to do that here
-  $hdd = exec("findmnt -n -o SOURCE --target /mnt/$name");
+  $hdd = exec("find$config_mount_target -n -o SOURCE --target /$config_mount_target/$name");
   
-  exec ("umount /mnt/$name");
-  exec ("rm -rf /mnt/$name");
+  exec ("umount /$config_mount_target/$name");
+  exec ("rm -rf /$config_mount_target/$name");
   exec ("wipefs -a $hdd");
   
   deleteLineInFile("/etc/fstab","$hdd");
@@ -93,7 +92,7 @@ if(isset($_GET['mount_hdd']))
 {
   $hdd = $_GET['mount_hdd'];
   $hdd = $hdd."1";
-  $hdd_mount_to = "/mnt/".basename($hdd);
+  $hdd_mount_to = "/$config_mount_target/".basename($hdd);
   if (!(file_exists($hdd_mount_to))) {
 	     exec ("sudo mkdir $hdd_mount_to");
 	} 
@@ -110,21 +109,21 @@ if(isset($_POST['volume_add']))
   $hdd_part = $hdd."1";
   exec ("wipefs -a $hdd");
   exec ("(echo o; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
-  exec ("mkdir /mnt/$name");
+  exec ("mkdir /$config_mount_target/$name");
   if(!empty($_POST['encrypt'])){
     $password = $_POST['password'];
     exec ("echo -e '$password' | cryptsetup -q luksFormat $hdd_part");
     exec ("echo -e '$password' | cryptsetup open $hdd_part crypt$name");
     exec ("mkfs.ext4 /dev/mapper/crypt$name");    
-    exec ("mount /dev/mapper/crypt$name /mnt/$name");
+    exec ("mount /dev/mapper/crypt$name /$config_mount_target/$name");
   }else{
 
   exec ("mkfs.ext4 $hdd_part");
-  exec ("mount $hdd_part /mnt/$name");  
+  exec ("mount $hdd_part /$config_mount_target/$name");  
   
   $myFile = "/etc/fstab";
      $fh = fopen($myFile, 'a') or die("can't open file");
-     $stringData = "$hdd_part    /mnt/$name      ext4    rw,relatime,data=ordered 0 2\n";
+     $stringData = "$hdd_part    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
      fwrite($fh, $stringData);
      fclose($fh);
 }
@@ -136,7 +135,7 @@ if(isset($_POST['share_add']))
   $volume = $_POST['volume'];
   $name = strtolower($_POST['name']);
   $description = $_POST['description'];
-  $share_path = "/mnt/$volume/$name";
+  $share_path = "/$config_mount_target/$volume/$name";
   $group = $_POST['group'];
   mkdir("$share_path");
   chgrp("$share_path", $group);
@@ -161,19 +160,19 @@ if(isset($_POST['share_edit']))
   $volume = $_POST['volume'];
   $name = strtolower($_POST['name']);
   $description = $_POST['description'];
-  $share_path = "/mnt/$volume/$name";
+  $share_path = "/$config_mount_target/$volume/$name";
   $group = $_POST['group'];
   $current_volume = $_POST['current_volume'];
   $current_name = $_POST['current_name'];
   $current_description = $_POST['current_description'];
-  $current_share_path = "/mnt/$current_volume/$current_name";
+  $current_share_path = "/$config_mount_target/$current_volume/$current_name";
   $current_group = $_POST['current_group'];
 
   if($group != $current_group){
       chgrp("$current_share_path", $group);
   }
   if($volume != $current_volume){
-    exec("mv /mnt/$current_volume/$current_name /mnt/$volume");
+    exec("mv /$config_mount_target/$current_volume/$current_name /$config_mount_target/$volume");
   }
   if($name != $current_name){
     exec("mv $current_share_path $share_path");
@@ -254,8 +253,9 @@ if(isset($_GET['delete_user']))
 {
 	$username = $_GET['delete_user'];
 
+  exec("smbpasswd -x $username");
 	exec("deluser --remove-home $username");
-	exec("smbpasswd -x $username");
+	
   echo "<script>window.location = 'users.php'</script>";
 }
 
@@ -299,36 +299,36 @@ if(isset($_POST['install_plex']))
   exec ("addgroup media");
   $group_id = exec("getent group media | cut -d: -f3");
 
-  mkdir("/mnt/$volume/media");
-  mkdir("/mnt/$volume/media/tvshows");
-  mkdir("/mnt/$volume/media/movies");
-  mkdir("/mnt/$config_docker_volume/docker/plex");
-  mkdir("/mnt/$config_docker_volume/docker/plex/library");
-  mkdir("/mnt/$config_docker_volume/docker/plex/transcode");
+  mkdir("/$config_mount_target/$volume/media");
+  mkdir("/$config_mount_target/$volume/media/tvshows");
+  mkdir("/$config_mount_target/$volume/media/movies");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/plex");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/plex/library");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/plex/transcode");
 
-  chgrp("/mnt/$volume/media","media");
-  chgrp("/mnt/$volume/media/tvshows","media");
-  chgrp("/mnt/$volume/media/movies","media");
-  chgrp("/mnt/$config_docker_volume/docker/plex","media");
-  chgrp("/mnt/$config_docker_volume/docker/plex/library","media");
-  chgrp("/mnt/$config_docker_volume/docker/plex/transcode","media");
+  chgrp("/$config_mount_target/$volume/media","media");
+  chgrp("/$config_mount_target/$volume/media/tvshows","media");
+  chgrp("/$config_mount_target/$volume/media/movies","media");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/plex","media");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/plex/library","media");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/plex/transcode","media");
   
-  chmod("/mnt/$volume/media",0770);
-  chmod("/mnt/$volume/media/tvshows",0770);
-  chmod("/mnt/$volume/media/movies",0770);
-  chmod("/mnt/$config_docker_volume/docker/plex",0770);
-  chmod("/mnt/$config_docker_volume/docker/plex/library",0770);
-  chmod("/mnt/$config_docker_volume/docker/plex/transcode",0770);
+  chmod("/$config_mount_target/$volume/media",0770);
+  chmod("/$config_mount_target/$volume/media/tvshows",0770);
+  chmod("/$config_mount_target/$volume/media/movies",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/plex",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/plex/library",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/plex/transcode",0770);
      
        $myFile = "/etc/samba/smb.conf";
      $fh = fopen($myFile, 'a') or die("can't open file");
-     $stringData = "\n[media]\n   comment = Media files used by Plex\n   path = /mnt/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770\n\n";
+     $stringData = "\n[media]\n   comment = Media files used by Plex\n   path = /$config_mount_target/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770\n\n";
      fwrite($fh, $stringData);
      fclose($fh);
   
        exec ("service samba reload");
 
-       exec("docker run -d --name plex --net=host --restart=always -e PGID=$group_id -e PUID=0 -v /mnt/$config_docker_volume/docker/plex/library:/config -v /mnt/$volume/media/tvshows:/data/tvshows -v /mnt/$volume/media/movies:/data/movies -v /mnt/$config_docker_volume/docker/plex/transcode:/transcode linuxserver/plex");
+       exec("docker run -d --name plex --net=host --restart=always -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/plex/library:/config -v /$config_mount_target/$volume/media/tvshows:/data/tvshows -v /$config_mount_target/$volume/media/movies:/data/movies -v /$config_mount_target/$config_docker_volume/docker/plex/transcode:/transcode linuxserver/plex");
        echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -340,23 +340,23 @@ if(isset($_POST['install_lychee']))
   exec ("addgroup photos");
   $group_id = exec("getent group photos | cut -d: -f3");
 
-  mkdir("/mnt/$volume/photos");
-  mkdir("/mnt/$config_docker_volume/docker/lychee");
-  mkdir("/mnt/$config_docker_volume/docker/lychee/config");
+  mkdir("/$config_mount_target/$volume/photos");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/lychee");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/lychee/config");
 
-  chgrp("/mnt/$volume/photos","photos");
+  chgrp("/$config_mount_target/$volume/photos","photos");
   
-  chmod("/mnt/$volume/photos",0770);
+  chmod("/$config_mount_target/$volume/photos",0770);
      
        $myFile = "/etc/samba/smb.conf";
      $fh = fopen($myFile, 'a') or die("can't open file");
-     $stringData = "\n[Photos]\n   comment = Photos for Lychee\n   path = /mnt/$volume/photos\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @photos\n   force group = photos\n   create mask = 0660\n   directory mask = 0770\n\n";
+     $stringData = "\n[Photos]\n   comment = Photos for Lychee\n   path = /$config_mount_target/$volume/photos\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @photos\n   force group = photos\n   create mask = 0660\n   directory mask = 0770\n\n";
      fwrite($fh, $stringData);
      fclose($fh);
   
        exec ("service samba reload");
 
-       exec("docker run -d --name lychee -p 4560:80 --restart=always -e PGID=$group_id -v /mnt/$config_docker_volume/docker/lychee/config:/config -v /mnt/$volume/photos:/pictures linuxserver/lychee");
+       exec("docker run -d --name lychee -p 4560:80 --restart=always -e PGID=$group_id -v /$config_mount_target/$config_docker_volume/docker/lychee/config:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
        echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -364,11 +364,11 @@ if(isset($_POST['install_nextcloud']))
 {
   $volume = $_POST['volume'];
 
-  mkdir("/mnt/$config_docker_volume/docker/nextcloud");
-  mkdir("/mnt/$config_docker_volume/docker/nextcloud/appdata");
-  mkdir("/mnt/$config_docker_volume/docker/nextcloud/data");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/appdata");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/data");
      
-  exec("docker run -d --name nextcloud -p 443:443 --restart=always -v /mnt/$config_docker_volume/docker/nextcloud/appdata:/config -v /mnt/$config_docker_volume/docker/nextcloud/data:/data -v /mnt:/mnt linuxserver/nextcloud");
+  exec("docker run -d --name nextcloud -p 443:443 --restart=always -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
   echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -400,28 +400,28 @@ if(isset($_POST['install_dokuwiki']))
 {
   $volume = $_POST['volume'];
 
-  mkdir("/mnt/$config_docker_volume/docker/dokuwiki/");
-  mkdir("/mnt/$config_docker_volume/docker/dokuwiki/data");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/data");
 
-       exec("docker run -d --name dokuwiki -p 8080:8080 --restart=always -v /mnt/$config_docker_volume/docker/dokuwiki/data:/dokuwiki_data bambucha/dokuwiki");
+       exec("docker run -d --name dokuwiki -p 8080:8080 --restart=always -v /$config_mount_target/$config_docker_volume/docker/dokuwiki/data:/dokuwiki_data bambucha/dokuwiki");
        echo "<script>window.location = 'packages.php'</script>";
 }
 
 if(isset($_GET['install_syncthing']))
 {
-      mkdir("/mnt/$config_docker_volume/docker/syncthing/");
-      mkdir("/mnt/$config_docker_volume/docker/syncthing/config");
+      mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/");
+      mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/config");
 
-      exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=always -v /mnt/$config_docker_volume/docker/syncthing/config:/config -v /mnt/$config_docker_volume/homes/johnny:/mnt/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
+      exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=always -v /$config_mount_target/$config_docker_volume/docker/syncthing/config:/config -v /$config_mount_target/$config_docker_volume/homes/johnny:/$config_mount_target/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
       echo "<script>window.location = 'packages.php'</script>";
 }
 
 if(isset($_GET['install_unifi']))
 {
-      mkdir("/mnt/$config_docker_volume/docker/unifi/");
-      mkdir("/mnt/$config_docker_volume/docker/unifi/config");
+      mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/");
+      mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/config");
 
-      exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=always -v /mnt/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi");
+      exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=always -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi");
       echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -433,24 +433,24 @@ if(isset($_POST['install_transmission']))
   exec ("addgroup download");
   $group_id = exec("getent group download | cut -d: -f3");
 
-  mkdir("/mnt/$volume/downloads");
-  mkdir("/mnt/$config_docker_volume/docker/transmission");
-  mkdir("/mnt/$config_docker_volume/docker/transmission/config");
-  mkdir("/mnt/$config_docker_volume/docker/transmission/watch");
+  mkdir("/$config_mount_target/$volume/downloads");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/transmission");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/transmission/config");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/transmission/watch");
 
-  chgrp("/mnt/$volume/downloads","download");
+  chgrp("/$config_mount_target/$volume/downloads","download");
 
-  chmod("/mnt/$volume/downloads",0770);
+  chmod("/$config_mount_target/$volume/downloads",0770);
      
        $myFile = "/etc/samba/smb.conf";
      $fh = fopen($myFile, 'a') or die("can't open file");
-     $stringData = "\n[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /mnt/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770\n\n";
+     $stringData = "\n[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /$config_mount_target/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770\n\n";
      fwrite($fh, $stringData);
      fclose($fh);
   
        exec ("service samba reload");
 
-       exec("docker run -d --name transmission --restart=always -e PGID=$group_id -v /mnt/$config_docker_volume/docker/transmission/config:/config -v /mnt/$config_docker_volume/docker/transmission/watch:/watch -v /mnt/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
+       exec("docker run -d --name transmission --restart=always -e PGID=$group_id -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$config_docker_volume/docker/transmission/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
        echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -471,18 +471,18 @@ if(isset($_POST['setup']))
 
   exec ("wipefs -a $hdd");
   exec ("(echo o; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
-  exec ("mkdir /mnt/$volume_name");
+  exec ("mkdir /$config_mount_target/$volume_name");
   exec ("mkfs.ext4 $hdd_part");
-  exec ("mount $hdd_part /mnt/$volume_name");
+  exec ("mount $hdd_part /$config_mount_target/$volume_name");
 
-  exec ("mkdir /mnt/$volume_name/docker");
-  exec ("mkdir /mnt/$volume_name/homes");
+  exec ("mkdir /$config_mount_target/$volume_name/docker");
+  exec ("mkdir /$config_mount_target/$volume_name/homes");
 
-  exec ("echo -e '$password\n$password' | adduser -G users $username -h /mnt/$volume_name/homes/$username");
+  exec ("echo -e '$password\n$password' | adduser -G users $username -h /$config_mount_target/$volume_name/homes/$username");
   exec ("echo -e '$password\n$password' | smbpasswd -as $username"); 
 
   
-  exec ("chmod -R 700 /mnt/$volume_name/homes/$username");
+  exec ("chmod -R 700 /$config_mount_target/$volume_name/homes/$username");
 
   exec ("rm /etc/samba/smb.conf");
   exec ("cp /www/smb.conf /etc/samba/");
@@ -491,7 +491,7 @@ if(isset($_POST['setup']))
   
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "$hdd_part    /mnt/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
+  $stringData = "$hdd_part    /$config_mount_target/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
   fwrite($fh, $stringData);
   fclose($fh);
 
@@ -522,11 +522,11 @@ if(isset($_GET['reset']))
   }
 
   //Remove all Volumes and remove from automounting on boot
-  exec("ls /mnt", $volume_array);
+  exec("ls /$config_mount_target", $volume_array);
   foreach ($volume_array as $volume) {
-    $hdd = exec("findmnt -n -o SOURCE --target /mnt/$volume");
-    exec ("umount /mnt/$volume");
-    exec("rm -rf /mnt/$volume");
+    $hdd = exec("find$config_mount_target -n -o SOURCE --target /$config_mount_target/$volume");
+    exec ("umount /$config_mount_target/$volume");
+    exec("rm -rf /$config_mount_target/$volume");
     deleteLineInFile("/etc/fstab","$hdd");
   }
 

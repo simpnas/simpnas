@@ -16,6 +16,7 @@
                 <tr>
                   <th>Name</th>
                   <th>Disk(s)</th>
+                  <th>Share Reference</th>
                   <th>Usage</th>
                   <th>Action</th>
                 </tr>
@@ -39,6 +40,7 @@
                 <tr>
                   <td><?php echo $volume; ?></td>
                   <td><?php echo $disk; ?></td>
+                  <td>homes, pizza</td>
                   <td>
                     <div class="progress">
               <div class="progress-bar" role="progressbar" style="width: <?php echo $disk_used_percent; ?>%"></div>
@@ -49,6 +51,7 @@
                   <td>
                     <div class="btn-group mr-2">
                     <button class="btn btn-outline-secondary"><span data-feather="edit"></span></button>
+                    <a href="post.php?unmount_volume=<?php echo $volume; ?>" class="btn btn-outline-warning"><span data-feather="stop-circle"></span></a>
                     <a href="post.php?delete_volume=<?php echo $volume; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
                   </div>
                   </td>
@@ -57,6 +60,7 @@
                 <tr>
                   <td>vol3<br><small>LUKS Encrypt</small></td>
                   <td>RAID 1</span><br><small>Disk2, Disk3</small></td>
+                  <td>media</td>
                   <td><p class="text-danger text-center"><strong>ENCRYPTED</strong></p></td>
                   <td>
                     <div class="btn-group mr-2">

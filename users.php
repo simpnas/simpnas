@@ -23,7 +23,7 @@
               </thead>
               <tbody>
 <?php 	  foreach ($username_array as $username) {
-          $groups = str_replace(' ',", ",exec("groups $username")); //replace space with a , and a space makes it look neater
+          $groups = str_replace(' ',", ",exec("groups $username | sed 's/\($username\| : \)//g'")); //replace space with a , and a space makes it look neater
 ?>
                 <tr>
                   <td><?php echo $username; ?></td>
