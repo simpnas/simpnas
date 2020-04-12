@@ -9,5 +9,5 @@ cd /
 echo Downloading the latest simpnas from GIT repo....
 git clone https://github.com/johnnyq/simpnas.git
 echo Starting SimpNAS Web UI...
-php -S 0.0.0.0:80 /simpnas&
+php -S 0.0.0.0:80 -t /simpnas&
 echo All Setup! You can now access your system by visiting http://$HOSTNAME in your web browser!!
