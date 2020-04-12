@@ -50,7 +50,7 @@ if(file_exists('config.php')){
   <form method="post" action="post.php">
 	  <div class="form-group">
 	    <label>Name:</label>
-	    <input type="text" class="form-control" name="hostname">
+	    <input type="text" class="form-control" name="hostname" value="<?php echo gethostname(); ?>">
 	  </div>
 	  <h4>Set the Administrator/Root Password</h4>
 	  <div class="form-group">

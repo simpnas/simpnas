@@ -9,7 +9,7 @@
    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
     <h2>Updates</h2>
     <a href="user_add.php" class="btn btn-outline-primary">Check For Updates</a>
-    <a href="user_add.php" class="btn btn-outline-secondary">Update</a>
+    <a href="post.php?upgrade_simpnas" class="btn btn-outline-secondary">Update SimpNAS</a>
   </div>
 
   <div class="table-responsive">

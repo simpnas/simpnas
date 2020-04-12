@@ -62,7 +62,7 @@
                   <td><span data-feather="hard-drive"></span> <?php echo $hdd_short_name; ?></td>
                   <td><?php echo $hdd_vendor; ?><br><small><?php echo $hdd_model; ?></small></td>
                   <td><?php echo $hdd_serial; ?></td>
-                  <td><?php echo $hdd_label_size; ?></td>
+                  <td><?php echo $hdd_label_size; ?>GB</td>
                   <td><?php echo $hdd_type; ?></td>
                   <td><?php echo $hdd_power_on_hours; ?> Hours<br><small><?php echo $hdd_power_on_days; ?> Days</small></td>
                   <td><?php echo $hdd_bad_blocks; ?></td>

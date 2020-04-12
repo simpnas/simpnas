@@ -22,6 +22,24 @@
     </ul>
 
     <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+      <span>Storage</span>
+    </h6>
+    <ul class="nav flex-column mb-2">
+      <li class="nav-item">
+        <a class="nav-link" href="disks.php">
+          <span data-feather="hard-drive"></span>
+          Disks
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="volumes.php">
+          <span data-feather="database"></span>
+          Volumes
+        </a>
+      </li>
+    </ul>
+
+    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
       <span>Users and Shares</span>
     </h6>
     <ul class="nav flex-column mb-2">
@@ -41,24 +59,6 @@
         <a class="nav-link" href="shares.php">
           <span data-feather="folder"></span>
           Shares
-        </a>
-      </li>
-    </ul>
-
-    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-      <span>Storage</span>
-    </h6>
-    <ul class="nav flex-column mb-2">
-      <li class="nav-item">
-        <a class="nav-link" href="disks.php">
-          <span data-feather="hard-drive"></span>
-          Disks
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="volumes.php">
-          <span data-feather="database"></span>
-          Volumes
         </a>
       </li>
     </ul>
@@ -85,19 +85,18 @@
           Date & Time
         </a>
       </li>
-      
-    </ul>
-
-    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-      <span>Maintenance</span>
-    </h6>
-    <ul class="nav flex-column mb-2">
       <li class="nav-item">
         <a class="nav-link" href="packages.php">
           <span data-feather="package"></span>
           Packages
         </a>
       </li>
+    </ul>
+
+    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+      <span>Maintenance</span>
+    </h6>
+    <ul class="nav flex-column mb-2">
       <li class="nav-item">
         <a class="nav-link" href="updates.php">
           <span data-feather="download"></span>
