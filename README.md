@@ -1,7 +1,10 @@
 # SimpNAS
-A webscript to manage Physical Hard Drives, Volumes, SAMBA shares, users, groups, docker containers including PLEX, Syncthing, nextcloud, etc
+A webscript to manage Hard Drives, Volumes, SAMBA shares, users, groups, docker containers including Jellyfin, SyncThing, Nextcloud, etc, get system stats and real time alerts on hard drive failures.
 
 ## Installation
 
-  * Install Alpine Linux on a Physical PC
-  * run setup.sh
+* Install Debian 10
+* Login as root
+* Copy and paste the line below into terminal 
+
+`wget https://raw.githubusercontent.com/johnnyq/simpnas/master/install.sh; bash install.sh`
