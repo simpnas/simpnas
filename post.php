@@ -292,7 +292,7 @@ if(isset($_GET['delete_group']))
   echo "<script>window.location = 'groups.php'</script>";
 }
 
-if(isset($_POST['install_plex']))
+if(isset($_POST['install_jellyfin']))
 {
   $volume = $_POST['volume'];
   
@@ -302,36 +302,39 @@ if(isset($_POST['install_plex']))
   mkdir("/$config_mount_target/$volume/media");
   mkdir("/$config_mount_target/$volume/media/tvshows");
   mkdir("/$config_mount_target/$volume/media/movies");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/plex");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/plex/library");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/plex/transcode");
+  mkdir("/$config_mount_target/$volume/media/music");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin/config");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache");
 
   chgrp("/$config_mount_target/$volume/media","media");
   chgrp("/$config_mount_target/$volume/media/tvshows","media");
   chgrp("/$config_mount_target/$volume/media/movies","media");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/plex","media");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/plex/library","media");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/plex/transcode","media");
+  chgrp("/$config_mount_target/$volume/media/music","media");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin","media");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin/config","media");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache","media");
   
   chmod("/$config_mount_target/$volume/media",0770);
   chmod("/$config_mount_target/$volume/media/tvshows",0770);
   chmod("/$config_mount_target/$volume/media/movies",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/plex",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/plex/library",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/plex/transcode",0770);
+  chmod("/$config_mount_target/$volume/media/music",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin/config",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache",0770);
      
-       $myFile = "/etc/samba/smb.conf";
-     $fh = fopen($myFile, 'a') or die("can't open file");
-     $stringData = "\n[media]\n   comment = Media files used by Plex\n   path = /$config_mount_target/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770\n\n";
-     fwrite($fh, $stringData);
-     fclose($fh);
+  $myFile = "/etc/samba/smb.conf";
+  $fh = fopen($myFile, 'a') or die("can't open file");
+  $stringData = "\n[media]\n   comment = Media files used by Jellyfin\n   path = /$config_mount_target/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770\n\n";
+  fwrite($fh, $stringData);
+  fclose($fh);
   
-       exec ("service samba reload");
+  exec ("service smbd restart");
 
-       exec("docker run -d --name plex --net=host --restart=always -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/plex/library:/config -v /$config_mount_target/$volume/media/tvshows:/data/tvshows -v /$config_mount_target/$volume/media/movies:/data/movies -v /$config_mount_target/$config_docker_volume/docker/plex/transcode:/transcode linuxserver/plex");
-       echo "<script>window.location = 'packages.php'</script>";
+  exec("docker run -d --name jellyfin --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin/config:/config -v /$config_mount_target/$volume/media/tvshows:/tvshows -v /$config_mount_target/$volume/media/movies:/movies -v /$config_mount_target/$volume/media/music:/music -v /$config_mount_target/$config_docker_volume/docker/jellyfin/cache:/cache jellyfin/jellyfin");
+  
+  echo "<script>window.location = 'packages.php'</script>";
 }
-
 
 if(isset($_POST['install_lychee']))
 {

@@ -25,9 +25,9 @@
                   <td><a href="install_nextcloud.php" class="btn btn-outline-success"><span data-feather="download"></span></a></td>
                 </tr>
                 <tr>
-                  <td>Plex</td>
-                  <td>Turn your NAS into a video streaming platform</td>
-                  <td><a href="install_plex.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+                  <td>Jellyfin</td>
+                  <td>Turn your NAS into a media streaming platform for your Smart TVs, Smart devices (Roku, Amazon TV, Apple TV, Google TV), computers, phones etc</td>
+                  <td><a href="install_jellyfin.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
                 </tr>
                 <tr>
                   <td>Dokuwiki</td>
@@ -43,11 +43,6 @@
                   <td>Transmission</td>
                   <td>Torrent some Movies</td>
                   <td><a href="install_transmission.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
-                </tr>
-                <tr>
-                  <td>Emby</td>
-                  <td>Turn your NAS into a video streaming platform</td>
-                  <td><a href="install_emby.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
                 </tr>
                 <tr>
                   <td>Unifi</td>
