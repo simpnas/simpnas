@@ -471,10 +471,22 @@ if(isset($_POST['setup']))
   $username = $_POST['username'];
   $password = $_POST['password'];
 
+  //Create config.php file
+  
+  $myfile = fopen("config.php", "w");
+
+  $txt = "<?php\n\n\$config_setup_disabled = 1;\n\$config_os_disk = '';\n\$config_mount_target = 'mnt';\n\$config_docker_volume = \"$volume_name\";\n\$config_home_volume = \"$volume_name\";\n\$config_home_dir = 'homes';\n\n?>";
+
+  fwrite($myfile, $txt);
+
+  fclose($myfile);
+
+  include("config.php");
+
   exec("echo $hostname > /etc/hostname");
-  exec("echo '127.0.0.1     $hostname localhost.localdomain localhost' > /etc/hosts");
+  //exec("echo '127.0.0.1     $hostname localhost.localdomain localhost' > /etc/hosts");
   exec("hostname $hostname");
-  exec("service networking restart");
+  //exec("service networking restart");
 
   exec ("wipefs -a $hdd");
   exec ("(echo o; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
@@ -485,16 +497,12 @@ if(isset($_POST['setup']))
   exec ("mkdir /$config_mount_target/$volume_name/docker");
   exec ("mkdir /$config_mount_target/$volume_name/homes");
 
-  exec ("echo -e '$password\n$password' | adduser -G users $username -h /$config_mount_target/$volume_name/$config_home_dir/$username");
-  exec ("echo -e '$password\n$password' | smbpasswd -as $username"); 
+  exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -p $password");
+  exec ("echo '$password\n$password' | smbpasswd -a $username");
 
-  
   exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
 
-  exec ("rm /etc/samba/smb.conf");
-  exec ("cp /www/smb.conf /etc/samba/");
-
-  exec("service samba restart");
+  exec("service smbd restart");
   
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");
@@ -508,7 +516,8 @@ if(isset($_POST['setup']))
 if(isset($_GET['reset']))
 {
   //Stop Samba
-  exec("service samba stop");
+  exec("service smbd stop");
+  exec("service nmbd stop");
 
   //Remove and stop all Dockers and docker images
   exec ("docker stop $(docker ps -aq)");
@@ -524,14 +533,14 @@ if(isset($_GET['reset']))
   //Remove all created users
   exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);
   foreach ($username_array as $username) {
-    exec("deluser --remove-home $username");
     exec("smbpasswd -x $username");
+    exec("deluser --remove-home $username");
   }
 
-  //Remove all Volumes and remove from automounting on boot
+  //Remove all Volumes and remove from fstab.conf to prevent automounting on boot
   exec("ls /$config_mount_target", $volume_array);
   foreach ($volume_array as $volume) {
-    $hdd = exec("find$config_mount_target -n -o SOURCE --target /$config_mount_target/$volume");
+    $hdd = exec("find /$config_mount_target -n -o SOURCE --target /$config_mount_target/$volume");
     exec ("umount /$config_mount_target/$volume");
     exec("rm -rf /$config_mount_target/$volume");
     deleteLineInFile("/etc/fstab","$hdd");
@@ -545,9 +554,10 @@ if(isset($_GET['reset']))
 
   //Remove Samba conf and replace it with the default
   exec ("rm /etc/samba/smb.conf");
-  exec ("cp /www/smb.conf /etc/samba/");
+  exec ("cp /simpnas/smb.conf /etc/samba/");
 
-  exec("service samba start");
+  exec("service smbd start");
+  exec("service nmbd start");
 
   echo "<script>window.location = 'dashboard.php'</script>";
 }

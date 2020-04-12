@@ -26,9 +26,28 @@
           <td><a href="install_nextcloud.php" class="btn btn-outline-success"><span data-feather="download"></span></a></td>
         </tr>
         <tr>
-          <td>Jellyfin</td>
+          <td>
+            Jellyfin
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/jellyfin")) { ?>
+            <small class="text-success">Installed</small>
+            <?php } ?>
+          </td>
           <td>Turn your NAS into a media streaming platform for your Smart TVs, Smart devices (Roku, Amazon TV, Apple TV, Google TV), computers, phones etc</td>
-          <td><a href="install_jellyfin.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+          <td>
+            <?php 
+              if(file_exists("/$config_mount_target/$config_docker_volume/docker/jellyfin")) {
+            ?>
+              <a href="http://<?php echo gethostname(); ?>:8096" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+              <a href="uninstall_jellyfin.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+            <?php
+            }else{
+            ?>
+            <a href="install_jellyfin.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+            <?php  
+            }
+            ?>
+          </td>
         </tr>
         <tr>
           <td>Dokuwiki</td>
