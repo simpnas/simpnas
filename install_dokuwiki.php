@@ -1,5 +1,6 @@
 <?php 
-    include("header.php");
+    include("config.php");
+	include("header.php");
     include("side_nav.php");
 ?>
 
@@ -15,7 +16,7 @@
   <h2>Install Dokuwiki</h2>
   <ul>
   	<li>We will also create a directory called dokuwiki under the docker volume.</li>
-  	<li>When Installation is done you can access dokuwiki by going to http://yourIP:8080</li>
+  	<li>When Installation is done you can access dokuwiki by going to http://<?php echo gethostname(); ?>:8080</li>
  
   <form method="post" action="post.php">
 
@@ -24,7 +25,7 @@
 	    <select class="form-control" name="volume">
 	  	<option></option>
 	  	<?php
-			exec("ls /mnt", $volume_list);
+			exec("ls /$config_mount_target", $volume_list);
 			foreach ($volume_list as $volume) {
 			?>
 			<option><?php echo "$volume"; ?></option>	

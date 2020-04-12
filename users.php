@@ -1,4 +1,5 @@
 <?php 
+    include("config.php");
     include("header.php");
     include("side_nav.php");
     
@@ -40,4 +41,5 @@
             </table>
           </div>
         </main>
+
 <?php include("footer.php"); ?>

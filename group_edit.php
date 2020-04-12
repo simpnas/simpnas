@@ -1,4 +1,5 @@
 <?php 
+    include("config.php");
     include("header.php");
     include("side_nav.php");
     if(isset($_GET['group'])){

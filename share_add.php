@@ -1,4 +1,5 @@
 <?php 
+    include("config.php");
     include("header.php");
     include("side_nav.php");
 ?>
@@ -21,7 +22,7 @@
 	    <select class="form-control" name="volume">
 	  	<option></option>
 	  	<?php
-			exec("ls /mnt", $volume_list);
+			exec("ls /$config_mount_target", $volume_list);
 			foreach ($volume_list as $volume) {
 			?>
 			<option><?php echo "$volume"; ?></option>	

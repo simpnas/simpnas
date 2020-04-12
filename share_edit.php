@@ -1,5 +1,5 @@
 <?php 
-  
+  	include("config.php");
     include("header.php");
     include("side_nav.php");
     if(isset($_GET['share'])){
@@ -31,7 +31,7 @@
 	    <label>Volume:</label>
 	    <select class="form-control" name="volume">
 	  	<?php
-			exec("ls /mnt", $volume_list);
+			exec("ls /$config_mount_target", $volume_list);
 			foreach ($volume_list as $volume) {
 			?>
 			<option <?php if($volume == $mounted_volume){ echo "selected";} ?> ><?php echo "$volume"; ?></option>	

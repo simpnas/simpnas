@@ -1,8 +1,8 @@
 <?php 
 
-  include("functions.php"); 
   include("config.php");
-
+  include("functions.php"); 
+  
 ?>
 
 <?php
@@ -11,8 +11,12 @@ if(isset($_POST['user_add']))
 {
   $username = $_POST['username'];
   $password = $_POST['password'];
+
+  if(!file_exists("/$config_mount_target/$config_home_volume/$config_home_dir/")) {
+    mkdir("/$config_mount_target/$config_home_volume/$config_home_dir/");
+  }
  
-  exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/homes/$username $username -p $password");
+  exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -p $password");
   exec ("echo '$password\n$password' | smbpasswd -a $username");
   if(isset($_POST['group'])){
   	$group_array = $_POST['group'];
@@ -20,7 +24,7 @@ if(isset($_POST['user_add']))
     	exec ("adduser $username $group");
   	}
   }
-  exec ("chmod -R 700 /$config_mount_target/$config_home_volume/homes/$username");
+  exec ("chmod -R 700 /$config_mount_target/$config_home_volume/$config_home_dir/$username");
   
   echo "<script>window.location = 'users.php'</script>";
 }
@@ -415,7 +419,7 @@ if(isset($_GET['install_syncthing']))
       mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/");
       mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/config");
 
-      exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=always -v /$config_mount_target/$config_docker_volume/docker/syncthing/config:/config -v /$config_mount_target/$config_docker_volume/homes/johnny:/$config_mount_target/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
+      exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=always -v /$config_mount_target/$config_docker_volume/docker/syncthing/config:/config -v /$config_mount_target/$config_docker_volume/$config_home_dir/johnny:/$config_mount_target/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
       echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -481,11 +485,11 @@ if(isset($_POST['setup']))
   exec ("mkdir /$config_mount_target/$volume_name/docker");
   exec ("mkdir /$config_mount_target/$volume_name/homes");
 
-  exec ("echo -e '$password\n$password' | adduser -G users $username -h /$config_mount_target/$volume_name/homes/$username");
+  exec ("echo -e '$password\n$password' | adduser -G users $username -h /$config_mount_target/$volume_name/$config_home_dir/$username");
   exec ("echo -e '$password\n$password' | smbpasswd -as $username"); 
 
   
-  exec ("chmod -R 700 /$config_mount_target/$volume_name/homes/$username");
+  exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
 
   exec ("rm /etc/samba/smb.conf");
   exec ("cp /www/smb.conf /etc/samba/");

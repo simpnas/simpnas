@@ -1,6 +1,7 @@
 <?php 
-    include("header.php");
-    include("side_nav.php");
+  include("config.php");
+  include("header.php");
+  include("side_nav.php");
 ?>
 
  <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">

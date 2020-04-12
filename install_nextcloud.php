@@ -1,4 +1,5 @@
 <?php 
+    include("config.php");
     include("header.php");
     include("side_nav.php");
 ?>
@@ -18,7 +19,7 @@
   	<li>We will create a share called media based on the volume you select with the following subdirectories: movies and tvshow</li>
   	<li>You will need to assign users to the media group if you want users to access the media share.</li>
   	<li>We will also create a directory called plex under the docker share.</li>
-  	<li>When Installation is done you can access and setup nextcloud by going to https://yourIP</li>
+  	<li>When Installation is done you can access and setup nextcloud by visiting https://<?php echo gethostname(); ?></li>
  
   <form method="post" action="post.php">
 
@@ -27,7 +28,7 @@
 	    <select class="form-control" name="volume">
 	  	<option></option>
 	  	<?php
-			exec("ls /mnt", $volume_list);
+			exec("ls /$config_mount_target", $volume_list);
 			foreach ($volume_list as $volume) {
 			?>
 			<option><?php echo "$volume"; ?></option>	

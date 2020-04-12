@@ -1,4 +1,5 @@
 <?php 
+    include("config.php");
     include("header.php");
     include("side_nav.php");
     exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nobody | grep -v nogroup", $group_array);
@@ -25,7 +26,7 @@
 	  </div>
 	  <legend>Groups</legend>
 	  
-	  <?php 	  foreach ($group_array as $group) { ?>
+	  <?php foreach ($group_array as $group) { ?>
 	  <div class="form-group">
 	  <div class="custom-control custom-checkbox">
 		  <input type="checkbox" class="custom-control-input" name="group[]" value="<?php echo "$group"; ?>" id="customCheck<?php echo $group; ?>">

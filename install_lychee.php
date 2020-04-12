@@ -1,4 +1,5 @@
 <?php 
+    include("config.php");
     include("header.php");
     include("side_nav.php");
 ?>
@@ -17,7 +18,7 @@
   	<li>A group called photos will be created.</li>
   	<li>We will create a share called photos on the volume you select</li>
   	<li>You will need to assign users to the photos group if you want users to access the photos share.</li>
-  	<li>When Installation is done you can access and setup Lychee by going to http://yourIP:4560</li>
+  	<li>When Installation is done you can access and setup Lychee by going to http://<?php echo gethostname(); ?>:4560</li>
  
   <form method="post" action="post.php">
 
@@ -26,7 +27,7 @@
 	    <select class="form-control" name="volume">
 	  	<option></option>
 	  	<?php
-			exec("ls /mnt", $volume_list);
+			exec("ls /$config_mount_target", $volume_list);
 			foreach ($volume_list as $volume) {
 			?>
 			<option><?php echo "$volume"; ?></option>	

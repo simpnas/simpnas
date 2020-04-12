@@ -1,4 +1,6 @@
 <?php 
+    
+    include("config.php");
     include("header.php");
     include("side_nav.php");
     exec("smartctl --scan|awk '{ print $1 '}", $drive_list);

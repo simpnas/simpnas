@@ -1,4 +1,7 @@
-<?php include("header.php"); ?>
+<?php 
+	include("config.php");
+	include("header.php");
+?>
 
 <main role="main" class="col-md-12 ml-sm-auto col-lg-12 pt-3 px-4">
   <nav aria-label="breadcrumb">
