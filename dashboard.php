@@ -1,4 +1,5 @@
 <?php 
+    include("config.php");
     include("header.php");
     include("side_nav.php");
   
@@ -9,7 +10,7 @@
 
     exec("smartctl --scan|awk '{ print $1 '}", $drive_list);
 
-    exec("ls /mnt", $volume_array);
+    exec("ls $config_mount_target", $volume_array);
 
     $free_memory = exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
     $free_memory = floor($free_memory);
