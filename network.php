@@ -20,7 +20,6 @@
           <th>IP Address</th>
           <th>Netmask</th>
           <th>Gateway</th>
-          <th>DNS</th>
           <th>Status</th>
           <th>Action</th>
         </tr>
@@ -32,8 +31,7 @@
           <td><?php  ?></td>
           <td>255.255.255.0</td>
           <td>192.168.1.1</td>
-          <td>192.168.1.1</td>
-          <td>UP</td>
+          <td class="text-success">UP</td>
           <td>
           	<div class="btn-group mr-2">
         		<a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit-2"></span></a>
@@ -47,8 +45,7 @@
           <td>192.168.1.247</td>
           <td>255.255.255.0</td>
           <td>192.168.1.1</td>
-          <td>192.168.1.1</td>
-          <td>UP</td>
+          <td class="text-danger">DOWN</td>
           <td>
           	<div class="btn-group mr-2">
         		<a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit-2"></span></a>

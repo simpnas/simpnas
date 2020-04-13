@@ -453,8 +453,14 @@ if(isset($_POST['install_transmission']))
   mkdir("/$config_mount_target/$config_docker_volume/docker/transmission/watch");
 
   chgrp("/$config_mount_target/$volume/downloads","download");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/transmission","download");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/transmission/config","download");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/transmission/watch","download");
 
   chmod("/$config_mount_target/$volume/downloads",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/transmission",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/transmission/config",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/transmission/watch",0770);
      
        $myFile = "/etc/samba/smb.conf";
      $fh = fopen($myFile, 'a') or die("can't open file");
@@ -462,7 +468,7 @@ if(isset($_POST['install_transmission']))
      fwrite($fh, $stringData);
      fclose($fh);
   
-       exec ("service samba reload");
+       exec ("service smbd restart");
 
        exec("docker run -d --name transmission --restart=always -e PGID=$group_id -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$config_docker_volume/docker/transmission/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
        echo "<script>window.location = 'packages.php'</script>";

@@ -60,14 +60,52 @@
           <td><a href="post.php?install_syncthing" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
         </tr>
         <tr>
-          <td>Transmission</td>
-          <td>Torrent some Movies</td>
-          <td><a href="install_transmission.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+          <td>
+            Transmission
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission")) { ?>
+            <small class="text-success">Installed</small>
+            <?php } ?>
+          </td>
+          <td>Torrent downloads</td>
+          <td>
+            <?php 
+              if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi")) {
+            ?>
+              <a href="http://<?php echo gethostname(); ?>:9091" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+              <a href="uninstall_transmission.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+            <?php
+            }else{
+            ?>
+            <a href="install_transmission.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+            <?php  
+            }
+            ?>
+          </td>
         </tr>
         <tr>
-          <td>Unifi</td>
-          <td>Turn your NAS into a video streaming platform</td>
-          <td><a href="post.php?install_unifi" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+          <td>
+            Unifi
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi")) { ?>
+            <small class="text-success">Installed</small>
+            <?php } ?>
+          </td>
+          <td>Allow you to configure and manage Unifi network devices</td>
+          <td>
+            <?php 
+              if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi")) {
+            ?>
+              <a href="https://<?php echo gethostname(); ?>:8443" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+              <a href="uninstall_unifi.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+            <?php
+            }else{
+            ?>
+            <a href="post.php?install_unifi" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+            <?php  
+            }
+            ?>
+          </td>
         </tr>
         <tr>
           <td>OpenVPN Server</td>

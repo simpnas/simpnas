@@ -39,15 +39,14 @@
         ?>
         
         <tr>
-          <td><?php echo $volume; ?></td>
-          <td><?php echo $disk; ?></td>
-          <td>homes, pizza</td>
+          <td><span data-feather="database"></span> <?php echo $volume; ?></td>
+          <td><span data-feather="hard-drive"></span> <?php echo $disk; ?></td>
+          <td><span data-feather="folder"></span> homes, pizza</td>
           <td>
             <div class="progress">
       <div class="progress-bar" role="progressbar" style="width: <?php echo $disk_used_percent; ?>%"></div>
   </div>
-  <br>
-  <p class="text-center"><?php echo $used_space; ?> used of <?php echo $total_space; ?></p>  
+  <small class="text-center"><?php echo $used_space; ?> used of <?php echo $total_space; ?></small>  
           </td>
           <td>
             <div class="btn-group mr-2">
@@ -59,9 +58,9 @@
         </tr>
         <?php } ?>
         <tr>
-          <td>vol3<br><small>LUKS Encrypt</small></td>
-          <td>RAID 1</span><br><small>Disk2, Disk3</small></td>
-          <td>media</td>
+          <td><span data-feather="database"></span> vol3<br><small>LUKS Encrypt</small></td>
+          <td>RAID 1</span><br><small><span data-feather="hard-drive"></span> Disk2, Disk3</small></td>
+          <td><span data-feather="folder"></span> media</td>
           <td><p class="text-danger text-center"><strong>ENCRYPTED</strong></p></td>
           <td>
             <div class="btn-group mr-2">
