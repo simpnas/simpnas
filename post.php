@@ -435,7 +435,7 @@ if(isset($_GET['install_unifi']))
       mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/");
       mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/config");
 
-      exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=always -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi");
+      exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=always -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi-controller");
       echo "<script>window.location = 'packages.php'</script>";
 }
 
