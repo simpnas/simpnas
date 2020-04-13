@@ -370,7 +370,7 @@ if(isset($_POST['install_lychee']))
   
        exec ("service samba reload");
 
-       exec("docker run -d --name lychee -p 4560:80 --restart=always -e PGID=$group_id -v /$config_mount_target/$config_docker_volume/docker/lychee/config:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
+       exec("docker run -d --name lychee -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee/config:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
        echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -382,7 +382,7 @@ if(isset($_POST['install_nextcloud']))
   mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/appdata");
   mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/data");
      
-  exec("docker run -d --name nextcloud -p 443:443 --restart=always -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
+  exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
   echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -415,9 +415,9 @@ if(isset($_POST['install_dokuwiki']))
   $volume = $_POST['volume'];
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/data");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/config");
 
-       exec("docker run -d --name dokuwiki -p 8080:8080 --restart=always -v /$config_mount_target/$config_docker_volume/docker/dokuwiki/data:/dokuwiki_data bambucha/dokuwiki");
+       exec("docker run -d --name dokuwiki -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki/config:/config linuxserver/dokuwiki");
        echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -426,7 +426,7 @@ if(isset($_GET['install_syncthing']))
       mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/");
       mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/config");
 
-      exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=always -v /$config_mount_target/$config_docker_volume/docker/syncthing/config:/config -v /$config_mount_target/$config_docker_volume/$config_home_dir/johnny:/$config_mount_target/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
+      exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/syncthing/config:/config -v /$config_mount_target/$config_docker_volume/$config_home_dir/johnny:/$config_mount_target/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
       echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -435,7 +435,7 @@ if(isset($_GET['install_unifi']))
       mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/");
       mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/config");
 
-      exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=always -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi-controller");
+      exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi-controller");
       echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -470,8 +470,18 @@ if(isset($_POST['install_transmission']))
   
        exec ("service smbd restart");
 
-       exec("docker run -d --name transmission --restart=always -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$config_docker_volume/docker/transmission/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
+       exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$config_docker_volume/docker/transmission/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
        echo "<script>window.location = 'packages.php'</script>";
+}
+
+if(isset($_GET['install_openvpn']))
+{
+
+  mkdir("/$config_mount_target/$config_docker_volume/docker/openvpn");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/openvvpn/config");
+
+  exec("docker run -d --name openvpn --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/openvpn/config:/config -p 943:943 -p 9443:9443 -p 1194:1194/udp linuxserver/openvpn-as");
+  echo "<script>window.location = 'packages.php'</script>";
 }
 
 

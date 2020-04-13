@@ -21,9 +21,28 @@
       </thead>
       <tbody>                
         <tr>
-          <td>Nextcloud</td>
+          <td>
+            Nextcloud
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/nextcloud")) { ?>
+            <small class="text-success">Installed</small>
+            <?php } ?>
+          </td>
           <td>Access and share your files anywhere over the Internet</td>
-          <td><a href="install_nextcloud.php" class="btn btn-outline-success"><span data-feather="download"></span></a></td>
+          <td>
+            <?php 
+              if(file_exists("/$config_mount_target/$config_docker_volume/docker/nextcloud")) {
+            ?>
+              <a href="https://<?php echo gethostname(); ?>:443" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+              <a href="uninstall_nextcloud.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+            <?php
+            }else{
+            ?>
+            <a href="install_nextcloud.php" class="btn btn-outline-success"><span data-feather="download"></span></a>
+            <?php  
+            }
+            ?>
+          </td>
         </tr>
         <tr>
           <td>
@@ -50,9 +69,28 @@
           </td>
         </tr>
         <tr>
-          <td>Dokuwiki</td>
+          <td>
+            Dokuwiki
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/dokuwiki")) { ?>
+            <small class="text-success">Installed</small>
+            <?php } ?>
+          </td>
           <td>Make some Notes</td>
-          <td><a href="install_dokuwiki.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+          <td>
+            <?php 
+              if(file_exists("/$config_mount_target/$config_docker_volume/docker/dokuwiki")) {
+            ?>
+              <a href="http://<?php echo gethostname(); ?>:85" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+              <a href="uninstall_dokuwiki.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+            <?php
+            }else{
+            ?>
+            <a href="install_dokuwiki.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+            <?php  
+            }
+            ?>
+          </td>
         </tr>
         <tr>
           <td>Syncthing</td>
@@ -108,14 +146,52 @@
           </td>
         </tr>
         <tr>
-          <td>OpenVPN Server</td>
+          <td>
+            OpenVPN Server
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/openvpn")) { ?>
+            <small class="text-success">Installed</small>
+            <?php } ?>
+          </td>
           <td>Turn your NAS a VPN Server</td>
-          <td><a href="post.php?install_openvpn" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+          <td>
+            <?php 
+              if(file_exists("/$config_mount_target/$config_docker_volume/docker/openvpn")) {
+            ?>
+              <a href="https://<?php echo gethostname(); ?>:943" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+              <a href="uninstall_openvpn.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+            <?php
+            }else{
+            ?>
+            <a href="post.php?install_openvpn" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+            <?php  
+            }
+            ?>
+          </td>
         </tr>
         <tr>
-          <td>Lychee</td>
+          <td>
+            Lychee
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/lychee")) { ?>
+            <small class="text-success">Installed</small>
+            <?php } ?>
+          </td>
           <td>Web Based Photo Viewer</td>
-          <td><a href="install_lychee.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+          <td>
+            <?php 
+              if(file_exists("/$config_mount_target/$config_docker_volume/docker/lychee")) {
+            ?>
+              <a href="http://<?php echo gethostname(); ?>:4560" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+              <a href="uninstall_lychee.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+            <?php
+            }else{
+            ?>
+            <a href="install_lychee.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+            <?php  
+            }
+            ?>
+          </td>
         </tr>
       </tbody>
     </table>
