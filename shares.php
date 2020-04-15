@@ -57,7 +57,7 @@
           <td>
           	<div class="btn-group mr-2">
         		<a href="share_edit.php?share=<?php echo $share; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
-        		<a href="share_delete.php?share=<?php echo $share; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+        		<a href="post.php?share_delete=<?php echo $share; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
       		</div>
       	  </td>
         </tr>
