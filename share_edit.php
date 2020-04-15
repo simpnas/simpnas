@@ -5,12 +5,11 @@
     if(isset($_GET['share'])){
   		$share = $_GET['share'];
   	}
-    $smb = file('/etc/samba/smb.conf');
-    $sambaConfigArray = parse_ini_file('/etc/samba/smb.conf', true );
-    $path = $sambaConfigArray[$share]['path'];
+    $shareConfigArray = parse_ini_file("/etc/samba/shares/$share");
+    $path = $shareConfigArray['path'];
     $mounted_volume = basename(dirname($path));
-    $comment = $sambaConfigArray[$share]['comment'];
-    $share_group = $sambaConfigArray[$share]['force group'];
+    $comment = $shareConfigArray['comment'];
+    $share_group = $shareConfigArray['force group'];
 
 ?>
 

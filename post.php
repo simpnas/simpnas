@@ -156,13 +156,19 @@ if(isset($_POST['share_add']))
   //exec ("chgrp root:$group '$share_path'");
   //exec ("chmod 2777 '$share_path'");
      
-       $myFile = "/etc/samba/smb.conf";
-	   $fh = fopen($myFile, 'a') or die("can't open file");
-	   $stringData = "\n[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770\n\n";
-	   fwrite($fh, $stringData);
-	   fclose($fh);
+     //$myFile = "/etc/samba/smb.conf";
+	   //$fh = fopen($myFile, 'a') or die("can't open file");
+	   //$stringData = "\n[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770\n\n";
+	   //fwrite($fh, $stringData);
+	   //fclose($fh);
+
+     $myFile = "/etc/samba/shares/$name";
+     $fh = fopen($myFile, 'w') or die("not able to write to file");
+     $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
+     fwrite($fh, $stringData);
+     fclose($fh);
   
-       exec ("service samba reload");
+       exec ("systemctl restart smbd");
   	   echo "<script>window.location = 'shares.php'</script>";
 }
 
@@ -187,10 +193,41 @@ if(isset($_POST['share_edit']))
   }
   if($name != $current_name){
     exec("mv $current_share_path $share_path");
+    exec("mv /etc/samba/shares/$current_name /etc/samba/shares/$name");
+    deleteLineInFile("/etc/samba/shares.conf","$current_name");
+    $myFile = "/etc/samba/shares.conf";
+     $fh = fopen($myFile, 'w') or die("not able to write to file");
+     $stringData = "\ninclude = /etc/samba/shares/$name\n";
+     fwrite($fh, $stringData);
+     fclose($fh);
+
   }
 
-       
-       echo "<script>window.location = 'shares.php'</script>";
+  $myFile = "/etc/samba/shares/$name";
+   $fh = fopen($myFile, 'w') or die("not able to write to file");
+   $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
+   fwrite($fh, $stringData);
+   fclose($fh);
+
+   exec ("systemctl restart smbd");
+
+   echo "<script>window.location = 'shares.php'</script>";
+}
+
+if(isset($_GET['share_delete']))
+{
+  $name = $_GET['share_delete'];
+
+  $volume = exec("find /$config_mount_target/*/$name -name '$name'");
+
+  exec ("rm -rf /$config_mount_target/$volume/$name");
+  exec ("rm -f /etc/samba/shares/$name");
+
+  deleteLineInFile("/etc/samba/shares.conf","$name");
+
+  exec ("systemctl restart smbd");
+  
+  echo "<script>window.location = 'disk_list.php'</script>";
 }
 
 if(isset($_GET['wipe_hdd']))

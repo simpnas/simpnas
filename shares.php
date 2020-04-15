@@ -24,50 +24,47 @@
         </tr>
       </thead>
       <tbody>
+        
         <?php
-        $smb = file('/etc/samba/smb.conf');
-        $sambaConfigArray = parse_ini_file('/etc/samba/smb.conf', true );
-        foreach ($smb as $line) {
-            $trim_line = trim ($line);
-            $begin_char = substr($trim_line, 0, 1);
-            $end_char = substr($trim_line, -1);
-              if (($begin_char == "#") || ($begin_char == ";" || $trim_line == "[global]")) { } 
-              elseif (($begin_char == "[") && ($end_char == "]")) { 
-              $section_name = substr ($trim_line, 1, -1);
-      
-              $path = $sambaConfigArray[$section_name]['path'];
-              $volume = basename(dirname($path));
-              $comment = $sambaConfigArray[$section_name]['comment'];
-              $group = $sambaConfigArray[$section_name]['force group'];
-              $free_space = disk_free_space("$path");
-              $total_space = disk_total_space("$path");
-              $used_space = $total_space - $free_space;
-              $free_space = formatSize($free_space);
-              $total_space = formatSize($total_space);
-              $used_space = formatSize($used_space);
-              if($section_name == "homes"){
-                $volume = "-";
-                $group = "-";
-                $used_space = "-";
-              }
+        
+        exec("ls /etc/samba/shares", $share_list);
+          foreach ($share_list as $share) {
+
+            $sambaConfigArray = parse_ini_file("/etc/samba/shares/$share");
+            $path = $sambaConfigArray['path'];
+            $volume = basename(dirname($path));
+            $comment = $sambaConfigArray['comment'];
+            $group = $sambaConfigArray['force group'];
+            $free_space = disk_free_space("$path");
+            $total_space = disk_total_space("$path");
+            $used_space = $total_space - $free_space;
+            $free_space = formatSize($free_space);
+            $total_space = formatSize($total_space);
+            $used_space = formatSize($used_space);
+            if($share == "$config_home_dir"){
+              $volume = "$config_home_volume";
+              $group = "-";
+              $used_space = "-";
+            }
         ?>
 
         <tr>
-          <td><?php echo $section_name; ?></td>
+          <td><?php echo $share; ?></td>
           <td><?php echo $comment; ?></td>
           <td><?php echo $volume; ?></td>
           <td><?php echo $group; ?></td>
           <td><?php echo $used_space; ?></td>
           <td>
           	<div class="btn-group mr-2">
-        		<a href="share_edit.php?share=<?php echo $section_name; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
-        		<button class="btn btn-outline-danger"><span data-feather="trash"></span></button>
+        		<a href="share_edit.php?share=<?php echo $share; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
+        		<a href="share_delete.php?share=<?php echo $share; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
       		</div>
       	  </td>
         </tr>
-        <?php } }?>
+        <?php } ?>
       </tbody>
     </table>
+
   </div>
 </main>
 
