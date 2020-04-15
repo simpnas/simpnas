@@ -14,8 +14,13 @@
 
   $free_memory = exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
   $free_memory = floor($free_memory);
+  $cpu_usage = exec("top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\([0-9.]*\)%* id.*/\1/' | awk '{print 100 - $1'%'}'");
+  $load_avg = exec("uptime |awk -F 'average:' '{ print $2}'");
+  $uptime = exec("uptime -p");
+  $system_time = exec("date");
 
-  $uptime = exec("uptime");
+  $cpu_model = exec("lscpu | grep 'Model name:' | sed -r 's/Model name:\s{1,}//g'");
+  $memory_installed = exec("dmidecode --type memory | grep Size | awk '{print $2}'");
 
   $num_of_users = count($username_array);
   $num_of_groups = count($group_array);
@@ -38,12 +43,62 @@
         </button>
       </div>
     </div>
-    <div class="alert alert-warning" role="alert">
-  This is a warning alert—check it out!
-  </div>
-  <div class="alert alert-success" role="alert">
-  System is running just fine!
-  </div>
+    <div class="row">
+      <div class="col-md-6">
+        <legend>Overview</legend>
+        <table class="table">
+          <tr>
+            <td>Hostname</td>
+            <td><?php echo gethostname(); ?></td>
+          </tr>
+
+          <tr>
+            <td>Processor:</td>
+            <td>
+              <?php echo $cpu_model; ?>
+              <div class="progress">
+                  <div class="progress-bar" role="progressbar" style="width: <?php echo $cpu_usage; ?>%">
+                  </div>
+              </div>
+              (<?php echo get_server_cpu_usage(); ?>% Used)
+
+            </td>
+          </tr>
+          <tr>
+            <td>Memory</td>
+            <td>
+              Total: <?php echo $memory_installed; ?> MB
+              <div class="progress">
+                  <div class="progress-bar" role="progressbar" style="width: <?php echo $free_memory; ?>%">
+                  </div>
+              </div>
+              (<?php echo $free_memory; ?>% Used)
+            </td>
+          </tr>
+          <tr>
+            <td>Load Average</td>
+            <td><?php echo $load_avg; ?></td>
+          <tr>
+            <td>System Time</td>
+            <td><?php echo $system_time; ?></td>
+          </tr>
+          <tr>
+            <td>Uptime</td>
+            <td><?php echo $uptime; ?></td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-md-6">
+        <?php
+          foreach($volume_array as $volume){
+        ?>
+            <div class="col-md-12">
+              <canvas id="doughnutChart<?php echo $volume; ?>"></canvas>
+            </div>
+        <?php } ?>
+      </div>
+    </div>
+
     <div class="row">
       <div class="col-md-2">
         <div class="card text-center">
@@ -78,26 +133,7 @@
   	</div>
   </div>
   </div>
-  <div class="row">
-    <div class="col-md-6">
-      RAM
-      <div class="progress">
-          <div class="progress-bar" role="progressbar" style="width: <?php echo $free_memory; ?>%"></div>
-      
-      </div>
-    </div>
-    </div>
-    <div class="row">
-    <?php
-    	foreach($volume_array as $volume){
-    ?>
-      	<div class="col-md-4">
-      		<canvas id="doughnutChart<?php echo $volume; ?>"></canvas>
-      	</div>
-    <?php	} ?>
-   	</div>
 
-    <canvas class="my-4" id="myChart" width="900" height="380"></canvas>
   </main>
 
 
@@ -138,33 +174,6 @@ options: {
 
 <?php } ?>
 
-  var ctx = document.getElementById("myChart");
-  var myChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-      datasets: [{
-        data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],
-        lineTension: 0,
-        backgroundColor: 'transparent',
-        borderColor: '#007bff',
-        borderWidth: 4,
-        pointBackgroundColor: '#007bff'
-      }]
-    },
-    options: {
-      scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: false
-          }
-        }]
-      },
-      legend: {
-        display: false,
-      }
-    }
-  });
 </script>
 
 <?php include("footer.php"); ?>

@@ -23,6 +23,12 @@
                 </tr>
               </thead>
               <tbody>
+                <tr>    
+                  <td>users <small class="text-secondary">(Cannot be removed)</small><br><br></td>
+                  <td>Everyone</td>
+                  <td></td>
+                  <td></td>
+                </tr>
                 <?php foreach ($group_array as $group) {
                 $users = exec("awk -F: '/^$group/ {print $4;}' /etc/group");
                 ?>
