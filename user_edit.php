@@ -26,10 +26,17 @@
 	    <input type="text" class="form-control" name="username" value="<?php echo $username; ?>" readonly>
 	  </div>
 	  <div class="form-group">
-	    <label for="pwd">Password:</label>
+	    <label>Password:</label>
 	    <input type="password" class="form-control" name="password">
 	  </div>
 	  <legend>Groups</legend>
+
+	  <div class="form-group">
+	  	<div class="custom-control custom-checkbox">
+			<input type="checkbox" class="custom-control-input" checked>
+			<label class="custom-control-label" for="customCheck">users</label>
+		</div>
+	  </div>
 	  
 	  <?php foreach ($group_array as $group) { ?>
 	  		

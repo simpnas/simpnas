@@ -44,8 +44,8 @@ if(isset($_POST['user_edit']))
   $group_count = count($group);
   if(!empty($_POST['password'])){
     $password = $_POST['password'];
-    exec ("echo -e '$password\n$password' | passwd $username ");
-    exec ("echo -e '$password\n$password' | smbpasswd $username");
+    exec ("echo '$password\n$password' | passwd $username");
+    exec ("echo '$password\n$password' | smbpasswd $username");
   }
   
   exec ("usermod -G $group_array $username ");

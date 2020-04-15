@@ -26,6 +26,13 @@
 	  </div>
 	  <legend>Groups</legend>
 	  
+	  <div class="form-group">
+	  	<div class="custom-control custom-checkbox">
+			<input type="checkbox" class="custom-control-input" checked>
+			<label class="custom-control-label" for="customCheck">users</label>
+		</div>
+	  </div>
+	  
 	  <?php foreach ($group_array as $group) { ?>
 	  <div class="form-group">
 	  <div class="custom-control custom-checkbox">
