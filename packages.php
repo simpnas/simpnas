@@ -34,6 +34,7 @@
               if(file_exists("/$config_mount_target/$config_docker_volume/docker/nextcloud")) {
             ?>
               <a href="https://<?php echo gethostname(); ?>:443" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+              <a href="update_nextcloud.php" class="btn btn-outline-success"><span data-feather="thumbs-up"></span></a>
               <a href="uninstall_nextcloud.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
             <?php
             }else{
@@ -108,7 +109,7 @@
           <td>Torrent downloads</td>
           <td>
             <?php 
-              if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi")) {
+              if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission")) {
             ?>
               <a href="http://<?php echo gethostname(); ?>:9091" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
               <a href="uninstall_transmission.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>

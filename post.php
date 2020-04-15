@@ -303,46 +303,112 @@ if(isset($_GET['delete_group']))
   echo "<script>window.location = 'groups.php'</script>";
 }
 
-if(isset($_POST['install_jellyfin']))
-{
+if(isset($_POST['install_jellyfin'])){
   $volume = $_POST['volume'];
   
-  exec ("addgroup media");
-  $group_id = exec("getent group media | cut -d: -f3");
+  if(!file_exists("/$config_mount_target/$config_docker_volume/jellyfin")) {
+    exec ("addgroup media");
+    $group_id = exec("getent group media | cut -d: -f3");
 
-  mkdir("/$config_mount_target/$volume/media");
-  mkdir("/$config_mount_target/$volume/media/tvshows");
-  mkdir("/$config_mount_target/$volume/media/movies");
-  mkdir("/$config_mount_target/$volume/media/music");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin/config");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache");
+    mkdir("/$config_mount_target/$volume/media");
+    mkdir("/$config_mount_target/$volume/media/tvshows");
+    mkdir("/$config_mount_target/$volume/media/movies");
+    mkdir("/$config_mount_target/$volume/media/music");
+    mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin");
+    mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin/config");
+    mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache");
 
-  chgrp("/$config_mount_target/$volume/media","media");
-  chgrp("/$config_mount_target/$volume/media/tvshows","media");
-  chgrp("/$config_mount_target/$volume/media/movies","media");
-  chgrp("/$config_mount_target/$volume/media/music","media");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin","media");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin/config","media");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache","media");
-  
-  chmod("/$config_mount_target/$volume/media",0770);
-  chmod("/$config_mount_target/$volume/media/tvshows",0770);
-  chmod("/$config_mount_target/$volume/media/movies",0770);
-  chmod("/$config_mount_target/$volume/media/music",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin/config",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache",0770);
-     
-  $myFile = "/etc/samba/smb.conf";
-  $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "\n[media]\n   comment = Media files used by Jellyfin\n   path = /$config_mount_target/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770\n\n";
-  fwrite($fh, $stringData);
-  fclose($fh);
-  
-  exec ("service smbd restart");
+    chgrp("/$config_mount_target/$volume/media","media");
+    chgrp("/$config_mount_target/$volume/media/tvshows","media");
+    chgrp("/$config_mount_target/$volume/media/movies","media");
+    chgrp("/$config_mount_target/$volume/media/music","media");
+    chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin","media");
+    chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin/config","media");
+    chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache","media");
+    
+    chmod("/$config_mount_target/$volume/media",0770);
+    chmod("/$config_mount_target/$volume/media/tvshows",0770);
+    chmod("/$config_mount_target/$volume/media/movies",0770);
+    chmod("/$config_mount_target/$volume/media/music",0770);
+    chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin",0770);
+    chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin/config",0770);
+    chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache",0770);
+       
+    $myFile = "/etc/samba/smb.conf";
+    $fh = fopen($myFile, 'a') or die("can't open file");
+    $stringData = "\n[media]\n   comment = Media files used by Jellyfin\n   path = /$config_mount_target/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770\n\n";
+    fwrite($fh, $stringData);
+    fclose($fh);
+    
+    exec ("service smbd restart");
+    exec ("service nmbd restart");
+
+  }
 
   exec("docker run -d --name jellyfin --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin/config:/config -v /$config_mount_target/$volume/media/tvshows:/tvshows -v /$config_mount_target/$volume/media/movies:/movies -v /$config_mount_target/$volume/media/music:/music -v /$config_mount_target/$config_docker_volume/docker/jellyfin/cache:/cache jellyfin/jellyfin");
+  
+  echo "<script>window.location = 'packages.php'</script>";
+}
+
+if(isset($_POST['uninstall_jellyfin'])){
+  $volume = $_POST['volume'];
+  
+  if(!file_exists("/$config_mount_target/$config_docker_volume/jellyfin")) {
+    exec ("addgroup media");
+    $group_id = exec("getent group media | cut -d: -f3");
+
+    mkdir("/$config_mount_target/$volume/media");
+    mkdir("/$config_mount_target/$volume/media/tvshows");
+    mkdir("/$config_mount_target/$volume/media/movies");
+    mkdir("/$config_mount_target/$volume/media/music");
+    mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin");
+    mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin/config");
+    mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache");
+
+    chgrp("/$config_mount_target/$volume/media","media");
+    chgrp("/$config_mount_target/$volume/media/tvshows","media");
+    chgrp("/$config_mount_target/$volume/media/movies","media");
+    chgrp("/$config_mount_target/$volume/media/music","media");
+    chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin","media");
+    chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin/config","media");
+    chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache","media");
+    
+    chmod("/$config_mount_target/$volume/media",0770);
+    chmod("/$config_mount_target/$volume/media/tvshows",0770);
+    chmod("/$config_mount_target/$volume/media/movies",0770);
+    chmod("/$config_mount_target/$volume/media/music",0770);
+    chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin",0770);
+    chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin/config",0770);
+    chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache",0770);
+       
+    $myFile = "/etc/samba/smb.conf";
+    $fh = fopen($myFile, 'a') or die("can't open file");
+    $stringData = "\n[media]\n   comment = Media files used by Jellyfin\n   path = /$config_mount_target/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770\n\n";
+    fwrite($fh, $stringData);
+    fclose($fh);
+    
+    exec ("service smbd restart");
+    exec ("service nmbd restart");
+
+  }
+
+  exec("docker run -d --name jellyfin --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin/config:/config -v /$config_mount_target/$volume/media/tvshows:/tvshows -v /$config_mount_target/$volume/media/movies:/movies -v /$config_mount_target/$volume/media/music:/music -v /$config_mount_target/$config_docker_volume/docker/jellyfin/cache:/cache jellyfin/jellyfin");
+  
+  echo "<script>window.location = 'packages.php'</script>";
+}
+
+if(isset($_GET['update_jellyfin'])){
+
+  $group_id = exec("getent group media | cut -d: -f3");
+  $volume_path = exec("find /$config_mount_target/*/media -name 'media'");
+
+  exec("docker pull jellyfin/jellyfin");
+  exec("docker stop jellyfin");
+  exec("docker rm dokuwiki");
+  
+  exec("docker run -d --name jellyfin --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin/config:/config -v $volume_path/tvshows:/tvshows -v $volume_path/movies:/movies -v $volume_path/music:/music -v /$config_mount_target/$config_docker_volume/docker/jellyfin/cache:/cache jellyfin/jellyfin");
+
+  exec("docker image prune");
   
   echo "<script>window.location = 'packages.php'</script>";
 }
@@ -374,6 +440,22 @@ if(isset($_POST['install_lychee']))
        echo "<script>window.location = 'packages.php'</script>";
 }
 
+if(isset($_GET['update_lychee'])){
+
+  $group_id = exec("getent group photos | cut -d: -f3");
+  $volume_path = exec("find /$config_mount_target/*/photos -name 'photos'");
+
+  exec("docker pull linuxserver/lychee");
+  exec("docker stop lychee");
+  exec("docker rm lychee");
+
+  exec("docker run -d --name lychee -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee/config:/config -v $volume_path:/pictures linuxserver/lychee");
+
+  exec("docker image prune");
+  
+  echo "<script>window.location = 'packages.php'</script>";
+}
+
 if(isset($_POST['install_nextcloud']))
 {
   $volume = $_POST['volume'];
@@ -384,6 +466,20 @@ if(isset($_POST['install_nextcloud']))
      
   exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
   echo "<script>window.location = 'packages.php'</script>";
+}
+
+if(isset($_GET['update_nextcloud'])){
+
+  exec("docker pull linuxserver/nextcloud");
+  exec("docker stop nextcloud");
+  exec("docker rm nextcloud");
+
+  exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
+
+  exec("docker image prune");
+  
+  echo "<script>window.location = 'packages.php'</script>";
+
 }
 
 if(isset($_POST['group_modify_submit']))
@@ -421,6 +517,20 @@ if(isset($_POST['install_dokuwiki']))
        echo "<script>window.location = 'packages.php'</script>";
 }
 
+if(isset($_GET['update_dokuwiki'])){
+
+  exec("docker pull linuxserver/dokuwiki");
+  exec("docker stop dokuwiki");
+  exec("docker rm dokuwiki");
+
+  exec("docker run -d --name dokuwiki -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki/config:/config linuxserver/dokuwiki");
+
+  exec("docker image prune");
+  
+  echo "<script>window.location = 'packages.php'</script>";
+
+}
+
 if(isset($_GET['install_syncthing']))
 {
       mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/");
@@ -437,6 +547,20 @@ if(isset($_GET['install_unifi']))
 
       exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi-controller");
       echo "<script>window.location = 'packages.php'</script>";
+}
+
+if(isset($_GET['update_unifi'])){
+
+  exec("docker pull linuxserver/unifi-controller");
+  exec("docker stop unifi");
+  exec("docker rm unifi");
+
+  exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi-controller");
+
+  exec("docker image prune");
+  
+  echo "<script>window.location = 'packages.php'</script>";
+
 }
 
 
@@ -472,6 +596,23 @@ if(isset($_POST['install_transmission']))
 
        exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$config_docker_volume/docker/transmission/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
        echo "<script>window.location = 'packages.php'</script>";
+}
+
+if(isset($_GET['update_transmission'])){
+
+  $group_id = exec("getent group download | cut -d: -f3");
+  $volume_path = exec("find /$config_mount_target/*/downloads -name 'downloads'");
+
+  exec("docker pull linuxserver/transmission");
+  exec("docker stop transmission");
+  exec("docker rm transmission");
+
+  exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$config_docker_volume/docker/transmission/watch:/watch -v $volume_path:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
+
+  exec("docker image prune");
+  
+  echo "<script>window.location = 'packages.php'</script>";
+
 }
 
 if(isset($_GET['install_openvpn']))
