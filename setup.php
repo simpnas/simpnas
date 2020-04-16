@@ -62,17 +62,20 @@ if(file_exists('config.php')){
 	    <label>Disk:</label>
 	    <select class="form-control" name="disk">
 	  	<?php
-			exec("smartctl --scan|awk '{ print $1 '}", $drive_list);
+			exec("smartctl --scan | awk '{print $1}'", $drive_list);
 			foreach ($drive_list as $hdd) {
 				$hdd_short_name = basename($hdd);
                 $hdd_serial = exec("smartctl -i $hdd | grep Serial|awk '{ print $3 '}");
                 $hdd_model = exec("smartctl -i $hdd | grep 'Device Model:'|cut -d' ' -f 7-");
                 $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity' | cut -d' ' -f 8-");
-	              $hdd_label_size = str_replace(["["], "", $hdd_label_size);
-	              $hdd_label_size = str_replace(["]"], "", $hdd_label_size);
-	              $hdd_label_size = str_replace([" "], "", $hdd_label_size);
-	              $hdd_label_size = str_replace([".00"], "", $hdd_label_size);
-	              $hdd_label_size = str_replace([".0"], "", $hdd_label_size);
+				$hdd_label_size = str_replace(["["], "", $hdd_label_size);
+				$hdd_label_size = str_replace(["]"], "", $hdd_label_size);
+				$hdd_label_size = str_replace([" "], "", $hdd_label_size);
+				$hdd_label_size = str_replace([".00"], "", $hdd_label_size);
+				$hdd_label_size = str_replace([".0"], "", $hdd_label_size);
+				{
+					unset($drive_list['sda']);
+				}
 			?>
 			<option value="<?php echo $hdd; ?>"><?php echo "$hdd_short_name - $hdd_model ($hdd_label_size)"; ?></option>	
 

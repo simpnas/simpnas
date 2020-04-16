@@ -14,13 +14,15 @@
 </nav>
 
   <h2>Add Volume</h2>
+
   <form method="post" action="post.php">
 	  <div class="form-group">
 	    <label>Disk:</label>
 	    <select class="form-control" name="disk">
 	  	<?php
-			exec("smartctl --scan|awk '{ print $1 '}", $drive_list);
+			exec("smartctl --scan | awk '{print $1}'", $drive_list);
 			foreach ($drive_list as $hdd) {
+				if( $hdd == '/dev/sda' )continue;
 				$hdd_short_name = basename($hdd);
                 $hdd_serial = exec("smartctl -i $hdd | grep Serial|awk '{ print $3 '}");
                 $hdd_model = exec("smartctl -i $hdd | grep 'Device Model:'|cut -d' ' -f 7-");
@@ -30,6 +32,10 @@
 	              $hdd_label_size = str_replace([" "], "", $hdd_label_size);
 	              $hdd_label_size = str_replace([".00"], "", $hdd_label_size);
 	              $hdd_label_size = str_replace([".0"], "", $hdd_label_size);
+	              unset($drive_list['/dev/sda']);
+	            
+					
+				
 			?>
 			<option value="<?php echo $hdd; ?>"><?php echo "$hdd_short_name - $hdd_model ($hdd_label_size)"; ?></option>	
 

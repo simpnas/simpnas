@@ -479,7 +479,7 @@ if(isset($_POST['install_lychee']))
   
        exec ("service samba reload");
 
-       exec("docker run -d --name lychee -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee/config:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
+       exec("no hupdocker run -d --name lychee -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee/config:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
        echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -588,7 +588,7 @@ if(isset($_GET['install_unifi']))
       mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/");
       mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/config");
 
-      exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi-controller");
+      exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi-controller > /dev/null &");
       echo "<script>window.location = 'packages.php'</script>";
 }
 
