@@ -12,6 +12,7 @@
 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 	<?php echo $current_time_zone; ?>
   <h2>Date and Time</h2>
+  <div class="alert alert-danger">Work In Progress! Not Functioning!</div>
   <form method="post" action="post.php">
 	  <div class="form-group">
 	    <label>Timezone:</label>

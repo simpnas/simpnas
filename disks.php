@@ -11,7 +11,7 @@
 
            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
             <h2>Disks</h2>
-            <button class="btn btn-outline-secondary">Refresh</button>
+            <a href="disks.php" class="btn btn-outline-secondary">Refresh</a>
           </div>
 
           <div class="table-responsive">

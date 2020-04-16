@@ -22,7 +22,7 @@
 	  	<?php
 			exec("smartctl --scan | awk '{print $1}'", $drive_list);
 			foreach ($drive_list as $hdd) {
-				if( $hdd == '/dev/sda' )continue;
+				if( $hdd == "$config_os_disk" )continue;
 				$hdd_short_name = basename($hdd);
                 $hdd_serial = exec("smartctl -i $hdd | grep Serial|awk '{ print $3 '}");
                 $hdd_model = exec("smartctl -i $hdd | grep 'Device Model:'|cut -d' ' -f 7-");

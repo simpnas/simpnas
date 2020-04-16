@@ -8,7 +8,7 @@
   <h2>General Settings</h2>
   <form method="post" action="post.php">
 	  <div class="form-group">
-	  		<label>Name</label>
+	  		<label>Hostname</label>
 	  		<input type="text" class="form-control" name="hostname" value="<?php echo gethostname(); ?>">
 	  </div>
 	  <button type="submit" name="general_edit" class="btn btn-primary">Submit</button>

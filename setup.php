@@ -1,12 +1,13 @@
 <?php
 
-if(file_exists('config.php')){
-  header("Location: login.php");
-}
+	if(file_exists('config.php')){
+	  header("Location: login.php");
+	}
+
+	include("functions.php");
+	$os_disk = exec("findmnt -n -o SOURCE --target /");
 
 ?>
-
-<?php include("functions.php"); ?>
 
 <!doctype html>
 <html lang="en">
@@ -19,10 +20,10 @@ if(file_exists('config.php')){
     <title></title>
 
     <!-- Bootstrap core CSS -->
-    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="dashboard.css" rel="stylesheet">
+    <link href="css/dashboard.css" rel="stylesheet">
   </head>
 
   <body>
@@ -64,6 +65,7 @@ if(file_exists('config.php')){
 	  	<?php
 			exec("smartctl --scan | awk '{print $1}'", $drive_list);
 			foreach ($drive_list as $hdd) {
+				if( $hdd == "$os_disk" )continue;
 				$hdd_short_name = basename($hdd);
                 $hdd_serial = exec("smartctl -i $hdd | grep Serial|awk '{ print $3 '}");
                 $hdd_model = exec("smartctl -i $hdd | grep 'Device Model:'|cut -d' ' -f 7-");

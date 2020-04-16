@@ -15,8 +15,8 @@
 
   <h2>Install Dokuwiki</h2>
   <ul>
-  	<li>We will also create a directory called dokuwiki under the docker volume.</li>
-  	<li>When Installation is done you can access dokuwiki by going to http://<?php echo gethostname(); ?>:8080</li>
+  	<li>/<?php echo $config_docker_volume; ?>/docker/dokuwiki will be created.</li>
+  	<li>Once installed dokuwiki can be accessed by visiting http://<?php echo gethostname(); ?>:8080 or http://<?php echo $_SERVER['SERVER_ADDR']; ?>:8080</li>
  
   <form method="post" action="post.php">
 
