@@ -27,7 +27,7 @@ if(!file_exists('config.php')){
 
   <body>
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#"><span data-feather="hard-drive"></span> <?php echo gethostname(); ?></a>
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="index.php"><span data-feather="hard-drive"></span> <?php echo gethostname(); ?></a>
       <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
           <a class="nav-link" href="login.php">Logout <span data-feather="log-out"></span></a>
