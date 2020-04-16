@@ -59,7 +59,7 @@
               if(file_exists("/$config_mount_target/$config_docker_volume/docker/jellyfin")) {
             ?>
               <a href="http://<?php echo gethostname(); ?>:8096" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-              <a href="uninstall_jellyfin.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+              <a href="post.php?uninstall_jellyfin" class="btn btn-outline-danger"><span data-feather="x"></span></a>
             <?php
             }else{
             ?>
