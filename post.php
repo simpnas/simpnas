@@ -2,20 +2,14 @@
 
   include("config.php");
   include("functions.php"); 
-  
-?>
 
-<?php
-
-if(isset($_GET['upgrade_simpnas']))
-{
-  exec ("cd /simpnas");
-  exec ("git pull origin master");
-  echo "<script>window.location = 'dashboard.php'</script>";
+if(isset($_GET['upgrade_simpnas'])){
+  exec("cd /simpnas");
+  exec("git pull origin master");
+  echo "<script>window.location = 'index.php'</script>";
 }
 
-if(isset($_POST['user_add']))
-{
+if(isset($_POST['user_add'])){
   $username = $_POST['username'];
   $password = $_POST['password'];
 
@@ -25,32 +19,38 @@ if(isset($_POST['user_add']))
  
   exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -p $password");
   exec ("echo '$password\n$password' | smbpasswd -a $username");
+  
   if(isset($_POST['group'])){
   	$group_array = $_POST['group'];
   	foreach($group_array as $group){
     	exec ("adduser $username $group");
   	}
   }
+  
   exec ("chmod -R 700 /$config_mount_target/$config_home_volume/$config_home_dir/$username");
   
   echo "<script>window.location = 'users.php'</script>";
 }
 
-if(isset($_POST['user_edit']))
-{
+if(isset($_POST['user_edit'])){
   $username = $_POST['username'];
   $group_array = implode(",", $_POST['group']);
   
-  $group_count = count($group);
+  //$group_count = count($group);
   if(!empty($_POST['password'])){
     $password = $_POST['password'];
     exec ("echo '$password\n$password' | passwd $username");
     exec ("echo '$password\n$password' | smbpasswd $username");
   }
-  
-  exec ("usermod -G $group_array $username ");
+  if(!empty($group_array)){
+    exec ("usermod -G $group_array $username");
+  }else{
+    exec ("usermod -G users $username");
+    echo "hehehe";
+  }
+  print_r($group_array);
 
-  echo "<script>window.location = 'users.php'</script>";
+  //echo "<script>window.location = 'users.php'</script>";
 }
 
 if(isset($_POST['group_edit']))
