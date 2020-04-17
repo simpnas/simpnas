@@ -620,6 +620,53 @@ if(isset($_GET['uninstall_unifi'])){
     echo "<script>window.location = 'packages.php'</script>";
 }
 
+if(isset($_POST['install_transmission_ovpn']))
+{
+  $volume = $_POST['volume'];
+  
+  exec ("addgroup download");
+  $group_id = exec("getent group download | cut -d: -f3");
+
+  mkdir("/$config_mount_target/$volume/downloads");
+  mkdir("/$config_mount_target/$volume/downloads/complete");
+  mkdir("/$config_mount_target/$volume/downloads/incomplete");
+  mkdir("/$config_mount_target/$volume/downloads/watch");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/transmission");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/transmission/config");
+
+  chgrp("/$config_mount_target/$volume/downloads","download");
+  chgrp("/$config_mount_target/$volume/downloads/complete","download");
+  chgrp("/$config_mount_target/$volume/downloads/incomplete","download");
+  chgrp("/$config_mount_target/$volume/downloads/watch","download");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/transmission","download");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/transmission/config","download");
+
+  chmod("/$config_mount_target/$volume/downloads",0770);
+  chmod("/$config_mount_target/$volume/downloads/complete",0770);
+  chmod("/$config_mount_target/$volume/downloads/incomplete",0770);
+  chmod("/$config_mount_target/$volume/downloads/watch",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/transmission",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/transmission/config",0770);
+  
+  $myFile = "/etc/samba/shares/downloads";
+     $fh = fopen($myFile, 'w') or die("not able to write to file");
+     $stringData = "[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /$config_mount_target/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
+     fwrite($fh, $stringData);
+     fclose($fh);
+
+     $myFile = "/etc/samba/shares.conf";
+     $fh = fopen($myFile, 'a') or die("not able to write to file");
+     $stringData = "\ninclude = /etc/samba/shares/downloads";
+     fwrite($fh, $stringData);
+     fclose($fh);
+    
+    exec ("systemctl restart smbd");
+
+       exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=192.168.0.0/16 PGID=$group_id -e PUID=0 --log-driver json-file --log-opt max-size=10m -v /etc/localtime:/etc/localtime:ro -v /$config_mount_target/$volume/downloads:/data -p 9091:9091 haugene/transmission-openvpn");
+       echo "<script>window.location = 'packages.php'</script>";
+}
+
+
 
 if(isset($_POST['install_transmission']))
 {
