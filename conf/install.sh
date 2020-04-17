@@ -10,12 +10,12 @@ echo Downloading the latest simpnas from GIT repo....
 git clone https://github.com/johnnyq/simpnas.git
 echo Making backup of existing smb.conf, copying new smb.conf to /etc/samba
 mv /etc/samba/smb.conf /etc/samba/smb.conf.ori
-cp /simpnas/smb.conf /etc/samba/
+cp /simpnas/conf/smb.conf /etc/samba/
 touch /etc/samba/shares.conf
 mkdir /etc/samba/shares
 systemctl restart smbd
 echo Installing and enabling simpnas service at bootup
-cp /simpnas/simpnas.service /etc/systemd/system/
+cp /simpnas/conf/simpnas.service /etc/systemd/system/
 chmod 755 /etc/systemd/system/simpnas.service
 systemctl enable simpnas
 echo Starting SimpNAS Web UI...

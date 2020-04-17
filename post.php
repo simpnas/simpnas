@@ -46,11 +46,10 @@ if(isset($_POST['user_edit'])){
     exec ("usermod -G $group_array $username");
   }else{
     exec ("usermod -G users $username");
-    echo "hehehe";
   }
   print_r($group_array);
 
-  //echo "<script>window.location = 'users.php'</script>";
+  echo "<script>window.location = 'users.php'</script>";
 }
 
 if(isset($_POST['group_edit']))
@@ -59,6 +58,30 @@ if(isset($_POST['group_edit']))
   $group = $_POST['group'];
 
   exec ("groupmod -n $group $old_group");
+
+  echo "<script>window.location = 'groups.php'</script>";
+}
+
+if(isset($_POST['group_modify_submit']))
+{
+  $group_id = check_input($_POST['group_id']);
+  $group_name = check_input(ucwords($_POST['group_name']));
+  $security = check_input($_POST['security']);
+
+    $sql = "UPDATE groups SET group_name = '$group_name', security = '$security' WHERE group_id = '$group_id'";
+
+    mysql_query($sql);
+    echo "
+    <script>
+    window.location = '$document_root/group_list.php'
+  </script>";
+}
+
+if(isset($_GET['delete_group']))
+{
+  $group = $_GET['delete_group'];
+
+  exec("delgroup $group");
 
   echo "<script>window.location = 'groups.php'</script>";
 }
@@ -270,39 +293,6 @@ if(isset($_GET['kill_wipe']))
   echo "<script>window.location = 'disk_list.php'</script>";
 }
 
-if(isset($_POST['website_add']))
-{
-  $website = $_POST['website'];
-  $username = $_POST['username'];
-
-  exec ("sudo mkdir /webstore/$website");
-  exec ("sudo mkdir /webstore/$website/logs");
-  exec ("sudo mkdir /webstore/$website/public");
-  exec ("sudo touch /webstore/$website/logs/access.log");
-  exec ("sudo touch /webstore/$website/logs/error.log");
-  exec ("sudo chown -R $username:www-data /webstore/$website");
-  exec ("sudo chmod -R 755 /webstore/$website");
-
-  echo "<script>window.location = 'website_list.php'</script>";
-}
-
-if(isset($_POST['user_change_password_submit']))
-{
-	$user_id = check_input($_POST['user_id']);
-	$password = check_input($_POST['password']);
-
-    $sql = "UPDATE users SET password = '$password' WHERE user_id = '$user_id'";
-   echo $sql;
-    mysql_query($sql);
-    echo "    <div class='bs-example'>
-      <div class='alert alert-warning fade in'>
-        <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
-        Password Updated!
-      </div>
-    </div>";
-
-}
-
 if(isset($_GET['delete_user']))
 {
 	$username = $_GET['delete_user'];
@@ -345,6 +335,8 @@ if(isset($_GET['delete_group']))
 
   echo "<script>window.location = 'groups.php'</script>";
 }
+
+//APP SECTION
 
 if(isset($_POST['install_jellyfin'])){
   $volume = $_POST['volume'];
@@ -398,6 +390,22 @@ if(isset($_POST['install_jellyfin'])){
   echo "<script>window.location = 'packages.php'</script>";
 }
 
+if(isset($_GET['update_jellyfin'])){
+
+  $group_id = exec("getent group media | cut -d: -f3");
+  $volume_path = exec("find /$config_mount_target/*/media -name 'media'");
+
+  exec("docker pull jellyfin/jellyfin");
+  exec("docker stop jellyfin");
+  exec("docker rm jellyfin");
+  
+  exec("docker run -d --name jellyfin --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin/config:/config -v $volume_path/tvshows:/tvshows -v $volume_path/movies:/movies -v $volume_path/music:/music -v /$config_mount_target/$config_docker_volume/docker/jellyfin/cache:/cache jellyfin/jellyfin");
+
+  exec("docker image prune");
+  
+  echo "<script>window.location = 'packages.php'</script>";
+}
+
 if(isset($_GET['uninstall_jellyfin'])){
     //stop and delete docker container
     exec("docker stop jellyfin");
@@ -417,22 +425,6 @@ if(isset($_GET['uninstall_jellyfin'])){
     exec ("systemctl restart smbd");
     //redirect back to packages
     echo "<script>window.location = 'packages.php'</script>";
-}
-
-if(isset($_GET['update_jellyfin'])){
-
-  $group_id = exec("getent group media | cut -d: -f3");
-  $volume_path = exec("find /$config_mount_target/*/media -name 'media'");
-
-  exec("docker pull jellyfin/jellyfin");
-  exec("docker stop jellyfin");
-  exec("docker rm jellyfin");
-  
-  exec("docker run -d --name jellyfin --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin/config:/config -v $volume_path/tvshows:/tvshows -v $volume_path/movies:/movies -v $volume_path/music:/music -v /$config_mount_target/$config_docker_volume/docker/jellyfin/cache:/cache jellyfin/jellyfin");
-
-  exec("docker image prune");
-  
-  echo "<script>window.location = 'packages.php'</script>";
 }
 
 if(isset($_POST['install_lychee']))
@@ -484,15 +476,40 @@ if(isset($_GET['update_lychee'])){
   echo "<script>window.location = 'packages.php'</script>";
 }
 
-if(isset($_POST['install_nextcloud']))
+if(isset($_GET['uninstall_lychee'])){
+    //stop and delete docker container
+    exec("docker stop lychee");
+    exec("docker rm lychee");
+    //delete media group
+    exec ("delgroup photos");
+    //get path to media directory
+    $path = exec("find /$config_mount_target/*/photos -name photos");
+    //delete media directory
+    exec ("rm -rf $path"); //Delete
+    //delete docker config
+    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/lychee");
+    //delete samba share
+    exec ("rm -f /etc/samba/shares/photos");
+    deleteLineInFile("/etc/samba/shares.conf","photos");
+    //restart samba
+    exec ("systemctl restart smbd");
+    //redirect back to packages
+    echo "<script>window.location = 'packages.php'</script>";
+}
+
+if(isset($_GET['install_nextcloud']))
 {
-  $volume = $_POST['volume'];
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud");
   mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/appdata");
   mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/data");
+
+  mkdir("/$config_mount_target/$config_docker_volume/docker/mariadb");
+
+  exec("docker run -d --name mariadb -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb:/config linuxserver/mariadb");
      
   exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
+
   echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -510,28 +527,18 @@ if(isset($_GET['update_nextcloud'])){
 
 }
 
-if(isset($_POST['group_modify_submit']))
-{
-  $group_id = check_input($_POST['group_id']);
-  $group_name = check_input(ucwords($_POST['group_name']));
-  $security = check_input($_POST['security']);
+if(isset($_GET['uninstall_nextcloud'])){
+    //stop and delete docker container
+    exec("docker stop nextcloud");
+    exec("docker rm nextcloud");
+    exec("docker stop mariadb");
+    exec("docker rm mariadb");
 
-    $sql = "UPDATE groups SET group_name = '$group_name', security = '$security' WHERE group_id = '$group_id'";
-
-    mysql_query($sql);
-    echo "
-    <script>
-    window.location = '$document_root/group_list.php'
-  </script>";
-}
-
-if(isset($_GET['delete_group']))
-{
-  $group = $_GET['delete_group'];
-
-  exec("delgroup $group");
-
-  echo "<script>window.location = 'groups.php'</script>";
+    //delete docker config
+    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/nextcloud");
+    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb");
+    //redirect back to packages
+    echo "<script>window.location = 'packages.php'</script>";
 }
 
 if(isset($_POST['install_dokuwiki']))
@@ -557,6 +564,17 @@ if(isset($_GET['update_dokuwiki'])){
   
   echo "<script>window.location = 'packages.php'</script>";
 
+}
+
+if(isset($_GET['uninstall_dokuwiki'])){
+    //stop and delete docker container
+    exec("docker stop dokuwiki");
+    exec("docker rm dokuwiki");
+
+    //delete docker config
+    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/dokuwiki");
+    //redirect back to packages
+    echo "<script>window.location = 'packages.php'</script>";
 }
 
 if(isset($_GET['install_syncthing']))
@@ -589,6 +607,17 @@ if(isset($_GET['update_unifi'])){
   
   echo "<script>window.location = 'packages.php'</script>";
 
+}
+
+if(isset($_GET['uninstall_unifi'])){
+    //stop and delete docker container
+    exec("docker stop unifi");
+    exec("docker rm unifi");
+
+    //delete docker config
+    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi");
+    //redirect back to packages
+    echo "<script>window.location = 'packages.php'</script>";
 }
 
 
@@ -649,16 +678,123 @@ if(isset($_GET['update_transmission'])){
 
 }
 
+if(isset($_GET['uninstall_transmission'])){
+    //stop and delete docker container
+    exec("docker stop transmission");
+    exec("docker rm transmission");
+    //delete group
+    exec ("delgroup download");
+    //get path to media directory
+    $path = exec("find /$config_mount_target/*/downloads -name downloads");
+    //delete directory
+    exec ("rm -rf $path"); //Delete
+    //delete docker config
+    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/transmission");
+    //delete samba share
+    exec ("rm -f /etc/samba/shares/downloads");
+    deleteLineInFile("/etc/samba/shares.conf","downloads");
+    //restart samba
+    exec ("systemctl restart smbd");
+    //redirect back to packages
+    echo "<script>window.location = 'packages.php'</script>";
+}
+
+if(isset($_POST['install_deluge']))
+{
+  $volume = $_POST['volume'];
+  
+  exec ("addgroup download");
+  $group_id = exec("getent group download | cut -d: -f3");
+
+  mkdir("/$config_mount_target/$volume/downloads");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/deluge");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/deluge/config");
+
+  chgrp("/$config_mount_target/$volume/downloads","download");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/deluge","download");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/deluge/config","download");
+
+  chmod("/$config_mount_target/$volume/downloads",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/deluge",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/deluge/config",0770);
+  
+  $myFile = "/etc/samba/shares/downloads";
+     $fh = fopen($myFile, 'w') or die("not able to write to file");
+     $stringData = "[downloads]\n   comment = Torrent Downloads used by Deluge\n   path = /$config_mount_target/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
+     fwrite($fh, $stringData);
+     fclose($fh);
+
+     $myFile = "/etc/samba/shares.conf";
+     $fh = fopen($myFile, 'a') or die("not able to write to file");
+     $stringData = "\ninclude = /etc/samba/shares/downloads";
+     fwrite($fh, $stringData);
+     fclose($fh);
+    
+    exec ("systemctl restart smbd");
+
+       exec("docker run -d --name deluge --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/deluge/config:/config -v /$config_mount_target/$volume/downloads:/downloads linuxserver/deluge");
+
+       echo "<script>window.location = 'packages.php'</script>";
+}
+
+if(isset($_GET['update_deluge'])){
+
+  $group_id = exec("getent group download | cut -d: -f3");
+  $volume_path = exec("find /$config_mount_target/*/downloads -name 'downloads'");
+
+  exec("docker pull linuxserver/deluge");
+  exec("docker stop deluge");
+  exec("docker rm deluge");
+
+  exec("docker run -d --name deluge --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/deluge/config:/config -v /$config_mount_target/$volume/downloads:/downloads linuxserver/deluge");
+
+  exec("docker image prune");
+  
+  echo "<script>window.location = 'packages.php'</script>";
+
+}
+
+if(isset($_GET['uninstall_deluge'])){
+    //stop and delete docker container
+    exec("docker stop deluge");
+    exec("docker rm deluge");
+    //delete group
+    exec ("delgroup download");
+    //get path to directory
+    $path = exec("find /$config_mount_target/*/downloads -name downloads");
+    //delete directory
+    exec ("rm -rf $path"); //Delete
+    //delete docker config
+    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/deluge");
+    //delete samba share
+    exec ("rm -f /etc/samba/shares/downloads");
+    deleteLineInFile("/etc/samba/shares.conf","downloads");
+    //restart samba
+    exec ("systemctl restart smbd");
+    //redirect back to packages
+    echo "<script>window.location = 'packages.php'</script>";
+}
+
 if(isset($_GET['install_openvpn']))
 {
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/openvpn");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/openvvpn/config");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/openvpn/config");
 
   exec("docker run -d --name openvpn --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/openvpn/config:/config -p 943:943 -p 9443:9443 -p 1194:1194/udp linuxserver/openvpn-as");
   echo "<script>window.location = 'packages.php'</script>";
 }
 
+if(isset($_GET['uninstall_openvpn'])){
+    //stop and delete docker container
+    exec("docker stop openvpn");
+    exec("docker rm openvpn");
+
+    //delete docker config
+    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/openvpn");
+    //redirect back to packages
+    echo "<script>window.location = 'packages.php'</script>";
+}
 
 if(isset($_POST['setup']))
 {

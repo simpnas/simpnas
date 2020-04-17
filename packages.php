@@ -35,11 +35,11 @@
             ?>
               <a href="https://<?php echo gethostname(); ?>:443" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
               <a href="update_nextcloud.php" class="btn btn-outline-success"><span data-feather="thumbs-up"></span></a>
-              <a href="uninstall_nextcloud.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+              <a href="post.php?uninstall_nextcloud" class="btn btn-outline-danger"><span data-feather="x"></span></a>
             <?php
             }else{
             ?>
-            <a href="install_nextcloud.php" class="btn btn-outline-success"><span data-feather="download"></span></a>
+            <a href="post.php?install_nextcloud" class="btn btn-outline-success"><span data-feather="download"></span></a>
             <?php  
             }
             ?>
@@ -83,11 +83,11 @@
               if(file_exists("/$config_mount_target/$config_docker_volume/docker/dokuwiki")) {
             ?>
               <a href="http://<?php echo gethostname(); ?>:85" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-              <a href="uninstall_dokuwiki.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+              <a href="post.php?uninstall_dokuwiki" class="btn btn-outline-danger"><span data-feather="x"></span></a>
             <?php
             }else{
             ?>
-            <a href="install_dokuwiki.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+            <a href="post.php?install_dokuwiki" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
             <?php  
             }
             ?>
@@ -97,6 +97,30 @@
           <td>Syncthing</td>
           <td>Sync those Thingx</td>
           <td><a href="post.php?install_syncthing" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+        </tr>
+        <tr>
+          <td>
+            Deluge
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/deluge")) { ?>
+            <small class="text-success">Installed</small>
+            <?php } ?>
+          </td>
+          <td>Torrent downloads</td>
+          <td>
+            <?php 
+              if(file_exists("/$config_mount_target/$config_docker_volume/docker/deluge")) {
+            ?>
+              <a href="http://<?php echo gethostname(); ?>:8112" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+              <a href="post.php?uninstall_deluge" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+            <?php
+            }else{
+            ?>
+            <a href="install_deluge.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+            <?php  
+            }
+            ?>
+          </td>
         </tr>
         <tr>
           <td>
@@ -112,7 +136,7 @@
               if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission")) {
             ?>
               <a href="http://<?php echo gethostname(); ?>:9091" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-              <a href="uninstall_transmission.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+              <a href="post.php?uninstall_transmission" class="btn btn-outline-danger"><span data-feather="x"></span></a>
             <?php
             }else{
             ?>
@@ -136,7 +160,7 @@
               if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi")) {
             ?>
               <a href="https://<?php echo gethostname(); ?>:8443" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-              <a href="uninstall_unifi.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+              <a href="post.php?uninstall_unifi" class="btn btn-outline-danger"><span data-feather="x"></span></a>
             <?php
             }else{
             ?>
@@ -160,7 +184,7 @@
               if(file_exists("/$config_mount_target/$config_docker_volume/docker/openvpn")) {
             ?>
               <a href="https://<?php echo gethostname(); ?>:943" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-              <a href="uninstall_openvpn.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+              <a href="post.php?uninstall_openvpn" class="btn btn-outline-danger"><span data-feather="x"></span></a>
             <?php
             }else{
             ?>
@@ -184,7 +208,7 @@
               if(file_exists("/$config_mount_target/$config_docker_volume/docker/lychee")) {
             ?>
               <a href="http://<?php echo gethostname(); ?>:4560" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-              <a href="uninstall_lychee.php" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+              <a href="post.php?uninstall_lychee" class="btn btn-outline-danger"><span data-feather="x"></span></a>
             <?php
             }else{
             ?>
