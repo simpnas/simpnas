@@ -629,19 +629,25 @@ if(isset($_POST['install_transmission']))
   $group_id = exec("getent group download | cut -d: -f3");
 
   mkdir("/$config_mount_target/$volume/downloads");
+  mkdir("/$config_mount_target/$volume/downloads/complete");
+  mkdir("/$config_mount_target/$volume/downloads/incomplete");
+  mkdir("/$config_mount_target/$volume/downloads/watch");
   mkdir("/$config_mount_target/$config_docker_volume/docker/transmission");
   mkdir("/$config_mount_target/$config_docker_volume/docker/transmission/config");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/transmission/watch");
 
   chgrp("/$config_mount_target/$volume/downloads","download");
+  chgrp("/$config_mount_target/$volume/downloads/complete","download");
+  chgrp("/$config_mount_target/$volume/downloads/incomplete","download");
+  chgrp("/$config_mount_target/$volume/downloads/watch","download");
   chgrp("/$config_mount_target/$config_docker_volume/docker/transmission","download");
   chgrp("/$config_mount_target/$config_docker_volume/docker/transmission/config","download");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/transmission/watch","download");
 
   chmod("/$config_mount_target/$volume/downloads",0770);
+  chmod("/$config_mount_target/$volume/downloads/complete",0770);
+  chmod("/$config_mount_target/$volume/downloads/incomplete",0770);
+  chmod("/$config_mount_target/$volume/downloads/watch",0770);
   chmod("/$config_mount_target/$config_docker_volume/docker/transmission",0770);
   chmod("/$config_mount_target/$config_docker_volume/docker/transmission/config",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/transmission/watch",0770);
   
   $myFile = "/etc/samba/shares/downloads";
      $fh = fopen($myFile, 'w') or die("not able to write to file");
@@ -657,7 +663,7 @@ if(isset($_POST['install_transmission']))
     
     exec ("systemctl restart smbd");
 
-       exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$config_docker_volume/docker/transmission/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
+       exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$volume/downloads/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
        echo "<script>window.location = 'packages.php'</script>";
 }
 
@@ -690,82 +696,6 @@ if(isset($_GET['uninstall_transmission'])){
     exec ("rm -rf $path"); //Delete
     //delete docker config
     exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/transmission");
-    //delete samba share
-    exec ("rm -f /etc/samba/shares/downloads");
-    deleteLineInFile("/etc/samba/shares.conf","downloads");
-    //restart samba
-    exec ("systemctl restart smbd");
-    //redirect back to packages
-    echo "<script>window.location = 'packages.php'</script>";
-}
-
-if(isset($_POST['install_deluge']))
-{
-  $volume = $_POST['volume'];
-  
-  exec ("addgroup download");
-  $group_id = exec("getent group download | cut -d: -f3");
-
-  mkdir("/$config_mount_target/$volume/downloads");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/deluge");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/deluge/config");
-
-  chgrp("/$config_mount_target/$volume/downloads","download");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/deluge","download");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/deluge/config","download");
-
-  chmod("/$config_mount_target/$volume/downloads",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/deluge",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/deluge/config",0770);
-  
-  $myFile = "/etc/samba/shares/downloads";
-     $fh = fopen($myFile, 'w') or die("not able to write to file");
-     $stringData = "[downloads]\n   comment = Torrent Downloads used by Deluge\n   path = /$config_mount_target/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
-     fwrite($fh, $stringData);
-     fclose($fh);
-
-     $myFile = "/etc/samba/shares.conf";
-     $fh = fopen($myFile, 'a') or die("not able to write to file");
-     $stringData = "\ninclude = /etc/samba/shares/downloads";
-     fwrite($fh, $stringData);
-     fclose($fh);
-    
-    exec ("systemctl restart smbd");
-
-       exec("docker run -d --name deluge --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/deluge/config:/config -v /$config_mount_target/$volume/downloads:/downloads linuxserver/deluge");
-
-       echo "<script>window.location = 'packages.php'</script>";
-}
-
-if(isset($_GET['update_deluge'])){
-
-  $group_id = exec("getent group download | cut -d: -f3");
-  $volume_path = exec("find /$config_mount_target/*/downloads -name 'downloads'");
-
-  exec("docker pull linuxserver/deluge");
-  exec("docker stop deluge");
-  exec("docker rm deluge");
-
-  exec("docker run -d --name deluge --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/deluge/config:/config -v /$config_mount_target/$volume/downloads:/downloads linuxserver/deluge");
-
-  exec("docker image prune");
-  
-  echo "<script>window.location = 'packages.php'</script>";
-
-}
-
-if(isset($_GET['uninstall_deluge'])){
-    //stop and delete docker container
-    exec("docker stop deluge");
-    exec("docker rm deluge");
-    //delete group
-    exec ("delgroup download");
-    //get path to directory
-    $path = exec("find /$config_mount_target/*/downloads -name downloads");
-    //delete directory
-    exec ("rm -rf $path"); //Delete
-    //delete docker config
-    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/deluge");
     //delete samba share
     exec ("rm -f /etc/samba/shares/downloads");
     deleteLineInFile("/etc/samba/shares.conf","downloads");

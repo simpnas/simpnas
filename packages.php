@@ -100,30 +100,6 @@
         </tr>
         <tr>
           <td>
-            Deluge
-            <br>
-            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/deluge")) { ?>
-            <small class="text-success">Installed</small>
-            <?php } ?>
-          </td>
-          <td>Torrent downloads</td>
-          <td>
-            <?php 
-              if(file_exists("/$config_mount_target/$config_docker_volume/docker/deluge")) {
-            ?>
-              <a href="http://<?php echo gethostname(); ?>:8112" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-              <a href="post.php?uninstall_deluge" class="btn btn-outline-danger"><span data-feather="x"></span></a>
-            <?php
-            }else{
-            ?>
-            <a href="install_deluge.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
-            <?php  
-            }
-            ?>
-          </td>
-        </tr>
-        <tr>
-          <td>
             Transmission
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission")) { ?>
