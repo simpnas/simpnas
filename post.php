@@ -110,7 +110,7 @@ if(isset($_GET['delete_volume']))
   //check to make sure no shares are linked to the volume
   //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
   //the code to do that here
-  $hdd = exec("find$config_mount_target -n -o SOURCE --target /$config_mount_target/$name");
+  $hdd = exec("find $config_mount_target -n -o SOURCE --target /$config_mount_target/$name");
   
   exec ("umount /$config_mount_target/$name");
   exec ("rm -rf /$config_mount_target/$name");
@@ -857,14 +857,13 @@ if(isset($_GET['reset']))
   //Remove all Volumes and remove from fstab.conf to prevent automounting on boot
   exec("ls /$config_mount_target", $volume_array);
   foreach ($volume_array as $volume) {
-    $hdd = exec("find /$config_mount_target -n -o SOURCE --target /$config_mount_target/$volume");
+    exec("rm -rf /$config_mount_target/$volume/*");
     exec ("umount /$config_mount_target/$volume");
-    exec("rm -rf /$config_mount_target/$volume");
-    deleteLineInFile("/etc/fstab","$hdd");
+    deleteLineInFile("/etc/fstab","$volume");
   }
 
   //Wipe Each Disk
-  exec("smartctl --scan|awk '{ print $1 '}", $drive_list);
+  exec("smartctl --scan | awk '{ print $1 '}", $drive_list);
   foreach ($drive_list as $disk) {
     exec("wipefs -a /dev/$disk");
   }
@@ -874,6 +873,12 @@ if(isset($_GET['reset']))
   exec ("rm -f /etc/samba/shares.conf");
   exec ("rm -f /etc/samba/shares/*");
   exec ("cp /simpnas/conf/smb.conf /etc/samba/");
+  exec ("touch /etc/samba/shares.conf");
+
+  $current_hostname = exec("hostname");
+  
+  exec("sed -i 's/$current_hostname/simpnas/g' /etc/hosts");
+  exec("hostnamectl set-hostname simpnas");
 
   exec("reboot");
 
