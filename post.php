@@ -91,7 +91,8 @@ if(isset($_POST['general_edit']))
   exec("hostnamectl set-hostname $hostname");
   exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
-  echo "<script>window.location = 'general.php'</script>";
+  $http_host = $_SERVER['HTTP_HOST'];
+  echo "<script>window.location = 'http://$http_host/general.php'</script>";
 }
 
 
@@ -654,6 +655,83 @@ if(isset($_GET['uninstall_unifi'])){
 
     //delete docker config
     exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi");
+    //redirect back to packages
+    echo "<script>window.location = 'apps.php'</script>";
+}
+
+if(isset($_POST['install_unifi-video'])){
+  $volume = $_POST['volume'];
+  
+  if(!file_exists("/$config_mount_target/$config_docker_volume/unifi-video")) {
+    exec ("addgroup video-surveillance");
+    $group_id = exec("getent group video-surveillance | cut -d: -f3");
+
+    mkdir("/$config_mount_target/$volume/video-surveillance");
+    mkdir("/$config_mount_target/$config_docker_volume/docker/unifi-video");
+
+    chgrp("/$config_mount_target/$volume/video-surveillance","video-surveillance");
+    chgrp("/$config_mount_target/$config_docker_volume/docker/unifi-video","video-surveillance");
+    
+    chmod("/$config_mount_target/$volume/video-surveillance",0770);
+    chmod("/$config_mount_target/$config_docker_volume/docker/unifi-video",0770);
+    
+    $myFile = "/etc/samba/shares/video-surveillance";
+     $fh = fopen($myFile, 'w') or die("not able to write to file");
+     $stringData = "[video-surveillance]\n   comment = Surveillance Videos for Unifi Video\n   path = /$config_mount_target/$volume/video-surveillance\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @video-surveillance\n   force group = video-surveillance\n   create mask = 0660\n   directory mask = 0770";
+     fwrite($fh, $stringData);
+     fclose($fh);
+
+     $myFile = "/etc/samba/shares.conf";
+     $fh = fopen($myFile, 'a') or die("not able to write to file");
+     $stringData = "\ninclude = /etc/samba/shares/video-surveillance";
+     fwrite($fh, $stringData);
+     fclose($fh);
+    
+    exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
+
+  }
+  
+  exec("docker run -d --name unifi-video --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -e DEBUG=1 -v /$config_mount_target/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /$config_mount_target/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
+  
+  echo "<script>window.location = 'apps.php'</script>";
+
+}
+
+if(isset($_GET['update_unifi-video'])){
+
+  $group_id = exec("getent group video-surveillance | cut -d: -f3");
+  $volume_path = exec("find /$config_mount_target/*/video-surveillance -name 'video-surveillance'");
+
+  exec("docker pull pducharme/unifi-video-controller");
+  exec("docker stop unifi-video");
+  exec("docker rm unifi-video");
+
+  exec("docker run -d --name unifi-video --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -e DEBUG=1 -v /$config_mount_target/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /$config_mount_target/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
+
+  exec("docker image prune");
+  
+  echo "<script>window.location = 'apps.php'</script>";
+}
+
+if(isset($_GET['uninstall_unifi-video'])){
+    //stop and delete docker container
+    exec("docker stop unifi-video");
+    exec("docker rm unifi-video");
+    //delete media group
+    exec ("delgroup video-surveillance");
+    //get path to media directory
+    $path = exec("find /$config_mount_target/*/video-surveillance -name video-surveillance");
+    //delete media directory
+    exec ("rm -rf $path"); //Delete
+    //delete docker config
+    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi-video");
+    //delete samba share
+    exec ("rm -f /etc/samba/shares/video-surveillance");
+    deleteLineInFile("/etc/samba/shares.conf","video-surveillance");
+    //restart samba
+    exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
     //redirect back to packages
     echo "<script>window.location = 'apps.php'</script>";
 }

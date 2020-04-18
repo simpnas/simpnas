@@ -164,6 +164,35 @@
         </tr>
         <tr>
           <td>
+            <span class="mr-2" data-feather="package"></span>Unifi Video
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi-video")) { ?>
+            <small class="text-success"><span data-feather="check"></span>Installed</small>
+            <?php } ?>
+          </td>
+          <td>
+            Unifi NVR
+          </td>
+          <td>
+            <div class="btn-group mr-2">
+              <?php 
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi-video")) {
+              ?>
+                <a href="https://<?php echo $_SERVER['HTTP_HOST']; ?>:7443" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="update_unifi-video.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_unifi-video" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <?php
+              }else{
+              ?>
+              <a href="install_unifi-video.php" class="btn btn-outline-success"><span data-feather="download"></span></a>
+              <?php  
+              }
+              ?>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
             <span class="mr-2" data-feather="package"></span>OpenVPN Server
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/openvpn")) { ?>
