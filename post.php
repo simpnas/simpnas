@@ -497,8 +497,7 @@ if(isset($_GET['uninstall_lychee'])){
     echo "<script>window.location = 'packages.php'</script>";
 }
 
-if(isset($_GET['install_nextcloud']))
-{
+if(isset($_GET['install_nextcloud'])){
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud");
   mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/appdata");
@@ -541,9 +540,8 @@ if(isset($_GET['uninstall_nextcloud'])){
     echo "<script>window.location = 'packages.php'</script>";
 }
 
-if(isset($_POST['install_dokuwiki']))
+if(isset($_GET['install_dokuwiki']))
 {
-  $volume = $_POST['volume'];
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/");
   mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/config");
@@ -875,6 +873,7 @@ if(isset($_GET['reset']))
   exec ("rm -f /etc/samba/shares/*");
   exec ("cp /simpnas/conf/smb.conf /etc/samba/");
   exec ("touch /etc/samba/shares.conf");
+  exec ("rm -f /simpnas/config.php");
 
   $current_hostname = exec("hostname");
   
