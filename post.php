@@ -785,7 +785,7 @@ if(isset($_POST['setup']))
 
   $current_hostname = exec("hostname");
 
-  $os_disk = exec("findmnt -n -o SOURCE --target /");
+  $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
   //Create config.php file
   

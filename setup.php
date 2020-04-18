@@ -5,7 +5,7 @@
 	}
 
 	include("functions.php");
-	$os_disk = exec("findmnt -n -o SOURCE --target /");
+	$os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
 ?>
 
