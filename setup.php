@@ -6,6 +6,7 @@
 
 	include("functions.php");
 	$os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
+	exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth", $net_devices_array);
 
 ?>
 
@@ -91,6 +92,39 @@
 	    <label>Volume Name:</label>
 	    <input type="text" class="form-control" name="volume_name">
 	  </div>
+
+	  <label>Interface</label>
+		<select class="form-control" name="interface">
+			<?php
+			foreach ($net_devices_array as $net_device) {
+			?>
+			<option><?php echo $net_device; ?></option>
+			<?php
+			}
+			?>
+		</select>
+	  </div>
+	  <div class="form-group">
+		<label>Method</label>
+		<select class="form-control" name="method">
+			<option>DHCP</option>
+			<option>Static</option>
+		</select>
+	  </div>
+	  <div class="form-group">
+	    <label>Address/CIDR</label>
+	    <input type="text" class="form-control" name="address" placeholder="ex 192.168.1.5/24">
+	  </div>
+	  <div class="form-group">
+	    <label>Gateway</label>
+	    <input type="text" class="form-control" name="gateway">
+	  </div>
+	  <div class="form-group">
+	    <label>DNS Server(s)</label>
+	    <input type="text" class="form-control" name="dns">
+	  </div>
+
+
 	  <h4>Add your first User</h4>
 	  <div class="form-group">
 	    <label>Username:</label>

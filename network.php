@@ -18,41 +18,43 @@
           <th>Interface</th>
           <th>Type</th>
           <th>IP Address</th>
-          <th>Netmask</th>
           <th>Gateway</th>
           <th>Status</th>
           <th>Action</th>
         </tr>
       </thead>
-      <tbody>                
+      <tbody>
+        <?php
+        
+          exec("ls /etc/systemd/network", $network_list);
+          foreach ($network_list as $network) {
+
+            $networkConfigArray = parse_ini_file("/etc/systemd/network/$network");
+            $name = $networkConfigArray['Name'];
+            $address = $networkConfigArray['Address'];
+            $gateway = $networkConfigArray['Gateway'];
+            $dns = $networkConfigArray['DNS'];
+            $dhcp = $networkConfigArray['DHCP'];
+            if($dhcp == "ipv4"){
+              $address = "DHCP";
+              $gateway = "DHCP";
+              $dns = "DHCP";
+            }
+        ?>                
         <tr>
-          <td><span class="mr-2" data-feather="globe"></span>Eth0</td>
+          <td><span class="mr-2" data-feather="globe"></span><?php echo $name; ?></td>
           <td>Ethernet</td>
-          <td><?php  ?></td>
-          <td>255.255.255.0</td>
-          <td>192.168.1.1</td>
+          <td><?php echo $address; ?></td>
+          <td><?php echo $gateway; ?></td>
           <td class="text-success"><span data-feather="arrow-up"></span></td>
           <td>
           	<div class="btn-group mr-2">
-        		<a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit-2"></span></a>
-        		<a href="post.php?delete_user=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="x"></span></a>
+        		<a href="network_edit.php?name=<?php echo $name; ?>" class="btn btn-outline-secondary"><span data-feather="edit-2"></span></a>
+        		<a href="post.php?network_delete=<?php echo $name; ?>" class="btn btn-outline-secondary"><span data-feather="trash"></span></a>
       		</div>
       	  </td>
         </tr>
-        <tr>
-          <td><span class="mr-2" data-feather="globe"></span>Eth0.10</td>
-          <td>VLAN</td>
-          <td>192.168.1.247</td>
-          <td>255.255.255.0</td>
-          <td>192.168.1.1</td>
-          <td class="text-danger"><span data-feather="arrow-down"></span></td>
-          <td>
-          	<div class="btn-group mr-2">
-        		<a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit-2"></span></a>
-        		<a href="post.php?delete_user=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="x"></span></a>
-      		</div>
-      	  </td>
-        </tr>
+      <?php } ?>
       </tbody>
     </table>
   </div>

@@ -20,4 +20,4 @@ chmod 755 /etc/systemd/system/simpnas.service
 systemctl enable simpnas
 echo Starting SimpNAS Web UI...
 systemctl start simpnas
-echo All Setup! You can now access your system by visiting http://$HOSTNAME in your web browser!!
+echo All Setup! Please reboot and then you can access your system by visiting http://$HOSTNAME in your web browser!!

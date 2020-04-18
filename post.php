@@ -267,6 +267,46 @@ if(isset($_GET['share_delete']))
   echo "<script>window.location = 'shares.php'</script>";
 }
 
+if(isset($_POST['network_add'])){
+  $interface = $_POST['interface'];
+  $method = $_POST['method'];
+  $address = $_POST['address'];
+  $gateway = $_POST['gateway'];
+  $dns = $_POST['dns'];
+  $hostname = gethostname();
+
+  if($method == 'DHCP'){
+    $myFile = "/etc/systemd/network/$interface.network";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[Match]\nName=$interface\n\n[Network]\nDHCP=ipv4\n";
+    fwrite($fh, $stringData);
+    fclose($fh);
+    exec("systemctl restart systemd-networkd");
+    echo "<script>window.location = 'http://$hostname/network.php'</script>";
+  }
+  if($method == 'Static'){
+    $myFile = "/etc/systemd/network/$interface.network";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[Match]\nName=$interface\n\n[Network]\nAddress=$address\nGateway=$gateway\nDNS=$dns\n";
+    fwrite($fh, $stringData);
+    fclose($fh);
+    $new_ip = substr($address, 0, strpos($address, "/"));
+    exec("systemctl restart systemd-networkd");
+    echo "<script>window.location = 'http://$new_ip/network.php'</script>";
+  }
+  
+}
+
+if(isset($_GET['network_delete'])){
+  $interface = $_GET['network_delete'];
+  
+  exec ("rm -f /etc/systemd/network/$interface.network");
+
+  exec("systemctl restart systemd-networkd");
+
+  echo "<script>window.location = 'network.php'</script>";
+}
+
 if(isset($_GET['wipe_hdd']))
 {
   $hdd = $_GET['wipe_hdd'];
@@ -784,6 +824,11 @@ if(isset($_POST['setup']))
   $password = $_POST['password'];
 
   $current_hostname = exec("hostname");
+  $interface = $_POST['interface'];
+  $method = $_POST['method'];
+  $address = $_POST['address'];
+  $gateway = $_POST['gateway'];
+  $dns = $_POST['dns'];
 
   $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
@@ -825,7 +870,31 @@ if(isset($_POST['setup']))
   fwrite($fh, $stringData);
   fclose($fh);
 
-  echo "<script>window.location = 'dashboard.php'</script>";
+  $hostname = gethostname();
+
+  exec ("mv /etc/network/interfaces /etc/network/interfaces.save");
+  exec ("systemctl enable systemd-networkd");
+
+  if($method == 'DHCP'){
+    $myFile = "/etc/systemd/network/$interface.network";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[Match]\nName=$interface\n\n[Network]\nDHCP=ipv4\n";
+    fwrite($fh, $stringData);
+    fclose($fh);
+    exec("systemctl restart systemd-networkd");
+    echo "<script>window.location = 'http://$hostname/dashboard.php'</script>";
+  }
+  if($method == 'Static'){
+    $myFile = "/etc/systemd/network/$interface.network";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[Match]\nName=$interface\n\n[Network]\nAddress=$address\nGateway=$gateway\nDNS=$dns\n";
+    fwrite($fh, $stringData);
+    fclose($fh);
+    $new_ip = substr($address, 0, strpos($address, "/"));
+    exec("systemctl restart systemd-networkd");
+    echo "<script>window.location = 'http://$new_ip/dashboard.php'</script>";
+  }
+
 }
 
 if(isset($_GET['reset']))
