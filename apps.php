@@ -28,15 +28,17 @@
             <small class="text-success"><span data-feather="check"></span>Installed</small>
             <?php } ?>
           </td>
-          <td>Access and share your files anywhere over the Internet</td>
+          <td>
+            Access and share your files anywhere over the Internet
+          </td>
           <td>
             <div class="btn-group mr-2">
               <?php 
                 if(file_exists("/$config_mount_target/$config_docker_volume/docker/nextcloud")) {
               ?>
                 <a href="https://<?php echo gethostname(); ?>:443" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_nextcloud.php" class="btn btn-outline-success"><span data-feather="thumbs-up"></span></a>
-                <a href="post.php?uninstall_nextcloud" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+                <a href="update_nextcloud.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_nextcloud" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
               }else{
               ?>
@@ -62,8 +64,8 @@
                 if(file_exists("/$config_mount_target/$config_docker_volume/docker/jellyfin")) {
               ?>
                 <a href="http://<?php echo gethostname(); ?>:8096" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_jellyfin.php" class="btn btn-outline-success"><span data-feather="thumbs-up"></span></a>
-                <a href="post.php?uninstall_jellyfin" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+                <a href="update_jellyfin.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_jellyfin" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
               }else{
               ?>
@@ -89,8 +91,8 @@
                 if(file_exists("/$config_mount_target/$config_docker_volume/docker/dokuwiki")) {
               ?>
                 <a href="http://<?php echo gethostname(); ?>:85" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_dokuwiki.php" class="btn btn-outline-success"><span data-feather="thumbs-up"></span></a>
-                <a href="post.php?uninstall_dokuwiki" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+                <a href="update_dokuwiki.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_dokuwiki" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
               }else{
               ?>
@@ -121,8 +123,8 @@
                 if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission")) {
               ?>
                 <a href="http://<?php echo gethostname(); ?>:9091" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_transmission.php" class="btn btn-outline-success"><span data-feather="thumbs-up"></span></a>
-                <a href="post.php?uninstall_transmission" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+                <a href="update_transmission.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_transmission" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
               }else{
               ?>
@@ -148,8 +150,8 @@
                 if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi")) {
               ?>
                 <a href="https://<?php echo gethostname(); ?>:8443" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_unifi.php" class="btn btn-outline-success"><span data-feather="thumbs-up"></span></a>
-                <a href="post.php?uninstall_unifi" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+                <a href="update_unifi.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_unifi" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
               }else{
               ?>
@@ -175,8 +177,8 @@
                 if(file_exists("/$config_mount_target/$config_docker_volume/docker/openvpn")) {
               ?>
                 <a href="https://<?php echo gethostname(); ?>:943" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_openvpn.php" class="btn btn-outline-success"><span data-feather="thumbs-up"></span></a>
-                <a href="post.php?uninstall_openvpn" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+                <a href="update_openvpn.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_openvpn" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
               }else{
               ?>
@@ -202,8 +204,8 @@
                 if(file_exists("/$config_mount_target/$config_docker_volume/docker/lychee")) {
               ?>
                 <a href="http://<?php echo gethostname(); ?>:4560" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_lychee.php" class="btn btn-outline-success"><span data-feather="thumbs-up"></span></a>
-                <a href="post.php?uninstall_lychee" class="btn btn-outline-danger"><span data-feather="x"></span></a>
+                <a href="update_lychee.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_lychee" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
               }else{
               ?>
