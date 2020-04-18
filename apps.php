@@ -193,6 +193,35 @@
         </tr>
         <tr>
           <td>
+            <span class="mr-2" data-feather="package"></span>Home Assistant
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/home-assistant")) { ?>
+            <small class="text-success"><span data-feather="check"></span>Installed</small>
+            <?php } ?>
+          </td>
+          <td>
+            Home Automation (Control Lights, switches, smart devices)
+          </td>
+          <td>
+            <div class="btn-group mr-2">
+              <?php 
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/home-assistant")) {
+              ?>
+                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:8123" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="update_home-assistant.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_home-assistant" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <?php
+              }else{
+              ?>
+              <a href="post.php?install_home-assistant" class="btn btn-outline-success"><span data-feather="download"></span></a>
+              <?php  
+              }
+              ?>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
             <span class="mr-2" data-feather="package"></span>OpenVPN Server
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/openvpn")) { ?>

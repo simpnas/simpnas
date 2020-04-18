@@ -625,6 +625,39 @@ if(isset($_GET['install_syncthing']))
       echo "<script>window.location = 'apps.php'</script>";
 }
 
+if(isset($_GET['install_home-assistant']))
+{
+      mkdir("/$config_mount_target/$config_docker_volume/docker/home-assistant");
+
+      exec("docker run -d --name home-assistant --net=host --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/home-assistant:/config homeassistant/home-assistant:stable");
+      echo "<script>window.location = 'apps.php'</script>";
+}
+
+if(isset($_GET['update_home-assistant'])){
+
+  exec("docker pull homeassistant/home-assistant:stable");
+  exec("docker stop home-assistant");
+  exec("docker rm home-assistant");
+
+  exec("docker run -d --name home-assistant --net=host --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/home-assistant:/config homeassistant/home-assistant:stable");
+
+  exec("docker image prune");
+  
+  echo "<script>window.location = 'apps.php'</script>";
+
+}
+
+if(isset($_GET['uninstall_home-assistant'])){
+    //stop and delete docker container
+    exec("docker stop home-assistant");
+    exec("docker rm home-assistant");
+
+    //delete docker config
+    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/home-assistant");
+    //redirect back to packages
+    echo "<script>window.location = 'apps.php'</script>";
+}
+
 if(isset($_GET['install_unifi']))
 {
       mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/");
