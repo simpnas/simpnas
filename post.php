@@ -861,11 +861,12 @@ if(isset($_GET['reset']))
     exec ("umount /$config_mount_target/$volume");
     deleteLineInFile("/etc/fstab","$volume");
   }
+  exec("rm -rf /$config_mount_target/*");
 
   //Wipe Each Disk
   exec("smartctl --scan | awk '{ print $1 '}", $drive_list);
   foreach ($drive_list as $disk) {
-    exec("wipefs -a /dev/$disk");
+    exec("wipefs -a $disk");
   }
 
   //Remove Samba conf and replace it with the default
