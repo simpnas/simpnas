@@ -875,8 +875,7 @@ if(isset($_GET['reset']))
   exec ("rm -f /etc/samba/shares/*");
   exec ("cp /simpnas/conf/smb.conf /etc/samba/");
 
-  exec("systemctl start smbd");
-  exec("systemctl start nmbd");
+  exec("reboot");
 
   echo "<script>window.location = 'dashboard.php'</script>";
 }
