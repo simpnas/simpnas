@@ -384,7 +384,7 @@ if(isset($_POST['install_jellyfin'])){
 
   exec("docker run -d --name jellyfin --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin/config:/config -v /$config_mount_target/$volume/media/tvshows:/tvshows -v /$config_mount_target/$volume/media/movies:/movies -v /$config_mount_target/$volume/media/music:/music -v /$config_mount_target/$config_docker_volume/docker/jellyfin/cache:/cache jellyfin/jellyfin");
   
-  echo "<script>window.location = 'packages.php'</script>";
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['update_jellyfin'])){
@@ -400,7 +400,7 @@ if(isset($_GET['update_jellyfin'])){
 
   exec("docker image prune");
   
-  echo "<script>window.location = 'packages.php'</script>";
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['uninstall_jellyfin'])){
@@ -422,7 +422,7 @@ if(isset($_GET['uninstall_jellyfin'])){
     exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
     //redirect back to packages
-    echo "<script>window.location = 'packages.php'</script>";
+    echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_POST['install_lychee']))
@@ -456,7 +456,7 @@ if(isset($_POST['install_lychee']))
   exec("systemctl restart nmbd");     
 
        exec("docker run -d --name lychee -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee/config:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
-       echo "<script>window.location = 'packages.php'</script>";
+       echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['update_lychee'])){
@@ -472,7 +472,7 @@ if(isset($_GET['update_lychee'])){
 
   exec("docker image prune");
   
-  echo "<script>window.location = 'packages.php'</script>";
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['uninstall_lychee'])){
@@ -494,7 +494,7 @@ if(isset($_GET['uninstall_lychee'])){
     exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
     //redirect back to packages
-    echo "<script>window.location = 'packages.php'</script>";
+    echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['install_nextcloud'])){
@@ -509,7 +509,7 @@ if(isset($_GET['install_nextcloud'])){
      
   exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
 
-  echo "<script>window.location = 'packages.php'</script>";
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['update_nextcloud'])){
@@ -522,7 +522,7 @@ if(isset($_GET['update_nextcloud'])){
 
   exec("docker image prune");
   
-  echo "<script>window.location = 'packages.php'</script>";
+  echo "<script>window.location = 'apps.php'</script>";
 
 }
 
@@ -537,7 +537,7 @@ if(isset($_GET['uninstall_nextcloud'])){
     exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/nextcloud");
     exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb");
     //redirect back to packages
-    echo "<script>window.location = 'packages.php'</script>";
+    echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['install_dokuwiki']))
@@ -547,7 +547,7 @@ if(isset($_GET['install_dokuwiki']))
   mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/config");
 
        exec("docker run -d --name dokuwiki -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki/config:/config linuxserver/dokuwiki");
-       echo "<script>window.location = 'packages.php'</script>";
+       echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['update_dokuwiki'])){
@@ -560,7 +560,7 @@ if(isset($_GET['update_dokuwiki'])){
 
   exec("docker image prune");
   
-  echo "<script>window.location = 'packages.php'</script>";
+  echo "<script>window.location = 'apps.php'</script>";
 
 }
 
@@ -572,7 +572,7 @@ if(isset($_GET['uninstall_dokuwiki'])){
     //delete docker config
     exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/dokuwiki");
     //redirect back to packages
-    echo "<script>window.location = 'packages.php'</script>";
+    echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['install_syncthing']))
@@ -581,7 +581,7 @@ if(isset($_GET['install_syncthing']))
       mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/config");
 
       exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/syncthing/config:/config -v /$config_mount_target/$config_docker_volume/$config_home_dir/johnny:/$config_mount_target/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
-      echo "<script>window.location = 'packages.php'</script>";
+      echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['install_unifi']))
@@ -590,7 +590,7 @@ if(isset($_GET['install_unifi']))
       mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/config");
 
       exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi-controller > /dev/null &");
-      echo "<script>window.location = 'packages.php'</script>";
+      echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['update_unifi'])){
@@ -603,7 +603,7 @@ if(isset($_GET['update_unifi'])){
 
   exec("docker image prune");
   
-  echo "<script>window.location = 'packages.php'</script>";
+  echo "<script>window.location = 'apps.php'</script>";
 
 }
 
@@ -615,7 +615,7 @@ if(isset($_GET['uninstall_unifi'])){
     //delete docker config
     exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi");
     //redirect back to packages
-    echo "<script>window.location = 'packages.php'</script>";
+    echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_POST['install_transmission_ovpn']))
@@ -662,7 +662,7 @@ if(isset($_POST['install_transmission_ovpn']))
   exec("systemctl restart nmbd");
 
        exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=192.168.0.0/16 PGID=$group_id -e PUID=0 --log-driver json-file --log-opt max-size=10m -v /etc/localtime:/etc/localtime:ro -v /$config_mount_target/$volume/downloads:/data -p 9091:9091 haugene/transmission-openvpn");
-       echo "<script>window.location = 'packages.php'</script>";
+       echo "<script>window.location = 'apps.php'</script>";
 }
 
 
@@ -711,7 +711,7 @@ if(isset($_POST['install_transmission']))
   exec("systemctl restart nmbd");
 
        exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$volume/downloads/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
-       echo "<script>window.location = 'packages.php'</script>";
+       echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['update_transmission'])){
@@ -727,7 +727,7 @@ if(isset($_GET['update_transmission'])){
 
   exec("docker image prune");
   
-  echo "<script>window.location = 'packages.php'</script>";
+  echo "<script>window.location = 'apps.php'</script>";
 
 }
 
@@ -750,7 +750,7 @@ if(isset($_GET['uninstall_transmission'])){
     exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
     //redirect back to packages
-    echo "<script>window.location = 'packages.php'</script>";
+    echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['install_openvpn']))
@@ -760,7 +760,7 @@ if(isset($_GET['install_openvpn']))
   mkdir("/$config_mount_target/$config_docker_volume/docker/openvpn/config");
 
   exec("docker run -d --name openvpn --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/openvpn/config:/config -p 943:943 -p 9443:9443 -p 1194:1194/udp linuxserver/openvpn-as");
-  echo "<script>window.location = 'packages.php'</script>";
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['uninstall_openvpn'])){
@@ -771,7 +771,7 @@ if(isset($_GET['uninstall_openvpn'])){
     //delete docker config
     exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/openvpn");
     //redirect back to packages
-    echo "<script>window.location = 'packages.php'</script>";
+    echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_POST['setup']))

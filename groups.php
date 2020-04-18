@@ -24,7 +24,7 @@
               </thead>
               <tbody>
                 <tr>    
-                  <td>users <small class="text-secondary">(Cannot be removed)</small><br><br></td>
+                  <td><span class="mr-2" data-feather="users"></span>users <small class="text-secondary">(Cannot be removed)</small><br><br></td>
                   <td>Everyone</td>
                   <td></td>
                   <td></td>
@@ -33,7 +33,7 @@
                 $users = exec("awk -F: '/^$group/ {print $4;}' /etc/group");
                 ?>
                 <tr>    
-                  <td><?php echo $group; ?></td>
+                  <td><span class="mr-2" data-feather="users"></span><?php echo $group; ?></td>
                   <td><?php echo $users; ?></td>
                   <td>Documents</td>
 		  <td>

@@ -27,7 +27,7 @@
           $groups = str_replace(' ',", ",exec("groups $username | sed 's/\($username\| : \)//g'")); //replace space with a , and a space makes it look neater
 ?>
                 <tr>
-                  <td><span data-feather="user"></span> <?php echo $username; ?></td>
+                  <td><span class="mr-2" data-feather="user"></span><?php echo $username; ?></td>
                   <td><?php echo $groups; ?></td>
                   <td>
                     <div class="btn-group mr-2">

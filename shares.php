@@ -49,10 +49,10 @@
         ?>
 
         <tr>
-          <td><?php echo $share; ?></td>
+          <td><span class="mr-2" data-feather="folder"></span><?php echo $share; ?></td>
           <td><?php echo $comment; ?></td>
-          <td><?php echo $volume; ?></td>
-          <td><?php echo $group; ?></td>
+          <td><span class="mr-2" data-feather="database"></span><?php echo $volume; ?></td>
+          <td><span class="mr-2" data-feather="users"></span><?php echo $group; ?></td>
           <td><?php echo $used_space; ?></td>
           <td>
           	<div class="btn-group mr-2">

@@ -49,6 +49,12 @@
           Shares
         </a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" href="apps.php">
+          <span data-feather="package"></span>
+          Apps
+        </a>
+      </li>
     </ul>
 
     <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
@@ -73,18 +79,18 @@
           Date & Time
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="packages.php">
-          <span data-feather="package"></span>
-          Packages
-        </a>
-      </li>
     </ul>
 
     <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
       <span>Maintenance</span>
     </h6>
     <ul class="nav flex-column mb-2">
+      <li class="nav-item">
+        <a class="nav-link" href="backups.php">
+          <span data-feather="archive"></span>
+          Backups
+        </a>
+      </li>
       <li class="nav-item">
         <a class="nav-link" href="updates.php">
           <span data-feather="download"></span>

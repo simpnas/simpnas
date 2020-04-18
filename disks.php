@@ -59,7 +59,7 @@
               //$hdd_percent_used = exec("df -h | grep '$hdd'|awk '{ print $5 '}");
           ?>
                 <tr>
-                  <td><span data-feather="hard-drive"></span> <?php echo $hdd_short_name; ?></td>
+                  <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $hdd_short_name; ?></td>
                   <td><?php echo $hdd_vendor; ?><br><small><?php echo $hdd_model; ?></small></td>
                   <td><?php echo $hdd_serial; ?></td>
                   <td><?php echo $hdd_label_size; ?>GB</td>

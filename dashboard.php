@@ -48,7 +48,7 @@
             <td>
               <?php echo $cpu_model; ?>
               <div class="progress">
-                  <div class="progress-bar" role="progressbar" style="width: <?php echo $cpu_usage; ?>%">
+                  <div class="progress-bar" style="width: <?php echo $cpu_usage; ?>%">
                   </div>
               </div>
               (<?php echo get_server_cpu_usage(); ?>% Used)
@@ -60,7 +60,7 @@
             <td>
               Total: <?php echo $memory_installed; ?> MB
               <div class="progress">
-                  <div class="progress-bar" role="progressbar" style="width: <?php echo $free_memory; ?>%">
+                  <div class="progress-bar <?php if($free_memory > 85){ echo "bg-danger"; } ?>" style="width: <?php echo $free_memory; ?>%">
                   </div>
               </div>
               (<?php echo $free_memory; ?>% Used)
@@ -166,7 +166,7 @@ data: {
   datasets: [
     {
       label: "<?php echo $volume; ?>",
-      backgroundColor: ["#3e95cd", "#007bff"],
+      backgroundColor: ["#99999", "#007bff"],
       data: [<?php echo $used_space; ?>,<?php echo $free_space; ?>]
     }
   ]

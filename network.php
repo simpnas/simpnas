@@ -26,12 +26,12 @@
       </thead>
       <tbody>                
         <tr>
-          <td>Eth0</td>
+          <td><span class="mr-2" data-feather="globe"></span>Eth0</td>
           <td>Ethernet</td>
           <td><?php  ?></td>
           <td>255.255.255.0</td>
           <td>192.168.1.1</td>
-          <td class="text-success">UP</td>
+          <td class="text-success"><span data-feather="arrow-up"></span></td>
           <td>
           	<div class="btn-group mr-2">
         		<a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit-2"></span></a>
@@ -40,12 +40,12 @@
       	  </td>
         </tr>
         <tr>
-          <td>Eth0.10</td>
+          <td><span class="mr-2" data-feather="globe"></span>Eth0.10</td>
           <td>VLAN</td>
           <td>192.168.1.247</td>
           <td>255.255.255.0</td>
           <td>192.168.1.1</td>
-          <td class="text-danger">DOWN</td>
+          <td class="text-danger"><span data-feather="arrow-down"></span></td>
           <td>
           	<div class="btn-group mr-2">
         		<a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit-2"></span></a>

@@ -39,9 +39,9 @@
         ?>
         
         <tr>
-          <td><span data-feather="database"></span> <?php echo $volume; ?></td>
-          <td><span data-feather="hard-drive"></span> <?php echo $disk; ?></td>
-          <td><span data-feather="folder"></span> homes, pizza</td>
+          <td><span class="mr-2" data-feather="database"></span><?php echo $volume; ?></td>
+          <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?></td>
+          <td><span class="mr-2" data-feather="folder"></span>homes, pizza</td>
           <td>
             <div class="progress">
       <div class="progress-bar" role="progressbar" style="width: <?php echo $disk_used_percent; ?>%"></div>
