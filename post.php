@@ -28,6 +28,9 @@ if(isset($_POST['user_add'])){
   }
   
   exec ("chmod -R 700 /$config_mount_target/$config_home_volume/$config_home_dir/$username");
+
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
   
   echo "<script>window.location = 'users.php'</script>";
 }
@@ -47,7 +50,9 @@ if(isset($_POST['user_edit'])){
   }else{
     exec ("usermod -G users $username");
   }
-  print_r($group_array);
+  
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
 
   echo "<script>window.location = 'users.php'</script>";
 }
@@ -59,22 +64,10 @@ if(isset($_POST['group_edit']))
 
   exec ("groupmod -n $group $old_group");
 
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
+
   echo "<script>window.location = 'groups.php'</script>";
-}
-
-if(isset($_POST['group_modify_submit']))
-{
-  $group_id = check_input($_POST['group_id']);
-  $group_name = check_input(ucwords($_POST['group_name']));
-  $security = check_input($_POST['security']);
-
-    $sql = "UPDATE groups SET group_name = '$group_name', security = '$security' WHERE group_id = '$group_id'";
-
-    mysql_query($sql);
-    echo "
-    <script>
-    window.location = '$document_root/group_list.php'
-  </script>";
 }
 
 if(isset($_GET['delete_group']))
@@ -83,17 +76,21 @@ if(isset($_GET['delete_group']))
 
   exec("delgroup $group");
 
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
+
   echo "<script>window.location = 'groups.php'</script>";
 }
 
 if(isset($_POST['general_edit']))
 {
   $hostname = $_POST['hostname'];
+  $current_hostname = exec("hostname");
   
-  exec("echo $hostname > /etc/hostname");
-  exec("echo '127.0.0.1     $hostname localhost.localdomain localhost' > /etc/hosts");
-  exec("hostname $hostname");
-  //exec("service networking restart");
+  exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
+  exec("hostnamectl set-hostname $hostname");
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
   echo "<script>window.location = 'general.php'</script>";
 }
 
@@ -102,6 +99,8 @@ if(isset($_GET['unmount_volume']))
 {
   $vol = $_GET['unmount_volume'];
   exec ("umount /$config_mount_target/$vol");
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
   echo "<script>window.location = 'volumes.php'</script>";
 }
 
@@ -118,6 +117,9 @@ if(isset($_GET['delete_volume']))
   exec ("wipefs -a $hdd");
   
   deleteLineInFile("/etc/fstab","$hdd");
+
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
   
   echo "<script>window.location = 'volumes.php'</script>";
 }
@@ -132,6 +134,9 @@ if(isset($_GET['mount_hdd']))
 	} 
 
   exec ("sudo mount $hdd $hdd_mount_to");
+
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
   
   echo "<script>window.location = 'disk_list.php'</script>";
 }
@@ -197,7 +202,8 @@ if(isset($_POST['share_add']))
      fwrite($fh, $stringData);
      fclose($fh);
   
-       exec ("systemctl restart smbd");
+       exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
   	   echo "<script>window.location = 'shares.php'</script>";
 }
 
@@ -238,7 +244,8 @@ if(isset($_POST['share_edit']))
    fwrite($fh, $stringData);
    fclose($fh);
 
-   exec ("systemctl restart smbd");
+   exec("systemctl restart smbd");
+   exec("systemctl restart nmbd");
 
    echo "<script>window.location = 'shares.php'</script>";
 }
@@ -254,7 +261,8 @@ if(isset($_GET['share_delete']))
 
   deleteLineInFile("/etc/samba/shares.conf","$name");
 
-  exec ("systemctl restart smbd");
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
   
   echo "<script>window.location = 'shares.php'</script>";
 }
@@ -299,6 +307,9 @@ if(isset($_GET['delete_user']))
 
   exec("smbpasswd -x $username");
 	exec("deluser --remove-home $username");
+
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
 	
   echo "<script>window.location = 'users.php'</script>";
 }
@@ -310,21 +321,6 @@ if(isset($_POST['group_add']))
   exec ("addgroup $group");
   
   echo "<script>window.location = 'groups.php'</script>";
-}
-
-if(isset($_POST['group_modify_submit']))
-{
-	$group_id = check_input($_POST['group_id']);
-	$group_name = check_input(ucwords($_POST['group_name']));
-	$security = check_input($_POST['security']);
-
-    $sql = "UPDATE groups SET group_name = '$group_name', security = '$security' WHERE group_id = '$group_id'";
-
-    mysql_query($sql);
-    echo "
-    <script>
-		window.location = '$document_root/group_list.php'
-	</script>";
 }
 
 if(isset($_GET['delete_group']))
@@ -381,7 +377,8 @@ if(isset($_POST['install_jellyfin'])){
      fwrite($fh, $stringData);
      fclose($fh);
     
-    exec ("systemctl restart smbd");
+    exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
 
   }
 
@@ -422,7 +419,8 @@ if(isset($_GET['uninstall_jellyfin'])){
     exec ("rm -f /etc/samba/shares/media");
     deleteLineInFile("/etc/samba/shares.conf","media");
     //restart samba
-    exec ("systemctl restart smbd");
+    exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
     //redirect back to packages
     echo "<script>window.location = 'packages.php'</script>";
 }
@@ -454,7 +452,8 @@ if(isset($_POST['install_lychee']))
      fwrite($fh, $stringData);
      fclose($fh);
     
-    exec ("systemctl restart smbd");     
+    exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");     
 
        exec("docker run -d --name lychee -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee/config:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
        echo "<script>window.location = 'packages.php'</script>";
@@ -492,7 +491,8 @@ if(isset($_GET['uninstall_lychee'])){
     exec ("rm -f /etc/samba/shares/photos");
     deleteLineInFile("/etc/samba/shares.conf","photos");
     //restart samba
-    exec ("systemctl restart smbd");
+    exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
     //redirect back to packages
     echo "<script>window.location = 'packages.php'</script>";
 }
@@ -660,7 +660,8 @@ if(isset($_POST['install_transmission_ovpn']))
      fwrite($fh, $stringData);
      fclose($fh);
     
-    exec ("systemctl restart smbd");
+    exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
 
        exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=192.168.0.0/16 PGID=$group_id -e PUID=0 --log-driver json-file --log-opt max-size=10m -v /etc/localtime:/etc/localtime:ro -v /$config_mount_target/$volume/downloads:/data -p 9091:9091 haugene/transmission-openvpn");
        echo "<script>window.location = 'packages.php'</script>";
@@ -708,7 +709,8 @@ if(isset($_POST['install_transmission']))
      fwrite($fh, $stringData);
      fclose($fh);
     
-    exec ("systemctl restart smbd");
+    exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
 
        exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$volume/downloads/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
        echo "<script>window.location = 'packages.php'</script>";
@@ -747,7 +749,8 @@ if(isset($_GET['uninstall_transmission'])){
     exec ("rm -f /etc/samba/shares/downloads");
     deleteLineInFile("/etc/samba/shares.conf","downloads");
     //restart samba
-    exec ("systemctl restart smbd");
+    exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
     //redirect back to packages
     echo "<script>window.location = 'packages.php'</script>";
 }
@@ -782,6 +785,8 @@ if(isset($_POST['setup']))
   $username = $_POST['username'];
   $password = $_POST['password'];
 
+  $current_hostname = exec("hostname");
+
   $os_disk = exec("findmnt -n -o SOURCE --target /");
 
   //Create config.php file
@@ -795,11 +800,9 @@ if(isset($_POST['setup']))
   fclose($myfile);
 
   include("config.php");
-
-  exec("echo $hostname > /etc/hostname");
-  //exec("echo '127.0.0.1     $hostname localhost.localdomain localhost' > /etc/hosts");
-  exec("hostname $hostname");
-  //exec("service networking restart");
+  
+  exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
+  exec("hostnamectl set-hostname $hostname");
 
   exec ("wipefs -a $hdd");
   exec ("(echo o; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
@@ -815,7 +818,8 @@ if(isset($_POST['setup']))
 
   exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
 
-  exec("service smbd restart");
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
   
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");
@@ -829,8 +833,8 @@ if(isset($_POST['setup']))
 if(isset($_GET['reset']))
 {
   //Stop Samba
-  exec("service smbd stop");
-  exec("service nmbd stop");
+  exec("systemctl stop smbd");
+  exec("systemctl stop nmbd");
 
   //Remove and stop all Dockers and docker images
   exec ("docker stop $(docker ps -aq)");
@@ -866,11 +870,13 @@ if(isset($_GET['reset']))
   }
 
   //Remove Samba conf and replace it with the default
-  exec ("rm /etc/samba/smb.conf");
-  exec ("cp /simpnas/smb.conf /etc/samba/");
+  exec ("rm -f /etc/samba/smb.conf");
+  exec ("rm -f /etc/samba/shares.conf");
+  exec ("rm -f /etc/samba/shares/*");
+  exec ("cp /simpnas/conf/smb.conf /etc/samba/");
 
-  exec("service smbd start");
-  exec("service nmbd start");
+  exec("systemctl start smbd");
+  exec("systemctl start nmbd");
 
   echo "<script>window.location = 'dashboard.php'</script>";
 }

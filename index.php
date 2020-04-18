@@ -6,9 +6,18 @@
 
  <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-    <h1 class="h2">SimpNAS <small>v0.2 (2020-04-16)</small></h1>
+    <h1 class="h2">SimpNAS <small>v0.3 (2020-04-17)</small></h1>
     <p>A NAS for Grandpa!</p>
 </div>
+
+<h5>v0.3 (2020-04-17)</h5>
+<ul>
+	<li>Added a bunch of fixes to packages</li>
+	<li>Fixed Transmission Container</li>
+	<li>Fixed issues with changing hostname where samba host would not update</li>
+	<li>Properly restart Samba</li>
+	<li>Properly update hostname</li>
+</ul>
 
 <h5>v0.2 (2020-04-16)</h5>
 <ul>

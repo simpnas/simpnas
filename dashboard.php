@@ -16,7 +16,7 @@
   $free_memory = floor($free_memory);
   $cpu_usage = exec("top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\([0-9.]*\)%* id.*/\1/' | awk '{print 100 - $1'%'}'");
   $load_avg = exec("uptime |awk -F 'average:' '{ print $2}'");
-  $uptime = exec("uptime -p");
+  $uptime = exec("uptime -p | cut -c 4-");
   $system_time = exec("date");
 
   $cpu_model = exec("lscpu | grep 'Model name:' | sed -r 's/Model name:\s{1,}//g'");
@@ -26,7 +26,8 @@
   $num_of_groups = count($group_array);
   $num_of_volumes = count($volume_array);
   $num_of_disks = count($drive_list);
-  $num_of_shares = count($shares);
+  $num_of_shares = exec("ls /etc/samba/shares | wc -l");
+  $num_of_packages = exec("docker ps | wc -l") - 1;
 ?>
 
  <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -121,6 +122,22 @@
   	    <p class="card-text"><?php echo $num_of_volumes; ?></p>
   	  </div>
   	</div>
+  </div>
+  <div class="col-md-2">
+        <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title">Shares</h5>
+        <p class="card-text"><?php echo $num_of_shares; ?></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+        <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title">Packages</h5>
+        <p class="card-text"><?php echo $num_of_packages; ?></p>
+      </div>
+    </div>
   </div>
   </div>
 
