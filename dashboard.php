@@ -27,7 +27,7 @@
   $num_of_volumes = count($volume_array);
   $num_of_disks = count($drive_list);
   $num_of_shares = exec("ls /etc/samba/shares | wc -l");
-  $num_of_packages = exec("docker ps | wc -l") - 1;
+  $num_of_apps = exec("docker ps | wc -l") - 1;
 ?>
 
  <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -134,8 +134,8 @@
   <div class="col-md-2">
         <div class="card text-center">
       <div class="card-body">
-        <h5 class="card-title">Packages</h5>
-        <p class="card-text"><?php echo $num_of_packages; ?></p>
+        <h5 class="card-title">Apps</h5>
+        <p class="card-text"><?php echo $num_of_apps; ?></p>
       </div>
     </div>
   </div>

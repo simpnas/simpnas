@@ -10,6 +10,71 @@
     <h2>Apps</h2>
   </div>
 
+  <div class="row">
+    
+    <div class="col-md-3">
+      <div class="card text-center">
+        <center>
+          <img src="https://framalibre.org/sites/default/files/leslogos/jellyfin_logo.png" class="card-img-top bg-dark" alt="...">
+        </center>
+        <div class="card-body">
+          <h5 class="card-title">Jellyfin</h5>
+          <p class="card-text">Organize and stream your music, movies and TV Shows.</p>
+          <div class="text-success"><span data-feather="check"></span>Installed (Running)</div>
+        </div>
+        <div class="card-body bg-light border-top">
+          <?php 
+            if(file_exists("/$config_mount_target/$config_docker_volume/docker/jellyfin")) {
+          ?>
+            <a href="https://<?php echo $_SERVER['HTTP_HOST']; ?>:8096" class="card-link" target="_blank">Access</a>
+            <a href="update_jellyfin.php" class="card-link">Update</a>
+            <a href="post.php?uninstall_jellyfin" class="card-link text-danger">Uninstall</a>
+          <?php
+          }else{
+          ?>
+          <a href="post.php?install_nextcloud" class="card-link">Install</a>
+          <a href="https://jellyfin.org" class="card-link">Website</a>
+          <?php  
+          }
+          ?>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card text-center">
+        <center>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Nextcloud_Logo.svg/1200px-Nextcloud_Logo.svg.png" class="card-img-top " alt="...">
+        </center>
+        <div class="card-body">
+          <h5 class="card-title">Nextcloud</h5>
+          <p class="card-text">Access and share your files anywhere over the Internet.</p>
+        </div>
+        <div class="card-body bg-light border-top">
+          <a href="#" class="card-link">Install</a>
+          <a href="#" class="card-link">Website</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card text-center">
+        <center>
+          <img src="https://cdn-reichelt.de/bilder/web/xxl_ws/E910/UBI_UAP-AC-LR_01.png" class="card-img-top" alt="...">
+        </center>
+        <div class="card-body">
+          <h5 class="card-title">Unifi Controller</h5>
+          <p class="card-text">Manage your network at home.</p>
+        </div>
+        <div class="card-body bg-light border-top">
+          <a href="#" class="card-link">Install</a>
+          <a href="#" class="card-link">Website</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>
@@ -129,6 +194,33 @@
               }else{
               ?>
               <a href="install_transmission.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+              <?php  
+              }
+              ?>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="mr-2" data-feather="package"></span>Transmission/OpenVPN
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission-ovpn")) { ?>
+            <small class="text-success"><span data-feather="check"></span>Installed VPN IP <?php $vpn_ip = exec("docker exec -ti transmission-ovpn curl ifconfig.co"); echo $vpn_ip; ?></small>
+            <?php } ?>
+          </td>
+          <td>Torrent downloads</td>
+          <td>
+            <div class="btn-group mr-2">
+              <?php 
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission-ovpn")) {
+              ?>
+                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:9091" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="update_transmission_ovpn.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_transmission_ovpn" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <?php
+              }else{
+              ?>
+              <a href="install_transmission-ovpn.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
               <?php  
               }
               ?>

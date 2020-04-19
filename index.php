@@ -6,9 +6,16 @@
 
  <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-    <h1 class="h2">SimpNAS <small>v0.6 (2020-04-18)</small></h1>
+    <h1 class="h2">SimpNAS <small>v0.7 (2020-04-19)</small></h1>
     <p>A NAS for Grandpa!</p>
 </div>
+
+<h5>v0.7 (2020-04-19)</h5>
+<ul>
+	<li>Added Transmission with OpenVPN support (PIA is currently the only VPN provider supported more will come...)</li>
+	<li>share references under Volumes now works</li>
+	<li>Bunch of other small UI and usability fixes</li>
+</ul>
 
 <h5>v0.6 (2020-04-18)</h5>
 <ul>

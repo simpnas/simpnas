@@ -35,13 +35,18 @@
         $free_space = formatSize($free_space);
         $total_space = formatSize($total_space);
         $used_space = formatSize($used_space);
+        exec("ls /$config_mount_target/$volume/ | grep -v docker | grep -v lost+found", $share_list_array);
+        foreach ($share_list_array as $share){
+          $share_list .= "$share, ";  
+        }
+        $share_list = substr($share_list,0,-2); //Trim a , and a space at the end
 
         ?>
         
         <tr>
           <td><span class="mr-2" data-feather="database"></span><?php echo $volume; ?></td>
           <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?></td>
-          <td><span class="mr-2" data-feather="folder"></span>homes, pizza</td>
+          <td><span class="mr-2" data-feather="folder"></span><?php echo $share_list; ?></td>
           <td>
             <div class="progress">
       <div class="progress-bar" role="progressbar" style="width: <?php echo $disk_used_percent; ?>%"></div>
@@ -57,17 +62,6 @@
           </td>
         </tr>
         <?php } ?>
-        <tr>
-          <td><span data-feather="database"></span> vol3<br><small>LUKS Encrypt</small></td>
-          <td>RAID 1</span><br><small><span data-feather="hard-drive"></span> Disk2, Disk3</small></td>
-          <td><span data-feather="folder"></span> media</td>
-          <td><p class="text-danger text-center"><strong>ENCRYPTED</strong></p></td>
-          <td>
-            <div class="btn-group mr-2">
-            <button class="btn btn-outline-secondary"><span data-feather="unlock"></span></button>
-            <a href="post.php?delete_volume=<?php echo $volume; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
-          </div>
-        </td>
       </tbody>
     </table>
   </div>
