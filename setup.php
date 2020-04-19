@@ -40,28 +40,27 @@
     <div class="container-fluid">
       <div class="row">
 
-<main role="main" class="col-md-12 ml-sm-auto col-lg-12 pt-3 px-4">
-  <nav aria-label="breadcrumb">
+<main class="col-md-12 ml-sm-auto col-lg-12 pt-3 px-4">
+  <nav>
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="setup.php">Setup</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Step 1</li>
+    <li class="breadcrumb-item active">Step 1</li>
   </ol>
 </nav>
-  <h1>First Time Setup Wizard</h1>
-  <h4>Give your NAS a name</h4>
+  <h2>First Time Setup Wizard</h2>
+  <hr>
   <form method="post" action="post.php">
+	  <legend>Naming Setup</legend>
+
 	  <div class="form-group">
-	    <label>Name:</label>
+	    <label>Hostname</label>
 	    <input type="text" class="form-control" name="hostname" value="<?php echo gethostname(); ?>">
 	  </div>
-	  <h4>Set the Administrator/Root Password</h4>
+	  
+	  <legend>Disk and Volume Setup</legend>
+
 	  <div class="form-group">
-	    <label>Password:</label>
-	    <input type="password" class="form-control" name="password">
-	  </div>
-	  <h4>Select a disk and create your first volume <small>Home Directories and Docker Shares will be added</small></h4>
-	  <div class="form-group">
-	    <label>Disk:</label>
+	    <label>Disk</small></label>
 	    <select class="form-control" name="disk">
 	  	<?php
 			exec("smartctl --scan | awk '{print $1}'", $drive_list);
@@ -76,9 +75,6 @@
 				$hdd_label_size = str_replace([" "], "", $hdd_label_size);
 				$hdd_label_size = str_replace([".00"], "", $hdd_label_size);
 				$hdd_label_size = str_replace([".0"], "", $hdd_label_size);
-				{
-					unset($drive_list['sda']);
-				}
 			?>
 			<option value="<?php echo $hdd; ?>"><?php echo "$hdd_short_name - $hdd_model ($hdd_label_size)"; ?></option>	
 
@@ -87,13 +83,16 @@
 		?>
 
 	  </select>
+	  <small class="form-text text-muted">Select a disk to create your first volume on. user home and docker directories will be created here, note you cannot use the disk your OS is installed on and will not show here</small>
 	  </div>
 	  <div class="form-group">
-	    <label>Volume Name:</label>
+	    <label>Volume Name</label>
 	    <input type="text" class="form-control" name="volume_name">
 	  </div>
 
-	  <label>Interface</label>
+	  <legend>Network Setup</legend>
+
+	  <label>Network Interface</label>
 		<select class="form-control" name="interface">
 			<?php
 			foreach ($net_devices_array as $net_device) {
@@ -110,6 +109,7 @@
 			<option>DHCP</option>
 			<option>Static</option>
 		</select>
+		<small class="form-text text-muted">If DHCP is selected there is no need to fill out address, gateway or dns.</small>
 	  </div>
 	  <div class="form-group">
 	    <label>Address/CIDR</label>
@@ -124,14 +124,14 @@
 	    <input type="text" class="form-control" name="dns">
 	  </div>
 
+	  <legend>Setup User</legend>
 
-	  <h4>Add your first User</h4>
 	  <div class="form-group">
-	    <label>Username:</label>
+	    <label>Username</label>
 	    <input type="text" class="form-control" name="username">
 	  </div>
 	  <div class="form-group">
-	    <label for="pwd">Password:</label>
+	    <label for="pwd">Password</label>
 	    <input type="password" class="form-control" name="password">
 	  </div>
 	  <button type="submit" name="setup" class="btn btn-primary">Submit</button>

@@ -4,12 +4,12 @@
     include("side_nav.php");
 ?>
 
-<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-<nav aria-label="breadcrumb">
+<main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+<nav>
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
     <li class="breadcrumb-item"><a href="volumes.php">Volumes</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Add Volume</li>
+    <li class="breadcrumb-item active">Add Volume</li>
   </ol>
 </nav>
 
@@ -21,21 +21,17 @@
 	    <select class="form-control" name="disk">
 	  	<?php
 			exec("smartctl --scan | awk '{print $1}'", $drive_list);
-			foreach ($drive_list as $hdd) {
-				if( $hdd == "$config_os_disk" )continue;
+			foreach ($drive_list as $hdd){
+				if($hdd == "$config_os_disk")continue;
 				$hdd_short_name = basename($hdd);
                 $hdd_serial = exec("smartctl -i $hdd | grep Serial|awk '{ print $3 '}");
                 $hdd_model = exec("smartctl -i $hdd | grep 'Device Model:'|cut -d' ' -f 7-");
                 $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity' | cut -d' ' -f 8-");
-	              $hdd_label_size = str_replace(["["], "", $hdd_label_size);
-	              $hdd_label_size = str_replace(["]"], "", $hdd_label_size);
-	              $hdd_label_size = str_replace([" "], "", $hdd_label_size);
-	              $hdd_label_size = str_replace([".00"], "", $hdd_label_size);
-	              $hdd_label_size = str_replace([".0"], "", $hdd_label_size);
-	              unset($drive_list['/dev/sda']);
-	            
-					
-				
+				$hdd_label_size = str_replace(["["], "", $hdd_label_size);
+				$hdd_label_size = str_replace(["]"], "", $hdd_label_size);
+				$hdd_label_size = str_replace([" "], "", $hdd_label_size);
+				$hdd_label_size = str_replace([".00"], "", $hdd_label_size);
+				$hdd_label_size = str_replace([".0"], "", $hdd_label_size);    		
 			?>
 			<option value="<?php echo $hdd; ?>"><?php echo "$hdd_short_name - $hdd_model ($hdd_label_size)"; ?></option>	
 
