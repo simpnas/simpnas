@@ -92,7 +92,8 @@
 
 	  <legend>Network Setup</legend>
 
-	  <label>Network Interface</label>
+	  <div class="form-group">
+	  	<label>Network Interface</label>
 		<select class="form-control" name="interface">
 			<?php
 			foreach ($net_devices_array as $net_device) {
@@ -103,6 +104,7 @@
 			?>
 		</select>
 	  </div>
+	  
 	  <div class="form-group">
 		<label>Method</label>
 		<select class="form-control" name="method">
@@ -111,14 +113,17 @@
 		</select>
 		<small class="form-text text-muted">If DHCP is selected there is no need to fill out address, gateway or dns.</small>
 	  </div>
+	  
 	  <div class="form-group">
 	    <label>Address/CIDR</label>
 	    <input type="text" class="form-control" name="address" placeholder="ex 192.168.1.5/24">
 	  </div>
+	  
 	  <div class="form-group">
 	    <label>Gateway</label>
 	    <input type="text" class="form-control" name="gateway">
 	  </div>
+	  
 	  <div class="form-group">
 	    <label>DNS Server(s)</label>
 	    <input type="text" class="form-control" name="dns">
@@ -130,10 +135,12 @@
 	    <label>Username</label>
 	    <input type="text" class="form-control" name="username">
 	  </div>
+	  
 	  <div class="form-group">
-	    <label for="pwd">Password</label>
+	    <label>Password</label>
 	    <input type="password" class="form-control" name="password">
 	  </div>
+	  
 	  <button type="submit" name="setup" class="btn btn-primary">Submit</button>
 	</form>
 </main>

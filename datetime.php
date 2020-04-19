@@ -9,7 +9,7 @@
 
 ?>
 
-<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+<main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 	<?php echo $current_time_zone; ?>
   <h2>Date and Time</h2>
   <div class="alert alert-danger">Work In Progress! Not Functioning!</div>

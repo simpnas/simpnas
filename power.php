@@ -4,7 +4,7 @@
     include("side_nav.php");
 ?>
 
-<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+<main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 	<h2>Power</h2>
 	<hr>
 	<a href="post.php?shutdown" class="btn btn-lg btn-outline-danger">Shutdown</a>

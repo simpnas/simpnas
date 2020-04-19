@@ -19,12 +19,12 @@ $dhcp = $networkConfigArray['DHCP'];
 
 ?>
 
-<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-  <nav aria-label="breadcrumb">
+<main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+  <nav>
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
     <li class="breadcrumb-item"><a href="network.php">Networks</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Edit Network</li>
+    <li class="breadcrumb-item active">Edit Network</li>
   </ol>
 </nav>
 

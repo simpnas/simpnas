@@ -9,18 +9,18 @@
 
 ?>
 
-<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+<main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="users.php">Home</a></li>
+    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
     <li class="breadcrumb-item"><a href="disks.php">Disks</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Disk Info</li>
+    <li class="breadcrumb-item active">Disk Info</li>
   </ol>
 </nav>
 
 
 
-<h2>HDD <?php echo $hdd; ?> Info</h2>
+<h2>Disk <?php echo $hdd; ?> Info</h2>
 <?php
 
   $cmd = "smartctl -a /dev/$hdd";

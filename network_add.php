@@ -5,12 +5,12 @@
     exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth", $net_devices_array);
 ?>
 
-<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-  <nav aria-label="breadcrumb">
+<main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+  <nav>
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
     <li class="breadcrumb-item"><a href="network.php">Networks</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Add Network</li>
+    <li class="breadcrumb-item active">Add Network</li>
   </ol>
 </nav>
 

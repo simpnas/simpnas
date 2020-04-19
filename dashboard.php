@@ -4,11 +4,10 @@
   include("side_nav.php");
 
   exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);
-  
-  exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nobody | grep -v nogroup", $group_array);
+  exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
   array_push($group_array, "users");
 
-  exec("smartctl --scan|awk '{ print $1 '}", $drive_list);
+  exec("smartctl --scan | awk '{ print $1 '}", $drive_list);
 
   exec("ls /$config_mount_target", $volume_array);
 
@@ -30,7 +29,7 @@
   $num_of_apps = exec("docker ps | wc -l") - 1;
 ?>
 
- <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+ <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
       <h1 class="h2">Dashboard</h1>
     </div>
@@ -148,8 +147,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 <script>
   <?php foreach($volume_array as $volume){
-  		$free_space = disk_free_space("/mnt/$volume/");
-        $total_space = disk_total_space("/mnt/$volume/");
+  		$free_space = disk_free_space("/$config_mount_target/$volume/");
+        $total_space = disk_total_space("/$config_mount_target/$volume/");
         $used_space = $total_space - $free_space;
         $disk_used_percent = sprintf('%.0f',($used_space / $total_space) * 100);
         //$disk_used_percent = sprintf('%.2f',($used_space / $total_space) * 100); //Add 2 decimal to Percent

@@ -3,11 +3,11 @@
     include("config.php");
     include("header.php");
     include("side_nav.php");
-    exec("smartctl --scan|awk '{ print $1 '}", $drive_list);
+    exec("smartctl --scan | awk '{ print $1 '}", $drive_list);
 
 ?>
 
- <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+ <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 
            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
             <h2>Disks</h2>

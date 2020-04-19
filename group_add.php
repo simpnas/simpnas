@@ -4,12 +4,12 @@
     include("side_nav.php");
 ?>
 
-<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-  <nav aria-label="breadcrumb">
+<main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+  <nav>
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
     <li class="breadcrumb-item"><a href="groups.php">Groups</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Add Group</li>
+    <li class="breadcrumb-item active">Add Group</li>
   </ol>
 </nav>
 

@@ -39,14 +39,14 @@
 			}
 		?>
 
-	  </select>
+	  	</select>
 	  </div>
 	  <div class="form-group">
 	    <label>Volume Name</label>
 	    <input type="text" class="form-control" name="name">
 	  </div>
 	  <div class="form-group">
-	  <div class="custom-control custom-checkbox">
+	  	<div class="custom-control custom-checkbox">
 		  <input type="checkbox" class="custom-control-input" name="encrypt" value="1" id="encrypt">
 		  <label class="custom-control-label" for="encrypt">Encrypt</label>
 		</div>

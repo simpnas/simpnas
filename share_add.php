@@ -4,12 +4,12 @@
     include("side_nav.php");
 ?>
 
-<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-  <nav aria-label="breadcrumb">
+<main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+  <nav>
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="users.php">Home</a></li>
+    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
     <li class="breadcrumb-item"><a href="shares.php">Shares</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Add Share</li>
+    <li class="breadcrumb-item active">Add Share</li>
   </ol>
 </nav>
 
@@ -46,21 +46,20 @@
 	  <div class="form-group">
 		<label>Group Access:</label>
 		<select class="form-control" name="group">
-	  	<option>users</option>
-	  	<?php
-			exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup | grep -v nobody", $group_array);
-			foreach ($group_array as $group) {
+		  	<option>users</option>
+		  	<?php
+				exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
+				foreach ($group_array as $group) {
+				?>
+				<option><?php echo "$group"; ?></option>	
+
+			<?php
+				}
 			?>
-			<option><?php echo "$group"; ?></option>	
 
-		<?php
-			}
-		?>
-
-	  </select>  
-	</div>
- 	<button type="submit" name="share_add" class="btn btn-primary">Submit</button>
-	 
+		  </select>  
+		</div>
+ 		<button type="submit" name="share_add" class="btn btn-primary">Submit</button> 
 	</form>
 </main>
 

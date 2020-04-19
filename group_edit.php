@@ -7,12 +7,12 @@
     }
 ?>
 
-<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-  <nav aria-label="breadcrumb">
+<main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+  <nav>
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="users.php">Home</a></li>
     <li class="breadcrumb-item"><a href="groups.php">Groups</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Edit Group</li>
+    <li class="breadcrumb-item active">Edit Group</li>
   </ol>
 </nav>
 

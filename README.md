@@ -5,6 +5,7 @@ A webscript to manage Hard Drives, Volumes, SAMBA shares, users, groups, docker 
 
 * Install Debian 10
 * Login as root
-* Copy and paste the line below into terminal 
+* Remove any regular users that were created using deluser -r USERNAME
+* Copy and paste the line below into terminal
 
 `wget https://raw.githubusercontent.com/johnnyq/simpnas/master/install.sh; bash install.sh`

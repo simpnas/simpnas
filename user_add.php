@@ -2,26 +2,26 @@
     include("config.php");
     include("header.php");
     include("side_nav.php");
-    exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nobody | grep -v nogroup", $group_array);
+    exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
 ?>
 
-<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-  <nav aria-label="breadcrumb">
+<main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+  <nav>
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="users.php">Home</a></li>
+    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
     <li class="breadcrumb-item"><a href="users.php">Users</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Add User</li>
+    <li class="breadcrumb-item active">Add User</li>
   </ol>
 </nav>
 
   <h2>Add User</h2>
   <form method="post" action="post.php">
 	  <div class="form-group">
-	    <label>Username:</label>
+	    <label>Username</label>
 	    <input type="text" class="form-control" name="username">
 	  </div>
 	  <div class="form-group">
-	    <label for="pwd">Password:</label>
+	    <label>Password:</label>
 	    <input type="password" class="form-control" name="password">
 	  </div>
 	  <legend>Groups</legend>
