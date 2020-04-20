@@ -15,7 +15,7 @@
     <div class="col-md-3">
       <div class="card text-center">
         <center>
-          <img src="https://framalibre.org/sites/default/files/leslogos/jellyfin_logo.png" class="card-img-top bg-dark" alt="...">
+          <img src="img/apps/jellyfin.png" class="card-img-top" alt="...">
         </center>
         <div class="card-body">
           <h5 class="card-title">Jellyfin</h5>
@@ -44,7 +44,7 @@
     <div class="col-md-3">
       <div class="card text-center">
         <center>
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Nextcloud_Logo.svg/1200px-Nextcloud_Logo.svg.png" class="card-img-top " alt="...">
+          <img src="img/apps/nextcloud.png" class="card-img-top " alt="...">
         </center>
         <div class="card-body">
           <h5 class="card-title">Nextcloud</h5>
@@ -60,12 +60,17 @@
     <div class="col-md-3">
       <div class="card text-center">
         <center>
-          <img src="https://cdn-reichelt.de/bilder/web/xxl_ws/E910/UBI_UAP-AC-LR_01.png" class="card-img-top" alt="...">
+          <img src="img/apps/unifi.png" class="card-img-top" alt="...">
         </center>
         <div class="card-body">
           <h5 class="card-title">Unifi Controller</h5>
           <p class="card-text">Manage your network at home.</p>
         </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Cras justo odio</li>
+          <li class="list-group-item">Dapibus ac facilisis in</li>
+          <li class="list-group-item">Vestibulum at eros</li>
+        </ul>
         <div class="card-body bg-light border-top">
           <a href="#" class="card-link">Install</a>
           <a href="#" class="card-link">Website</a>
