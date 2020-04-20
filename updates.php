@@ -10,6 +10,7 @@
     <h2>Updates</h2>
     <a href="user_add.php" class="btn btn-outline-primary">Check For Updates</a>
     <a href="post.php?upgrade_simpnas" class="btn btn-outline-secondary">Update SimpNAS</a>
+    <a href="post.php?upgrade_simpnas_overwrite_local_changes" class="btn btn-outline-secondary">Update SimpNAS (Overwrite Changes)</a>
   </div>
 
   <div class="table-responsive">

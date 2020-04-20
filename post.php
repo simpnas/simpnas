@@ -3,9 +3,30 @@
   include("config.php");
   include("functions.php"); 
 
+if(isset($_GET['reboot'])){
+  exec("reboot");
+  echo "<script>window.location = 'rebooting.php'</script>";
+}
+
+if(isset($_GET['shutdown'])){
+  exec("halt -p");
+  echo "<script>window.location = 'index.php'</script>";
+}
+
 if(isset($_GET['upgrade_simpnas'])){
   exec("cd /simpnas");
   exec("git pull origin master");
+  echo "<script>window.location = 'index.php'</script>";
+}
+
+if(isset($_GET['upgrade_simpnas_overwrite_local_changes'])){
+  exec("cd /simpnas");
+  
+  //git fetch downloads the latest from remote without trying to merge or rebase anything. Then the git reset resets the master branch to what you just fetched. The --hard option changes all the files in your working tree to match the files in origin/master
+
+  exec("git fetch --all");
+  exec("git reset --hard origin/master");
+
   echo "<script>window.location = 'index.php'</script>";
 }
 
