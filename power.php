@@ -8,7 +8,7 @@
 	<h2>Power</h2>
 	<hr>
 	<a href="post.php?shutdown" class="btn btn-lg btn-outline-danger">Shutdown</a>
-	<a href="post.php?reboot" class="btn btn-lg btn-outline-secondary">Reboot</a>
+	<a href="reboot.php" class="btn btn-lg btn-outline-secondary">Reboot</a>
 	<a href="post.php?reset" class="btn btn-lg btn-danger">DESTROY!</a>
 </main>
 
