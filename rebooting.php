@@ -3,18 +3,14 @@
     include("header.php");
     include("side_nav.php");
 ?>
-<?php exec("sleep 10; reboot > /dev/null &"); ?>
+<?php exec("reboot > /dev/null &"); ?>
 
 
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-    <h1 class="h2">SimpNAS <small>v0.7 (2020-04-19)</small></h1>
-    <p>A NAS for Grandpa!</p>
-</div>
 
 <center>
 	<h1 class="text-danger">Rebooting!</h1>
-	<h3>Redirecting to home after <span id="countdown">10</span> seconds</h3>
+	<h3>Redirecting to home after <span id="countdown">60</span> seconds</h3>
 </center>
 
 </main>
@@ -23,7 +19,7 @@
 <script type="text/javascript">
     
     // Total seconds to wait
-    var seconds = 10;
+    var seconds = 60;
     
     function countdown() {
         seconds = seconds - 1;
