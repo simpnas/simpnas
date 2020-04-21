@@ -1045,7 +1045,7 @@ if(isset($_POST['setup']))
   fwrite($fh, $stringData);
   fclose($fh);
 
-  $hostname = gethostname();
+  $hostname = exec("hostname");
 
   exec ("mv /etc/network/interfaces /etc/network/interfaces.save");
   exec ("systemctl enable systemd-networkd");
@@ -1056,7 +1056,7 @@ if(isset($_POST['setup']))
     $stringData = "[Match]\nName=$interface\n\n[Network]\nDHCP=ipv4\n";
     fwrite($fh, $stringData);
     fclose($fh);
-    exec("systemctl restart systemd-networkd");
+    exec("sleep 1; systemctl restart systemd-networkd > /dev/null &");
     echo "<script>window.location = 'http://$hostname/dashboard.php'</script>";
   }
   if($method == 'Static'){
@@ -1066,7 +1066,7 @@ if(isset($_POST['setup']))
     fwrite($fh, $stringData);
     fclose($fh);
     $new_ip = substr($address, 0, strpos($address, "/"));
-    exec("systemctl restart systemd-networkd");
+    exec("systemctl restart systemd-networkd > /dev/null &");
     echo "<script>window.location = 'http://$new_ip/dashboard.php'</script>";
   }
 
