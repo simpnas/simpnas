@@ -10,89 +10,14 @@
     <h2>Apps</h2>
   </div>
 
-  <div class="row">
-    
-    <div class="col-md-3">
-      <div class="card text-center">
-        <center>
-          <img src="img/apps/jellyfin.png" class="card-img-top" alt="...">
-        </center>
-        <div class="card-body">
-          <h5 class="card-title">Jellyfin</h5>
-          <p class="card-text">Organize and stream your music, movies and TV Shows.</p>
-          <div class="text-success"><span data-feather="check"></span>Installed (Running)</div>
-        </div>
-        <div class="card-body bg-light border-top">
-          <?php 
-            if(file_exists("/$config_mount_target/$config_docker_volume/docker/jellyfin")) {
-          ?>
-            <a href="https://<?php echo $_SERVER['HTTP_HOST']; ?>:8096" class="card-link" target="_blank">Access</a>
-            <a href="update_jellyfin.php" class="card-link">Update</a>
-            <a href="post.php?uninstall_jellyfin" class="card-link text-danger">Uninstall</a>
-          <?php
-          }else{
-          ?>
-          <a href="post.php?install_nextcloud" class="card-link">Install</a>
-          <a href="https://jellyfin.org" class="card-link">Website</a>
-          <?php  
-          }
-          ?>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3">
-      <div class="card text-center">
-        <center>
-          <img src="img/apps/nextcloud.png" class="card-img-top " alt="...">
-        </center>
-        <div class="card-body">
-          <h5 class="card-title">Nextcloud</h5>
-          <p class="card-text">Access and share your files anywhere over the Internet.</p>
-        </div>
-        <div class="card-body bg-light border-top">
-          <a href="#" class="card-link">Install</a>
-          <a href="#" class="card-link">Website</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3">
-      <div class="card text-center">
-        <center>
-          <img src="img/apps/unifi.png" class="card-img-top" alt="...">
-        </center>
-        <div class="card-body">
-          <h5 class="card-title">Unifi Controller</h5>
-          <p class="card-text">Manage your network at home.</p>
-        </div>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item">Cras justo odio</li>
-          <li class="list-group-item">Dapibus ac facilisis in</li>
-          <li class="list-group-item">Vestibulum at eros</li>
-        </ul>
-        <div class="card-body bg-light border-top">
-          <a href="#" class="card-link">Install</a>
-          <a href="#" class="card-link">Website</a>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
   <div class="table-responsive">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>App</th>
-          <th>Description</th>
-          <th>Action</th>
-        </tr>
-      </thead>
+    <table class="table">
       <tbody>                
         <tr>
-          <td>
-            <span class="mr-2" data-feather="package"></span>Nextcloud
+          <td class="text-center text-muted">
+            <img src="img/apps/nextcloud.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            Nextcloud
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/nextcloud")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
@@ -112,7 +37,7 @@
               <?php
               }else{
               ?>
-              <a href="post.php?install_nextcloud" class="btn btn-outline-success"><span data-feather="download"></span></a>
+              <a href="post.php?install_nextcloud" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
@@ -120,8 +45,10 @@
           </td>
         </tr>
         <tr>
-          <td>
-            <span class="mr-2" data-feather="package"></span>Jellyfin
+          <td class="text-center text-muted">
+            <img src="img/apps/jellyfin.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            Jellyfin
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/jellyfin")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
@@ -139,7 +66,7 @@
               <?php
               }else{
               ?>
-              <a href="install_jellyfin.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+              <a href="install_jellyfin.php" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
@@ -147,8 +74,10 @@
           </td>
         </tr>
         <tr>
-          <td>
-            <span class="mr-2" data-feather="package"></span>Dokuwiki
+          <td class="text-center text-muted">
+            <img src="img/apps/dokuwiki.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            Dokuwiki
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/dokuwiki")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
@@ -166,7 +95,7 @@
               <?php
               }else{
               ?>
-              <a href="post.php?install_dokuwiki" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+              <a href="post.php?install_dokuwiki" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
@@ -174,13 +103,21 @@
           </td>
         </tr>
         <tr>
-          <td><span class="mr-2" data-feather="package"></span>Syncthing</td>
+          <td class="text-center text-muted">
+            <img src="img/apps/syncthing.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            Syncthing
+            <br>
           <td>Sync those Thingx</td>
-          <td><a href="post.php?install_syncthing" class="btn btn-outline-secondary"><span data-feather="download"></span></a></td>
+          <td>
+            <a href="post.php?install_syncthing" class="btn btn-outline-success">Install</a>
+          </td>
         </tr>
         <tr>
-          <td>
-            <span class="mr-2" data-feather="package"></span>Transmission
+          <td class="text-center text-muted">
+            <img src="img/apps/transmission.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            Transmission
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
@@ -198,7 +135,7 @@
               <?php
               }else{
               ?>
-              <a href="install_transmission.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+              <a href="install_transmission.php" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
@@ -206,8 +143,10 @@
           </td>
         </tr>
         <tr>
-          <td>
-            <span class="mr-2" data-feather="package"></span>Transmission/OpenVPN
+          <td class="text-center text-muted">
+            <img src="img/apps/transmission2.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            Transmssion / oVPN
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission-ovpn")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed VPN IP <?php $vpn_ip = exec("docker exec -ti transmission-ovpn curl ifconfig.co"); echo $vpn_ip; ?></small>
@@ -225,7 +164,7 @@
               <?php
               }else{
               ?>
-              <a href="install_transmission-ovpn.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+              <a href="install_transmission-ovpn.php" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
@@ -233,8 +172,10 @@
           </td>
         </tr>
         <tr>
-          <td>
-            <span class="mr-2" data-feather="package"></span>Unifi
+          <td class="text-center text-muted">
+            <img src="img/apps/unifi.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            Unifi Controller
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
@@ -252,7 +193,7 @@
               <?php
               }else{
               ?>
-              <a href="post.php?install_unifi" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+              <a href="post.php?install_unifi" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
@@ -260,8 +201,10 @@
           </td>
         </tr>
         <tr>
-          <td>
-            <span class="mr-2" data-feather="package"></span>Unifi Video
+          <td class="text-center text-muted">
+            <img src="img/apps/unifi-video2.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            Unifi Video
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi-video")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
@@ -281,7 +224,7 @@
               <?php
               }else{
               ?>
-              <a href="install_unifi-video.php" class="btn btn-outline-success"><span data-feather="download"></span></a>
+              <a href="install_unifi-video.php" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
@@ -289,8 +232,10 @@
           </td>
         </tr>
         <tr>
-          <td>
-            <span class="mr-2" data-feather="package"></span>Home Assistant
+          <td class="text-center text-muted">
+            <img src="img/apps/homeassistant.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            Home Assistant
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/home-assistant")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
@@ -310,7 +255,7 @@
               <?php
               }else{
               ?>
-              <a href="post.php?install_home-assistant" class="btn btn-outline-success"><span data-feather="download"></span></a>
+              <a href="post.php?install_home-assistant" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
@@ -318,14 +263,16 @@
           </td>
         </tr>
         <tr>
-          <td>
-            <span class="mr-2" data-feather="package"></span>OpenVPN Server
+          <td class="text-center text-muted">
+            <img src="img/apps/openvpn.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            OpenVPN Server
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/openvpn")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
             <?php } ?>
           </td>
-          <td>Turn your NAS a VPN Server</td>
+          <td>Turn your NAS into VPN Server, connect to your home network and access everything at home as if you were on your network locally</td>
           <td>
             <div class="btn-group mr-2">
               <?php 
@@ -337,7 +284,7 @@
               <?php
               }else{
               ?>
-              <a href="post.php?install_openvpn" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+              <a href="post.php?install_openvpn" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
@@ -345,8 +292,10 @@
           </td>
         </tr>
         <tr>
-          <td>
-            <span class="mr-2" data-feather="package"></span>Lychee
+          <td class="text-center text-muted">
+            <img src="img/apps/lychee.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            Lychee
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/lychee")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
@@ -364,7 +313,7 @@
               <?php
               }else{
               ?>
-              <a href="install_lychee.php" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+              <a href="install_lychee.php" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
