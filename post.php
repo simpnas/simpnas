@@ -34,7 +34,7 @@ if(isset($_POST['user_add'])){
   $username = $_POST['username'];
   $password = $_POST['password'];
 
-  if(!file_exists("/$config_mount_target/$config_home_volume/$config_home_dir/")) {
+  if(!file_exists("/$config_mount_target/$config_home_volume/$config_home_dir/")){
     mkdir("/$config_mount_target/$config_home_volume/$config_home_dir/");
   }
  
@@ -78,8 +78,7 @@ if(isset($_POST['user_edit'])){
   echo "<script>window.location = 'users.php'</script>";
 }
 
-if(isset($_POST['group_edit']))
-{
+if(isset($_POST['group_edit'])){
   $old_group = $_POST['old_group'];
   $group = $_POST['group'];
 
@@ -91,8 +90,7 @@ if(isset($_POST['group_edit']))
   echo "<script>window.location = 'groups.php'</script>";
 }
 
-if(isset($_GET['delete_group']))
-{
+if(isset($_GET['delete_group'])){
   $group = $_GET['delete_group'];
 
   exec("delgroup $group");
@@ -103,8 +101,7 @@ if(isset($_GET['delete_group']))
   echo "<script>window.location = 'groups.php'</script>";
 }
 
-if(isset($_POST['general_edit']))
-{
+if(isset($_POST['general_edit'])){
   $hostname = $_POST['hostname'];
   $current_hostname = exec("hostname");
   
@@ -112,13 +109,12 @@ if(isset($_POST['general_edit']))
   exec("hostnamectl set-hostname $hostname");
   exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
-  $http_host = $_SERVER['HTTP_HOST'];
-  echo "<script>window.location = 'http://$http_host/general.php'</script>";
+  $new_hostname = $exec("hostname");
+  echo "<script>window.location = 'http://$new_hostname/general.php'</script>";
 }
 
 
-if(isset($_GET['unmount_volume']))
-{
+if(isset($_GET['unmount_volume'])){
   $vol = $_GET['unmount_volume'];
   exec ("umount /$config_mount_target/$vol");
   exec("systemctl restart smbd");
@@ -126,8 +122,7 @@ if(isset($_GET['unmount_volume']))
   echo "<script>window.location = 'volumes.php'</script>";
 }
 
-if(isset($_GET['delete_volume']))
-{
+if(isset($_GET['delete_volume'])){
   $name = $_GET['delete_volume'];
   //check to make sure no shares are linked to the volume
   //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
@@ -146,13 +141,12 @@ if(isset($_GET['delete_volume']))
   echo "<script>window.location = 'volumes.php'</script>";
 }
 
-if(isset($_GET['mount_hdd']))
-{
+if(isset($_GET['mount_hdd'])){
   $hdd = $_GET['mount_hdd'];
   $hdd = $hdd."1";
   $hdd_mount_to = "/$config_mount_target/".basename($hdd);
-  if (!(file_exists($hdd_mount_to))) {
-	     exec ("sudo mkdir $hdd_mount_to");
+  if(!(file_exists($hdd_mount_to))){
+    exec ("sudo mkdir $hdd_mount_to");
 	} 
 
   exec ("sudo mount $hdd $hdd_mount_to");
@@ -163,14 +157,14 @@ if(isset($_GET['mount_hdd']))
   echo "<script>window.location = 'disk_list.php'</script>";
 }
 
-if(isset($_POST['volume_add']))
-{
+if(isset($_POST['volume_add'])){
   $name = $_POST['name'];
   $hdd = $_POST['disk'];
   $hdd_part = $hdd."1";
   exec ("wipefs -a $hdd");
   exec ("(echo o; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
   exec ("mkdir /$config_mount_target/$name");
+  
   if(!empty($_POST['encrypt'])){
     $password = $_POST['password'];
     exec ("echo -e '$password' | cryptsetup -q luksFormat $hdd_part");
@@ -178,21 +172,21 @@ if(isset($_POST['volume_add']))
     exec ("mkfs.ext4 /dev/mapper/crypt$name");    
     exec ("mount /dev/mapper/crypt$name /$config_mount_target/$name");
   }else{
-
-  exec ("mkfs.ext4 $hdd_part");
-  exec ("mount $hdd_part /$config_mount_target/$name");  
+    exec ("mkfs.ext4 $hdd_part");
+    exec ("mount $hdd_part /$config_mount_target/$name");  
+    
+    $myFile = "/etc/fstab";
+    $fh = fopen($myFile, 'a') or die("can't open file");
+    $stringData = "$hdd_part    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
+    fwrite($fh, $stringData);
+    fclose($fh);
+  }
   
-  $myFile = "/etc/fstab";
-     $fh = fopen($myFile, 'a') or die("can't open file");
-     $stringData = "$hdd_part    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
-     fwrite($fh, $stringData);
-     fclose($fh);
-}
   echo "<script>window.location = 'volumes.php'</script>";
+
 }
 
-if(isset($_POST['share_add']))
-{
+if(isset($_POST['share_add'])){
   $volume = $_POST['volume'];
   $name = strtolower($_POST['name']);
   $description = $_POST['description'];
@@ -212,25 +206,24 @@ if(isset($_POST['share_add']))
 	   //fwrite($fh, $stringData);
 	   //fclose($fh);
 
-     $myFile = "/etc/samba/shares/$name";
-     $fh = fopen($myFile, 'w') or die("not able to write to file");
-     $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
-     fwrite($fh, $stringData);
-     fclose($fh);
+  $myFile = "/etc/samba/shares/$name";
+  $fh = fopen($myFile, 'w') or die("not able to write to file");
+  $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
+  fwrite($fh, $stringData);
+  fclose($fh);
 
-     $myFile = "/etc/samba/shares.conf";
-     $fh = fopen($myFile, 'a') or die("not able to write to file");
-     $stringData = "\ninclude = /etc/samba/shares/$name";
-     fwrite($fh, $stringData);
-     fclose($fh);
-  
-       exec("systemctl restart smbd");
-      exec("systemctl restart nmbd");
-  	   echo "<script>window.location = 'shares.php'</script>";
+  $myFile = "/etc/samba/shares.conf";
+  $fh = fopen($myFile, 'a') or die("not able to write to file");
+  $stringData = "\ninclude = /etc/samba/shares/$name";
+  fwrite($fh, $stringData);
+  fclose($fh);
+
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
+  echo "<script>window.location = 'shares.php'</script>";
 }
 
-if(isset($_POST['share_edit']))
-{
+if(isset($_POST['share_edit'])){
   $volume = $_POST['volume'];
   $name = strtolower($_POST['name']);
   $description = $_POST['description'];
@@ -243,7 +236,7 @@ if(isset($_POST['share_edit']))
   $current_group = $_POST['current_group'];
 
   if($group != $current_group){
-      chgrp("$current_share_path", $group);
+    chgrp("$current_share_path", $group);
   }
   if($volume != $current_volume){
     exec("mv /$config_mount_target/$current_volume/$current_name /$config_mount_target/$volume");
@@ -253,27 +246,26 @@ if(isset($_POST['share_edit']))
     exec("mv /etc/samba/shares/$current_name /etc/samba/shares/$name");
     deleteLineInFile("/etc/samba/shares.conf","$current_name");
     $myFile = "/etc/samba/shares.conf";
-     $fh = fopen($myFile, 'w') or die("not able to write to file");
-     $stringData = "\ninclude = /etc/samba/shares/$name";
-     fwrite($fh, $stringData);
-     fclose($fh);
-
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "\ninclude = /etc/samba/shares/$name";
+    fwrite($fh, $stringData);
+    fclose($fh);
   }
 
   $myFile = "/etc/samba/shares/$name";
-   $fh = fopen($myFile, 'w') or die("not able to write to file");
-   $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
-   fwrite($fh, $stringData);
-   fclose($fh);
+  $fh = fopen($myFile, 'w') or die("not able to write to file");
+  $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
+  fwrite($fh, $stringData);
+  fclose($fh);
 
-   exec("systemctl restart smbd");
-   exec("systemctl restart nmbd");
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
 
-   echo "<script>window.location = 'shares.php'</script>";
+  echo "<script>window.location = 'shares.php'</script>";
+
 }
 
-if(isset($_GET['share_delete']))
-{
+if(isset($_GET['share_delete'])){
   $name = $_GET['share_delete'];
 
   $path = exec("find /$config_mount_target/*/$name -name $name");
@@ -329,8 +321,7 @@ if(isset($_GET['network_delete'])){
   echo "<script>window.location = 'network.php'</script>";
 }
 
-if(isset($_GET['wipe_hdd']))
-{
+if(isset($_GET['wipe_hdd'])){
   $hdd = $_GET['wipe_hdd'];
   $hdd_short_name = basename($hdd);
 
@@ -339,8 +330,7 @@ if(isset($_GET['wipe_hdd']))
   echo "<script>window.location = 'disk_list.php'</script>";
 }
 
-if(isset($_GET['kill_pid']))
-{
+if(isset($_GET['kill_pid'])){
   $pid = $_GET['kill_pid'];
 
   exec ("sudo kill -9 $pid");
@@ -348,14 +338,14 @@ if(isset($_GET['kill_pid']))
   echo "<script>window.location = 'ps.php'</script>";
 }
 
-if(isset($_GET['kill_wipe']))
-{
+if(isset($_GET['kill_wipe'])){
   $hdd = $_GET['kill_wipe'];
 
   exec ("ps axu |grep 'shred -v -n 1 /dev/$hdd' | awk '{print $2}'", $pid);
+  
   foreach ($pid as $pids) {
-  exec ("sudo kill -9 $pids");
-  echo "Killing<br>$pids<br>";
+    exec ("sudo kill -9 $pids");
+    echo "Killing<br>$pids<br>";
   }
 
   exec ("sudo rm -rf /tmp/shred-$hdd-progress");
@@ -363,8 +353,7 @@ if(isset($_GET['kill_wipe']))
   echo "<script>window.location = 'disk_list.php'</script>";
 }
 
-if(isset($_GET['delete_user']))
-{
+if(isset($_GET['delete_user'])){
 	$username = $_GET['delete_user'];
 
   exec("smbpasswd -x $username");
@@ -376,8 +365,7 @@ if(isset($_GET['delete_user']))
   echo "<script>window.location = 'users.php'</script>";
 }
 
-if(isset($_POST['group_add']))
-{
+if(isset($_POST['group_add'])){
 	$group = $_POST['group'];
 
   exec ("addgroup $group");
@@ -385,8 +373,7 @@ if(isset($_POST['group_add']))
   echo "<script>window.location = 'groups.php'</script>";
 }
 
-if(isset($_GET['delete_group']))
-{
+if(isset($_GET['delete_group'])){
 	$group = $_GET['delete_group'];
 
 	exec("delgroup $group");
@@ -428,19 +415,19 @@ if(isset($_POST['install_jellyfin'])){
     chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache",0770);
     
     $myFile = "/etc/samba/shares/media";
-     $fh = fopen($myFile, 'w') or die("not able to write to file");
-     $stringData = "[media]\n   comment = Media files used by Jellyfin\n   path = /$config_mount_target/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
-     fwrite($fh, $stringData);
-     fclose($fh);
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[media]\n   comment = Media files used by Jellyfin\n   path = /$config_mount_target/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
+    fwrite($fh, $stringData);
+    fclose($fh);
 
-     $myFile = "/etc/samba/shares.conf";
-     $fh = fopen($myFile, 'a') or die("not able to write to file");
-     $stringData = "\ninclude = /etc/samba/shares/media";
-     fwrite($fh, $stringData);
-     fclose($fh);
+    $myFile = "/etc/samba/shares.conf";
+    $fh = fopen($myFile, 'a') or die("not able to write to file");
+    $stringData = "\ninclude = /etc/samba/shares/media";
+    fwrite($fh, $stringData);
+    fclose($fh);
     
     exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+    exec("systemctl restart nmbd");
 
   }
 
@@ -466,29 +453,28 @@ if(isset($_GET['update_jellyfin'])){
 }
 
 if(isset($_GET['uninstall_jellyfin'])){
-    //stop and delete docker container
-    exec("docker stop jellyfin");
-    exec("docker rm jellyfin");
-    //delete media group
-    exec ("delgroup media");
-    //get path to media directory
-    $path = exec("find /$config_mount_target/*/media -name media");
-    //delete media directory
-    exec ("rm -rf $path"); //Delete
-    //delete docker config
-    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/jellyfin");
-    //delete samba share
-    exec ("rm -f /etc/samba/shares/media");
-    deleteLineInFile("/etc/samba/shares.conf","media");
-    //restart samba
-    exec("systemctl restart smbd");
+  //stop and delete docker container
+  exec("docker stop jellyfin");
+  exec("docker rm jellyfin");
+  //delete media group
+  exec ("delgroup media");
+  //get path to media directory
+  $path = exec("find /$config_mount_target/*/media -name media");
+  //delete media directory
+  exec ("rm -rf $path"); //Delete
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/jellyfin");
+  //delete samba share
+  exec ("rm -f /etc/samba/shares/media");
+  deleteLineInFile("/etc/samba/shares.conf","media");
+  //restart samba
+  exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
-    //redirect back to packages
-    echo "<script>window.location = 'apps.php'</script>";
+  //redirect back to packages
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_POST['install_lychee']))
-{
+if(isset($_POST['install_lychee'])){
   $volume = $_POST['volume'];
   
   exec ("addgroup photos");
@@ -503,22 +489,22 @@ if(isset($_POST['install_lychee']))
   chmod("/$config_mount_target/$volume/photos",0770);
      
   $myFile = "/etc/samba/shares/photos";
-     $fh = fopen($myFile, 'w') or die("not able to write to file");
-     $stringData = "[photos]\n   comment = Photos for Lychee\n   path = /$config_mount_target/$volume/photos\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @photos\n   force group = photos\n   create mask = 0660\n   directory mask = 0770";
-     fwrite($fh, $stringData);
-     fclose($fh);
+  $fh = fopen($myFile, 'w') or die("not able to write to file");
+  $stringData = "[photos]\n   comment = Photos for Lychee\n   path = /$config_mount_target/$volume/photos\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @photos\n   force group = photos\n   create mask = 0660\n   directory mask = 0770";
+  fwrite($fh, $stringData);
+  fclose($fh);
 
-     $myFile = "/etc/samba/shares.conf";
-     $fh = fopen($myFile, 'a') or die("not able to write to file");
-     $stringData = "\ninclude = /etc/samba/shares/photos";
-     fwrite($fh, $stringData);
-     fclose($fh);
+  $myFile = "/etc/samba/shares.conf";
+  $fh = fopen($myFile, 'a') or die("not able to write to file");
+  $stringData = "\ninclude = /etc/samba/shares/photos";
+  fwrite($fh, $stringData);
+  fclose($fh);
     
-    exec("systemctl restart smbd");
+  exec("systemctl restart smbd");
   exec("systemctl restart nmbd");     
 
-       exec("docker run -d --name lychee -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee/config:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
-       echo "<script>window.location = 'apps.php'</script>";
+  exec("docker run -d --name lychee -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee/config:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['update_lychee'])){
@@ -538,25 +524,25 @@ if(isset($_GET['update_lychee'])){
 }
 
 if(isset($_GET['uninstall_lychee'])){
-    //stop and delete docker container
-    exec("docker stop lychee");
-    exec("docker rm lychee");
-    //delete media group
-    exec ("delgroup photos");
-    //get path to media directory
-    $path = exec("find /$config_mount_target/*/photos -name photos");
-    //delete media directory
-    exec ("rm -rf $path"); //Delete
-    //delete docker config
-    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/lychee");
-    //delete samba share
-    exec ("rm -f /etc/samba/shares/photos");
-    deleteLineInFile("/etc/samba/shares.conf","photos");
-    //restart samba
-    exec("systemctl restart smbd");
+  //stop and delete docker container
+  exec("docker stop lychee");
+  exec("docker rm lychee");
+  //delete media group
+  exec ("delgroup photos");
+  //get path to media directory
+  $path = exec("find /$config_mount_target/*/photos -name photos");
+  //delete media directory
+  exec ("rm -rf $path"); //Delete
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/lychee");
+  //delete samba share
+  exec ("rm -f /etc/samba/shares/photos");
+  deleteLineInFile("/etc/samba/shares.conf","photos");
+  //restart samba
+  exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
-    //redirect back to packages
-    echo "<script>window.location = 'apps.php'</script>";
+  //redirect back to packages
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['install_nextcloud'])){
@@ -589,27 +575,26 @@ if(isset($_GET['update_nextcloud'])){
 }
 
 if(isset($_GET['uninstall_nextcloud'])){
-    //stop and delete docker container
-    exec("docker stop nextcloud");
-    exec("docker rm nextcloud");
-    exec("docker stop mariadb");
-    exec("docker rm mariadb");
+  //stop and delete docker container
+  exec("docker stop nextcloud");
+  exec("docker rm nextcloud");
+  exec("docker stop mariadb");
+  exec("docker rm mariadb");
 
-    //delete docker config
-    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/nextcloud");
-    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb");
-    //redirect back to packages
-    echo "<script>window.location = 'apps.php'</script>";
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/nextcloud");
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb");
+  //redirect back to packages
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_GET['install_dokuwiki']))
-{
+if(isset($_GET['install_dokuwiki'])){
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/");
   mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/config");
 
-       exec("docker run -d --name dokuwiki -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki/config:/config linuxserver/dokuwiki");
-       echo "<script>window.location = 'apps.php'</script>";
+  exec("docker run -d --name dokuwiki -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki/config:/config linuxserver/dokuwiki");
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['update_dokuwiki'])){
@@ -627,31 +612,29 @@ if(isset($_GET['update_dokuwiki'])){
 }
 
 if(isset($_GET['uninstall_dokuwiki'])){
-    //stop and delete docker container
-    exec("docker stop dokuwiki");
-    exec("docker rm dokuwiki");
+  //stop and delete docker container
+  exec("docker stop dokuwiki");
+  exec("docker rm dokuwiki");
 
-    //delete docker config
-    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/dokuwiki");
-    //redirect back to packages
-    echo "<script>window.location = 'apps.php'</script>";
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/dokuwiki");
+  //redirect back to packages
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_GET['install_syncthing']))
-{
-      mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/");
-      mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/config");
+if(isset($_GET['install_syncthing'])){
+  mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/config");
 
-      exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/syncthing/config:/config -v /$config_mount_target/$config_docker_volume/$config_home_dir/johnny:/$config_mount_target/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
-      echo "<script>window.location = 'apps.php'</script>";
+  exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/syncthing/config:/config -v /$config_mount_target/$config_docker_volume/$config_home_dir/johnny:/$config_mount_target/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_GET['install_home-assistant']))
-{
-      mkdir("/$config_mount_target/$config_docker_volume/docker/home-assistant");
+if(isset($_GET['install_home-assistant'])){
+  mkdir("/$config_mount_target/$config_docker_volume/docker/home-assistant");
 
-      exec("docker run -d --name home-assistant --net=host --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/home-assistant:/config homeassistant/home-assistant:stable");
-      echo "<script>window.location = 'apps.php'</script>";
+  exec("docker run -d --name home-assistant --net=host --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/home-assistant:/config homeassistant/home-assistant:stable");
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['update_home-assistant'])){
@@ -669,23 +652,22 @@ if(isset($_GET['update_home-assistant'])){
 }
 
 if(isset($_GET['uninstall_home-assistant'])){
-    //stop and delete docker container
-    exec("docker stop home-assistant");
-    exec("docker rm home-assistant");
+  //stop and delete docker container
+  exec("docker stop home-assistant");
+  exec("docker rm home-assistant");
 
-    //delete docker config
-    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/home-assistant");
-    //redirect back to packages
-    echo "<script>window.location = 'apps.php'</script>";
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/home-assistant");
+  //redirect back to packages
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_GET['install_unifi']))
-{
-      mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/");
-      mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/config");
+if(isset($_GET['install_unifi'])){
+  mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/config");
 
-      exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi-controller > /dev/null &");
-      echo "<script>window.location = 'apps.php'</script>";
+  exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi-controller > /dev/null &");
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['update_unifi'])){
@@ -703,14 +685,14 @@ if(isset($_GET['update_unifi'])){
 }
 
 if(isset($_GET['uninstall_unifi'])){
-    //stop and delete docker container
-    exec("docker stop unifi");
-    exec("docker rm unifi");
+  //stop and delete docker container
+  exec("docker stop unifi");
+  exec("docker rm unifi");
 
-    //delete docker config
-    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi");
-    //redirect back to packages
-    echo "<script>window.location = 'apps.php'</script>";
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi");
+  //redirect back to packages
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_POST['install_unifi-video'])){
@@ -730,19 +712,19 @@ if(isset($_POST['install_unifi-video'])){
     chmod("/$config_mount_target/$config_docker_volume/docker/unifi-video",0770);
     
     $myFile = "/etc/samba/shares/video-surveillance";
-     $fh = fopen($myFile, 'w') or die("not able to write to file");
-     $stringData = "[video-surveillance]\n   comment = Surveillance Videos for Unifi Video\n   path = /$config_mount_target/$volume/video-surveillance\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @video-surveillance\n   force group = video-surveillance\n   create mask = 0660\n   directory mask = 0770";
-     fwrite($fh, $stringData);
-     fclose($fh);
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[video-surveillance]\n   comment = Surveillance Videos for Unifi Video\n   path = /$config_mount_target/$volume/video-surveillance\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @video-surveillance\n   force group = video-surveillance\n   create mask = 0660\n   directory mask = 0770";
+    fwrite($fh, $stringData);
+    fclose($fh);
 
-     $myFile = "/etc/samba/shares.conf";
-     $fh = fopen($myFile, 'a') or die("not able to write to file");
-     $stringData = "\ninclude = /etc/samba/shares/video-surveillance";
-     fwrite($fh, $stringData);
-     fclose($fh);
+    $myFile = "/etc/samba/shares.conf";
+    $fh = fopen($myFile, 'a') or die("not able to write to file");
+    $stringData = "\ninclude = /etc/samba/shares/video-surveillance";
+    fwrite($fh, $stringData);
+    fclose($fh);
     
     exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+    exec("systemctl restart nmbd");
 
   }
   
@@ -769,29 +751,28 @@ if(isset($_GET['update_unifi-video'])){
 }
 
 if(isset($_GET['uninstall_unifi-video'])){
-    //stop and delete docker container
-    exec("docker stop unifi-video");
-    exec("docker rm unifi-video");
-    //delete media group
-    exec ("delgroup video-surveillance");
-    //get path to media directory
-    $path = exec("find /$config_mount_target/*/video-surveillance -name video-surveillance");
-    //delete media directory
-    exec ("rm -rf $path"); //Delete
-    //delete docker config
-    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi-video");
-    //delete samba share
-    exec ("rm -f /etc/samba/shares/video-surveillance");
-    deleteLineInFile("/etc/samba/shares.conf","video-surveillance");
-    //restart samba
-    exec("systemctl restart smbd");
+  //stop and delete docker container
+  exec("docker stop unifi-video");
+  exec("docker rm unifi-video");
+  //delete media group
+  exec ("delgroup video-surveillance");
+  //get path to media directory
+  $path = exec("find /$config_mount_target/*/video-surveillance -name video-surveillance");
+  //delete media directory
+  exec ("rm -rf $path"); //Delete
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi-video");
+  //delete samba share
+  exec ("rm -f /etc/samba/shares/video-surveillance");
+  deleteLineInFile("/etc/samba/shares.conf","video-surveillance");
+  //restart samba
+  exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
-    //redirect back to packages
-    echo "<script>window.location = 'apps.php'</script>";
+  //redirect back to packages
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_POST['install_transmission_ovpn']))
-{
+if(isset($_POST['install_transmission_ovpn'])){
   $volume = $_POST['volume'];
   $vpn_provider = $_POST['vpn_provider'];
   $config = $_POST['config'];
@@ -825,22 +806,23 @@ if(isset($_POST['install_transmission_ovpn']))
   chmod("/$config_mount_target/$config_docker_volume/docker/transmission-ovpn",0770);
   
   $myFile = "/etc/samba/shares/downloads";
-     $fh = fopen($myFile, 'w') or die("not able to write to file");
-     $stringData = "[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /$config_mount_target/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
-     fwrite($fh, $stringData);
-     fclose($fh);
+  $fh = fopen($myFile, 'w') or die("not able to write to file");
+  $stringData = "[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /$config_mount_target/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
+  fwrite($fh, $stringData);
+  fclose($fh);
 
-     $myFile = "/etc/samba/shares.conf";
-     $fh = fopen($myFile, 'a') or die("not able to write to file");
-     $stringData = "\ninclude = /etc/samba/shares/downloads";
-     fwrite($fh, $stringData);
-     fclose($fh);
+  $myFile = "/etc/samba/shares.conf";
+  $fh = fopen($myFile, 'a') or die("not able to write to file");
+  $stringData = "\ninclude = /etc/samba/shares/downloads";
+  fwrite($fh, $stringData);
+  fclose($fh);
     
-    exec("systemctl restart smbd");
+  exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
 
-       exec("docker run --cap-add=NET_ADMIN -d --name transmission-ovpn --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG=$config -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /$config_mount_target/$config_docker_volume/docker/transmission-ovpn:/data/transmission-home -v /$config_mount_target/$volume/downloads/completed:/data/completed -v /$config_mount_target/$volume/downloads/incomplete:/data/incomplete -v /$config_mount_target/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn");
-       echo "<script>window.location = 'apps.php'</script>";
+  exec("docker run --cap-add=NET_ADMIN -d --name transmission-ovpn --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG=$config -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /$config_mount_target/$config_docker_volume/docker/transmission-ovpn:/data/transmission-home -v /$config_mount_target/$volume/downloads/completed:/data/completed -v /$config_mount_target/$volume/downloads/incomplete:/data/incomplete -v /$config_mount_target/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn");
+  
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['update_transmission_ovpn'])){
@@ -861,29 +843,28 @@ if(isset($_GET['update_transmission_ovpn'])){
 }
 
 if(isset($_GET['uninstall_transmission_ovpn'])){
-    //stop and delete docker container
-    exec("docker stop transmission-ovpn");
-    exec("docker rm transmission-ovpn");
-    //delete group
-    exec ("delgroup download");
-    //get path to media directory
-    $path = exec("find /$config_mount_target/*/downloads -name downloads");
-    //delete directory
-    exec ("rm -rf $path"); //Delete
-    //delete docker config
-    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/transmission-ovpn");
-    //delete samba share
-    exec ("rm -f /etc/samba/shares/downloads");
-    deleteLineInFile("/etc/samba/shares.conf","downloads");
-    //restart samba
-    exec("systemctl restart smbd");
+  //stop and delete docker container
+  exec("docker stop transmission-ovpn");
+  exec("docker rm transmission-ovpn");
+  //delete group
+  exec ("delgroup download");
+  //get path to media directory
+  $path = exec("find /$config_mount_target/*/downloads -name downloads");
+  //delete directory
+  exec ("rm -rf $path"); //Delete
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/transmission-ovpn");
+  //delete samba share
+  exec ("rm -f /etc/samba/shares/downloads");
+  deleteLineInFile("/etc/samba/shares.conf","downloads");
+  //restart samba
+  exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
-    //redirect back to packages
-    echo "<script>window.location = 'apps.php'</script>";
+  //redirect back to packages
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_POST['install_transmission']))
-{
+if(isset($_POST['install_transmission'])){
   $volume = $_POST['volume'];
   
   exec ("addgroup download");
@@ -911,22 +892,23 @@ if(isset($_POST['install_transmission']))
   chmod("/$config_mount_target/$config_docker_volume/docker/transmission/config",0770);
   
   $myFile = "/etc/samba/shares/downloads";
-     $fh = fopen($myFile, 'w') or die("not able to write to file");
-     $stringData = "[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /$config_mount_target/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
-     fwrite($fh, $stringData);
-     fclose($fh);
+  $fh = fopen($myFile, 'w') or die("not able to write to file");
+  $stringData = "[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /$config_mount_target/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
+  fwrite($fh, $stringData);
+  fclose($fh);
 
-     $myFile = "/etc/samba/shares.conf";
-     $fh = fopen($myFile, 'a') or die("not able to write to file");
-     $stringData = "\ninclude = /etc/samba/shares/downloads";
-     fwrite($fh, $stringData);
-     fclose($fh);
+  $myFile = "/etc/samba/shares.conf";
+  $fh = fopen($myFile, 'a') or die("not able to write to file");
+  $stringData = "\ninclude = /etc/samba/shares/downloads";
+  fwrite($fh, $stringData);
+  fclose($fh);
     
-    exec("systemctl restart smbd");
+  exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
 
-       exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$volume/downloads/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
-       echo "<script>window.location = 'apps.php'</script>";
+  exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$volume/downloads/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
+  
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
 if(isset($_GET['update_transmission'])){
@@ -947,29 +929,28 @@ if(isset($_GET['update_transmission'])){
 }
 
 if(isset($_GET['uninstall_transmission'])){
-    //stop and delete docker container
-    exec("docker stop transmission");
-    exec("docker rm transmission");
-    //delete group
-    exec ("delgroup download");
-    //get path to media directory
-    $path = exec("find /$config_mount_target/*/downloads -name downloads");
-    //delete directory
-    exec ("rm -rf $path"); //Delete
-    //delete docker config
-    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/transmission");
-    //delete samba share
-    exec ("rm -f /etc/samba/shares/downloads");
-    deleteLineInFile("/etc/samba/shares.conf","downloads");
-    //restart samba
-    exec("systemctl restart smbd");
+  //stop and delete docker container
+  exec("docker stop transmission");
+  exec("docker rm transmission");
+  //delete group
+  exec ("delgroup download");
+  //get path to media directory
+  $path = exec("find /$config_mount_target/*/downloads -name downloads");
+  //delete directory
+  exec ("rm -rf $path"); //Delete
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/transmission");
+  //delete samba share
+  exec ("rm -f /etc/samba/shares/downloads");
+  deleteLineInFile("/etc/samba/shares.conf","downloads");
+  //restart samba
+  exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
-    //redirect back to packages
-    echo "<script>window.location = 'apps.php'</script>";
+  //redirect back to packages
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_GET['install_openvpn']))
-{
+if(isset($_GET['install_openvpn'])){
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/openvpn");
   mkdir("/$config_mount_target/$config_docker_volume/docker/openvpn/config");
@@ -979,18 +960,17 @@ if(isset($_GET['install_openvpn']))
 }
 
 if(isset($_GET['uninstall_openvpn'])){
-    //stop and delete docker container
-    exec("docker stop openvpn");
-    exec("docker rm openvpn");
+  //stop and delete docker container
+  exec("docker stop openvpn");
+  exec("docker rm openvpn");
 
-    //delete docker config
-    exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/openvpn");
-    //redirect back to packages
-    echo "<script>window.location = 'apps.php'</script>";
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/openvpn");
+  //redirect back to packages
+  echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_POST['setup']))
-{
+if(isset($_POST['setup'])){
   $volume_name = $_POST['volume_name'];
   $hdd = $_POST['disk'];
   $hdd_part = $hdd."1";
@@ -1045,7 +1025,7 @@ if(isset($_POST['setup']))
   fwrite($fh, $stringData);
   fclose($fh);
 
-  $hostname = exec("hostname");
+  $new_hostname = exec("hostname");
 
   exec ("mv /etc/network/interfaces /etc/network/interfaces.save");
   exec ("systemctl enable systemd-networkd");
@@ -1057,8 +1037,9 @@ if(isset($_POST['setup']))
     fwrite($fh, $stringData);
     fclose($fh);
     exec("sleep 1; systemctl restart systemd-networkd > /dev/null &");
-    echo "<script>window.location = 'http://$hostname/dashboard.php'</script>";
+    echo "<script>window.location = 'http://$new_hostname/dashboard.php'</script>";
   }
+  
   if($method == 'Static'){
     $myFile = "/etc/systemd/network/$interface.network";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
@@ -1072,8 +1053,7 @@ if(isset($_POST['setup']))
 
 }
 
-if(isset($_GET['reset']))
-{
+if(isset($_GET['reset'])){
   //Stop Samba
   exec("systemctl stop smbd");
   exec("systemctl stop nmbd");
