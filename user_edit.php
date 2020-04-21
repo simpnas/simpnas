@@ -29,7 +29,7 @@
 	  
 	  <div class="form-group">
 	    <label>Password</label>
-	    <input type="password" class="form-control" name="password">
+	    <input type="password" class="form-control" name="password" placeholder="Leave blank for no change">
 	  </div>
 	  
 	  <legend>Groups</legend>
