@@ -40,5 +40,5 @@ echo                                  Almost There!
 Your                     Your system will now reboot in 3 seconds!
 echo  Visit http://$HOSTNAME in your web browser to complete installation after reboot
 echo ==================================================================================
-wait 3
+sleep 3
 reboot
