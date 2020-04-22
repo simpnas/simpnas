@@ -3,9 +3,13 @@ echo ===========================================================================
 echo Checking For Updates...
 echo ==================================================================================
 apt update
+echo ==================================================================================
+echo Installing Updates...
+echo ==================================================================================
 apt dist-upgrade -y
 echo ==================================================================================
 echo Installing Additional Required Packages...
+echo Samba, PHP, SMARTmonTools, etc
 echo ==================================================================================
 apt install samba smartmontools php-cgi cryptsetup git apt-transport-https apt-transport-https curl gnupg-agent software-properties-common -y
 echo Install Docker Repo and latest docker
@@ -23,7 +27,7 @@ echo Downloading the Latest SimpNAS from GIT repo...
 echo ==================================================================================
 git clone https://github.com/johnnyq/simpnas.git
 echo ==================================================================================
-echo Making Backup of Existing smb.conf, Copying New smb.conf to /etc/samba
+echo Setting up Samba configuration
 echo ==================================================================================
 mv /etc/samba/smb.conf /etc/samba/smb.conf.ori
 cp /simpnas/conf/smb.conf /etc/samba/

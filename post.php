@@ -321,6 +321,31 @@ if(isset($_GET['network_delete'])){
   echo "<script>window.location = 'network.php'</script>";
 }
 
+if(isset($_POST['backup_add'])){
+  $source = $_POST['source'];
+  $destination = $_POST['destination'];
+  $occurance = $_POST['occurance'];
+
+  $myFile = "/etc/cron.$occurance/backup-$source-$destination";
+  $fh = fopen($myFile, 'w') or die("not able to write to file");
+  $stringData = "rsync --verbose --log-file=/var/log/rsync.log --archive /$config_mount_target/$source/ /$config_mount_target/$destination/";
+  fwrite($fh, $stringData);
+  fclose($fh);
+
+  //exec("rsync --verbose --log-file=/var/log/rsync.log --archive /$config_mount_target/$source/ /$config_mount_target/$destination/");
+  
+  echo "<script>window.location = 'backups.php'</script>";
+
+}
+
+if(isset($_GET['backup_delete'])){
+  $backup = $_GET['backup_delete'];
+
+  exec ("rm -f /etc/cron.*/$backup");
+  
+  echo "<script>window.location = 'backups.php'</script>";
+}
+
 if(isset($_GET['wipe_hdd'])){
   $hdd = $_GET['wipe_hdd'];
   $hdd_short_name = basename($hdd);
