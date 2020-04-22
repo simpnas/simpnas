@@ -30,22 +30,25 @@
 	  </div>
 	  <div class="form-group">
 		<label>Method</label>
-		<select class="form-control" name="method">
-			<option>DHCP</option>
-			<option>Static</option>
+		<select class="form-control" name="method" id="method">
+			<option id="dhcp">DHCP</option>
+			<option id="static">Static</option>
 		</select>
 	  </div>
-	  <div class="form-group">
-	    <label>Address/CIDR</label>
-	    <input type="text" class="form-control" name="address" placeholder="ex 192.168.1.5/24">
-	  </div>
-	  <div class="form-group">
-	    <label>Gateway</label>
-	    <input type="text" class="form-control" name="gateway">
-	  </div>
-	  <div class="form-group">
-	    <label>DNS Server(s)</label>
-	    <input type="text" class="form-control" name="dns">
+
+	  <div id="staticSettings">
+		  <div class="form-group">
+		    <label>Address/CIDR</label>
+		    <input type="text" class="form-control" name="address" placeholder="ex 192.168.1.5/24">
+		  </div>
+		  <div class="form-group">
+		    <label>Gateway</label>
+		    <input type="text" class="form-control" name="gateway">
+		  </div>
+		  <div class="form-group">
+		    <label>DNS Server(s)</label>
+		    <input type="text" class="form-control" name="dns">
+		  </div>
 	  </div>
 
 	  <button type="submit" name="network_add" class="btn btn-primary">Submit</button>

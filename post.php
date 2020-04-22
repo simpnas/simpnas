@@ -772,18 +772,27 @@ if(isset($_GET['uninstall_unifi-video'])){
   echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_POST['install_transmission_ovpn'])){
+if(isset($_POST['install_transmission'])){
   $volume = $_POST['volume'];
-  $vpn_provider = $_POST['vpn_provider'];
-  $config = $_POST['config'];
-  $username = $_POST['username'];
-  $password = $_POST['password'];
-  $dns = $_POST['dns'];
-  if(!empty($dns)){
-    $dns = "--dns $dns";
+  $enable_vpn = $_POST['enable_vpn'];
+  if($enable_vpn == 1){
+    $vpn_provider = $_POST['vpn_provider'];
+    $vpn_server = $_POST['vpn_server'];
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $dns = $_POST['dns'];
+    if(!empty($dns)){
+      $dns = "--dns $dns";
+    }
   }
+
   $cpu_arch = exec("dpkg --print-architecture");
-  
+  if($cpu_arch == "amd64"){
+    $cpu_arch = "";
+  }else{
+    $cpu_arch = "-$cpu_arch";
+  }
+    
   exec ("addgroup download");
   $group_id = exec("getent group download | cut -d: -f3");
 
@@ -791,20 +800,20 @@ if(isset($_POST['install_transmission_ovpn'])){
   mkdir("/$config_mount_target/$volume/downloads/completed");
   mkdir("/$config_mount_target/$volume/downloads/incomplete");
   mkdir("/$config_mount_target/$volume/downloads/watch");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/transmission-ovpn");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/transmission");
 
   chgrp("/$config_mount_target/$volume/downloads","download");
   chgrp("/$config_mount_target/$volume/downloads/watch","download");
   chgrp("/$config_mount_target/$volume/downloads/completed","download");
   chgrp("/$config_mount_target/$volume/downloads/incomplete","download");
   chgrp("/$config_mount_target/$volume/downloads/watch","download");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/transmission-ovpn","download");
+  chgrp("/$config_mount_target/$config_docker_volume/docker/transmission","download");
 
   chmod("/$config_mount_target/$volume/downloads",0770);
   chmod("/$config_mount_target/$volume/downloads/completed",0770);
   chmod("/$config_mount_target/$volume/downloads/incomplete",0770);
   chmod("/$config_mount_target/$volume/downloads/watch",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/transmission-ovpn",0770);
+  chmod("/$config_mount_target/$config_docker_volume/docker/transmission",0770);
   
   $myFile = "/etc/samba/shares/downloads";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
@@ -821,12 +830,17 @@ if(isset($_POST['install_transmission_ovpn'])){
   exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
 
-  exec("docker run --cap-add=NET_ADMIN -d --name transmission-ovpn --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG=$config -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /$config_mount_target/$config_docker_volume/docker/transmission-ovpn:/data/transmission-home -v /$config_mount_target/$volume/downloads/completed:/data/completed -v /$config_mount_target/$volume/downloads/incomplete:/data/incomplete -v /$config_mount_target/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn:latest-$cpu_arch");
+  if($enable_vpn == 1){
+    exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG=$config -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /$config_mount_target/$config_docker_volume/docker/transmission:/data/transmission-home -v /$config_mount_target/$volume/downloads/completed:/data/completed -v /$config_mount_target/$volume/downloads/incomplete:/data/incomplete -v /$config_mount_target/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn:latest$cpu_arch");
+    echo "VPN Docker installed";
+  }else{
+    exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission:/config -v /$config_mount_target/$volume/downloads/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -v /$config_mount_target/$volume/downloads/completed:/downloads/complete -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
+  }
   
   echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_GET['update_transmission_ovpn'])){
+if(isset($_GET['update_transmission'])){
 
   $group_id = exec("getent group download | cut -d: -f3");
   $volume_path = exec("find /$config_mount_target/*/downloads -name 'downloads'");
@@ -843,10 +857,10 @@ if(isset($_GET['update_transmission_ovpn'])){
 
 }
 
-if(isset($_GET['uninstall_transmission_ovpn'])){
+if(isset($_GET['uninstall_transmission'])){
   //stop and delete docker container
-  exec("docker stop transmission-ovpn");
-  exec("docker rm transmission-ovpn");
+  exec("docker stop transmission");
+  exec("docker rm transmission");
   //delete group
   exec ("delgroup download");
   //get path to media directory
@@ -854,7 +868,7 @@ if(isset($_GET['uninstall_transmission_ovpn'])){
   //delete directory
   exec ("rm -rf $path"); //Delete
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/transmission-ovpn");
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/transmission");
   //delete samba share
   exec ("rm -f /etc/samba/shares/downloads");
   deleteLineInFile("/etc/samba/shares.conf","downloads");
@@ -865,7 +879,7 @@ if(isset($_GET['uninstall_transmission_ovpn'])){
   echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_POST['install_transmission'])){
+if(isset($_POST['install_transmission_old'])){
   $volume = $_POST['volume'];
   
   exec ("addgroup download");
@@ -912,7 +926,7 @@ if(isset($_POST['install_transmission'])){
   echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_GET['update_transmission'])){
+if(isset($_GET['update_transmission_old'])){
 
   $group_id = exec("getent group download | cut -d: -f3");
   $volume_path = exec("find /$config_mount_target/*/downloads -name 'downloads'");
@@ -929,7 +943,7 @@ if(isset($_GET['update_transmission'])){
 
 }
 
-if(isset($_GET['uninstall_transmission'])){
+if(isset($_GET['uninstall_transmission_old'])){
   //stop and delete docker container
   exec("docker stop transmission");
   exec("docker rm transmission");

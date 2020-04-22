@@ -115,15 +115,15 @@
         </tr>
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/transmission.png" height="64" width="64" class="img-fluid rounded">
+            <img src="img/apps/transmission2.png" height="64" width="64" class="img-fluid rounded">
             <br>
-            Transmission
+            Transmssion
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission")) { ?>
-            <small class="text-success"><span data-feather="check"></span>Installed</small>
+            <small class="text-success"><span data-feather="check"></span>Installed VPN IP <?php $vpn_ip = exec("docker exec -ti transmission curl ifconfig.co"); echo $vpn_ip; ?></small>
             <?php } ?>
           </td>
-          <td>Torrent downloads</td>
+          <td>Torrent downloads has VPN support to hide your IP when you download (Requires a VPN Provider like PIA)</td>
           <td>
             <div class="btn-group mr-2">
               <?php 
@@ -136,35 +136,6 @@
               }else{
               ?>
               <a href="install_transmission.php" class="btn btn-outline-success">Install</a>
-              <?php  
-              }
-              ?>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="text-center text-muted">
-            <img src="img/apps/transmission2.png" height="64" width="64" class="img-fluid rounded">
-            <br>
-            Transmssion / oVPN
-            <br>
-            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission-ovpn")) { ?>
-            <small class="text-success"><span data-feather="check"></span>Installed VPN IP <?php $vpn_ip = exec("docker exec -ti transmission-ovpn curl ifconfig.co"); echo $vpn_ip; ?></small>
-            <?php } ?>
-          </td>
-          <td>Torrent downloads</td>
-          <td>
-            <div class="btn-group mr-2">
-              <?php 
-                if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission-ovpn")) {
-              ?>
-                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:9091" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_transmission_ovpn.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
-                <a href="post.php?uninstall_transmission_ovpn" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
-              <?php
-              }else{
-              ?>
-              <a href="install_transmission-ovpn.php" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>

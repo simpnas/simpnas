@@ -52,7 +52,7 @@
 		</div>
 	  </div>
 	  <div class="form-group" id="passwordbox">
-	    <label>Password</label>
+	    <label>Disk Password</label>
 	    <input type="password" class="form-control" name="password">
 	  </div>
 	  <button type="submit" name="volume_add" class="btn btn-primary">Submit</button>

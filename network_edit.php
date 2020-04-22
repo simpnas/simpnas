@@ -38,23 +38,25 @@ $dhcp = $networkConfigArray['DHCP'];
   	  </div>
 	  <div class="form-group">
 		<label>Method</label>
-		<select class="form-control" name="method">
-			<option <?php if($dhcp == 'ipv4'){ echo "selected"; } ?>>DHCP</option>
-			<option <?php if(empty($dhcp)){ echo "selected"; } ?>>Static</option>
+		<select class="form-control" name="method" id="method">
+			<option <?php if($dhcp == 'ipv4'){ echo "selected"; } ?> id="dhcp">DHCP</option>
+			<option <?php if(empty($dhcp)){ echo "selected"; } ?> id="static">Static</option>
 		</select>
 	  </div>
-	  <div class="form-group">
-	    <label>Address/CIDR</label>
-	    <input type="text" class="form-control" name="address" placeholder="ex 192.168.1.5/24" value="<?php echo $address; ?>">
-	  </div>
-	  <div class="form-group">
-	    <label>Gateway</label>
-	    <input type="text" class="form-control" name="gateway" value="<?php echo $gateway; ?>">
-	  </div>
-	  <div class="form-group">
-	    <label>DNS Server(s)</label>
-	    <input type="text" class="form-control" name="dns" value="<?php echo $dns; ?>">
-	  </div>
+	  <div id="staticSettings">
+		  <div class="form-group">
+		    <label>Address/CIDR</label>
+		    <input type="text" class="form-control" name="address" placeholder="ex 192.168.1.5/24" value="<?php echo $address; ?>">
+		  </div>
+		  <div class="form-group">
+		    <label>Gateway</label>
+		    <input type="text" class="form-control" name="gateway" value="<?php echo $gateway; ?>">
+		  </div>
+		  <div class="form-group">
+		    <label>DNS Server(s)</label>
+		    <input type="text" class="form-control" name="dns" value="<?php echo $dns; ?>">
+		  </div>
+	   </div>
 
 	  <button type="submit" name="network_add" class="btn btn-primary">Submit</button>
 	</form>

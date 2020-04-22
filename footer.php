@@ -29,5 +29,32 @@
 				});
 			});
 		</script>
+
+		<script type="text/javascript">
+			$("#staticSettings").hide();
+			$(function(){
+				$("#method").click(function(){
+				if($("#static").is(":selected")){
+					$("#staticSettings").show();
+				}else{
+					$("#staticSettings").hide();
+				}
+				});
+			});
+		</script>
+
+		<script type="text/javascript">
+			$("#vpnSettings").hide();
+			$(function(){
+				$("#configVpn").click(function(){
+				if($(this).is(":checked")){
+					$("#vpnSettings").show();
+				}else{
+					$("#vpnSettings").hide();
+				}
+				});
+			});
+		</script>
+
 	</body>
 </html>
