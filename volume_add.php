@@ -2,6 +2,13 @@
     include("config.php");
     include("header.php");
     include("side_nav.php");
+    exec("ls /$config_mount_target", $volume_array);
+    foreach($volume_array as $volume){
+    	exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume | cut -c -8", $has_volume_disk);
+    	exec("findmnt -n -o SOURCE --target / | cut -c -8", $has_volume_disk); //adds OS Drive to the array
+    }
+    exec("smartctl --scan | awk '{print $1}'", $drive_list);
+    $not_in_use_disks_array = array_diff($drive_list, $has_volume_disk);
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -18,11 +25,10 @@
   <form method="post" action="post.php">
 	  <div class="form-group">
 	    <label>Disk:</label>
-	    <select class="form-control" name="disk">
+	    <select class="form-control" name="disk" required>
+	  		<option value=''>--Select A Drive--</option>
 	  	<?php
-			exec("smartctl --scan | awk '{print $1}'", $drive_list);
-			foreach ($drive_list as $hdd){
-				if($hdd == "$config_os_disk")continue;
+			foreach($not_in_use_disks_array as $hdd){
 				$hdd_short_name = basename($hdd);
                 $hdd_serial = exec("smartctl -i $hdd | grep Serial|awk '{ print $3 '}");
                 $hdd_model = exec("smartctl -i $hdd | grep 'Device Model:'|cut -d' ' -f 7-");
@@ -36,7 +42,7 @@
 			<option value="<?php echo $hdd; ?>"><?php echo "$hdd_short_name - $hdd_model ($hdd_label_size)"; ?></option>	
 
 		<?php
-			}
+		}
 		?>
 
 	  	</select>
