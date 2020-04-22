@@ -24,23 +24,24 @@
       </thead>
       <tbody>
         
-        <?php     
-        foreach ($volume_array as $volume) {
-        $disk = basename(exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume"));
-        $free_space = disk_free_space("/$config_mount_target/$volume/");
-        $total_space = disk_total_space("/$config_mount_target/$volume/");
-        $used_space = $total_space - $free_space;
-        $disk_used_percent = sprintf('%.0f',($used_space / $total_space) * 100);
-        //$disk_used_percent = sprintf('%.2f',($used_space / $total_space) * 100); //Add 2 decimal to Percent
-        $free_space = formatSize($free_space);
-        $total_space = formatSize($total_space);
-        $used_space = formatSize($used_space);
-        exec("ls /$config_mount_target/$volume/ | grep -v docker | grep -v lost+found", $share_list_array);
-        foreach ($share_list_array as $share){
-          $share_list .= "$share, ";  
-        }
-        $share_list = substr($share_list,0,-2); //Trim a , and a space at the end
+        <?php
 
+        foreach ($volume_array as $volume){     
+          $disk = basename(exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume"));
+          $free_space = disk_free_space("/$config_mount_target/$volume/");
+          $total_space = disk_total_space("/$config_mount_target/$volume/");
+          $used_space = $total_space - $free_space;
+          $disk_used_percent = sprintf('%.0f',($used_space / $total_space) * 100);
+          //$disk_used_percent = sprintf('%.2f',($used_space / $total_space) * 100); //Add 2 decimal to Percent
+          $free_space = formatSize($free_space);
+          $total_space = formatSize($total_space);
+          $used_space = formatSize($used_space);
+          exec("ls /$config_mount_target/$volume | grep -v docker | grep -v lost+found", $share_list_array);
+          foreach ($share_list_array as $share){
+            $share_list .= "$share, ";  
+          }
+          $share_list = substr($share_list,0,-2); //Trim a , and a space at the end
+          
         ?>
         
         <tr>
@@ -61,7 +62,11 @@
             </div>
           </td>
         </tr>
-        <?php } ?>
+        <?php 
+        unset($share_list_array);
+        $share_list = '';
+        } 
+        ?>
       </tbody>
     </table>
   </div>
