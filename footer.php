@@ -31,7 +31,11 @@
 		</script>
 
 		<script type="text/javascript">
-			$("#staticSettings").hide();
+			if($("#static").is(":selected")){
+					$("#staticSettings").show();
+				}else{
+					$("#staticSettings").hide();
+				}
 			$(function(){
 				$("#method").click(function(){
 				if($("#static").is(":selected")){
