@@ -9,9 +9,9 @@ echo ===========================================================================
 apt dist-upgrade -y
 echo ==================================================================================
 echo Installing Additional Required Packages...
-echo Samba, PHP, SMARTmonTools, etc
+echo Samba, PHP, SMARTmonTools, Rsync etc
 echo ==================================================================================
-apt install samba smartmontools php-cgi cryptsetup git apt-transport-https apt-transport-https curl gnupg-agent software-properties-common -y
+apt install samba smartmontools rsync php-cgi cryptsetup git apt-transport-https apt-transport-https curl gnupg-agent software-properties-common -y
 echo Install Docker Repo and latest docker
 curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
 add-apt-repository "deb [arch=$(dpkg --print-architecture)] https://download.docker.com/linux/debian $(lsb_release -cs) stable"

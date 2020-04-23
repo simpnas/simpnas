@@ -326,7 +326,32 @@ if(isset($_POST['backup_add'])){
   $destination = $_POST['destination'];
   $occurance = $_POST['occurance'];
 
-  $myFile = "/etc/cron.$occurance/backup-$source-$destination";
+  $myFile = "/etc/cron.$occurance/backup--$source--$destination";
+
+  echo $myFile;
+  $fh = fopen($myFile, 'w') or die("not able to write to file");
+  $stringData = "rsync --verbose --log-file=/var/log/rsync.log --archive /$config_mount_target/$source/ /$config_mount_target/$destination/";
+  fwrite($fh, $stringData);
+  fclose($fh);
+
+  //exec("rsync --verbose --log-file=/var/log/rsync.log --archive /$config_mount_target/$source/ /$config_mount_target/$destination/");
+  
+  echo "<script>window.location = 'backups.php'</script>";
+
+}
+
+if(isset($_POST['backup_edit'])){
+  $current_backup = $_POST['current_backup'];
+  $current_occurance = $_POST['current_occurance'];
+  $source = $_POST['source'];
+  $destination = $_POST['destination'];
+  $occurance = $_POST['occurance'];
+
+  exec ("rm -f /etc/cron.$current_occurance/$current_backup");
+
+  $myFile = "/etc/cron.$occurance/backup--$source--$destination";
+
+  echo $myFile;
   $fh = fopen($myFile, 'w') or die("not able to write to file");
   $stringData = "rsync --verbose --log-file=/var/log/rsync.log --archive /$config_mount_target/$source/ /$config_mount_target/$destination/";
   fwrite($fh, $stringData);
@@ -340,10 +365,21 @@ if(isset($_POST['backup_add'])){
 
 if(isset($_GET['backup_delete'])){
   $backup = $_GET['backup_delete'];
+  $occurance = $_GET['occurance'];
 
-  exec ("rm -f /etc/cron.*/$backup");
+  exec ("rm -f /etc/cron.$occurance/$backup");
   
   echo "<script>window.location = 'backups.php'</script>";
+}
+
+if(isset($_GET['backup_run'])){
+  $backup = $_GET['backup_run'];
+  $occurance = $_GET['occurance'];
+
+  exec("bash /etc/cron.$occurance/$backup");
+  
+  echo "<script>window.location = 'backups.php'</script>";
+
 }
 
 if(isset($_GET['wipe_hdd'])){
@@ -1104,7 +1140,7 @@ if(isset($_GET['reset'])){
   exec ("docker rmi $(docker images -q)");
   
   //Remove all created groups
-  exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nobody | grep -v nogroup", $group_array);
+  exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
   foreach ($group_array as $group) {
     exec("delgroup $group");
   }

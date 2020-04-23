@@ -25,21 +25,22 @@
       <tbody>
         <?php
         foreach ($backups_array as $backup){
-          $source = explode("-",$backup)[1];
-          $destination = explode("-",$backup)[2];
+          $source = explode("--",$backup)[1];
+          $destination = explode("--",$backup)[2];
           $occurance = explode(".",$backup)[1];
-          $occurance = substr($occurance, 0, strpos($occurance, '/'))
+          $occurance = substr($occurance, 0, strpos($occurance, '/'));
         ?>
 
         <tr>
           <td><?php echo $source; ?></td>
           <td><?php echo $destination; ?></td>
-          <td><?php echo $occurance; ?></td>
+          <td><?php echo ucwords($occurance); ?></td>
           <td>NEVER</td>
           <td>
             <div class="btn-group mr-2">
-              <a href="backup_edit.php?backup=<?php echo basename($backup); ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
-              <a href="post.php?backup_delete=<?php echo basename($backup); ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <a href="backup_edit.php?backup=<?php echo basename($backup); ?>&occurance=<?php echo $occurance; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
+              <a href="post.php?backup_run=<?php echo basename($backup); ?>&occurance=<?php echo $occurance; ?>" class="btn btn-outline-secondary"><span data-feather="play"></span></a>
+              <a href="post.php?backup_delete=<?php echo basename($backup); ?>&occurance=<?php echo $occurance; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
             </div>
           </td>
         </tr>
