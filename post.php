@@ -163,6 +163,7 @@ if(isset($_POST['volume_add'])){
   $hdd_part = $hdd."1";
   exec ("wipefs -a $hdd");
   exec ("(echo o; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
+  exec ("e2label $hdd_part $name");
   exec ("mkdir /$config_mount_target/$name");
   
   if(!empty($_POST['encrypt'])){
@@ -353,7 +354,7 @@ if(isset($_POST['backup_edit'])){
 
   echo $myFile;
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "rsync --verbose --log-file=/var/log/rsync.log --archive /$config_mount_target/$source/ /$config_mount_target/$destination/";
+  $stringData = "rsync --verbose --log-file=/var/log/rsync.log --archive /$config_mount_target/$source/ /$config_mount_target/$destination/ --delete";
   fwrite($fh, $stringData);
   fclose($fh);
 
@@ -940,88 +941,40 @@ if(isset($_GET['uninstall_transmission'])){
   echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_POST['install_transmission_old'])){
-  $volume = $_POST['volume'];
-  
-  exec ("addgroup download");
-  $group_id = exec("getent group download | cut -d: -f3");
+if(isset($_GET['install_doublecommander'])){
 
-  mkdir("/$config_mount_target/$volume/downloads");
-  mkdir("/$config_mount_target/$volume/downloads/complete");
-  mkdir("/$config_mount_target/$volume/downloads/incomplete");
-  mkdir("/$config_mount_target/$volume/downloads/watch");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/transmission");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/transmission/config");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/doublecommander");
 
-  chgrp("/$config_mount_target/$volume/downloads","download");
-  chgrp("/$config_mount_target/$volume/downloads/complete","download");
-  chgrp("/$config_mount_target/$volume/downloads/incomplete","download");
-  chgrp("/$config_mount_target/$volume/downloads/watch","download");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/transmission","download");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/transmission/config","download");
-
-  chmod("/$config_mount_target/$volume/downloads",0770);
-  chmod("/$config_mount_target/$volume/downloads/complete",0770);
-  chmod("/$config_mount_target/$volume/downloads/incomplete",0770);
-  chmod("/$config_mount_target/$volume/downloads/watch",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/transmission",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/transmission/config",0770);
-  
-  $myFile = "/etc/samba/shares/downloads";
-  $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /$config_mount_target/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
-  fwrite($fh, $stringData);
-  fclose($fh);
-
-  $myFile = "/etc/samba/shares.conf";
-  $fh = fopen($myFile, 'a') or die("not able to write to file");
-  $stringData = "\ninclude = /etc/samba/shares/downloads";
-  fwrite($fh, $stringData);
-  fclose($fh);
-    
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
-
-  exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$volume/downloads/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
-  
+  exec("docker run --name doublecommander --restart=unless-stopped -e PGID=0 -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/doublecommander:/config -v /mnt/backupvol/bighunk:/data linuxserver/doublecommander");
   echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_GET['update_transmission_old'])){
-
-  $group_id = exec("getent group download | cut -d: -f3");
-  $volume_path = exec("find /$config_mount_target/*/downloads -name 'downloads'");
-
-  exec("docker pull linuxserver/transmission");
-  exec("docker stop transmission");
-  exec("docker rm transmission");
-
-  exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission/config:/config -v /$config_mount_target/$config_docker_volume/docker/transmission/watch:/watch -v $volume_path:/downloads -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
-
-  exec("docker image prune");
-  
-  echo "<script>window.location = 'apps.php'</script>";
-
-}
-
-if(isset($_GET['uninstall_transmission_old'])){
+if(isset($_GET['uninstall_doublecommander'])){
   //stop and delete docker container
-  exec("docker stop transmission");
-  exec("docker rm transmission");
-  //delete group
-  exec ("delgroup download");
-  //get path to media directory
-  $path = exec("find /$config_mount_target/*/downloads -name downloads");
-  //delete directory
-  exec ("rm -rf $path"); //Delete
+  exec("docker stop doublecommander");
+  exec("docker rm doublecommander");
+
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/transmission");
-  //delete samba share
-  exec ("rm -f /etc/samba/shares/downloads");
-  deleteLineInFile("/etc/samba/shares.conf","downloads");
-  //restart samba
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/doublecommander");
+  //redirect back to packages
+  echo "<script>window.location = 'apps.php'</script>";
+}
+
+if(isset($_GET['install_wireguard'])){
+
+  mkdir("/$config_mount_target/$config_docker_volume/docker/wireguard");
+
+  exec("docker run --cap-add=NET_ADMIN --cap-add=SYS_MODULE -d --name wireguard --restart=unless-stopped -e PEERS=1 -v /$config_mount_target/$config_docker_volume/docker/wireguard:/config -v /lib/modules:/lib/modules -p 51820:51820/udp --sysctl='net.ipv4.conf.all.src_valid_mark=1' linuxserver/wireguard");
+  echo "<script>window.location = 'apps.php'</script>";
+}
+
+if(isset($_GET['uninstall_wireguard'])){
+  //stop and delete docker container
+  exec("docker stop wireguard");
+  exec("docker rm wireguard");
+
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/wireguard");
   //redirect back to packages
   echo "<script>window.location = 'apps.php'</script>";
 }
@@ -1082,6 +1035,7 @@ if(isset($_POST['setup'])){
   exec ("(echo o; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
   exec ("mkdir /$config_mount_target/$volume_name");
   exec ("mkfs.ext4 $hdd_part");
+  exec ("e2label $hdd_part $volume_name");
   exec ("mount $hdd_part /$config_mount_target/$volume_name");
 
   exec ("mkdir /$config_mount_target/$volume_name/docker");

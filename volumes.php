@@ -3,6 +3,7 @@
     include("header.php");
     include("side_nav.php");
     exec("ls /$config_mount_target", $volume_array);
+    exec("ls /dev/mapper/crypt*", $encrypted_volume_array);
 ?>
 
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -58,6 +59,42 @@
             <div class="btn-group mr-2">
               <button class="btn btn-outline-secondary"><span data-feather="edit"></span></button>
               <a href="post.php?unmount_volume=<?php echo $volume; ?>" class="btn btn-outline-warning"><span data-feather="stop-circle"></span></a>
+              <a href="post.php?delete_volume=<?php echo $volume; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+            </div>
+          </td>
+        </tr>
+        <?php 
+        unset($share_list_array);
+        $share_list = '';
+        } 
+        ?>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h2>Encrypted Volumes</h2>
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <?php
+
+        foreach ($encrypted_volume_array as $encrypted_volume){     
+          
+        ?>
+        
+        <tr>
+          <td><span class="mr-2" data-feather="lock"></span><?php echo basename($encrypted_volume); ?></td>
+          <td>
+            <div class="btn-group mr-2">
+              <a href="post.php?unmount_volume=<?php echo $volume; ?>" class="btn btn-outline-primary"><span data-feather="unlock"></span></a>
               <a href="post.php?delete_volume=<?php echo $volume; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
             </div>
           </td>

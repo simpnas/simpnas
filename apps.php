@@ -235,6 +235,64 @@
         </tr>
         <tr>
           <td class="text-center text-muted">
+            <img src="img/apps/wireguard.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            Double Commander
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/doublecommander")) { ?>
+            <small class="text-success"><span data-feather="check"></span>Installed</small>
+            <?php } ?>
+          </td>
+          <td>Web Based File Manager</td>
+          <td>
+            <div class="btn-group mr-2">
+              <?php 
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/doublecommander")) {
+              ?>
+                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:3000" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="update_doublecommander.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_doublecommander" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <?php
+              }else{
+              ?>
+              <a href="post.php?install_doublecommander" class="btn btn-outline-success">Install</a>
+              <?php  
+              }
+              ?>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-center text-muted">
+            <img src="img/apps/wireguard.png" height="64" width="64" class="img-fluid rounded">
+            <br>
+            WireGuard VPN Server
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/wireguard")) { ?>
+            <small class="text-success"><span data-feather="check"></span>Installed</small>
+            <?php } ?>
+          </td>
+          <td>Turn your NAS into WireGuard VPN Server, connect to your home network and access everything at home as if you were on your network locally</td>
+          <td>
+            <div class="btn-group mr-2">
+              <?php 
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/wireguard")) {
+              ?>
+                <a href="https://<?php echo $_SERVER['HTTP_HOST']; ?>:51820" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="update_wireguard.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_wireguard" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <?php
+              }else{
+              ?>
+              <a href="post.php?install_wireguard" class="btn btn-outline-success">Install</a>
+              <?php  
+              }
+              ?>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-center text-muted">
             <img src="img/apps/openvpn.png" height="64" width="64" class="img-fluid rounded">
             <br>
             OpenVPN Server
