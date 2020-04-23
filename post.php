@@ -1167,6 +1167,9 @@ if(isset($_GET['reset'])){
     exec("wipefs -a $disk");
   }
 
+  //Remove any backup cron scripts
+  exec ("rm -f /etc/cron.*/backup*");
+
   //Remove Samba conf and replace it with the default
   exec ("rm -f /etc/samba/smb.conf");
   exec ("rm -f /etc/samba/shares.conf");
