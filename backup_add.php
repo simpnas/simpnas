@@ -53,10 +53,10 @@
 	    <label>Occurance</label>
 	    <select class="form-control" name="occurance" required>
 	  		<option value=''>--Select a Time--</option>
+	  		<option value='hourly'>Hourly</option>
 	  		<option value='daily'>Daily</option>
 	  		<option value='weekly'>Weekly</option>
 	  		<option value='monthly'>Monthly</option>
-	  		<option value='run_now'>Run Now</option>
 	  	</select>
 	  </div>
 	  <button type="submit" name="backup_add" class="btn btn-primary">Submit</button>

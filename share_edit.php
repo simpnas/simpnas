@@ -28,7 +28,7 @@
 
 	  <div class="form-group">
 	    <label>Volume</label>
-	    <select class="form-control" name="volume">
+	    <select class="form-control" name="volume" required>
 	  	<?php
 			exec("ls /$config_mount_target", $volume_list);
 			foreach ($volume_list as $volume) {
@@ -48,7 +48,7 @@
 
 	  <div class="form-group">
 	    <label>Share Name</label>
-	    <input type="text" class="form-control" name="name" value="<?php echo $share; ?>">
+	    <input type="text" class="form-control" name="name" value="<?php echo $share; ?>" required pattern="[a-zA-Z0-9-]{1,25}">
 	  </div>
 	  
 	  <div class="form-group">
@@ -57,7 +57,7 @@
 	  </div>
 	  <div class="form-group">
 		<label>Group Access</label>
-		<select class="form-control" name="group">
+		<select class="form-control" name="group" required>
 		  	<option>users</option>
 		  	<?php
 				exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);

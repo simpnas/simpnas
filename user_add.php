@@ -18,11 +18,11 @@
   <form method="post" action="post.php">
 	  <div class="form-group">
 	    <label>Username</label>
-	    <input type="text" class="form-control" name="username">
+	    <input type="text" class="form-control" name="username" required pattern="[a-zA-Z0-9]{1,20}">
 	  </div>
 	  <div class="form-group">
 	    <label>Password:</label>
-	    <input type="password" class="form-control" name="password">
+	    <input type="password" class="form-control" name="password" required>
 	  </div>
 	  <legend>Groups</legend>
 	  

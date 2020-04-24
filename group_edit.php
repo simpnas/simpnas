@@ -21,7 +21,7 @@
 	  <input type="hidden" name="old_group" value="<?php echo $group; ?>">
     <div class="form-group">
 	    <label>Group:</label>
-	    <input type="text" class="form-control" name="group" value="<?php echo $group; ?>">
+	    <input type="text" class="form-control" name="group" value="<?php echo $group; ?>" required pattern="[a-zA-Z0-9-]{1,25}">
 	  </div>
 	  <button type="submit" name="group_edit" class="btn btn-primary">Submit</button>
 	</form>

@@ -63,6 +63,7 @@
 	    <label>Occurance</label>
 	    <select class="form-control" name="occurance" required>
 	  		<option value=''>--Select a Time--</option>
+	  		<option <?php if($occurance == 'hourly'){ echo "selected"; } ?> value='hourly'>Hourly</option>
 	  		<option <?php if($occurance == 'daily'){ echo "selected"; } ?> value='daily'>Daily</option>
 	  		<option <?php if($occurance == 'weekly'){ echo "selected"; } ?> value='weekly'>Weekly</option>
 	  		<option <?php if($occurance == 'monthly'){ echo "selected"; } ?> value='monthly'>Monthly</option>

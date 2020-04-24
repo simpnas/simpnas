@@ -36,7 +36,7 @@
 	  
 	  <div class="form-group">
 	    <label>Share Name:</label>
-	    <input type="text" class="form-control" name="name">
+	    <input type="text" class="form-control" name="name" required pattern="[a-zA-Z0-9-]{1,25}">
 	  </div>
 	  
 	  <div class="form-group">
@@ -45,7 +45,7 @@
 	  </div>
 	  <div class="form-group">
 		<label>Group Access:</label>
-		<select class="form-control" name="group">
+		<select class="form-control" name="group" required>
 		  	<option>users</option>
 		  	<?php
 				exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
