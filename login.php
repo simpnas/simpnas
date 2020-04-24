@@ -1,5 +1,30 @@
 <?php 
-  include("config.php");
+  
+include("config.php");
+
+session_start();
+
+if(isset($_POST['login'])){
+  
+  $username = $_POST['username'];
+  $password = $_POST['password'];
+  
+  $logged_in = exec("bash /simpnas/verify.sh $username $password");
+
+  if($logged_in == 1){
+    $_SESSION['username'] = $username;
+    $_SESSION['logged'] = TRUE;
+    header("Location: dashboard.php");
+  }else{
+    $response = "
+      <div class='alert alert-danger'>
+        Incorrect username or password.
+        <button class='close' data-dismiss='alert'>&times;</button>
+      </div>
+    ";
+  }
+}
+
 ?>
 
 <!doctype html>
@@ -10,7 +35,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Login</title>
+    <title>SimpNAS | Login</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -20,13 +45,16 @@
   </head>
 
   <body class="text-center">
-    <form class="form-signin">
+    <form class="form-signin" method="post">
       <h2>SimpNAS</h2>
-      <label for="inputUsername" class="sr-only">Username</label>
-      <input type="text" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
-      <label for="inputPassword" class="sr-only">Password</label>
-      <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-      <button class="btn btn-lg btn-secondary btn-block" type="submit">Login</button>
+      <?php 
+      if(!empty($response)){
+        echo $response;
+      }
+      ?>
+      <input type="text" id="inputUsername" name="username" class="form-control" placeholder="Username" required autofocus>
+      <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" required>
+      <button type="submit" class="btn btn-secondary p-2 btn-block" name="login">Sign In</button>
     </form>
   </body>
 </html>

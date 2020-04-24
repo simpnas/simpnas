@@ -68,6 +68,10 @@
 				if( $hdd == "$os_disk" )continue;
 				$hdd_short_name = basename($hdd);
                 $hdd_serial = exec("smartctl -i $hdd | grep Serial|awk '{ print $3 '}");
+                $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family' | cut -d' ' -f 6-");
+				if(empty($hdd_vendor)){
+					$hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor' | cut -d' ' -f 6-");
+				}
                 $hdd_model = exec("smartctl -i $hdd | grep 'Device Model:'|cut -d' ' -f 7-");
                 $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity' | cut -d' ' -f 8-");
 				$hdd_label_size = str_replace(["["], "", $hdd_label_size);
@@ -76,7 +80,7 @@
 				$hdd_label_size = str_replace([".00"], "", $hdd_label_size);
 				$hdd_label_size = str_replace([".0"], "", $hdd_label_size);
 			?>
-			<option value="<?php echo $hdd; ?>"><?php echo "$hdd_short_name - $hdd_model ($hdd_label_size)"; ?></option>	
+			<option value="<?php echo $hdd; ?>"><?php echo "$hdd_short_name - $hdd_vendor ($hdd_label_size)"; ?></option>	
 
 		<?php
 			}

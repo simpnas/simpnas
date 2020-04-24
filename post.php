@@ -158,7 +158,7 @@ if(isset($_GET['mount_hdd'])){
 }
 
 if(isset($_POST['volume_add'])){
-  $name = $_POST['name'];
+  $name = trim($_POST['name']);
   $hdd = $_POST['disk'];
   $hdd_part = $hdd."1";
   exec ("wipefs -a $hdd");

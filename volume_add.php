@@ -49,7 +49,7 @@
 	  </div>
 	  <div class="form-group">
 	    <label>Volume Name</label>
-	    <input type="text" class="form-control" name="name">
+	    <input type="text" class="form-control" name="name" required pattern="[a-zA-Z0-9-]{1,15}">
 	  </div>
 	  <div class="form-group">
 	  	<div class="custom-control custom-checkbox">
