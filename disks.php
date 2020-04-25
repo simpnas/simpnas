@@ -68,11 +68,11 @@
       //$hdd_bad_blocks = exec("smartctl -a $hdd | grep 'Reallocated_Sector_Ct' | awk '{ print $10 '}");
     }
 
-    $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family' | cut -d' ' -f 6-");
+    $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family' | cut -d' ' -f 7-");
     if($hdd_vendor == ' '){
-      $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | cut -d' ' -f 6-");
-    }else{
-      $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor' | cut -d' ' -f 6-");
+      $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | cut -d' ' -f 7-");
+    }elseif($hdd_vendor == ''){
+      $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor' | cut -d' ' -f 7-");
     }
     $hdd_serial = exec("smartctl -i $hdd | grep Serial | awk '{ print $3 '}");
     if(empty($hdd_serial)){
@@ -104,7 +104,6 @@
         <td><?php echo $hdd_label_size; ?>GB</td>
         <td><?php echo $hdd_type; ?></td>
         <td><?php echo $hdd_power_on_hours; ?><br><small><?php echo $hdd_power_on_days; ?></small></td>
-        <td><?php echo $hdd_bad_blocks; ?></td>
         <td><?php echo $hdd_temp; ?></td>
         <td><p class="text-success"><?php echo $hdd_health; ?></p></td>
         <td>
