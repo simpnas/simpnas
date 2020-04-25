@@ -396,17 +396,23 @@ if(isset($_POST['share_edit'])){
 if(isset($_GET['share_delete'])){
   $name = $_GET['share_delete'];
 
-  $path = exec("find /$config_mount_target/*/$name -name $name");
+  $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "homes");
+  if(in_array($name, $docker_shares_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not delete the share $name as it shares the same share name as an app thats using it. The followng share names are forbiddon to delete media, downloads, video-surveillance. These can be deleted by deleting the app that is associated with it.";
+  }else{
 
-  exec ("rm -rf $path");
-  exec ("rm -f /etc/samba/shares/$name");
+    $path = exec("find /$config_mount_target/*/$name -name $name");
 
-  deleteLineInFile("/etc/samba/shares.conf","$name");
+    exec ("rm -rf $path");
+    exec ("rm -f /etc/samba/shares/$name");
 
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
-  
-  echo "<script>window.location = 'shares.php'</script>";
+    deleteLineInFile("/etc/samba/shares.conf","$name");
+
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  }
+  header("Location: shares.php");
 }
 
 if(isset($_POST['network_add'])){
