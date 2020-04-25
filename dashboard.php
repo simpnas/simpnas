@@ -7,20 +7,23 @@
   exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
   array_push($group_array, "users");
 
-  exec("smartctl --scan | awk '{ print $1 '}", $drive_list);
+  exec("smartctl --scan | awk '{print $1}'", $drive_list);
 
   exec("ls /$config_mount_target", $volume_array);
 
   $free_memory = exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
   $free_memory = floor($free_memory);
   $cpu_usage = exec("top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\([0-9.]*\)%* id.*/\1/' | awk '{print 100 - $1'%'}'");
-  $load_avg = exec("uptime |awk -F 'average:' '{ print $2}'");
+  $load_avg = exec("uptime | awk -F 'average: ' '{ print $2}'");
   $uptime = exec("uptime -p | cut -c 4-");
   $system_time = exec("date");
-
+  $machine_id = exec("hostnamectl | grep 'Machine ID:' | awk '{print $3}'");
   $cpu_model = exec("lscpu | grep 'Model name:' | sed -r 's/Model name:\s{1,}//g'");
-  $memory_installed = exec("dmidecode --type memory | grep Size | awk '{print $2}'");
-
+  $cpu_cores = exec("lscpu | grep 'CPU(s):' | awk '{print $3}'");
+  $cpu_speed = round(exec("lscpu | grep 'CPU max MHz:' | awk '{print $4}'"));
+  $memory_installed = formatSize(exec("free -b | grep 'Mem:' | awk '{print $2}'"));
+  $OS= exec("hostnamectl | grep 'Operating System:' | awk '{print $3, $4, $5, $6}'");
+  $kernel = exec("hostnamectl | grep 'Kernel:' | awk '{print $3}'");
   $num_of_users = count($username_array);
   $num_of_groups = count($group_array);
   $num_of_volumes = count($volume_array);
@@ -44,6 +47,21 @@
         </tr>
 
         <tr>
+          <td>OS</td>
+          <td><?php echo $OS; ?></td>
+        </tr>
+
+        <tr>
+          <td>Kernel</td>
+          <td><?php echo $kernel; ?></td>
+        </tr>
+
+        <tr>
+          <td>Machine ID</td>
+          <td><?php echo $machine_id; ?></td>
+        </tr>
+
+        <tr>
           <td>Processor</td>
           <td>
             <?php echo $cpu_model; ?>
@@ -59,7 +77,7 @@
         <tr>
           <td>Memory</td>
           <td>
-            Total: <?php echo $memory_installed; ?> MB
+            Total: <?php echo $memory_installed; ?>
             <div class="progress">
                 <div class="progress-bar <?php if($free_memory > 85){ echo "bg-danger"; } ?>" style="width: <?php echo $free_memory; ?>%">
                 </div>

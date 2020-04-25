@@ -129,26 +129,28 @@
 	  
 	  <div class="form-group">
 		<label>Method</label>
-		<select class="form-control" name="method">
-			<option>DHCP</option>
-			<option>Static</option>
+		<select class="form-control" name="method" id="method">
+			<option id="dhcp">DHCP</option>
+			<option id="static">Static</option>
 		</select>
 		<small class="form-text text-muted">If DHCP is selected there is no need to fill out address, gateway or dns.</small>
 	  </div>
 	  
-	  <div class="form-group">
-	    <label>Address/CIDR</label>
-	    <input type="text" class="form-control" name="address" placeholder="ex 192.168.1.5/24">
-	  </div>
-	  
-	  <div class="form-group">
-	    <label>Gateway</label>
-	    <input type="text" class="form-control" name="gateway">
-	  </div>
-	  
-	  <div class="form-group">
-	    <label>DNS Server(s)</label>
-	    <input type="text" class="form-control" name="dns">
+	  <div id="staticSettings">
+		  <div class="form-group">
+		    <label>Address/CIDR</label>
+		    <input type="text" class="form-control" name="address" placeholder="ex 192.168.1.5/24">
+		  </div>
+		  
+		  <div class="form-group">
+		    <label>Gateway</label>
+		    <input type="text" class="form-control" name="gateway">
+		  </div>
+		  
+		  <div class="form-group">
+		    <label>DNS Server(s)</label>
+		    <input type="text" class="form-control" name="dns">
+		  </div>
 	  </div>
 
 	  <legend>Setup User</legend>
