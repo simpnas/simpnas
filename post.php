@@ -259,9 +259,8 @@ if(isset($_GET['volume_delete'])){
   //the code to do that here
   $hdd = exec("find $config_mount_target -n -o SOURCE --target /$config_mount_target/$name");
   
-  exec("ls /etc/samba/shares", $shares_array);
-  exec("ls /mnt/$name/", $diectories_array);
-  if(in_array($shares_array, $directories_array)){
+  exec("ls /$config_mount_target/$volume | grep -v lost+found", $directory_list_array);
+  if(!empty($directory_list_array)){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not delete volume $name as there are files shares, please delete the file shares accociated to volume $name and try again!";
   }else{
@@ -345,29 +344,23 @@ if(isset($_POST['share_edit'])){
   $current_share_path = "/$config_mount_target/$current_volume/$current_name";
   $current_group = $_POST['current_group'];
 
-  //Checks
-  exec("ls /etc/samba/shares",$existing_shares_array);
-  exec("find /$config_mount_target/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
-  $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "homes");
-  
-  if(in_array($name, $existing_shares_array)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "The share with the name $name already exists can not rename share $current_name!";
-  }elseif(in_array($name, $existing_directories_array)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Directory $name already exists can not rename share $current_name to $name!";
-  }elseif(in_array($name, $docker_shares_array)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not rename share $current_name to $name the share $name shares the same share name as an app. The followng share names are forbiddon media, downloads, video-surveillance, docker and homes!";
-  }else{
+  if($name <> $current_name){
 
-    if($group != $current_group){
-      chgrp("$current_share_path", $group);
-    }
-    if($volume != $current_volume){
-      exec("mv /$config_mount_target/$current_volume/$current_name /$config_mount_target/$volume");
-    }
-    if($name != $current_name){
+    //Name Checks
+    exec("ls /etc/samba/shares",$existing_shares_array);
+    exec("find /$config_mount_target/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
+    $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "homes");
+    
+    if(in_array($name, $existing_shares_array)){
+      $_SESSION['alert_type'] = "warning";
+      $_SESSION['alert_message'] = "The share with the name $name already exists can not rename share $current_name!";
+    }elseif(in_array($name, $existing_directories_array)){
+      $_SESSION['alert_type'] = "warning";
+      $_SESSION['alert_message'] = "Directory $name already exists can not rename share $current_name to $name!";
+    }elseif(in_array($name, $docker_shares_array)){
+      $_SESSION['alert_type'] = "warning";
+      $_SESSION['alert_message'] = "Can not rename share $current_name to $name the share $name shares the same share name as an app. The followng share names are forbiddon media, downloads, video-surveillance, docker and homes!";
+    }else{
       exec("mv $current_share_path $share_path");
       exec("mv /etc/samba/shares/$current_name /etc/samba/shares/$name");
       deleteLineInFile("/etc/samba/shares.conf","$current_name");
@@ -377,17 +370,26 @@ if(isset($_POST['share_edit'])){
       fwrite($fh, $stringData);
       fclose($fh);
     }
-
-    $myFile = "/etc/samba/shares/$name";
-    $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
-    fwrite($fh, $stringData);
-    fclose($fh);
-
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
-
+    
+  }elseif($group != $current_group){
+    chgrp("$current_share_path", $group);
+    $_SESSION['alert_type'] = "info";
+    $_SESSION['alert_message'] = "changed group $current_group to $group on share $name successfully!";
+  }elseif($volume != $current_volume){
+    exec("mv /$config_mount_target/$current_volume/$current_name /$config_mount_target/$volume");
+    $_SESSION['alert_type'] = "info";
+    $_SESSION['alert_message'] = "Moved share $name from $current_volume to $volume successfully!";
   }
+
+  $myFile = "/etc/samba/shares/$name";
+  $fh = fopen($myFile, 'w') or die("not able to write to file");
+  $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
+  fwrite($fh, $stringData);
+  fclose($fh);
+
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
+
   header("Location: shares.php");
 }
 

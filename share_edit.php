@@ -71,7 +71,7 @@
 
 	  	</select>  
 	  </div>
- 	  <button type="submit" name="share_add" class="btn btn-primary">Submit</button>
+ 	  <button type="submit" name="share_edit" class="btn btn-primary">Submit</button>
 	 
 	</form>
 </main>

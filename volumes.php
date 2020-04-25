@@ -86,7 +86,7 @@
 
     <hr>
 
-    <h2>Encrypted Volumes</h2>
+    <h4>Encrypted Volumes</h4>
 
     <table class="table table-striped">
       <thead>
