@@ -59,7 +59,7 @@
       //$hdd_bad_blocks = "-";
       $hdd_health = "-";
     }else{
-      $hdd_temp = exec("smartctl -a $hdd | grep 'Temperature' | awk '{ print $10 '}");
+      $hdd_temp = exec("smartctl -a $hdd | grep '194 Temperature_Celsius' | awk '{ print $10 '}");
       $hdd_temp = ($hdd_temp * 1.8) + 32;
       $hdd_temp = "$hdd_temp &#176;F";
       $hdd_power_on_hours = exec("smartctl -a $hdd | grep 'Power_On_Hours' | awk '{ print $10 '}");
