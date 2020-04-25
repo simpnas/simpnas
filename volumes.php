@@ -12,6 +12,24 @@
     <h2>Volumes</h2>
     <a href="volume_add.php" class="btn btn-outline-primary">Add Volume</a>
   </div>
+
+  <?php
+    //Alert Feedback
+    if(!empty($_SESSION['alert_message'])){
+      ?>
+        <div class="alert alert-success alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
+          <?php echo $_SESSION['alert_message']; ?>
+          <button class='close' data-dismiss='alert'>&times;</button>
+        </div>
+      <?php
+      
+      $_SESSION['alert_type'] = '';
+      $_SESSION['alert_message'] = '';
+
+    }
+
+  ?>
+
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>
@@ -38,34 +56,29 @@
           $total_space = formatSize($total_space);
           $used_space = formatSize($used_space);
           exec("ls /$config_mount_target/$volume | grep -v docker | grep -v lost+found", $share_list_array);
-          foreach ($share_list_array as $share){
-            $share_list .= "$share, ";  
-          }
-          $share_list = substr($share_list,0,-2); //Trim a , and a space at the end
           
         ?>
         
         <tr>
           <td><span class="mr-2" data-feather="database"></span><?php echo $volume; ?></td>
           <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?></td>
-          <td><span class="mr-2" data-feather="folder"></span><?php echo $share_list; ?></td>
+          <td><span class="mr-2" data-feather="folder"></span><?php echo implode(", ",$share_list_array); ?></td>
           <td>
             <div class="progress">
-              <div class="progress-bar" role="progressbar" style="width: <?php echo $disk_used_percent; ?>%"></div>
+              <div class="progress-bar" style="width: <?php echo $disk_used_percent; ?>%"></div>
             </div>
-            <small class="text-center"><?php echo $used_space; ?> used of <?php echo $total_space; ?></small>  
+            <small><?php echo $used_space; ?> used of <?php echo $total_space; ?></small>  
           </td>
           <td>
             <div class="btn-group mr-2">
               <button class="btn btn-outline-secondary"><span data-feather="edit"></span></button>
               <a href="post.php?unmount_volume=<?php echo $volume; ?>" class="btn btn-outline-warning"><span data-feather="stop-circle"></span></a>
-              <a href="post.php?delete_volume=<?php echo $volume; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <a href="post.php?volume_delete=<?php echo $volume; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
             </div>
           </td>
         </tr>
         <?php 
         unset($share_list_array);
-        $share_list = '';
         } 
         ?>
       </tbody>

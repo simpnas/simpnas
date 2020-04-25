@@ -7,6 +7,22 @@
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 	<h2>Power</h2>
 	<hr>
+	<?php
+    //Alert Feedback
+    if(!empty($_SESSION['alert_message'])){
+      ?>
+        <div class="alert alert-success alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
+          <?php echo $_SESSION['alert_message']; ?>
+          <button class='close' data-dismiss='alert'>&times;</button>
+        </div>
+      <?php
+      
+      $_SESSION['alert_type'] = '';
+      $_SESSION['alert_message'] = '';
+
+    }
+
+  ?>
 	<a href="post.php?shutdown" class="btn btn-lg btn-outline-danger">Shutdown</a>
 	<a href="reboot.php" class="btn btn-lg btn-outline-secondary">Reboot</a>
 	<a href="post.php?reset" class="btn btn-lg btn-danger">DESTROY!</a>

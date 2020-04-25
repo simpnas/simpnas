@@ -15,6 +15,17 @@
 				var filename = url.substr(url.lastIndexOf('/') + 1);
 				$('.nav-item a[href$="' + filename + '"]').addClass("active");
 			});
+
+			//Prevents resubmit on forms
+			if(window.history.replaceState){
+			  window.history.replaceState(null, null, window.location.href);
+			}
+
+			//Slide alert up after 2 secs
+			$("#alert").fadeTo(2000, 500).slideUp(500, function(){
+				
+			});
+
 		</script>
 
 		<script type="text/javascript">

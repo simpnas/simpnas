@@ -20,7 +20,6 @@
 	  <div class="form-group">
 	    <label>Volume:</label>
 	    <select class="form-control" name="volume">
-	  	<option></option>
 	  	<?php
 			exec("ls /$config_mount_target", $volume_list);
 			foreach ($volume_list as $volume) {

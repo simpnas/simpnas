@@ -27,33 +27,48 @@ if(isset($_GET['upgrade_simpnas_overwrite_local_changes'])){
   exec("git fetch --all");
   exec("git reset --hard origin/master");
 
-  echo "<script>window.location = 'index.php'</script>";
+  header("Location: index.php");
 }
 
 if(isset($_POST['user_add'])){
   $username = $_POST['username'];
   $password = $_POST['password'];
 
-  if(!file_exists("/$config_mount_target/$config_home_volume/$config_home_dir/")){
-    mkdir("/$config_mount_target/$config_home_volume/$config_home_dir/");
-  }
- 
-  exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -p $password");
-  exec ("echo '$password\n$password' | smbpasswd -a $username");
+  //Check if user exists
+  exec("awk -F: '$3 > 999 {print $1}' /etc/passwd", $users_array);
+  exec("awk -F: '$3 < 999 {print $1}' /etc/passwd", $system_users_array);
   
-  if(isset($_POST['group'])){
-  	$group_array = $_POST['group'];
-  	foreach($group_array as $group){
-    	exec ("adduser $username $group");
-  	}
-  }
-  
-  exec ("chmod -R 700 /$config_mount_target/$config_home_volume/$config_home_dir/$username");
+  if(in_array($username, $users_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "User $username already exists!";    
+  }elseif(in_array($username, $system_users_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not add user $username because the user is a system user!";
+  }else{
 
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
-  
-  echo "<script>window.location = 'users.php'</script>";
+    if(!file_exists("/$config_mount_target/$config_home_volume/$config_home_dir/")){
+      mkdir("/$config_mount_target/$config_home_volume/$config_home_dir/");
+    }
+   
+    exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -p $password");
+    exec ("echo '$password\n$password' | smbpasswd -a $username");
+    
+    if(isset($_POST['group'])){
+    	$group_array = $_POST['group'];
+    	foreach($group_array as $group){
+      	exec ("adduser $username $group");
+    	}
+    }
+    
+    exec ("chmod -R 700 /$config_mount_target/$config_home_volume/$config_home_dir/$username");
+
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+
+    $_SESSION['alert_type'] = "info";
+    $_SESSION['alert_message'] = "User $username successfully added!";
+  }
+  header("Location: users.php");
 }
 
 if(isset($_POST['user_edit'])){
@@ -78,27 +93,90 @@ if(isset($_POST['user_edit'])){
   echo "<script>window.location = 'users.php'</script>";
 }
 
+if(isset($_GET['user_delete'])){
+  $username = $_GET['user_delete'];
+
+  exec("smbpasswd -x $username");
+  exec("deluser --remove-home $username");
+
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
+  
+  echo "<script>window.location = 'users.php'</script>";
+}
+
+if(isset($_POST['group_add'])){
+  $group = $_POST['group'];
+
+  //check if group exists
+  exec("awk -F: '$3 > 999 {print $1}' /etc/group", $groups_array);
+  exec("awk -F: '$3 < 999 {print $1}' /etc/group", $system_groups_array);
+  $docker_groups_array = array("media", "downloads", "video-surveillance", "docker");
+
+  if(in_array($group, $groups_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Group $group already exists!";
+  }elseif(in_array($group, $system_groups_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not add group $group because the group is a system group!";
+  }elseif(in_array($group, $docker_groups_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not add group $group because the group $group is reserved for an App, the following group names are forbiddon media, downloads and video-surveillance!";
+  }else{
+    exec ("addgroup $group");
+    $_SESSION['alert_type'] = "info";
+    $_SESSION['alert_message'] = "Group $group successfully added!";
+  }  
+  header("Location: groups.php");
+}
+
 if(isset($_POST['group_edit'])){
   $old_group = $_POST['old_group'];
   $group = $_POST['group'];
 
-  exec ("groupmod -n $group $old_group");
+  //check if group exists
+  exec("awk -F: '$3 > 999 {print $1}' /etc/group", $groups_array);
+  exec("awk -F: '$3 < 999 {print $1}' /etc/group", $system_groups_array);
+  exec("find /$config_mount_target/*/* -maxdepth 0 -type d -group $group -printf '%f\n'",$group_owned_directories_array);
+  $docker_groups_array = array("media", "downloads", "video-surveillance", "docker");
 
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
-
-  echo "<script>window.location = 'groups.php'</script>";
+  if(in_array($group, $groups_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not rename group $old_group to $group because group $group already exists!";
+  }elseif(in_array($group, $system_groups_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not rename group $old_group to $group because the group is a system group!";
+  }elseif(!empty($group_owned_directories_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not rename group $old_group to $group because the group is a currently being used by a File Share, to rename this group assign the file share a different group and try again!";
+  }elseif(in_array($group, $docker_groups_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not rename group $old_group to $group because the group $group is reserved for an App, the following group names are forbiddon media, downloads and video-surveillance!";
+  }else{
+    exec ("groupmod -n $group $old_group");
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+    $_SESSION['alert_type'] = "info";
+    $_SESSION['alert_message'] = "Group $old_group renamed to $group successfully!";
+  }  
+  header("Location: groups.php");
 }
 
-if(isset($_GET['delete_group'])){
-  $group = $_GET['delete_group'];
+if(isset($_GET['group_delete'])){
+  $group = $_GET['group_delete'];
 
-  exec("delgroup $group");
+  exec("find /$config_mount_target/*/* -maxdepth 0 -type d -group $group -printf '%f\n'",$group_owned_directories_array);
+  if(!empty($group_owned_directories_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not delete group $group as its currently being used by a file share, to delete this group, delete the file share or change the group on the share to another group and try again!";
+  }else{
 
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+    exec("delgroup $group");
 
-  echo "<script>window.location = 'groups.php'</script>";
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  }
+  header("Location: groups.php");
 }
 
 if(isset($_POST['general_edit'])){
@@ -122,25 +200,6 @@ if(isset($_GET['unmount_volume'])){
   echo "<script>window.location = 'volumes.php'</script>";
 }
 
-if(isset($_GET['delete_volume'])){
-  $name = $_GET['delete_volume'];
-  //check to make sure no shares are linked to the volume
-  //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
-  //the code to do that here
-  $hdd = exec("find $config_mount_target -n -o SOURCE --target /$config_mount_target/$name");
-  
-  exec ("umount /$config_mount_target/$name");
-  exec ("rm -rf /$config_mount_target/$name");
-  exec ("wipefs -a $hdd");
-  
-  deleteLineInFile("/etc/fstab","$hdd");
-
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
-  
-  echo "<script>window.location = 'volumes.php'</script>";
-}
-
 if(isset($_GET['mount_hdd'])){
   $hdd = $_GET['mount_hdd'];
   $hdd = $hdd."1";
@@ -161,72 +220,122 @@ if(isset($_POST['volume_add'])){
   $name = trim($_POST['name']);
   $hdd = $_POST['disk'];
   $hdd_part = $hdd."1";
-  exec ("wipefs -a $hdd");
-  exec ("(echo o; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
-  exec ("e2label $hdd_part $name");
-  exec ("mkdir /$config_mount_target/$name");
   
-  if(!empty($_POST['encrypt'])){
-    $password = $_POST['password'];
-    exec ("echo -e '$password' | cryptsetup -q luksFormat $hdd_part");
-    exec ("echo -e '$password' | cryptsetup open $hdd_part crypt$name");
-    exec ("mkfs.ext4 /dev/mapper/crypt$name");    
-    exec ("mount /dev/mapper/crypt$name /$config_mount_target/$name");
+  exec ("ls /$config_mount_target/",$volumes_array);
+
+  if(in_array($name, $volumes_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not add volume $name as it already exists!";
   }else{
-    exec ("mkfs.ext4 $hdd_part");
-    exec ("mount $hdd_part /$config_mount_target/$name");  
+    exec ("wipefs -a $hdd");
+    exec ("(echo o; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
+    exec ("e2label $hdd_part $name");
+    exec ("mkdir /$config_mount_target/$name");
     
-    $myFile = "/etc/fstab";
-    $fh = fopen($myFile, 'a') or die("can't open file");
-    $stringData = "$hdd_part    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
-    fwrite($fh, $stringData);
-    fclose($fh);
+    if(!empty($_POST['encrypt'])){
+      $password = $_POST['password'];
+      exec ("echo -e '$password' | cryptsetup -q luksFormat $hdd_part");
+      exec ("echo -e '$password' | cryptsetup open $hdd_part crypt$name");
+      exec ("mkfs.ext4 /dev/mapper/crypt$name");    
+      exec ("mount /dev/mapper/crypt$name /$config_mount_target/$name");
+    }else{
+      exec ("mkfs.ext4 $hdd_part");
+      exec ("mount $hdd_part /$config_mount_target/$name");  
+      
+      $myFile = "/etc/fstab";
+      $fh = fopen($myFile, 'a') or die("can't open file");
+      $stringData = "$hdd_part    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
+      fwrite($fh, $stringData);
+      fclose($fh);
+    }
+  }
+  header("Location: volumes.php");
+}
+
+if(isset($_GET['volume_delete'])){
+  $name = $_GET['volume_delete'];
+  //check to make sure no shares are linked to the volume
+  //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
+  //the code to do that here
+  $hdd = exec("find $config_mount_target -n -o SOURCE --target /$config_mount_target/$name");
+  
+  exec("ls /etc/samba/shares", $shares_array);
+  exec("ls /mnt/$name/", $diectories_array);
+  if(in_array($shares_array, $directories_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not delete volume $name as there are files shares, please delete the file shares accociated to volume $name and try again!";
+  }else{
+    exec ("umount /$config_mount_target/$name");
+    exec ("rm -rf /$config_mount_target/$name");
+    exec ("wipefs -a $hdd");
+    
+    deleteLineInFile("/etc/fstab","$hdd");
+
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
   }
   
-  echo "<script>window.location = 'volumes.php'</script>";
-
+  header("Location: volumes.php");
 }
 
 if(isset($_POST['share_add'])){
   $volume = $_POST['volume'];
-  $name = strtolower($_POST['name']);
+  $name = $_POST['name'];
   $description = $_POST['description'];
   $share_path = "/$config_mount_target/$volume/$name";
   $group = $_POST['group'];
-  mkdir("$share_path");
-  chgrp("$share_path", $group);
-  chmod("$share_path", 0770);
+  
+  //Checks
+  exec("ls /etc/samba/shares",$existing_shares_array);
+  exec("find /$config_mount_target/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
+  $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "homes");
+  
+  if(in_array($name, $existing_shares_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "The share with the name $name already exists can not add share!";
+  }elseif(in_array($name, $existing_directories_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Directory $name already exists can not add share with the name $name, would you like to share the existing directory instead (Note this will update the permissions to user root with RWX and group to RWX and everyone else to --- or would you like to delete the directory and its contents and create a new directory!";
+  }elseif(in_array($name, $docker_shares_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not create the share $name as it shares the same share name as an app. The followng share names are forbiddon media, downloads, video-surveillance, docker and homes!";
+  }else{
 
-  //exec ("mkdir '$share_path'");
-  //exec ("chgrp root:$group '$share_path'");
-  //exec ("chmod 2777 '$share_path'");
-     
-     //$myFile = "/etc/samba/smb.conf";
-	   //$fh = fopen($myFile, 'a') or die("can't open file");
-	   //$stringData = "\n[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770\n\n";
-	   //fwrite($fh, $stringData);
-	   //fclose($fh);
+    mkdir("$share_path");
+    chgrp("$share_path", $group);
+    chmod("$share_path", 0770);
 
-  $myFile = "/etc/samba/shares/$name";
-  $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
-  fwrite($fh, $stringData);
-  fclose($fh);
+    //exec ("mkdir '$share_path'");
+    //exec ("chgrp root:$group '$share_path'");
+    //exec ("chmod 2777 '$share_path'");
+       
+       //$myFile = "/etc/samba/smb.conf";
+  	   //$fh = fopen($myFile, 'a') or die("can't open file");
+  	   //$stringData = "\n[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770\n\n";
+  	   //fwrite($fh, $stringData);
+  	   //fclose($fh);
 
-  $myFile = "/etc/samba/shares.conf";
-  $fh = fopen($myFile, 'a') or die("not able to write to file");
-  $stringData = "\ninclude = /etc/samba/shares/$name";
-  fwrite($fh, $stringData);
-  fclose($fh);
+    $myFile = "/etc/samba/shares/$name";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
+    fwrite($fh, $stringData);
+    fclose($fh);
 
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
-  echo "<script>window.location = 'shares.php'</script>";
+    $myFile = "/etc/samba/shares.conf";
+    $fh = fopen($myFile, 'a') or die("not able to write to file");
+    $stringData = "\ninclude = /etc/samba/shares/$name";
+    fwrite($fh, $stringData);
+    fclose($fh);
+
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  }
+  header("Location: shares.php");
 }
 
 if(isset($_POST['share_edit'])){
   $volume = $_POST['volume'];
-  $name = strtolower($_POST['name']);
+  $name = $_POST['name'];
   $description = $_POST['description'];
   $share_path = "/$config_mount_target/$volume/$name";
   $group = $_POST['group'];
@@ -236,34 +345,50 @@ if(isset($_POST['share_edit'])){
   $current_share_path = "/$config_mount_target/$current_volume/$current_name";
   $current_group = $_POST['current_group'];
 
-  if($group != $current_group){
-    chgrp("$current_share_path", $group);
-  }
-  if($volume != $current_volume){
-    exec("mv /$config_mount_target/$current_volume/$current_name /$config_mount_target/$volume");
-  }
-  if($name != $current_name){
-    exec("mv $current_share_path $share_path");
-    exec("mv /etc/samba/shares/$current_name /etc/samba/shares/$name");
-    deleteLineInFile("/etc/samba/shares.conf","$current_name");
-    $myFile = "/etc/samba/shares.conf";
+  //Checks
+  exec("ls /etc/samba/shares",$existing_shares_array);
+  exec("find /$config_mount_target/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
+  $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "homes");
+  
+  if(in_array($name, $existing_shares_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "The share with the name $name already exists can not rename share $current_name!";
+  }elseif(in_array($name, $existing_directories_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Directory $name already exists can not rename share $current_name to $name!";
+  }elseif(in_array($name, $docker_shares_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not rename share $current_name to $name the share $name shares the same share name as an app. The followng share names are forbiddon media, downloads, video-surveillance, docker and homes!";
+  }else{
+
+    if($group != $current_group){
+      chgrp("$current_share_path", $group);
+    }
+    if($volume != $current_volume){
+      exec("mv /$config_mount_target/$current_volume/$current_name /$config_mount_target/$volume");
+    }
+    if($name != $current_name){
+      exec("mv $current_share_path $share_path");
+      exec("mv /etc/samba/shares/$current_name /etc/samba/shares/$name");
+      deleteLineInFile("/etc/samba/shares.conf","$current_name");
+      $myFile = "/etc/samba/shares.conf";
+      $fh = fopen($myFile, 'w') or die("not able to write to file");
+      $stringData = "\ninclude = /etc/samba/shares/$name";
+      fwrite($fh, $stringData);
+      fclose($fh);
+    }
+
+    $myFile = "/etc/samba/shares/$name";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "\ninclude = /etc/samba/shares/$name";
+    $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
     fwrite($fh, $stringData);
     fclose($fh);
+
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+
   }
-
-  $myFile = "/etc/samba/shares/$name";
-  $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
-  fwrite($fh, $stringData);
-  fclose($fh);
-
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
-
-  echo "<script>window.location = 'shares.php'</script>";
-
+  header("Location: shares.php");
 }
 
 if(isset($_GET['share_delete'])){
@@ -413,34 +538,6 @@ if(isset($_GET['kill_wipe'])){
   exec ("sudo rm -rf /tmp/shred-$hdd-progress");
   
   echo "<script>window.location = 'disk_list.php'</script>";
-}
-
-if(isset($_GET['delete_user'])){
-	$username = $_GET['delete_user'];
-
-  exec("smbpasswd -x $username");
-	exec("deluser --remove-home $username");
-
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
-	
-  echo "<script>window.location = 'users.php'</script>";
-}
-
-if(isset($_POST['group_add'])){
-	$group = $_POST['group'];
-
-  exec ("addgroup $group");
-  
-  echo "<script>window.location = 'groups.php'</script>";
-}
-
-if(isset($_GET['delete_group'])){
-	$group = $_GET['delete_group'];
-
-	exec("delgroup $group");
-
-  echo "<script>window.location = 'groups.php'</script>";
 }
 
 //APP SECTION
