@@ -40,8 +40,7 @@
         <th>Serial</th>
         <th>Capacity</th>
         <th>Disk Type</th>
-        <th>On Hours</th>
-        <th>Bad Blks</th>
+        <th>On Time</th>
         <th>Temp</th>
         <th>Health</th>
         <th>Action</th>
@@ -66,14 +65,14 @@
       $hdd_power_on_days = $hdd_power_on_hours / 24;
       $hdd_power_on_days = floor($hdd_power_on_days);
       $hdd_power_on_days = "$hdd_power_on_days Days";
-      $hdd_bad_blocks = exec("smartctl -a $hdd | grep 'Reallocated_Sector_Ct' | awk '{ print $10 '}");
+      //$hdd_bad_blocks = exec("smartctl -a $hdd | grep 'Reallocated_Sector_Ct' | awk '{ print $10 '}");
     }
 
     $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family' | cut -d' ' -f 6-");
-    if(empty($hdd_vendor)){
-      $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor' | cut -d' ' -f 6-");
-    }elseif(empty($hdd_vendor)){
+    if($hdd_vendor == ' '){
       $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | cut -d' ' -f 6-");
+    }else{
+      $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor' | cut -d' ' -f 6-");
     }
     $hdd_serial = exec("smartctl -i $hdd | grep Serial | awk '{ print $3 '}");
     if(empty($hdd_serial)){
