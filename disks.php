@@ -72,12 +72,13 @@
     $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family' | cut -d' ' -f 6-");
     if(empty($hdd_vendor)){
       $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor' | cut -d' ' -f 6-");
+    }elseif(empty($hdd_vendor)){
+      $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | cut -d' ' -f 6-");
     }
     $hdd_serial = exec("smartctl -i $hdd | grep Serial | awk '{ print $3 '}");
     if(empty($hdd_serial)){
       $hdd_serial = "-";
     }
-    $hdd_model = exec("smartctl -i $hdd | grep 'Device Model:' | cut -d' ' -f 6-");
     $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity' | awk '{ print $5 '}");
     $hdd_label_size = str_replace(["["], "", $hdd_label_size);
     $hdd_label_size = str_replace(["]"], "", $hdd_label_size);
@@ -87,7 +88,11 @@
     $hdd_label_size = round($hdd_label_size);
     //$hdd_part_valid = exec("fdisk -l $hdd | grep 'Device Boot'");
     $hdd_type = exec("smartctl -i $hdd | grep 'Rotation Rate' | cut -d' ' -f 6-");
-    if(empty($hdd_type)){
+    if($hdd_type == '7200 rpm'){
+      $hdd_type = "HDD";
+    }elseif($hdd_type == 'Solid State Device'){
+      $hdd_type = "SSD";
+    }else{
       $hdd_type = "-";
     }
     $hdd_health = exec("smartctl -H $hdd | grep 'SMART overall-health'| awk '{ print $6 '}");
@@ -95,7 +100,7 @@
 ?>
       <tr>
         <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $hdd_short_name; ?></td>
-        <td><?php echo $hdd_vendor; ?><br><small><?php echo $hdd_model; ?></small></td>
+        <td><?php echo $hdd_vendor; ?></td>
         <td><?php echo $hdd_serial; ?></td>
         <td><?php echo $hdd_label_size; ?>GB</td>
         <td><?php echo $hdd_type; ?></td>
