@@ -259,12 +259,12 @@ if(isset($_GET['volume_delete'])){
   //the code to do that here
   $hdd = exec("find $config_mount_target -n -o SOURCE --target /$config_mount_target/$name");
   
-  exec("ls /$config_mount_target/$volume | grep -v lost+found", $directory_list_array);
+  exec("ls /$config_mount_target/$name | grep -v lost+found", $directory_list_array);
   if(!empty($directory_list_array)){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not delete volume $name as there are files shares, please delete the file shares accociated to volume $name and try again!";
   }else{
-    exec ("umount /$config_mount_target/$name");
+    exec ("umount -l /$config_mount_target/$name");
     exec ("rm -rf /$config_mount_target/$name");
     exec ("wipefs -a $hdd");
     
