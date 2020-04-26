@@ -71,19 +71,25 @@
       //$hdd_bad_blocks = exec("smartctl -a $hdd | grep 'Reallocated_Sector_Ct' | awk '{ print $10 '}");
     }
 
+    $hdd_make = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3}'");
+    if($hdd_make == 'WDC'){
+      $hdd_make = 'Western Digital';
+    }elseif($hdd_make == '')
+
     $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3,$4,$5}'");
     if(empty($hdd_vendor)){
       $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor:' | awk '{print $2,$3,$4}'");
     }elseif(empty($hdd_vendor)){
       $hdd_vendor = "-";
     }
+
     
     $hdd_serial = exec("smartctl -i $hdd | grep 'Serial Number:' | awk '{print $3}'");
     if(empty($hdd_serial)){
       $hdd_serial = "-";
     }
     
-    $hdd_label_size = formatSize(str_replace(',','',exec("smartctl -i $hdd | grep 'User Capacity:' | awk '{ print $3 '}")));
+    $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity:' | cut -d '[' -f2 | cut -d ']' -f1");
     
     $hdd_type = exec("smartctl -i $hdd | grep 'Rotation Rate:' | awk '{print $3,$4,$5}'");
     if($hdd_type == '7200 rpm'){
