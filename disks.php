@@ -81,9 +81,11 @@
     $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family:' | awk '{print $3,$4,$5}'");
     if(empty($hdd_vendor)){
       $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3,$4,$5}'");
-    }elseif(empty($hdd_vendor)){
+    }
+    if(empty($hdd_vendor)){
       $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor:' | awk '{print $2,$3,$4}'");
-    }elseif(empty($hdd_vendor)){
+    }
+    if(empty($hdd_vendor)){
       $hdd_vendor = "-";
     }
 
