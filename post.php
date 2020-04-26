@@ -1139,7 +1139,7 @@ if(isset($_POST['setup'])){
   exec("hostnamectl set-hostname $hostname");
 
   exec ("wipefs -a $hdd");
-  exec ("(echo o; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
+  exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
   exec ("mkdir /$config_mount_target/$volume_name");
   exec ("mkfs.ext4 $hdd_part");
   exec ("e2label $hdd_part $volume_name");
@@ -1239,10 +1239,10 @@ if(isset($_GET['reset'])){
   exec ("touch /etc/samba/shares.conf");
   exec ("rm -f /simpnas/config.php");
 
-  $current_hostname = exec("hostname");
+  //$current_hostname = exec("hostname");
   
-  exec("sed -i 's/$current_hostname/simpnas/g' /etc/hosts");
-  exec("hostnamectl set-hostname simpnas");
+  //exec("sed -i 's/$current_hostname/simpnas/g' /etc/hosts");
+  //exec("hostnamectl set-hostname simpnas");
 
   exec("reboot");
 
