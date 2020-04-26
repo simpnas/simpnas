@@ -22,7 +22,7 @@
   $cpu_cores = exec("lscpu | grep 'CPU(s):' | awk '{print $3}'");
   $cpu_speed = round(exec("lscpu | grep 'CPU max MHz:' | awk '{print $4}'"));
   $memory_installed = formatSize(exec("free -b | grep 'Mem:' | awk '{print $2}'"));
-  $OS= exec("hostnamectl | grep 'Operating System:' | awk '{print $3, $4, $5, $6}'");
+  $OS = exec("hostnamectl | grep 'Operating System:' | awk '{print $3, $4, $5, $6}'");
   $kernel = exec("hostnamectl | grep 'Kernel:' | awk '{print $3}'");
   $num_of_users = count($username_array);
   $num_of_groups = count($group_array);
@@ -186,14 +186,21 @@
       <?php
       foreach($volume_array as $volume){
         $disk = exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume");
-        $hdd_vendor = exec("smartctl -i $disk | grep 'Model Family' | cut -d' ' -f 6-");
+        $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family:' | awk '{print $3,$4,$5}'");
         if(empty($hdd_vendor)){
-          $hdd_vendor = exec("smartctl -i $disk | grep 'Vendor' | cut -d' ' -f 6-");
+          $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3,$4,$5}'");
         }
+        if(empty($hdd_vendor)){
+          $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor:' | awk '{print $2,$3,$4}'");
+        }
+        if(empty($hdd_vendor)){
+          $hdd_vendor = "-";
+        }
+        $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity:' | cut -d '[' -f2 | cut -d ']' -f1");
       ?>
           <div class="col-md-12 mb-4">
             <h4 class="text-center"><?php echo $volume; ?></h4>
-            <h5 class="text-center text-secondary"><?php echo $hdd_vendor; ?></h5>
+            <h5 class="text-center text-secondary"><?php echo "$hdd_vendor ($hdd_label_size)"; ?></h5>
             <canvas id="doughnutChart<?php echo $volume; ?>"></canvas>
           </div>
         <?php } ?>
@@ -212,10 +219,6 @@
     $used_space = $total_space - $free_space;
     $disk_used_percent = sprintf('%.0f',($used_space / $total_space) * 100);
     $disk = exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume");
-    $hdd_vendor = exec("smartctl -i $disk | grep 'Model Family' | cut -d' ' -f 6-");
-    if(empty($hdd_vendor)){
-      $hdd_vendor = exec("smartctl -i $disk | grep 'Vendor' | cut -d' ' -f 6-");
-    }
   ?>
 
 
