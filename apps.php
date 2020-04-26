@@ -147,7 +147,7 @@
                 if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission")) {
               ?>
                 <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:9091" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_transmission.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="transmission_update.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
                 <a href="post.php?uninstall_transmission" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
               }else{

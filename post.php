@@ -230,7 +230,7 @@ if(isset($_POST['volume_add'])){
     $_SESSION['alert_message'] = "Can not add volume $name as it already exists!";
   }else{
     exec ("wipefs -a $hdd");
-    exec ("(echo o; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
+    exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
     exec ("e2label $hdd_part $name");
     exec ("mkdir /$config_mount_target/$name");
     
@@ -1009,16 +1009,40 @@ if(isset($_POST['install_transmission'])){
   echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_GET['update_transmission'])){
+if(isset($_GET['transmission_update'])){
 
   $group_id = exec("getent group download | cut -d: -f3");
   $volume_path = exec("find /$config_mount_target/*/downloads -name 'downloads'");
+  $enable_vpn = $_POST['enable_vpn'];
+  if($enable_vpn == 1){
+    $vpn_provider = $_POST['vpn_provider'];
+    $vpn_server = $_POST['vpn_server'];
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $dns = $_POST['dns'];
+    if(!empty($dns)){
+      $dns = "--dns $dns";
+    }
+  }
 
-  exec("docker pull haugene/transmission-openvpn");
-  exec("docker stop transmission-ovpn");
-  exec("docker rm transmission-ovpn");
+  $cpu_arch = exec("dpkg --print-architecture");
+  if($cpu_arch == "amd64"){
+    $cpu_arch = "";
+  }else{
+    $cpu_arch = "-$cpu_arch";
+  }
 
-  exec("docker run --cap-add=NET_ADMIN -d --name transmission-ovpn -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG=$config -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m -v /etc/localtime:/etc/localtime:ro -v /$config_mount_target/$config_docker_volume/docker/transmission-ovpn:/data/transmission-home -v /$config_mount_target/$volume/downloads/completed:/data/completed -v /$config_mount_target/$volume/downloads/incomplete:/data/incomplete -v /$config_mount_target/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn");
+  //exec("docker pull haugene/transmission-openvpn");
+  exec("docker stop transmission");
+  exec("docker rm transmission");
+  exec("docker image prune");
+
+  if($enable_vpn == 1){
+    exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG=$vpn_server -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /$config_mount_target/$config_docker_volume/docker/transmission:/data/transmission-home -v $volume_path/completed:/data/completed -v $volume_path/incomplete:/data/incomplete -v $volume_path/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn:latest$cpu_arch");
+    echo "VPN Docker installed";
+  }else{
+    exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission:/config -v $volume_path/watch:/watch -v $volume_path:/downloads -v $volume_path/completed:/downloads/complete -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
+  }
 
   exec("docker image prune");
   

@@ -136,7 +136,6 @@
 			<option id="dhcp">DHCP</option>
 			<option id="static">Static</option>
 		</select>
-		<small class="form-text text-muted">If DHCP is selected there is no need to fill out address, gateway or dns.</small>
 	  </div>
 	  
 	  <div id="staticSettings">
