@@ -99,6 +99,8 @@
     $hdd_type = exec("smartctl -i $hdd | grep 'Rotation Rate:' | awk '{print $3,$4,$5}'");
     if($hdd_type == '7200 rpm'){
       $hdd_type = "HDD";
+    }elseif($hdd_type == '5400 rpm'){
+      $hdd_type = "HDD";
     }elseif($hdd_type == 'Solid State Device'){
       $hdd_type = "SSD";
     }else{
