@@ -75,7 +75,7 @@
     if($hdd_make == 'WDC'){
       $hdd_make = 'Western Digital';
     }else{
-      $hdd_make == '')
+      $hdd_make = '';
     }
 
     $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3,$4,$5}'");
