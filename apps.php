@@ -137,7 +137,7 @@
             Transmssion
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission")) { ?>
-            <small class="text-success"><span data-feather="check"></span>Installed VPN IP <?php $vpn_ip = exec("docker exec -ti transmission curl ifconfig.co"); echo $vpn_ip; ?></small>
+            <small class="text-success"><span data-feather="check"></span>Installed VPN IP <?php exec("docker exec -ti transmission curl ifconfig.co",$vpn_ip); print_r($vpn_ip); ?></small>
             <?php } ?>
           </td>
           <td>Torrent downloads has VPN support to hide your IP when you download (Requires a VPN Provider like PIA)</td>
@@ -188,6 +188,7 @@
             </div>
           </td>
         </tr>
+        
         <tr>
           <td class="text-center text-muted">
             <img src="img/apps/unifi-video2.png" height="64" width="64" class="img-fluid rounded">
@@ -219,6 +220,7 @@
             </div>
           </td>
         </tr>
+        
         <tr>
           <td class="text-center text-muted">
             <img src="img/apps/homeassistant.png" height="64" width="64" class="img-fluid rounded">
@@ -250,6 +252,7 @@
             </div>
           </td>
         </tr>
+        
         <tr>
           <td class="text-center text-muted">
             <img src="img/apps/wireguard.png" height="64" width="64" class="img-fluid rounded">
@@ -279,6 +282,7 @@
             </div>
           </td>
         </tr>
+        
         <tr>
           <td class="text-center text-muted">
             <img src="img/apps/wireguard.png" height="64" width="64" class="img-fluid rounded">
@@ -295,7 +299,7 @@
               <?php 
                 if(file_exists("/$config_mount_target/$config_docker_volume/docker/wireguard")) {
               ?>
-                <a href="https://<?php echo $_SERVER['HTTP_HOST']; ?>:51820" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="post.php?wireguard_qr&peer=1" target="_blank" class="btn btn-outline-primary"><span data-feather="smartphone"></span></a>
                 <a href="update_wireguard.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
                 <a href="post.php?uninstall_wireguard" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
@@ -308,6 +312,7 @@
             </div>
           </td>
         </tr>
+        
         <tr>
           <td class="text-center text-muted">
             <img src="img/apps/openvpn.png" height="64" width="64" class="img-fluid rounded">
