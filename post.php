@@ -1009,7 +1009,7 @@ if(isset($_POST['install_transmission'])){
   echo "<script>window.location = 'apps.php'</script>";
 }
 
-if(isset($_GET['transmission_update'])){
+if(isset($_POST['transmission_update'])){
 
   $group_id = exec("getent group download | cut -d: -f3");
   $volume_path = exec("find /$config_mount_target/*/downloads -name 'downloads'");
