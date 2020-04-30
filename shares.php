@@ -53,12 +53,7 @@
             $volume = basename(dirname($path));
             $comment = $sambaConfigArray['comment'];
             $group = $sambaConfigArray['force group'];
-            $free_space = disk_free_space("$path");
-            $total_space = disk_total_space("$path");
-            $used_space = $total_space - $free_space;
-            $free_space = formatSize($free_space);
-            $total_space = formatSize($total_space);
-            $used_space = formatSize($used_space);
+            $used_space = exec("du -sh $path | awk '{print $1}'");
             if($share == "$config_home_dir"){
               $volume = "$config_home_volume";
               $group = "-";

@@ -195,22 +195,19 @@ if(isset($_POST['general_edit'])){
 
 
 if(isset($_GET['unmount_volume'])){
-  $vol = $_GET['unmount_volume'];
-  exec ("umount /$config_mount_target/$vol");
+  $volume = $_GET['unmount_volume'];
+  exec ("umount /$config_mount_target/$volume");
   exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
   echo "<script>window.location = 'volumes.php'</script>";
 }
 
-if(isset($_GET['mount_hdd'])){
-  $hdd = $_GET['mount_hdd'];
-  $hdd = $hdd."1";
-  $hdd_mount_to = "/$config_mount_target/".basename($hdd);
-  if(!(file_exists($hdd_mount_to))){
-    exec ("sudo mkdir $hdd_mount_to");
-	} 
-
-  exec ("sudo mount $hdd $hdd_mount_to");
+if(isset($_GET['mount_volume'])){
+  $volume = $_GET['mount_volume'];
+  exec ("mount /$config_mount_target/$volume");
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
+  echo "<script>window.location = 'volumes.php'</script>";
 
   exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
@@ -259,7 +256,7 @@ if(isset($_GET['volume_delete'])){
   //check to make sure no shares are linked to the volume
   //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
   //the code to do that here
-  $hdd = exec("find $config_mount_target -n -o SOURCE --target /$config_mount_target/$name");
+  $hdd = exec("findmnt $config_mount_target -n -o SOURCE --target /$config_mount_target/$name");
   
   exec("ls /$config_mount_target/$name | grep -v lost+found", $directory_list_array);
   if(!empty($directory_list_array)){
@@ -279,6 +276,77 @@ if(isset($_GET['volume_delete'])){
   header("Location: volumes.php");
 }
 
+if(isset($_POST['volume_add_raid'])){
+  $disks = $_POST['disks'];
+  foreach($_POST['disks'] as $disk){     
+    $disk = basename(exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume"));
+
+
+    $name = trim($_POST['name']);
+    $hdd = $_POST['disk'];
+    $hdd_part = $hdd."1";
+    
+    exec ("ls /$config_mount_target/",$volumes_array);
+  }
+
+  if(in_array($name, $volumes_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not add volume $name as it already exists!";
+  }else{
+    exec ("wipefs -a $hdd");
+    exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
+    exec ("e2label $hdd_part $name");
+    exec ("mkdir /$config_mount_target/$name");
+    
+    if(!empty($_POST['encrypt'])){
+      $password = $_POST['password'];
+      exec ("echo -e '$password' | cryptsetup -q luksFormat $hdd_part");
+      exec ("echo -e '$password' | cryptsetup open $hdd_part crypt$name");
+      exec ("mkfs.ext4 /dev/mapper/crypt$name");    
+      exec ("mount /dev/mapper/crypt$name /$config_mount_target/$name");
+    }else{
+      exec ("mkfs.ext4 $hdd_part");
+      exec ("mount $hdd_part /$config_mount_target/$name");  
+      
+      $myFile = "/etc/fstab";
+      $fh = fopen($myFile, 'a') or die("can't open file");
+      $stringData = "$hdd_part    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
+      fwrite($fh, $stringData);
+      fclose($fh);
+    }
+  }
+  header("Location: volumes.php");
+}
+
+if(isset($_POST['volume_add_backup'])){
+  $name = trim($_POST['name']);
+  $name = "backup-$name";
+  $hdd = $_POST['disk'];
+  $hdd_part = $hdd."1";
+  
+  exec ("ls /$config_mount_target/",$volumes_array);
+
+  if(in_array($name, $volumes_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not add volume $name as it already exists!";
+  }else{
+    exec ("wipefs -a $hdd");
+    exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
+    exec ("e2label $hdd_part $name");
+    exec ("mkdir /$config_mount_target/$name");
+
+    exec ("mkfs.ext4 $hdd_part");
+    exec ("mount $hdd_part /$config_mount_target/$name");  
+    
+    $myFile = "/etc/fstab";
+    $fh = fopen($myFile, 'a') or die("can't open file");
+    $stringData = "$hdd_part    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
+    fwrite($fh, $stringData);
+    fclose($fh);    
+  }
+  header("Location: volumes.php");
+}
+
 if(isset($_POST['share_add'])){
   $volume = $_POST['volume'];
   $name = $_POST['name'];
@@ -290,7 +358,7 @@ if(isset($_POST['share_add'])){
   exec("ls /etc/samba/shares",$existing_shares_array);
   exec("find /$config_mount_target/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
   $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "homes");
-  
+  $mounted = exec("df | grep $volume");
   if(in_array($name, $existing_shares_array)){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "The share with the name $name already exists can not add share!";
@@ -300,8 +368,10 @@ if(isset($_POST['share_add'])){
   }elseif(in_array($name, $docker_shares_array)){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not create the share $name as it shares the same share name as an app. The followng share names are forbiddon media, downloads, video-surveillance, docker and homes!";
+  }elseif(empty($mounted)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not create the share $name because the volume $volume is not mounted";
   }else{
-
     mkdir("$share_path");
     chgrp("$share_path", $group);
     chmod("$share_path", 0770);
@@ -724,7 +794,9 @@ if(isset($_GET['install_nextcloud'])){
 
   exec("docker run -d --name mariadb -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb:/config linuxserver/mariadb");
      
-  exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
+  //exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
+
+  exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -e MYSQL_HOST=172.17.0.3 -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASS=password -e NEXTCLOUD_ADMIN_USER=johnny -e NEXTCLOUD_ADMIN_PASSWORD=password -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
 
   echo "<script>window.location = 'apps.php'</script>";
 }
@@ -734,6 +806,12 @@ if(isset($_GET['update_nextcloud'])){
   exec("docker pull linuxserver/nextcloud");
   exec("docker stop nextcloud");
   exec("docker rm nextcloud");
+
+  exec("docker pull linuxserver/mariadb");
+  exec("docker stop mariadb");
+  exec("docker rm mariadb");
+
+  exec("docker run -d --name mariadb -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb:/config linuxserver/mariadb");
 
   exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
 
@@ -753,8 +831,13 @@ if(isset($_GET['uninstall_nextcloud'])){
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/nextcloud");
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb");
+  
+  //delete images
+  exec("docker image prune");
+
   //redirect back to packages
   echo "<script>window.location = 'apps.php'</script>";
+
 }
 
 if(isset($_GET['install_dokuwiki'])){

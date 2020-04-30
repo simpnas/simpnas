@@ -61,7 +61,11 @@
               </div>
             </td>
           </tr>
-         <?php } ?>
+         <?php 
+          unset($group_owned_directories_array);
+          } 
+
+          ?>
         </tbody>
       </table>
     </div>

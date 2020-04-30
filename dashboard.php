@@ -214,33 +214,30 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 <script>
   <?php foreach($volume_array as $volume){
-    $free_space = formatSizeWo(disk_free_space("/$config_mount_target/$volume/"));
-    $total_space = formatSizeWo(disk_total_space("/$config_mount_target/$volume/"));
-    $used_space = $total_space - $free_space;
-    $disk_used_percent = sprintf('%.0f',($used_space / $total_space) * 100);
-    $disk = exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume");
+    
+    $total_space = exec("df | grep /$config_mount_target/$volume | awk '{print $2}'");
+    $total_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $2}'");
+    $used_space = exec("df | grep /$config_mount_target/$volume | awk '{print $3}'");
+    $used_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $3}'");
+    $free_space = exec("df | grep /$config_mount_target/$volume | awk '{print $4}'");
+    $free_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $4}'");
+    $used_space_percent = exec("df | grep /$config_mount_target/$volume | awk '{print $5}'");
+
   ?>
 
 
   new Chart(document.getElementById("doughnutChart<?php echo $volume; ?>"), {
-type: 'doughnut',
-data: {
-  labels: ["<?php echo $used_space ?>GB Used", "<?php echo $free_space ?>GB Free"],
-  datasets: [
-    {
-      label: "<?php echo "$volume"; ?>",
-      backgroundColor: ["#99999", "#007bff"],
-      data: [<?php echo $used_space; ?>,<?php echo $free_space; ?>]
+    type: 'doughnut',
+    data: {
+      labels: ["<?php echo $used_space_formatted; ?> Used", "<?php echo $free_space_formatted; ?> Free"],
+      datasets: [
+        {
+          backgroundColor: ["#007bff", "#99999"],
+          data: [<?php echo $used_space; ?>,<?php echo $free_space; ?>]    
+        }
+      ]
     }
-  ]
-},
-options: {
-  title: {
-    display: false,
-    text: '<?php echo "$volume$hdd_vendor"; ?>'
-  }
-}
-});
+  });
 
 <?php } ?>
 

@@ -2,6 +2,7 @@
     include("config.php");
     include("header.php");
     include("side_nav.php");
+    
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -21,7 +22,7 @@
 	    <select class="form-control" name="source" required>
 	  		<option value=''>--Select A Source--</option>
 		  	<?php
-				exec("ls /$config_mount_target", $volume_list);
+				exec("ls /$config_mount_target | grep -v backup-", $volume_list);
 				foreach ($volume_list as $volume) {
 				?>
 				<option><?php echo "$volume"; ?></option>	
@@ -34,14 +35,14 @@
 	  	</select>
 	  </div>
 	  <div class="form-group">
-	    <label>Destination Volume</label>
+	    <label>Destination Backup Volume</label>
 	    <select class="form-control" name="destination" required>
 	  		<option value=''>--Select A Destination--</option>
 	  	<?php
-				exec("ls /$config_mount_target", $volume_list);
-				foreach ($volume_list as $volume) {
+				exec("find /mnt -type d -name backup-* -printf '%f\n'", $backup_volume_array);
+				foreach ($backup_volume_array as $backup_volume) {
 				?>
-				<option><?php echo "$volume"; ?></option>	
+				<option><?php echo "$backup_volume"; ?></option>	
 
 			<?php
 				}

@@ -342,35 +342,7 @@
             </div>
           </td>
         </tr>
-        <tr>
-          <td class="text-center text-muted">
-            <img src="img/apps/lychee.png" height="64" width="64" class="img-fluid rounded">
-            <br>
-            Lychee
-            <br>
-            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/lychee")) { ?>
-            <small class="text-success"><span data-feather="check"></span>Installed</small>
-            <?php } ?>
-          </td>
-          <td>Web Based Photo Viewer</td>
-          <td>
-            <div class="btn-group mr-2">
-              <?php 
-                if(file_exists("/$config_mount_target/$config_docker_volume/docker/lychee")) {
-              ?>
-                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:4560" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_lychee.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
-                <a href="post.php?uninstall_lychee" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
-              <?php
-              }else{
-              ?>
-              <a href="install_lychee.php" class="btn btn-outline-success">Install</a>
-              <?php  
-              }
-              ?>
-            </div>
-          </td>
-        </tr>
+      
       </tbody>
     </table>
   </div>
