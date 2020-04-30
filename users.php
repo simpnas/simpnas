@@ -36,24 +36,30 @@
         <tr>
           <th>User</th>
           <th><span data-feather="users"></span></th>
+          <th>Used Space</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
-<?php 	  foreach($username_array as $username){
-            $groups = str_replace(' ',", ",exec("groups $username | sed 's/\($username\| : \)//g'")); //replace space with a , and a space makes it look neater
-?>
-        <tr>
-          <td><span class="mr-2" data-feather="user"></span><?php echo $username; ?></td>
-          <td><?php echo $groups; ?></td>
-          <td>
-            <div class="btn-group mr-2">
-            <a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
-            <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
-          </div>
-          </td>
-        </tr>
-<?php } ?>
+        <?php 	  
+        foreach($username_array as $username){
+          $groups = str_replace(' ',", ",exec("groups $username | sed 's/\($username\| : \)//g'")); //replace space with a , and a space makes it look neater
+          $home_dir_usage = exec("du -sh /$config_mount_target/$config_home_volume/$config_home_dir/$username | awk '{print $1}'");
+        ?>
+          <tr>
+            <td><span class="mr-2" data-feather="user"></span><?php echo $username; ?></td>
+            <td><?php echo $groups; ?></td>
+            <td><?php echo $home_dir_usage; ?></td>
+            <td>
+              <div class="btn-group mr-2">
+              <a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
+              <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+            </div>
+            </td>
+          </tr>
+        <?php 
+        } 
+        ?>
       </tbody>
     </table>
   </div>

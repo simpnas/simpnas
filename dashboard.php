@@ -13,7 +13,7 @@
 
   $free_memory = exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
   $free_memory = floor($free_memory);
-  $cpu_usage = exec("top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\([0-9.]*\)%* id.*/\1/' | awk '{print 100 - $1'%'}'");
+  //$cpu_usage = exec("top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\([0-9.]*\)%* id.*/\1/' | awk '{print 100 - $1'%'}'");
   $load_avg = exec("uptime | awk -F 'average: ' '{ print $2}'");
   $uptime = exec("uptime -p | cut -c 4-");
   $system_time = exec("date");
@@ -24,12 +24,38 @@
   $memory_installed = formatSize(exec("free -b | grep 'Mem:' | awk '{print $2}'"));
   $OS = exec("hostnamectl | grep 'Operating System:' | awk '{print $3, $4, $5, $6}'");
   $kernel = exec("hostnamectl | grep 'Kernel:' | awk '{print $3}'");
+  
   $num_of_users = count($username_array);
   $num_of_groups = count($group_array);
   $num_of_volumes = count($volume_array);
   $num_of_disks = count($drive_list);
   $num_of_shares = exec("ls /etc/samba/shares | wc -l");
   $num_of_apps = exec("docker ps | wc -l") - 1;
+  exec("ls /etc/systemd/network", $network_list);
+  $num_of_network_devices = count($network_list);
+  exec("find /etc/cron.*/ -type f -name backup-* -printf '%f\n'", $backup_jobs_array);
+  $num_of_backup_jobs = count($backup_jobs_array);
+  $status_service_smbd = exec("systemctl status smbd | grep running");
+  $status_service_nmbd = exec("systemctl status nmbd | grep running");
+  $status_service_docker = exec("systemctl status docker | grep running");
+  $status_service_ssh = exec("systemctl status ssh | grep running");
+  if(empty($status_service_smbd)){
+    $status_service_smbd = "<div class='text-danger'>Not Running</div>";
+  }else{
+    $status_service_smbd = "<div class='text-success'>Running</div>";
+  }
+  if(empty($status_service_docker)){
+    $status_service_docker = "<div class='text-danger'>Not Running</div>";
+  }else{
+    $status_service_docker = "<div class='text-success'>Running</div>";
+  }
+  if(empty($status_service_ssh)){
+    $status_service_ssh = "<div class='text-danger'>Not Running</div>";
+  }else{
+    $status_service_ssh = "<div class='text-success'>Running</div>";
+  }
+  
+
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -161,8 +187,8 @@
           <div class="col-md-4 mb-4">
             <div class="card text-center">
               <div class="card-body">
-                <h5 class="card-title">Backups</h5>
-                <p class="card-text">WIP</p>
+                <h5 class="card-title">Backup Jobs</h5>
+                <p class="card-text"><?php echo $num_of_backup_jobs; ?></p>
               </div>
             </div>
           </div>
@@ -170,11 +196,45 @@
             <div class="card text-center">
               <div class="card-body">
                 <h5 class="card-title">Net Devices</h5>
-                <p class="card-text">WIP</p>
+                <p class="card-text"><?php echo $num_of_network_devices; ?></p>
               </div>
             </div>
           </div>
         
+      
+      </div> <!-- nested /row -->
+
+      <div class="row">
+          <div class="col-md-12">
+            <legend>Services</legend>
+            <hr>
+          </div>
+          
+          <div class="col-md-4 mb-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Samba (File Share)</h5>
+                <p class="card-text"><?php echo $status_service_smbd; ?></p>
+              </div>
+            </div>
+          </div>
+    
+          <div class="col-md-4 mb-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">SSH (Remote Terminal Shell)</h5>
+                <p class="card-text"><?php echo $status_service_ssh; ?></p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Docker (Apps)</h5>
+                <p class="card-text"><?php echo $status_service_docker; ?></p>
+              </div>
+            </div>
+          </div>
       
       </div> <!-- nested /row -->
 
@@ -185,25 +245,32 @@
       <legend class="text-center mb-3">Volumes</legend>
       <?php
       foreach($volume_array as $volume){
-        $hdd = exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume");
-        $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family:' | awk '{print $3,$4,$5}'");
-        if(empty($hdd_vendor)){
-          $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3,$4,$5}'");
-        }
-        if(empty($hdd_vendor)){
-          $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor:' | awk '{print $2,$3,$4}'");
-        }
-        if(empty($hdd_vendor)){
-          $hdd_vendor = "-";
-        }
-        $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity:' | cut -d '[' -f2 | cut -d ']' -f1");
+        //check to see if mounted
+        $mounted = exec("df | grep $volume");
+        if(!empty($mounted)){
+          $hdd = exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume");
+          $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family:' | awk '{print $3,$4,$5}'");
+          if(empty($hdd_vendor)){
+            $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3,$4,$5}'");
+          }
+          if(empty($hdd_vendor)){
+            $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor:' | awk '{print $2,$3,$4}'");
+          }
+          if(empty($hdd_vendor)){
+            $hdd_vendor = "-";
+          }
+          $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity:' | cut -d '[' -f2 | cut -d ']' -f1");
+        
       ?>
           <div class="col-md-12 mb-4">
             <h4 class="text-center"><?php echo $volume; ?></h4>
             <h5 class="text-center text-secondary"><?php echo "$hdd_vendor ($hdd_label_size)"; ?></h5>
             <canvas id="doughnutChart<?php echo $volume; ?>"></canvas>
           </div>
-        <?php } ?>
+        <?php 
+          } 
+        }
+        ?>
     </div> <!-- /col-6 -->
   </div><!-- /row -->
 
@@ -214,14 +281,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 <script>
   <?php foreach($volume_array as $volume){
+    $mounted = exec("df | grep $volume");
+        if(!empty($mounted)){
     
-    $total_space = exec("df | grep /$config_mount_target/$volume | awk '{print $2}'");
-    $total_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $2}'");
-    $used_space = exec("df | grep /$config_mount_target/$volume | awk '{print $3}'");
-    $used_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $3}'");
-    $free_space = exec("df | grep /$config_mount_target/$volume | awk '{print $4}'");
-    $free_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $4}'");
-    $used_space_percent = exec("df | grep /$config_mount_target/$volume | awk '{print $5}'");
+          $total_space = exec("df | grep /$config_mount_target/$volume | awk '{print $2}'");
+          $total_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $2}'");
+          $used_space = exec("df | grep /$config_mount_target/$volume | awk '{print $3}'");
+          $used_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $3}'");
+          $free_space = exec("df | grep /$config_mount_target/$volume | awk '{print $4}'");
+          $free_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $4}'");
+          $used_space_percent = exec("df | grep /$config_mount_target/$volume | awk '{print $5}'");
 
   ?>
 
@@ -239,7 +308,13 @@
     }
   });
 
-<?php } ?>
+<?php 
+
+  } 
+
+}
+
+?>
 
 </script>
 

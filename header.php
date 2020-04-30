@@ -1,10 +1,14 @@
 <?php
 
+
+
 if(!file_exists('config.php')){
   header("Location: setup.php");
 }
 
 session_start();
+
+$startScriptTime=microtime(TRUE);
 
 ?>
 

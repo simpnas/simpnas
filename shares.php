@@ -36,7 +36,7 @@
           <th>Name</th>
           <th>Description</th>
           <th>Volume</th>
-          <th>Reference Group</th>
+          <th>Group Permission (r+w)</th>
           <th>Size</th>
           <th>Action</th>
         </tr>
