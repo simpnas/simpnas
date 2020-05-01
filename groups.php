@@ -50,7 +50,7 @@
           
           <?php 
           foreach ($group_array as $group){
-            $users = exec("awk -F: '/^$group/ {print $4;}' /etc/group");
+            $users = str_replace(',',', ',exec("awk -F: '/^$group/ {print $4;}' /etc/group"));
             if(empty($users)){
               $users = "-";
             }
