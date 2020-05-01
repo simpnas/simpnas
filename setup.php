@@ -166,6 +166,15 @@
 	    <label>Password</label>
 	    <input type="password" class="form-control" name="password">
 	  </div>
+
+	  <legend>Send Statistic Data</legend>
+	  <p>This will collect a Unique Machine ID used for Unique Installs on our Webpage.</p>
+	  <div class="form-group">
+	  	<div class="custom-control custom-checkbox">
+		  <input type="checkbox" class="custom-control-input" name="collect" value="1" id="collect">
+		  <label class="custom-control-label" for="collect">Yes Collect Statistic Data</label>
+		</div>
+	  </div>
 	  
 	  <button type="submit" name="setup" class="btn btn-primary">Submit</button>
 	</form>

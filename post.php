@@ -1254,6 +1254,7 @@ if(isset($_POST['setup'])){
   $address = $_POST['address'];
   $gateway = $_POST['gateway'];
   $dns = $_POST['dns'];
+  $collect = $_POST['collect'];
 
   $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
@@ -1295,6 +1296,10 @@ if(isset($_POST['setup'])){
   $stringData = "$hdd_part    /$config_mount_target/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
   fwrite($fh, $stringData);
   fclose($fh);
+
+  if($collect == 1){
+    exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
+  }
 
   $new_hostname = exec("hostname");
 
