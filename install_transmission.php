@@ -30,12 +30,16 @@
 	  	<?php
 			exec("ls /$config_mount_target", $volume_list);
 			foreach ($volume_list as $volume) {
+				$mounted = exec("df | grep $volume");
+				if(!empty($mounted)){
 			?>
-			<option><?php echo "$volume"; ?></option>	
-
-		<?php
+				<option><?php echo "$volume"; ?></option>	
+				<?php 
+				} 
+				?>
+			<?php
 			}
-		?>
+			?>
 
 	  </select>
 	  </div>
