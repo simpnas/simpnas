@@ -9,7 +9,7 @@ echo ===========================================================================
 apt dist-upgrade -y
 echo ==================================================================================
 echo Installing Additional Required Packages...
-echo Samba, PHP, SMARTmonTools, Rsync, mdadm (RAID) etc
+echo "Samba, PHP, SMARTmonTools, Rsync, mdadm (RAID) etc"
 echo ==================================================================================
 apt install samba smartmontools rsync php-cgi cryptsetup git mdadm apt-transport-https apt-transport-https curl gnupg-agent software-properties-common curl -y
 echo Install Docker Repo and latest docker
