@@ -1,8 +1,7 @@
 <?php 
     include("config.php");
     include("header.php");
-    include("side_nav.php");
-    
+    include("side_nav.php"); 
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -24,12 +23,16 @@
 		  	<?php
 				exec("ls /$config_mount_target | grep -v backup-", $volume_list);
 				foreach ($volume_list as $volume) {
-				?>
+				$mounted = exec("df | grep $volume");
+				if(!empty($mounted)){
+			?>
 				<option><?php echo "$volume"; ?></option>	
-
+				<?php 
+				} 
+				?>
 			<?php
-				unset($volume_list);
-				}
+			unset($volume_list);
+			}
 			?>
 
 	  	</select>
@@ -38,16 +41,19 @@
 	    <label>Destination Backup Volume</label>
 	    <select class="form-control" name="destination" required>
 	  		<option value=''>--Select A Destination--</option>
-	  	<?php
-				exec("find /mnt -type d -name backup-* -printf '%f\n'", $backup_volume_array);
-				foreach ($backup_volume_array as $backup_volume) {
-				?>
-				<option><?php echo "$backup_volume"; ?></option>	
-
-			<?php
-				}
+  			<?php
+			exec("find /mnt -type d -name backup-* -printf '%f\n'", $backup_volume_array);
+			foreach ($backup_volume_array as $backup_volume) {
+				$mounted = exec("df | grep $backup_volume");
+				if(!empty($mounted)){
 			?>
-
+					<option><?php echo "$backup_volume"; ?></option>	
+				<?php 
+				} 
+				?>
+			<?php
+			}
+			?>
 	  	</select>
 	  </div>
 	  <div class="form-group">

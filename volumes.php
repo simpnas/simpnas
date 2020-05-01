@@ -92,8 +92,6 @@
           </td>
           <td>
             <div class="btn-group mr-2">
-              
-              <button class="btn btn-outline-secondary"><span data-feather="edit"></span></button>
               <?php
               if(empty($mounted)){
               ?>
@@ -101,7 +99,7 @@
               <?php
               }else{
               ?>
-                <a href="post.php?unmount_volume=<?php echo $volume; ?>" class="btn btn-outline-warning"><span data-feather="stop-circle"></span></a>
+                <a href="post.php?unmount_volume=<?php echo $volume; ?>" class="btn btn-outline-secondary"><span data-feather="stop-circle"></span></a>
               <?php
               }
               ?>

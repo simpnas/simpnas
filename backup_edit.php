@@ -31,30 +31,39 @@
 	    <select class="form-control" name="source" required>
 	  		<option value=''>--Select A Source--</option>
 		  	<?php
-				exec("ls /$config_mount_target", $volume_list);
-				foreach ($volume_list as $volume) {
-				?>
-				<option <?php if($source == $volume){ echo "selected"; } ?>><?php echo "$volume"; ?></option>	
-
-			<?php
-				unset($volume_list);
-				}
+			exec("ls /$config_mount_target", $volume_list);
+			foreach ($volume_list as $volume) {
+				$mounted = exec("df | grep $volume");
+				if(!empty($mounted)){	
 			?>
+					<option <?php if($source == $volume){ echo "selected"; } ?>><?php echo "$volume"; ?></option>	
 
+				<?php
+					unset($volume_list);
+				}
+				?>
+			<?php
+			}
+			?>
 	  	</select>
 	  </div>
 	  <div class="form-group">
 	    <label>Destination Volume</label>
 	    <select class="form-control" name="destination" required>
 	  		<option value=''>--Select A Destination--</option>
-	  	<?php
-				exec("ls /$config_mount_target", $volume_list);
-				foreach ($volume_list as $volume) {
-				?>
-				<option <?php if($destination == $volume){ echo "selected"; } ?>><?php echo "$volume"; ?></option>	
+  			<?php
+			exec("ls /$config_mount_target", $volume_list);
+			foreach ($volume_list as $volume) {
+				$mounted = exec("df | grep $volume");
+				if(!empty($mounted)){	
+			?>
+					<option <?php if($destination == $volume){ echo "selected"; } ?>><?php echo "$volume"; ?></option>	
 
-			<?php
+				<?php
 				}
+				?>
+			<?php
+			}
 			?>
 
 	  	</select>

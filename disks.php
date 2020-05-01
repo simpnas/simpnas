@@ -4,6 +4,7 @@
     include("header.php");
     include("side_nav.php");
     exec("smartctl --scan | awk '{print $1}'", $drive_list);
+    $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
 ?>
 
@@ -51,7 +52,7 @@
 
   foreach ($drive_list as $hdd) {
     $hdd_short_name = basename($hdd);
-    $hdd_smart = exec("smartctl -i /dev/sda | grep 'SMART support is' | cut -d' ' -f 8-");
+    $hdd_smart = exec("smartctl -i $hdd | grep 'SMART support is' | cut -d' ' -f 8-");
     
     if($hdd_smart == "Unavailable - device lacks SMART capability."){
       $hdd_temp = "-";

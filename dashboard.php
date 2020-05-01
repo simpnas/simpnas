@@ -17,7 +17,7 @@
   $load_avg = exec("uptime | awk -F 'average: ' '{ print $2}'");
   $uptime = exec("uptime -p | cut -c 4-");
   $system_time = exec("date");
-  $machine_id = exec("hostnamectl | grep 'Machine ID:' | awk '{print $3}'");
+  $machine_id = exec("cat /etc/machine-id");
   $cpu_model = exec("lscpu | grep 'Model name:' | sed -r 's/Model name:\s{1,}//g'");
   $cpu_cores = exec("lscpu | grep 'CPU(s):' | awk '{print $3}'");
   $cpu_speed = round(exec("lscpu | grep 'CPU max MHz:' | awk '{print $4}'"));
@@ -54,7 +54,6 @@
   }else{
     $status_service_ssh = "<div class='text-success'>Running</div>";
   }
-  
 
 ?>
 

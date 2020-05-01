@@ -1262,7 +1262,7 @@ if(isset($_POST['setup'])){
   
   $myfile = fopen("config.php", "w");
 
-  $txt = "<?php\n\n\$config_os_disk = \"$os_disk\";\n\$config_mount_target = 'mnt';\n\$config_docker_volume = \"$volume_name\";\n\$config_home_volume = \"$volume_name\";\n\$config_home_dir = 'homes';\n\n?>";
+  $txt = "<?php\n\n\$config_mount_target = 'mnt';\n\$config_docker_volume = \"$volume_name\";\n\$config_home_volume = \"$volume_name\";\n\$config_home_dir = 'homes';\n\n?>";
 
   fwrite($myfile, $txt);
 
