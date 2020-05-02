@@ -798,10 +798,69 @@ if(isset($_GET['install_nextcloud'])){
   mkdir("/$config_mount_target/$config_docker_volume/docker/mariadb");
 
   exec("docker run -d --name mariadb -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb:/config linuxserver/mariadb");
-     
-  //exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
 
-  exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -e MYSQL_HOST=172.17.0.3 -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASS=password -e NEXTCLOUD_ADMIN_USER=johnny -e NEXTCLOUD_ADMIN_PASSWORD=password -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
+  exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
+
+  $mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb");
+
+  exec("sleep 10");
+  
+  exec("docker exec nextcloud rm -rf /config/www/nextcloud/core/skeleton");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='$mariadb_ip' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='root' --admin-pass='password'");
+
+  //Add Trusted Hosts
+  $current_hostname = gethostname();
+  $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
+
+  //Add Domain
+  //sudo -u php-nextcloud php occ config:system:set overwrite.cli.url --value="https://nextcloud.my.domain"
+
+  //Add Hostname and Primary IP to trusted_domains list
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 2 --value=$current_hostname");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 3 --value=$primary_ip");
+
+  //Install Apps
+  //Install Calendar
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install calendar");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable calendar");
+  //Install Contacts
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install contacts");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable contacts");
+  //Install Talk
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install spreed");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable spreed");
+  //Install Community Document Server
+  //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install documentserver_community");
+  //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable documentserver_community");
+  //Install OnlyOffice
+  //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install onlyoffice");
+  //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable onlyoffice");
+  //Install Draw.IO
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install drawio");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable drawio");
+  //Install External User Auth Support (For SAMBA Auth)
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install user_external");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable user_external");
+  //Install Mail
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install mail");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable mail");
+  //Disable Support, usage survey and first run wizard
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable support");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable survey_client");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable firstrunwizard");
+  exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/support");
+  exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/survey_client");
+  exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/firstrunwizard");
+
+  //Enable External Files Support for Samba mounts
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable files_external");
+
+  //Fix Setup DB Errors This may be able to removed in the future
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:add-missing-indices");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:convert-filecache-bigint");
+
+  //Add Network Shares
+   //exec("docker exec nextcloud sudo -u abc php files_external:create media ‘smb’ password::logincredentials -c host=$primary_ip -c share=media -c root=Common -c domain=workgroup");
 
   header("Location: apps.php");
 }
