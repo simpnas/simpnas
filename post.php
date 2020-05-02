@@ -864,7 +864,12 @@ if(isset($_GET['install_nextcloud'])){
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:convert-filecache-bigint");
 
   //Add Network Shares
-   //exec("docker exec nextcloud sudo -u abc php files_external:create media ‘smb’ password::logincredentials -c host=$primary_ip -c share=media -c root=Common -c domain=workgroup");
+  //Add Users Home folder
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create Home 'smb' password::logincredentials -c host=$primary_ip -c share='\$user' -c domain=WORKGROUP");
+  //Enable Nextcloud Sharing on Users Home 
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:option 1 enable_sharing true");
+
+  
 
   header("Location: apps.php");
 }
