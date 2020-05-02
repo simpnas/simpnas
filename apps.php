@@ -32,7 +32,7 @@
       <tbody>                
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/nextcloud.png" height="64" width="64" class="img-fluid rounded">
+            <img src="img/apps/nextcloud.png" height="48" width="48" class="img-fluid rounded">
             <br>
             Nextcloud
             <br>
@@ -54,7 +54,7 @@
               <?php
               }else{
               ?>
-              <a href="post.php?install_nextcloud" class="btn btn-outline-success">Install</a>
+              <a href="install_nextcloud.php" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
@@ -63,7 +63,7 @@
         </tr>
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/jellyfin.png" height="64" width="64" class="img-fluid rounded">
+            <img src="img/apps/jellyfin.png" height="48" width="48" class="img-fluid rounded">
             <br>
             Jellyfin
             <br>
@@ -92,7 +92,7 @@
         </tr>
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/dokuwiki.png" height="64" width="64" class="img-fluid rounded">
+            <img src="img/apps/dokuwiki.png" height="48" width="48" class="img-fluid rounded">
             <br>
             Dokuwiki
             <br>
@@ -121,7 +121,7 @@
         </tr>
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/syncthing.png" height="64" width="64" class="img-fluid rounded">
+            <img src="img/apps/syncthing.png" height="48" width="48" class="img-fluid rounded">
             <br>
             Syncthing
             <br>
@@ -132,7 +132,7 @@
         </tr>
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/transmission2.png" height="64" width="64" class="img-fluid rounded">
+            <img src="img/apps/transmission.png" height="48" width="48" class="img-fluid rounded">
             <br>
             Transmssion
             <br>
@@ -161,7 +161,7 @@
         </tr>
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/unifi.png" height="64" width="64" class="img-fluid rounded">
+            <img src="img/apps/unifi.png" height="48" width="48" class="img-fluid rounded">
             <br>
             Unifi Controller
             <br>
@@ -191,7 +191,7 @@
         
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/unifi-video2.png" height="64" width="64" class="img-fluid rounded">
+            <img src="img/apps/unifi-video2.png" height="48" width="48" class="img-fluid rounded">
             <br>
             Unifi Video
             <br>
@@ -223,7 +223,7 @@
         
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/homeassistant.png" height="64" width="64" class="img-fluid rounded">
+            <img src="img/apps/homeassistant.png" height="48" width="48" class="img-fluid rounded">
             <br>
             Home Assistant
             <br>
@@ -255,7 +255,7 @@
         
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/wireguard.png" height="64" width="64" class="img-fluid rounded">
+            <img src="img/apps/wireguard.png" height="48" width="48" class="img-fluid rounded">
             <br>
             Double Commander
             <br>
@@ -285,7 +285,7 @@
         
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/wireguard.png" height="64" width="64" class="img-fluid rounded">
+            <img src="img/apps/wireguard.jpg" height="48" width="48" class="img-fluid rounded">
             <br>
             WireGuard VPN Server
             <br>
@@ -315,7 +315,7 @@
         
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/openvpn.png" height="64" width="64" class="img-fluid rounded">
+            <img src="img/apps/openvpn.png" height="48" width="48" class="img-fluid rounded">
             <br>
             OpenVPN Server
             <br>
@@ -336,6 +336,96 @@
               }else{
               ?>
               <a href="post.php?install_openvpn" class="btn btn-outline-success">Install</a>
+              <?php  
+              }
+              ?>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="text-center text-muted">
+            <img src="img/apps/bitwarden.png" height="48" width="48" class="img-fluid rounded">
+            <br>
+            Bitwarden RS
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/bitwarden")) { ?>
+            <small class="text-success"><span data-feather="check"></span>Installed</small>
+            <?php } ?>
+          </td>
+          <td>Password Manager</td>
+          <td>
+            <div class="btn-group mr-2">
+              <?php 
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/bitwarden")) {
+              ?>
+                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:88" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="update_bitwarden.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_bitwarden" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <?php
+              }else{
+              ?>
+              <a href="post.php?install_bitwarden" class="btn btn-outline-success">Install</a>
+              <?php  
+              }
+              ?>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="text-center text-muted">
+            <img src="img/apps/bookstack.png" height="48" width="48" class="img-fluid rounded">
+            <br>
+            Bookstack
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/bookstack")) { ?>
+            <small class="text-success"><span data-feather="check"></span>Installed</small>
+            <?php } ?>
+          </td>
+          <td>Documentation Portal</td>
+          <td>
+            <div class="btn-group mr-2">
+              <?php 
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/bookstack")) {
+              ?>
+                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:84" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="update_bookstack.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_bookstack" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <?php
+              }else{
+              ?>
+              <a href="post.php?install_bookstack" class="btn btn-outline-success">Install</a>
+              <?php  
+              }
+              ?>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="text-center text-muted">
+            <img src="img/apps/snipeit.png" height="48" width="48" class="img-fluid rounded">
+            <br>
+            SnipeIT
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/snipeit")) { ?>
+            <small class="text-success"><span data-feather="check"></span>Installed</small>
+            <?php } ?>
+          </td>
+          <td>Asset Management</td>
+          <td>
+            <div class="btn-group mr-2">
+              <?php 
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/snipeit")) {
+              ?>
+                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:83" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="update_snipeit.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_ssnipeit" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <?php
+              }else{
+              ?>
+              <a href="post.php?install_snipeit" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>

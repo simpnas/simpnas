@@ -717,6 +717,54 @@ if(isset($_GET['uninstall_jellyfin'])){
   header("Location: apps.php");
 }
 
+if(isset($_POST['install_airsonic'])){
+  $volume = $_POST['volume'];
+  
+  if(!file_exists("/$config_mount_target/$config_docker_volume/docker/airsonic")) {
+    
+    $group_media_exists = exec("cat /etc/group | grep media");
+    if(empty($group_media_exists)){
+      exec ("addgroup media");
+    }
+
+    $group_id = exec("getent group media | cut -d: -f3");
+
+    if(!file_exists("/$config_mount_target/$config_docker_volume/media")) {
+      mkdir("/$config_mount_target/$volume/media");
+      mkdir("/$config_mount_target/$volume/media/music");
+      chgrp("/$config_mount_target/$volume/media","media");
+      chgrp("/$config_mount_target/$volume/media/music","media");
+      chmod("/$config_mount_target/$volume/media",0770);
+      chmod("/$config_mount_target/$volume/media/music",0770);
+
+      $myFile = "/etc/samba/shares/media";
+      $fh = fopen($myFile, 'w') or die("not able to write to file");
+      $stringData = "[media]\n   comment = Media files used by Airsonic\n   path = /$config_mount_target/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
+      fwrite($fh, $stringData);
+      fclose($fh);
+
+      $myFile = "/etc/samba/shares.conf";
+      $fh = fopen($myFile, 'a') or die("not able to write to file");
+      $stringData = "\ninclude = /etc/samba/shares/media";
+      fwrite($fh, $stringData);
+      fclose($fh);
+      
+      exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
+
+    }
+    
+    mkdir("/$config_mount_target/$config_docker_volume/docker/airsonic");
+    chgrp("/$config_mount_target/$config_docker_volume/docker/airsonic","media");
+    chmod("/$config_mount_target/$config_docker_volume/docker/airsonic",0770);
+    
+  }
+
+  exec("docker run -d --name airsonic --restart=unless-stopped -p 4040:4040 -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/airsonic:/config -v /$config_mount_target/$volume/media/music:/music linuxserver/airsonic");
+  
+  header("Location: apps.php");
+}
+
 if(isset($_POST['install_lychee'])){
   $volume = $_POST['volume'];
   
@@ -789,26 +837,33 @@ if(isset($_GET['uninstall_lychee'])){
   header("Location: apps.php");
 }
 
-if(isset($_GET['install_nextcloud'])){
+if(isset($_POST['install_nextcloud'])){
+
+  $password = $_POST['password'];
+  $enable_samba_auth = $_POST['enable_samba_auth'];
+  $enable_samba_mount = $_POST['enable_samba_mount'];
+  $install_apps = $_POST['install_apps'];
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud");
   mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/appdata");
   mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/data");
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/mariadb");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud");
 
-  exec("docker run -d --name mariadb -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb:/config linuxserver/mariadb");
+  exec("docker run -d --name mariadb_nextcloud -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud:/config linuxserver/mariadb");
 
   exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
 
-  $mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb");
+  $mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_nextcloud");
 
-  exec("sleep 60");
+  exec("sleep 40");
   
   exec("docker exec nextcloud rm -rf /config/www/nextcloud/core/skeleton");
-  exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton");
-  exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton/Shared-Folders");
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='$mariadb_ip' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='root' --admin-pass='password'");
+  if($enable_samba_mount == 1){
+    exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton");
+    exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton/Shared-Folders");
+  }
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='$mariadb_ip' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='admin' --admin-pass='$password'");
 
   //Add Trusted Hosts
   $current_hostname = gethostname();
@@ -821,31 +876,6 @@ if(isset($_GET['install_nextcloud'])){
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 2 --value=$current_hostname");
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 3 --value=$primary_ip");
 
-  //Install Apps
-  //Install Calendar
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install calendar");
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable calendar");
-  //Install Contacts
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install contacts");
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable contacts");
-  //Install Talk
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install spreed");
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable spreed");
-  //Install Community Document Server
-  //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install documentserver_community");
-  //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable documentserver_community");
-  //Install OnlyOffice
-  //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install onlyoffice");
-  //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable onlyoffice");
-  //Install Draw.IO
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install drawio");
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable drawio");
-  //Install External User Auth Support (For SAMBA Auth)
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install user_external");
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable user_external");
-  //Install Mail
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install mail");
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable mail");
   //Disable Support, usage survey and first run wizard
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable support");
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable survey_client");
@@ -854,26 +884,57 @@ if(isset($_GET['install_nextcloud'])){
   exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/survey_client");
   exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/firstrunwizard");
 
-  //Enable External Files Support for Samba mounts
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable files_external");
 
-  //Set Auth Backend to SAMBA
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 arguments 0 --value=$primary_ip");
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 class --value=OC_User_SMB");
+  if($install_apps == 1){
+    //Install Apps
+    //Install Calendar
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install calendar");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable calendar");
+    //Install Contacts
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install contacts");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable contacts");
+    //Install Talk
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install spreed");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable spreed");
+    //Install Community Document Server
+    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install documentserver_community");
+    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable documentserver_community");
+    //Install OnlyOffice
+    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install onlyoffice");
+    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable onlyoffice");
+    //Install Draw.IO
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install drawio");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable drawio");
+    //Install Mail
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install mail");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable mail");
+  }
+
+  //Set Auth Backend to SAMBA - Install External User Auth Support (For SAMBA Auth)
+  if($enable_samba_auth == 1){
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install user_external");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable user_external");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 arguments 0 --value=$primary_ip");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 class --value=OC_User_SMB");
+  }
   
   //Fix Setup DB Errors This may be able to removed in the future
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:add-missing-indices");
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:convert-filecache-bigint");
 
-  //Add Network Shares
-  //Add Users Home folder
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create Home 'smb' password::logincredentials -c host=$primary_ip -c share='\$user' -c domain=WORKGROUP");
-  //Enable Nextcloud Sharing on Users Home 
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:option 1 enable_sharing true");
-  //Add All Other Shares
-  exec("ls /etc/samba/shares", $share_list);
-  foreach ($share_list as $share) {
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create /Shared-Folders/$share 'smb' password::logincredentials -c host=$primary_ip -c share='$share' -c domain=WORKGROUP");
+  if($enable_samba_mount == 1){
+    //Enable External Files Support for Samba mounts
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable files_external");
+    //Add Network Shares
+    //Add Users Home folder
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create Home 'smb' password::logincredentials -c host=$primary_ip -c share='\$user' -c domain=WORKGROUP");
+    //Enable Nextcloud Sharing on Users Home 
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:option 1 enable_sharing true");
+    //Add All Other Shares
+    exec("ls /etc/samba/shares", $share_list);
+    foreach ($share_list as $share) {
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create /Shared-Folders/$share 'smb' password::logincredentials -c host=$primary_ip -c share='$share' -c domain=WORKGROUP");
+    }
   }
 
   header("Location: apps.php");
@@ -885,11 +946,11 @@ if(isset($_GET['update_nextcloud'])){
   exec("docker stop nextcloud");
   exec("docker rm nextcloud");
 
-  exec("docker pull linuxserver/mariadb");
-  exec("docker stop mariadb");
-  exec("docker rm mariadb");
+  exec("docker pull linuxserver/mariadb_nextcloud");
+  exec("docker stop mariadb_nextcloud");
+  exec("docker rm mariadb_nextcloud");
 
-  exec("docker run -d --name mariadb -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb:/config linuxserver/mariadb");
+  exec("docker run -d --name mariadb_nextcloud -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud:/config linuxserver/mariadb");
 
   exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
 
@@ -903,12 +964,12 @@ if(isset($_GET['uninstall_nextcloud'])){
   //stop and delete docker container
   exec("docker stop nextcloud");
   exec("docker rm nextcloud");
-  exec("docker stop mariadb");
-  exec("docker rm mariadb");
+  exec("docker stop mariadb_nextcloud");
+  exec("docker rm mariadb_nextcloud");
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/nextcloud");
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb");
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud");
   
   //delete images
   exec("docker image prune");
@@ -949,6 +1010,68 @@ if(isset($_GET['uninstall_dokuwiki'])){
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/dokuwiki");
+  //redirect back to packages
+  header("Location: apps.php");
+}
+
+if(isset($_GET['install_bookstack'])){
+
+  mkdir("/$config_mount_target/$config_docker_volume/docker/bookstack/");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/mariadb_bookstack");
+
+  exec("docker run -d --name mariadb_bookstack -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=bookstack -e MYSQL_USER=bookstack -e MYSQL_PASSWORD=password --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_bookstack:/config linuxserver/mariadb");
+
+  $mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_bookstack");  
+
+  exec("docker run -d --name bookstack -p 84:80 --restart=unless-stopped -e DB_HOST=$mariadb_ip -e DB_USER=bookstack -e DB_PASS=password -e DB_DATABASE=bookstack -v /$config_mount_target/$config_docker_volume/docker/bookstack:/config linuxserver/bookstack");
+  
+  header("Location: apps.php");
+}
+
+if(isset($_GET['uninstall_bookstack'])){
+  //stop and delete docker container
+  exec("docker stop bookstack");
+  exec("docker rm bookstack");
+  exec("docker stop mariadb_bookstack");
+  exec("docker rm mariadb_bookstack");
+
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/bookstack");
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb_bookstack");
+  //redirect back to packages
+  header("Location: apps.php");
+}
+
+if(isset($_GET['install_bitwarden'])){
+
+  mkdir("/$config_mount_target/$config_docker_volume/docker/bitwarden/");
+
+  exec("docker run -d --name bitwarden -v /$config_mount_target/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
+  
+  header("Location: apps.php");
+}
+
+if(isset($_GET['update_bitwarden'])){
+
+  exec("docker pull bitwardenrs/server:latest");
+  exec("docker stop bitwarden");
+  exec("docker rm bitwarden");
+
+  exec("docker run -d --name bitwarden -v /$config_mount_target/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
+
+  exec("docker image prune");
+  
+  header("Location: apps.php");
+
+}
+
+if(isset($_GET['uninstall_bitwarden'])){
+  //stop and delete docker container
+  exec("docker stop bitwarden");
+  exec("docker rm bitwarden");
+
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/bitwarden");
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1249,6 +1372,34 @@ if(isset($_GET['uninstall_doublecommander'])){
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/doublecommander");
+  //redirect back to packages
+  header("Location: apps.php");
+}
+
+if(isset($_GET['install_snipeit'])){
+
+  mkdir("/$config_mount_target/$config_docker_volume/docker/snipeit/");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/mariadb_snipeit");
+
+  exec("docker run -d --name mariadb_snipeit -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=snipeit -e MYSQL_USER=snipeit -e MYSQL_PASSWORD=password --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_snipeit:/config linuxserver/mariadb");
+
+  $mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_snipeit");  
+
+  exec("docker run -d --name snipeit -p 83:80 --restart=unless-stopped -e DB_HOST=$mariadb_ip -e MYSQL_USER=snipeit -e MYSQL_PASSWORK=password -e MYSQL_DATABASE=snipeit -v /$config_mount_target/$config_docker_volume/docker/snipeit:/config linuxserver/snipe-it");
+  
+  header("Location: apps.php");
+}
+
+if(isset($_GET['uninstall_snipeit'])){
+  //stop and delete docker container
+  exec("docker stop snipeit");
+  exec("docker rm snipeit");
+  exec("docker stop mariadb_snipeit");
+  exec("docker rm mariadb_snipeit");
+
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/snipeit");
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb_snipeit");
   //redirect back to packages
   header("Location: apps.php");
 }
