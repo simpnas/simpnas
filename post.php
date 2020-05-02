@@ -803,7 +803,7 @@ if(isset($_GET['install_nextcloud'])){
 
   $mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb");
 
-  exec("sleep 30");
+  exec("sleep 10");
   
   exec("docker exec nextcloud rm -rf /config/www/nextcloud/core/skeleton");
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='$mariadb_ip' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='root' --admin-pass='password'");
@@ -855,6 +855,10 @@ if(isset($_GET['install_nextcloud'])){
   //Enable External Files Support for Samba mounts
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable files_external");
 
+  //Set Auth Backend to SAMBA
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 arguments 0 --value=$primary_ip");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 class --value=OC_User_SMB");
+  
   //Fix Setup DB Errors This may be able to removed in the future
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:add-missing-indices");
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:convert-filecache-bigint");
