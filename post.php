@@ -803,9 +803,11 @@ if(isset($_GET['install_nextcloud'])){
 
   $mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb");
 
-  exec("sleep 10");
+  exec("sleep 60");
   
   exec("docker exec nextcloud rm -rf /config/www/nextcloud/core/skeleton");
+  exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton");
+  exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton/Shared-Folders");
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='$mariadb_ip' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='root' --admin-pass='password'");
 
   //Add Trusted Hosts
@@ -868,8 +870,11 @@ if(isset($_GET['install_nextcloud'])){
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create Home 'smb' password::logincredentials -c host=$primary_ip -c share='\$user' -c domain=WORKGROUP");
   //Enable Nextcloud Sharing on Users Home 
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:option 1 enable_sharing true");
-
-  
+  //Add All Other Shares
+  exec("ls /etc/samba/shares", $share_list);
+  foreach ($share_list as $share) {
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create /Shared-Folder/$share 'smb' password::logincredentials -c host=$primary_ip -c share='$share' -c domain=WORKGROUP");
+  }
 
   header("Location: apps.php");
 }
