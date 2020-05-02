@@ -803,7 +803,7 @@ if(isset($_GET['install_nextcloud'])){
 
   $mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb");
 
-  exec("sleep 15");
+  exec("sleep 20");
   
   exec("docker exec nextcloud rm -rf /config/www/nextcloud/core/skeleton");
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='$mariadb_ip' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='root' --admin-pass='password'");
