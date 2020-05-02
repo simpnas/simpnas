@@ -873,7 +873,7 @@ if(isset($_GET['install_nextcloud'])){
   //Add All Other Shares
   exec("ls /etc/samba/shares", $share_list);
   foreach ($share_list as $share) {
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create /Shared-Folder/$share 'smb' password::logincredentials -c host=$primary_ip -c share='$share' -c domain=WORKGROUP");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create /Shared-Folders/$share 'smb' password::logincredentials -c host=$primary_ip -c share='$share' -c domain=WORKGROUP");
   }
 
   header("Location: apps.php");
