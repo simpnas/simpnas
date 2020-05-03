@@ -115,6 +115,31 @@
 	    <input type="text" class="form-control" name="volume_name" required>
 	  </div>
 
+	  <div class="form-group">
+		<label>File Server Type</label>
+		<select class="form-control" name="server_type" id="serverType">
+			<option id="standAlone" value="standalone">Standalone File Server</option>
+			<option id="activeDirectory" value="AD">Active Directory</option>
+		</select>
+	  </div>
+
+	  <div id="activeDirectoryServer">
+		  <div class="form-group">
+		    <label>Domain</label>
+		    <input type="text" class="form-control" name="ad_domain" placeholder="ex. company.int">
+		  </div>
+		  
+		  <div class="form-group">
+		    <label>Server Hostname</label>
+		    <input type="text" class="form-control" name="ad_hostname">
+		  </div>
+		  
+		  <div class="form-group">
+		    <label>DNS Forwarder(s)</label>
+		    <input type="text" class="form-control" name="ad_dns_forwarders">
+		  </div>
+	  </div>
+
 	  <legend>Network Setup</legend>
 
 	  <div class="form-group">
@@ -185,8 +210,6 @@
 			  <label class="custom-control-label" for="collect">Yes Collect Statistic Data</label>
 			</div>
 		  </div>
-
-
 	  
 	  <button type="submit" name="setup" class="btn btn-primary">Submit</button>
 	</form>

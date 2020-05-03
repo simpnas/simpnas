@@ -1548,6 +1548,11 @@ if(isset($_POST['setup'])){
   $username = $_POST['username'];
   $password = $_POST['password'];
 
+  $server_type = $_POST['server_type'];
+  $ad_domain = $_POST['ad_domain'];
+  $ad_hostname = $_POST['ad_hostname'];
+  $ad_dns_forwarders = $_POST['ad_dns_forwarders'];
+
   $current_hostname = exec("hostname");
   $interface = $_POST['interface'];
   $method = $_POST['method'];
@@ -1592,6 +1597,13 @@ if(isset($_POST['setup'])){
     exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
   }else{
     exec("usermod -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$existing_username $existing_username");
+  }
+
+  if($server_type == 'AD'){
+    exec("apt -y install krb5-config winbind smbclient")
+    exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_domain --adminpass="$ad_admin_password" --server-role=dc --dns-backend=SAMBA_INTERNAL")
+    exec("echo domain $ad_domain >> /etc/resolv.conf");
+
   }
 
   exec("systemctl restart smbd");
