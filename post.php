@@ -674,7 +674,7 @@ if(isset($_POST['install_jellyfin'])){
 
   }
 
-  exec("docker run -d --name jellyfin --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin/config:/config -v /$config_mount_target/$volume/media/tvshows:/tvshows -v /$config_mount_target/$volume/media/movies:/movies -v /$config_mount_target/$volume/media/music:/music -v /$config_mount_target/$config_docker_volume/docker/jellyfin/cache:/cache jellyfin/jellyfin");
+  exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin:/config -v /$config_mount_target/$volume/media/tvshows:/tvshows -v /$config_mount_target/$volume/media/movies:/movies -v /$config_mount_target/$volume/media/music:/music linuxserver/jellyfin");
   
   header("Location: apps.php");
 }
@@ -684,11 +684,11 @@ if(isset($_GET['update_jellyfin'])){
   $group_id = exec("getent group media | cut -d: -f3");
   $volume_path = exec("find /$config_mount_target/*/media -name 'media'");
 
-  exec("docker pull jellyfin/jellyfin");
+  exec("docker pull linuxserver/jellyfin");
   exec("docker stop jellyfin");
   exec("docker rm jellyfin");
   
-  exec("docker run -d --name jellyfin --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin/config:/config -v $volume_path/tvshows:/tvshows -v $volume_path/movies:/movies -v $volume_path/music:/music -v /$config_mount_target/$config_docker_volume/docker/jellyfin/cache:/cache jellyfin/jellyfin");
+  exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin:/config -v /$config_mount_target/$volume/media/tvshows:/tvshows -v /$config_mount_target/$volume/media/movies:/movies -v /$config_mount_target/$volume/media/music:/music linuxserver/jellyfin");
 
   exec("docker image prune");
   
@@ -773,7 +773,6 @@ if(isset($_POST['install_lychee'])){
 
   mkdir("/$config_mount_target/$volume/photos");
   mkdir("/$config_mount_target/$config_docker_volume/docker/lychee");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/lychee/config");
 
   chgrp("/$config_mount_target/$volume/photos","photos");
   
@@ -794,7 +793,7 @@ if(isset($_POST['install_lychee'])){
   exec("systemctl restart smbd");
   exec("systemctl restart nmbd");     
 
-  exec("docker run -d --name lychee -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee/config:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
+  exec("docker run -d --name lychee --net=my-network -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
   
   header("Location: apps.php");
 }
@@ -850,11 +849,11 @@ if(isset($_POST['install_nextcloud'])){
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud");
 
-  exec("docker run -d --name mariadb_nextcloud -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud:/config linuxserver/mariadb");
+  exec("docker run -d --name mariadb_nextcloud --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud:/config linuxserver/mariadb");
 
-  exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
+  exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data linuxserver/nextcloud");
 
-  $mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_nextcloud");
+  //$mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_nextcloud");
 
   exec("sleep 40");
   
@@ -863,7 +862,7 @@ if(isset($_POST['install_nextcloud'])){
     exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton");
     exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton/Shared-Folders");
   }
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='$mariadb_ip' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='admin' --admin-pass='$password'");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='mariadb_nextcloud' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='admin' --admin-pass='$password'");
 
   //Add Trusted Hosts
   $current_hostname = gethostname();
@@ -950,9 +949,9 @@ if(isset($_GET['update_nextcloud'])){
   exec("docker stop mariadb_nextcloud");
   exec("docker rm mariadb_nextcloud");
 
-  exec("docker run -d --name mariadb_nextcloud -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud:/config linuxserver/mariadb");
+  exec("docker run -d --name mariadb_nextcloud --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud:/config linuxserver/mariadb");
 
-  exec("docker run -d --name nextcloud -p 443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data -v /$config_mount_target:/$config_mount_target linuxserver/nextcloud");
+  exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data linuxserver/nextcloud");
 
   exec("docker image prune");
   
@@ -979,6 +978,29 @@ if(isset($_GET['uninstall_nextcloud'])){
 
 }
 
+if(isset($_POST['install_letsencrypt'])){
+
+  $domain = $_POST['domain'];
+  $sub_domains = $_POST['sub_domains'];
+
+  mkdir("/$config_mount_target/$config_docker_volume/docker/letsencrypt");
+
+  exec("docker run -d --name letsencrypt --net=my-network --cap-add=NET_ADMIN -p 443:443 -p 80:80 --restart=unless-stopped -e URL='$domain' -e SUBDOMAINS='$sub_domains' -e VALIDATION=http -v /$config_mount_target/$config_docker_volume/docker/letsencrypt:/config linuxserver/letsencrypt");
+
+  header("Location: apps.php");
+}
+
+if(isset($_GET['uninstall_letsencrypt'])){
+  //stop and delete docker container
+  exec("docker stop letsencrypt");
+  exec("docker rm letsencrypt");
+
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/letsencrypt");
+  //redirect back to packages
+  header("Location: apps.php");
+}
+
 if(isset($_GET['install_dokuwiki'])){
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/");
@@ -995,7 +1017,7 @@ if(isset($_GET['update_dokuwiki'])){
   exec("docker stop dokuwiki");
   exec("docker rm dokuwiki");
 
-  exec("docker run -d --name dokuwiki -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki/config:/config linuxserver/dokuwiki");
+  exec("docker run -d --name dokuwiki --net=my-network -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki/config:/config linuxserver/dokuwiki");
 
   exec("docker image prune");
   
@@ -1019,11 +1041,11 @@ if(isset($_GET['install_bookstack'])){
   mkdir("/$config_mount_target/$config_docker_volume/docker/bookstack/");
   mkdir("/$config_mount_target/$config_docker_volume/docker/mariadb_bookstack");
 
-  exec("docker run -d --name mariadb_bookstack -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=bookstack -e MYSQL_USER=bookstack -e MYSQL_PASSWORD=password --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_bookstack:/config linuxserver/mariadb");
+  exec("docker run -d --name mariadb_bookstack --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=bookstack -e MYSQL_USER=bookstack -e MYSQL_PASSWORD=password --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_bookstack:/config linuxserver/mariadb");
 
-  $mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_bookstack");  
+  //$mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_bookstack");  
 
-  exec("docker run -d --name bookstack -p 84:80 --restart=unless-stopped -e DB_HOST=$mariadb_ip -e DB_USER=bookstack -e DB_PASS=password -e DB_DATABASE=bookstack -v /$config_mount_target/$config_docker_volume/docker/bookstack:/config linuxserver/bookstack");
+  exec("docker run -d --name bookstack --net=my-network -p 84:80 --restart=unless-stopped -e DB_HOST=mariadb_bookstack -e DB_USER=bookstack -e DB_PASS=password -e DB_DATABASE=bookstack -v /$config_mount_target/$config_docker_volume/docker/bookstack:/config linuxserver/bookstack");
   
   header("Location: apps.php");
 }
@@ -1046,7 +1068,7 @@ if(isset($_GET['install_bitwarden'])){
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/bitwarden/");
 
-  exec("docker run -d --name bitwarden -v /$config_mount_target/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
+  exec("docker run -d --name bitwarden --net=my-network -v /$config_mount_target/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
   
   header("Location: apps.php");
 }
@@ -1074,6 +1096,40 @@ if(isset($_GET['uninstall_bitwarden'])){
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/bitwarden");
   //redirect back to packages
   header("Location: apps.php");
+}
+
+if(isset($_GET['install_gitea'])){
+
+  mkdir("/$config_mount_target/$config_docker_volume/docker/gitea");
+
+  exec("docker run -d --name gitea --net=my-network -v /$config_mount_target/$config_docker_volume/docker/gitea:/data -p 3000:3000 -p 222:22 --restart=unless-stopped gitea/gitea:latest");
+  
+  header("Location: apps.php");
+}
+
+if(isset($_GET['uninstall_gitea'])){
+  //stop and delete docker container
+  exec("docker stop gitea");
+  exec("docker rm gitea");
+
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/gitea");
+  //redirect back to packages
+  header("Location: apps.php");
+}
+
+if(isset($_GET['update_bitwarden'])){
+
+  exec("docker pull bitwardenrs/server:latest");
+  exec("docker stop bitwarden");
+  exec("docker rm bitwarden");
+
+  exec("docker run -d --name bitwarden -v /$config_mount_target/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
+
+  exec("docker image prune");
+  
+  header("Location: apps.php");
+
 }
 
 if(isset($_GET['install_syncthing'])){
@@ -1118,9 +1174,8 @@ if(isset($_GET['uninstall_home-assistant'])){
 
 if(isset($_GET['install_unifi'])){
   mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/config");
 
-  exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi-controller > /dev/null &");
+  exec("docker run -d --name unifi --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi:/config linuxserver/unifi-controller");
   header("Location: apps.php");
 }
 
@@ -1130,7 +1185,7 @@ if(isset($_GET['update_unifi'])){
   exec("docker stop unifi");
   exec("docker rm unifi");
 
-  exec("docker run -d --name unifi -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi/config:/config linuxserver/unifi-controller");
+  exec("docker run -d --name unifi --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi:/config linuxserver/unifi-controller");
 
   exec("docker image prune");
   
@@ -1182,7 +1237,7 @@ if(isset($_POST['install_unifi-video'])){
 
   }
   
-  exec("docker run -d --name unifi-video --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -e DEBUG=1 -v /$config_mount_target/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /$config_mount_target/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
+  exec("docker run -d --name unifi-video --net=my-network --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -e DEBUG=1 -v /$config_mount_target/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /$config_mount_target/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
   
   header("Location: apps.php");
 
@@ -1383,9 +1438,9 @@ if(isset($_GET['install_snipeit'])){
 
   exec("docker run -d --name mariadb_snipeit -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=snipeit -e MYSQL_USER=snipeit -e MYSQL_PASSWORD=password --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_snipeit:/config linuxserver/mariadb");
 
-  $mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_snipeit");  
+  //$mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_snipeit");  
 
-  exec("docker run -d --name snipeit -p 83:80 --restart=unless-stopped -e DB_HOST=$mariadb_ip -e MYSQL_USER=snipeit -e MYSQL_PASSWORK=password -e MYSQL_DATABASE=snipeit -v /$config_mount_target/$config_docker_volume/docker/snipeit:/config linuxserver/snipe-it");
+  exec("docker run -d --name snipeit --net=my-network -p 83:80 --restart=unless-stopped -e DB_HOST=mariadb_snipeit -e MYSQL_USER=snipeit -e MYSQL_PASSWORK=password -e MYSQL_DATABASE=snipeit -v /$config_mount_target/$config_docker_volume/docker/snipeit:/config linuxserver/snipe-it");
   
   header("Location: apps.php");
 }
@@ -1408,7 +1463,7 @@ if(isset($_GET['install_wireguard'])){
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/wireguard");
 
-  exec("docker run --cap-add=NET_ADMIN --cap-add=SYS_MODULE -d --name wireguard --restart=unless-stopped -e PEERS=1 -v /$config_mount_target/$config_docker_volume/docker/wireguard:/config -v /lib/modules:/lib/modules -p 51820:51820/udp --sysctl='net.ipv4.conf.all.src_valid_mark=1' linuxserver/wireguard");
+  exec("docker run -d --name wireguard --net=my-network --cap-add=NET_ADMIN --cap-add=SYS_MODULE --restart=unless-stopped -e PEERS=1 -v /$config_mount_target/$config_docker_volume/docker/wireguard:/config -v /lib/modules:/lib/modules -p 51820:51820/udp --sysctl='net.ipv4.conf.all.src_valid_mark=1' linuxserver/wireguard");
   header("Location: apps.php");
 }
 
@@ -1449,7 +1504,7 @@ if(isset($_GET['install_openvpn'])){
   mkdir("/$config_mount_target/$config_docker_volume/docker/openvpn");
   mkdir("/$config_mount_target/$config_docker_volume/docker/openvpn/config");
 
-  exec("docker run -d --name openvpn --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/openvpn/config:/config -p 943:943 -p 9443:9443 -p 1194:1194/udp linuxserver/openvpn-as");
+  exec("docker run -d --name openvpn --net=my-network --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/openvpn/config:/config -p 943:943 -p 9443:9443 -p 1194:1194/udp linuxserver/openvpn-as");
   header("Location: apps.php");
 }
 
@@ -1507,10 +1562,16 @@ if(isset($_POST['setup'])){
   exec ("mkdir /$config_mount_target/$volume_name/docker");
   exec ("mkdir /$config_mount_target/$volume_name/homes");
 
-  exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -p $password");
-  exec ("echo '$password\n$password' | smbpasswd -a $username");
+  //Check to see if theres already a user added
+  $existing_username = exec("cat /etc/passwd | grep 1000 | awk -F: '{print $1}'");
+  if(empty($existing_username)){
+    exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -p $password");
+    exec ("echo '$password\n$password' | smbpasswd -a $username");
 
-  exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
+    exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
+  }else{
+    exec("usermod -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$existing_username $existing_username")
+  }
 
   exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
@@ -1520,6 +1581,9 @@ if(isset($_POST['setup'])){
   $stringData = "$hdd_part    /$config_mount_target/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
   fwrite($fh, $stringData);
   fclose($fh);
+
+  //Create an internal docker network for docker internal container name resolution
+  exec("docker network create my-network");
 
   if($collect == 1){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");

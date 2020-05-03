@@ -17,6 +17,8 @@
   <ul>
   	<li>Samba Auth allow you to use nas logins instead of recreating new logins for nextcloud</li>
   	<li>Mount Home and Shares will automatically mount shares on nextcloud</li>
+  	<li>External access requires that a external domain name has been filled in under network, and that you have an a record set for cloud.DOMAIN.ext that points to your internet IP and your firewall has ports 80 and 443 forwarded to this IP</li>
+
   	<li>When Installation is complete you can access Nextcloud by visiting https://<?php echo $_SERVER['HTTP_HOST']; ?></li>
   </ul>
  
@@ -41,6 +43,13 @@
 			<div class="custom-control custom-checkbox">
 				<input type="checkbox" class="custom-control-input" name="install_apps" value="1" id="installApps">
 				<label class="custom-control-label" for="installApps">Install Groupware Apps (Talk, Calendar, Contacts, Mail)</label>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="custom-control custom-checkbox">
+				<input type="checkbox" class="custom-control-input" name="external_access" value="1" id="externalAccess">
+				<label class="custom-control-label" for="externalAccess">Enable External Access</label>
 			</div>
 		</div>
 

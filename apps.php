@@ -432,6 +432,66 @@
             </div>
           </td>
         </tr>
+
+        <tr>
+          <td class="text-center text-muted">
+            <img src="img/apps/letsencrypt.png" height="48" width="48" class="img-fluid rounded">
+            <br>
+            LetsEncrypt
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/letsencrypt")) { ?>
+            <small class="text-success"><span data-feather="check"></span>Installed</small>
+            <?php } ?>
+          </td>
+          <td>Lets Encrypt Proxy for your Apps exposed to the Internet</td>
+          <td>
+            <div class="btn-group mr-2">
+              <?php 
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/letsencrypt")) {
+              ?>
+                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:80" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="update_letsencrypt.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_letsencrypt" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <?php
+              }else{
+              ?>
+              <a href="install_letsencrypt.php" class="btn btn-outline-success">Install</a>
+              <?php  
+              }
+              ?>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="text-center text-muted">
+            <img src="img/apps/gitea.png" height="48" width="48" class="img-fluid rounded">
+            <br>
+            Gitea
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/gitea")) { ?>
+            <small class="text-success"><span data-feather="check"></span>Installed</small>
+            <?php } ?>
+          </td>
+          <td>Web UI Code Organizer / version control using using git</td>
+          <td>
+            <div class="btn-group mr-2">
+              <?php 
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/gitea")) {
+              ?>
+                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:80" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="update_gitea.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_gitea" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <?php
+              }else{
+              ?>
+              <a href="install_gitea.php" class="btn btn-outline-success">Install</a>
+              <?php  
+              }
+              ?>
+            </div>
+          </td>
+        </tr>
       
       </tbody>
     </table>

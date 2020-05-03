@@ -31,7 +31,7 @@
   ?>
 
   <div class="table-responsive">
-    <table class="table table-striped">
+    <table class="table table-striped" id="dt">
       <thead>
         <tr>
           <th>User</th>

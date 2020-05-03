@@ -112,7 +112,7 @@
 	  </div>
 	  <div class="form-group">
 	    <label>Volume Name</label>
-	    <input type="text" class="form-control" name="volume_name">
+	    <input type="text" class="form-control" name="volume_name" required>
 	  </div>
 
 	  <legend>Network Setup</legend>
@@ -155,26 +155,38 @@
 		  </div>
 	  </div>
 
-	  <legend>Setup User</legend>
+	  <?php
+	  //Check to see if theres already a user added
+	  $existing_username = exec("cat /etc/passwd | grep 1000 | awk -F: '{print $1}'");
+	  if(empty($existing_username)){
+	  ?>
 
-	  <div class="form-group">
-	    <label>Username</label>
-	    <input type="text" class="form-control" name="username">
-	  </div>
-	  
-	  <div class="form-group">
-	    <label>Password</label>
-	    <input type="password" class="form-control" name="password">
-	  </div>
+		  <legend>Setup User</legend>
 
-	  <legend>Send Statistic Data</legend>
-	  <p>This will collect a Unique Machine ID used for Unique Installs on our Webpage.</p>
-	  <div class="form-group">
-	  	<div class="custom-control custom-checkbox">
-		  <input type="checkbox" class="custom-control-input" name="collect" value="1" id="collect">
-		  <label class="custom-control-label" for="collect">Yes Collect Statistic Data</label>
-		</div>
-	  </div>
+		  <div class="form-group">
+		    <label>Username</label>
+		    <input type="text" class="form-control" name="username" required>
+		  </div>
+		  
+		  <div class="form-group">
+		    <label>Password</label>
+		    <input type="password" class="form-control" name="password" required>
+		  </div>
+
+	  <?php
+	  }
+	  ?>
+
+		  <legend>Send Statistic Data</legend>
+		  <p>This will collect a Unique Machine ID used for Unique Installs on our Webpage.</p>
+		  <div class="form-group">
+		  	<div class="custom-control custom-checkbox">
+			  <input type="checkbox" class="custom-control-input" name="collect" value="1" id="collect">
+			  <label class="custom-control-label" for="collect">Yes Collect Statistic Data</label>
+			</div>
+		  </div>
+
+
 	  
 	  <button type="submit" name="setup" class="btn btn-primary">Submit</button>
 	</form>
