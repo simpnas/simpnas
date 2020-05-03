@@ -1,4 +1,12 @@
 #!/bin/bash
+if [[ $(id -u) -ne 0 ]] ; 
+	then
+	echo "==================================================" ;
+	echo "Enter root password and then rerun install.sh" ; 
+	echo "==================================================" ;
+	su ;
+	exit 1 ; 
+fi
 echo ==================================================================================
 echo Checking For Updates...
 echo ==================================================================================
@@ -41,7 +49,7 @@ chmod 755 /etc/systemd/system/simpnas.service
 systemctl enable simpnas
 echo ==================================================================================
 echo                                  Almost There! 
-Your                     Your system will now reboot in 3 seconds!
+Your                          Your system will now reboot!
 echo  Visit http://$HOSTNAME in your web browser to complete installation after reboot
 echo ==================================================================================
 reboot
