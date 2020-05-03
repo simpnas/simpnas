@@ -1,9 +1,9 @@
 #!/bin/bash
 if [[ $(id -u) -ne 0 ]] ; 
 	then
-	echo "==================================================" ;
-	echo "Enter root password and then rerun install.sh" ; 
-	echo "==================================================" ;
+	echo "=========================================================" ;
+	echo "Enter root password and then rerun install.sh to continue" ; 
+	echo "=========================================================" ;
 	su ;
 	exit 1 ; 
 fi
@@ -47,9 +47,11 @@ echo ===========================================================================
 cp /simpnas/conf/simpnas.service /etc/systemd/system/
 chmod 755 /etc/systemd/system/simpnas.service
 systemctl enable simpnas
-echo ==================================================================================
-echo                                  Almost There! 
-Your                          Your system will now reboot!
-echo  Visit http://$HOSTNAME in your web browser to complete installation after reboot
-echo ==================================================================================
+IP="$(ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||')";
+HOSTNAME="$(hostname)";
+echo ===============================================================================================================================
+echo                                                    Almost There! 
+Your                                            Your system will now reboot!
+echo  Visit http://$IP or http://$HOSTNAME in your web browser to complete installation after reboot
+echo ===============================================================================================================================
 reboot
