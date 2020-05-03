@@ -299,7 +299,7 @@
               <?php 
                 if(file_exists("/$config_mount_target/$config_docker_volume/docker/wireguard")) {
               ?>
-                <a href="post.php?wireguard_qr&peer=1" target="_blank" class="btn btn-outline-primary"><span data-feather="smartphone"></span></a>
+                <a href="wireguard_config.php" class="btn btn-outline-primary"><span data-feather="lock"></span></a>
                 <a href="update_wireguard.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
                 <a href="post.php?uninstall_wireguard" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php

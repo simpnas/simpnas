@@ -1468,10 +1468,10 @@ if(isset($_GET['install_wireguard'])){
 }
 
 if(isset($_GET['wireguard_qr'])){
-  $peer = intval($_GET['peer']);
+  $peer = $_GET['peer'];
 
   // open the file in a binary mode
-  $name = "/$config_mount_target/$config_docker_volume/docker/wireguard/peer$peer/peer$peer.png";
+  $name = "/$config_mount_target/$config_docker_volume/docker/wireguard/$peer/$peer.png";
   $fp = fopen($name, 'rb');
 
   // send the right headers
@@ -1483,6 +1483,27 @@ if(isset($_GET['wireguard_qr'])){
   header("Content-Length: " . filesize($name));
 
   // dump the picture and stop the script
+  fpassthru($fp);
+  fclose($fp);
+  exit;
+}
+
+if(isset($_GET['wireguard_config'])){
+  $peer = $_GET['peer'];
+
+  // open the file in a binary mode
+  $name = "/$config_mount_target/$config_docker_volume/docker/wireguard/$peer/$peer.conf";
+  $fp = fopen($name, 'rb');
+
+  // send the right headers
+  // - adjust Content-Type as needed (read last 4 chars of file name)
+  // -- image/jpeg - jpg
+  // -- image/png - png
+  // -- etc.
+  header("Content-Type: application/conf");
+  header("Content-Length: " . filesize($name));
+  header('Content-Disposition: attachment; filename="VPN.conf"');
+
   fpassthru($fp);
   fclose($fp);
   exit;
