@@ -1570,7 +1570,7 @@ if(isset($_POST['setup'])){
 
     exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
   }else{
-    exec("usermod -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$existing_username $existing_username")
+    exec("usermod -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$existing_username $existing_username");
   }
 
   exec("systemctl restart smbd");
