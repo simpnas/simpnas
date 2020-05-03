@@ -52,7 +52,7 @@ if(isset($_POST['user_add'])){
       mkdir("/$config_mount_target/$config_home_volume/$config_home_dir/");
     }
    
-    exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -p $password");
+    exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -s /bin/false -p $password");
     exec ("echo '$password\n$password' | smbpasswd -a $username");
     
     if(isset($_POST['group'])){
