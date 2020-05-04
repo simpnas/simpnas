@@ -123,17 +123,22 @@
 		</select>
 	  </div>
 
-	  <div id="activeDirectoryServer">
+	  <div id="activeDirectorySettings">
 		  <div class="form-group">
-		    <label>Domain</label>
+		    <label>AD Domain</label>
 		    <input type="text" class="form-control" name="ad_domain" placeholder="ex. company.int">
 		  </div>
 		  
 		  <div class="form-group">
-		    <label>Server Hostname</label>
-		    <input type="text" class="form-control" name="ad_hostname">
+		    <label>NETBIOS Domain</label>
+		    <input type="text" class="form-control" name="ad_netbios_domain">
 		  </div>
 		  
+		  <div class="form-group">
+		    <label>Administrator Password</label>
+		    <input type="text" class="form-control" name="ad_admin_password">
+		  </div>
+
 		  <div class="form-group">
 		    <label>DNS Forwarder(s)</label>
 		    <input type="text" class="form-control" name="ad_dns_forwarders">

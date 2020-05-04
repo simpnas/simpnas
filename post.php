@@ -1523,9 +1523,8 @@ if(isset($_GET['uninstall_wireguard'])){
 if(isset($_GET['install_openvpn'])){
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/openvpn");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/openvpn/config");
 
-  exec("docker run -d --name openvpn --net=my-network --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/openvpn/config:/config -p 943:943 -p 9443:9443 -p 1194:1194/udp linuxserver/openvpn-as");
+  exec("docker run -d --name openvpn --net=my-network --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/openvpn:/config -p 943:943 -p 9443:9443 -p 1194:1194/udp linuxserver/openvpn-as");
   header("Location: apps.php");
 }
 
@@ -1550,7 +1549,8 @@ if(isset($_POST['setup'])){
 
   $server_type = $_POST['server_type'];
   $ad_domain = $_POST['ad_domain'];
-  $ad_hostname = $_POST['ad_hostname'];
+  $ad_netbios_domain = $_POST['ad_netbios_domain'];
+  $ad_admin_password = $_POST['ad_admin_password'];
   $ad_dns_forwarders = $_POST['ad_dns_forwarders'];
 
   $current_hostname = exec("hostname");
@@ -1586,28 +1586,40 @@ if(isset($_POST['setup'])){
   exec ("mount $hdd_part /$config_mount_target/$volume_name");
 
   exec ("mkdir /$config_mount_target/$volume_name/docker");
-  exec ("mkdir /$config_mount_target/$volume_name/homes");
+  exec ("mkdir /$config_mount_target/$volume_name/homes");  
+
+  if($server_type == 'AD'){
+    exec("apt -y install winbind smbclient");
+    exec("cp /simpnas/conf/krb5.conf /etc");
+    exec("sed -i 's/domain/$ad_netbios_domain/g' /etc/krb5.conf");
+    exec("sed -i 's/domain.ext/$ad_domain/g' /etc/krb5.conf");
+    exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$ad_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL"); 
+    exec("echo domain $ad_domain >> /etc/resolv.conf");
+    exec("systemctl stop smbd nmbd winbind");
+    exec("systemctl disable smbd nmbd winbind");
+    exec("systemctl unmask samba-ad-dc");
+    exec("systemctl start samba-ad-dc");
+    exec("systemctl enable samba-ad-dc");
+  }else{
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+
+  }
 
   //Check to see if theres already a user added
   $existing_username = exec("cat /etc/passwd | grep 1000 | awk -F: '{print $1}'");
   if(empty($existing_username)){
     exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -p $password");
-    exec ("echo '$password\n$password' | smbpasswd -a $username");
+    if($server_type == 'AD'){
+      exec ("echo '$password\n$password' | samba-tool user create $username");
+    }else{
+      exec ("echo '$password\n$password' | smbpasswd -a $username");
+    }
 
     exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
   }else{
     exec("usermod -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$existing_username $existing_username");
   }
-
-  if($server_type == 'AD'){
-    exec("apt -y install krb5-config winbind smbclient")
-    exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_domain --adminpass="$ad_admin_password" --server-role=dc --dns-backend=SAMBA_INTERNAL")
-    exec("echo domain $ad_domain >> /etc/resolv.conf");
-
-  }
-
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
   
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");

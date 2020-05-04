@@ -74,6 +74,23 @@ echo "\n\r".'<!-- Load time: '.number_format($totalScriptTime, 4).' seconds -->'
 		</script>
 
 		<script type="text/javascript">
+			if($("#standAlone").is(":selected")){
+					$("#activeDirectorySettings").show();
+				}else{
+					$("#activeDirectorySettings").hide();
+				}
+			$(function(){
+				$("#serverType").click(function(){
+				if($("#activeDirectory").is(":selected")){
+					$("#activeDirectorySettings").show();
+				}else{
+					$("#activeDirectorySettings").hide();
+				}
+				});
+			});
+		</script>
+
+		<script type="text/javascript">
 			$("#vpnSettings").hide();
 			$(function(){
 				$("#configVpn").click(function(){
