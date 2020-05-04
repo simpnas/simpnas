@@ -56,4 +56,5 @@ echo "                                                   Almost There!										
 echo "                                           Your system will now reboot!														 "
 echo " Visit http://$IP or http://$HOSTNAME in your web browser to complete installation after reboot								 "
 echo "==============================================================================================================================="
+/usr/bin/sleep 5
 /sbin/reboot

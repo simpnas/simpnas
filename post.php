@@ -1592,10 +1592,10 @@ if(isset($_POST['setup'])){
     exec("apt -y install winbind smbclient");
     exec("cp /simpnas/conf/krb5.conf /etc");
     exec("sed -i 's/domain/$ad_netbios_domain/g' /etc/krb5.conf");
-    exec("sed -i 's/domain.ext/$ad_domain/g' /etc/krb5.conf");
-    exec("mv /etc/samba/smb.conf /etc/samba/smb.conf");
+    exec("sed -i 's/addomain/$ad_domain/g' /etc/krb5.conf");
+    exec("rm /etc/samba/smb.conf");
     exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$ad_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL");
-    exec("echo 'include = /etc/samba/shares.conf' >> /etc/smb.conf");
+    exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
     exec("echo domain $ad_domain >> /etc/resolv.conf");
     exec("systemctl stop smbd nmbd winbind");
     exec("systemctl disable smbd nmbd winbind");
