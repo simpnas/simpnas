@@ -28,6 +28,13 @@
 	  
 	  <div class="form-group">
 	  	<div class="custom-control custom-checkbox">
+			<input type="checkbox" class="custom-control-input" id="checkAll">
+			<label class="custom-control-label" for="customCheck">Select All</label>
+		</div>
+	  </div>
+
+	  <div class="form-group">
+	  	<div class="custom-control custom-checkbox">
 			<input type="checkbox" class="custom-control-input" checked>
 			<label class="custom-control-label" for="customCheck">users</label>
 		</div>
@@ -35,11 +42,11 @@
 	  
 	  <?php foreach ($group_array as $group) { ?>
 	  <div class="form-group">
-	  <div class="custom-control custom-checkbox">
+	  	<div class="custom-control custom-checkbox">
 		  <input type="checkbox" class="custom-control-input" name="group[]" value="<?php echo "$group"; ?>" id="customCheck<?php echo $group; ?>">
 		  <label class="custom-control-label" for="customCheck<?php echo $group; ?>"><?php echo "$group"; ?></label>
 		</div>
-	</div>
+	   </div>
 	  <?php } ?>
 
 	  <button type="submit" name="user_add" class="btn btn-primary">Submit</button>

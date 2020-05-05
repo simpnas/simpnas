@@ -53,7 +53,13 @@ if(isset($_POST['user_add'])){
     }
    
     exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -s /bin/false -p $password");
-    exec ("echo '$password\n$password' | smbpasswd -a $username");
+    
+    $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+    if(empty($ad_enabled)){
+      exec ("echo '$password\n$password' | smbpasswd -a $username");
+    }else{
+      exec ("samba-tool user create $username '$password'");
+    }
     
     if(isset($_POST['group'])){
     	$group_array = $_POST['group'];
@@ -64,8 +70,8 @@ if(isset($_POST['user_add'])){
     
     exec ("chmod -R 700 /$config_mount_target/$config_home_volume/$config_home_dir/$username");
 
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
+    //exec("systemctl restart smbd");
+    //exec("systemctl restart nmbd");
 
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "User $username successfully added!";
@@ -81,7 +87,7 @@ if(isset($_POST['user_edit'])){
   if(!empty($_POST['password'])){
     $password = $_POST['password'];
     exec ("echo '$password\n$password' | passwd $username");
-    exec ("echo '$password\n$password' | smbpasswd $username");
+    exec ("echo '$password\n$password' | smbpasswd $username"); //May not be needed
   }
   if(!empty($group_array)){
     exec ("usermod -G $group_array $username");
@@ -89,8 +95,8 @@ if(isset($_POST['user_edit'])){
     exec ("usermod -G users $username");
   }
   
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+  //exec("systemctl restart smbd");
+  //exec("systemctl restart nmbd");
 
   header("Location: users.php");
 }
@@ -98,11 +104,18 @@ if(isset($_POST['user_edit'])){
 if(isset($_GET['user_delete'])){
   $username = $_GET['user_delete'];
 
-  exec("smbpasswd -x $username");
+
+  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+  if(empty($ad_enabled)){
+    exec("smbpasswd -x $username");
+  }else{
+    exec ("samba-tool user delete $username");
+  }
+  
   exec("deluser --remove-home $username");
 
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+  //exec("systemctl restart smbd");
+  //exec("systemctl restart nmbd");
 
   $_SESSION['alert_type'] = "danger";
   $_SESSION['alert_message'] = "User $username Deleted!";
@@ -192,6 +205,7 @@ if(isset($_POST['general_edit'])){
   
   exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
   exec("hostnamectl set-hostname $hostname");
+  
   exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
   $new_hostname = $exec("hostname");
@@ -201,8 +215,13 @@ if(isset($_POST['general_edit'])){
 if(isset($_GET['unmount_volume'])){
   $volume = $_GET['unmount_volume'];
   exec ("umount /$config_mount_target/$volume");
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+  
+  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+  if(empty($ad_enabled)){
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  }
+
   $_SESSION['alert_type'] = "info";
   $_SESSION['alert_message'] = "Volume $volume has been unmounted!";
   header("Location: volumes.php");
@@ -211,8 +230,13 @@ if(isset($_GET['unmount_volume'])){
 if(isset($_GET['mount_volume'])){
   $volume = $_GET['mount_volume'];
   exec ("mount /$config_mount_target/$volume");
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+  
+  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+  if(empty($ad_enabled)){
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  }
+
   $_SESSION['alert_type'] = "info";
   $_SESSION['alert_message'] = "Mounted volume $volume successfully!";
   header("Location: volumes.php");
@@ -272,8 +296,8 @@ if(isset($_GET['volume_delete'])){
     
     deleteLineInFile("/etc/fstab","$hdd");
 
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
+    //exec("systemctl restart smbd");
+    //exec("systemctl restart nmbd");
   }
   
   header("Location: volumes.php");
@@ -402,8 +426,11 @@ if(isset($_POST['share_add'])){
     fwrite($fh, $stringData);
     fclose($fh);
 
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
+    $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+    if(empty($ad_enabled)){
+      exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
+    }
   }
   header("Location: shares.php");
 }
@@ -463,8 +490,11 @@ if(isset($_POST['share_edit'])){
   fwrite($fh, $stringData);
   fclose($fh);
 
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+  if(empty($ad_enabled)){
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  }
 
   header("Location: shares.php");
 }
@@ -485,8 +515,11 @@ if(isset($_GET['share_delete'])){
 
     deleteLineInFile("/etc/samba/shares.conf","$name");
 
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
+    $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+    if(empty($ad_enabled)){
+      exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
+    }
   }
   header("Location: shares.php");
 }
@@ -669,8 +702,11 @@ if(isset($_POST['install_jellyfin'])){
     fwrite($fh, $stringData);
     fclose($fh);
     
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
+    $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+    if(empty($ad_enabled)){
+      exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
+    }
 
   }
 
@@ -711,8 +747,11 @@ if(isset($_GET['uninstall_jellyfin'])){
   exec ("rm -f /etc/samba/shares/media");
   deleteLineInFile("/etc/samba/shares.conf","media");
   //restart samba
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+  if(empty($ad_enabled)){
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  }
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -749,8 +788,11 @@ if(isset($_POST['install_airsonic'])){
       fwrite($fh, $stringData);
       fclose($fh);
       
-      exec("systemctl restart smbd");
-      exec("systemctl restart nmbd");
+      $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+      if(empty($ad_enabled)){
+        exec("systemctl restart smbd");
+        exec("systemctl restart nmbd");
+      }
 
     }
     
@@ -790,8 +832,11 @@ if(isset($_POST['install_lychee'])){
   fwrite($fh, $stringData);
   fclose($fh);
     
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");     
+  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+  if(empty($ad_enabled)){
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  }     
 
   exec("docker run -d --name lychee --net=my-network -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
   
@@ -830,8 +875,11 @@ if(isset($_GET['uninstall_lychee'])){
   exec ("rm -f /etc/samba/shares/photos");
   deleteLineInFile("/etc/samba/shares.conf","photos");
   //restart samba
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+  if(empty($ad_enabled)){
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  }
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1118,20 +1166,6 @@ if(isset($_GET['uninstall_gitea'])){
   header("Location: apps.php");
 }
 
-if(isset($_GET['update_bitwarden'])){
-
-  exec("docker pull bitwardenrs/server:latest");
-  exec("docker stop bitwarden");
-  exec("docker rm bitwarden");
-
-  exec("docker run -d --name bitwarden -v /$config_mount_target/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
-
-  exec("docker image prune");
-  
-  header("Location: apps.php");
-
-}
-
 if(isset($_GET['install_syncthing'])){
   mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/");
   mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/config");
@@ -1232,8 +1266,11 @@ if(isset($_POST['install_unifi-video'])){
     fwrite($fh, $stringData);
     fclose($fh);
     
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
+    $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+    if(empty($ad_enabled)){
+      exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
+    }
 
   }
   
@@ -1275,8 +1312,11 @@ if(isset($_GET['uninstall_unifi-video'])){
   exec ("rm -f /etc/samba/shares/video-surveillance");
   deleteLineInFile("/etc/samba/shares.conf","video-surveillance");
   //restart samba
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+  if(empty($ad_enabled)){
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  }
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1336,8 +1376,11 @@ if(isset($_POST['install_transmission'])){
   fwrite($fh, $stringData);
   fclose($fh);
     
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+  if(empty($ad_enabled)){
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  }
 
   if($enable_vpn == 1){
     exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG='$vpn_server' -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /$config_mount_target/$config_docker_volume/docker/transmission:/data/transmission-home -v /$config_mount_target/$volume/downloads/completed:/data/completed -v /$config_mount_target/$volume/downloads/incomplete:/data/incomplete -v /$config_mount_target/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn:latest$cpu_arch");
@@ -1406,8 +1449,11 @@ if(isset($_GET['uninstall_transmission'])){
   exec ("rm -f /etc/samba/shares/downloads");
   deleteLineInFile("/etc/samba/shares.conf","downloads");
   //restart samba
-  exec("systemctl restart smbd");
-  exec("systemctl restart nmbd");
+  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked")
+  if(empty($ad_enabled)){
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  }
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1591,8 +1637,8 @@ if(isset($_POST['setup'])){
   if($server_type == 'AD'){
     exec("apt -y install winbind smbclient");
     exec("cp /simpnas/conf/krb5.conf /etc");
-    exec("sed -i 's/domain/$ad_netbios_domain/g' /etc/krb5.conf");
-    exec("sed -i 's/addomain/$ad_domain/g' /etc/krb5.conf");
+    exec("sed -i 's/NETBIOS/$ad_netbios_domain/g' /etc/krb5.conf");
+    exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
     exec("rm /etc/samba/smb.conf");
     exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$ad_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL");
     exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
@@ -1613,7 +1659,7 @@ if(isset($_POST['setup'])){
   if(empty($existing_username)){
     exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -p $password");
     if($server_type == 'AD'){
-      exec ("echo '$password\n$password' | samba-tool user create $username");
+      exec ("samba-tool user create $username $password");
     }else{
       exec ("echo '$password\n$password' | smbpasswd -a $username");
     }

@@ -43,6 +43,22 @@ echo "\n\r".'<!-- Load time: '.number_format($totalScriptTime, 4).' seconds -->'
 
 		</script>
 
+		<script>
+
+		jQuery("#checkAll").click(function() {
+
+		  jQuery(':checkbox').each(function() {
+		    if(this.checked == true) {
+		      this.checked = false;                        
+		    } else {
+		      this.checked = true;                        
+		    }      
+		  });
+
+		});
+
+		</script>
+
 		<script type="text/javascript">
 			$("#passwordbox").hide();
 			$(function(){
