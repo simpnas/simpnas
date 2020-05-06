@@ -137,10 +137,13 @@
             Transmssion
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission")) { ?>
-            <small class="text-success"><span data-feather="check"></span>Installed VPN IP <?php exec("docker exec -ti transmission curl ifconfig.co",$vpn_ip); print_r($vpn_ip); ?></small>
+            <small class="text-success"><span data-feather="check"></span>Installed</small>
             <?php } ?>
           </td>
-          <td>Torrent downloads has VPN support to hide your IP when you download (Requires a VPN Provider like PIA)</td>
+          <td>
+            <p>Torrent downloads has VPN support to hide your IP when you download (Requires a VPN Provider like PIA)</p>
+            <p class="text-secondary">VPN IP: <strong><?php $vpn_ip = exec("docker exec -i transmission curl ifconfig.co"); echo $vpn_ip; ?></strong></p>
+          </td>
           <td>
             <div class="btn-group mr-2">
               <?php 

@@ -1635,7 +1635,7 @@ if(isset($_POST['setup'])){
   exec ("mkdir /$config_mount_target/$volume_name/homes");  
 
   if($server_type == 'AD'){
-    exec("apt -y install winbind smbclient");
+    exec("apt -y install krb5-user winbind libpam-winbind libnss-winbind smbclient");
     exec("cp /simpnas/conf/krb5.conf /etc");
     exec("sed -i 's/NETBIOS/$ad_netbios_domain/g' /etc/krb5.conf");
     exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
