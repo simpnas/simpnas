@@ -91,9 +91,9 @@ echo "\n\r".'<!-- Load time: '.number_format($totalScriptTime, 4).' seconds -->'
 
 		<script type="text/javascript">
 			if($("#standAlone").is(":selected")){
-					$("#activeDirectorySettings").show();
-				}else{
 					$("#activeDirectorySettings").hide();
+				}else{
+					$("#activeDirectorySettings").show();
 				}
 			$(function(){
 				$("#serverType").click(function(){

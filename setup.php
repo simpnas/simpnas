@@ -119,7 +119,7 @@
 		<label>File Server Type</label>
 		<select class="form-control" name="server_type" id="serverType">
 			<option id="standAlone" value="standalone">Standalone File Server</option>
-			<option id="activeDirectory" value="AD">Active Directory</option>
+			<option id="activeDirectory" value="AD">Active Directory (Work In Progress)</option>
 		</select>
 	  </div>
 
