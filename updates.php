@@ -4,11 +4,11 @@
   include("side_nav.php");
 
   if($_GET['check']){
-    $exec("apt update");
+    exec("apt update");
   }
 
   if($_GET['upgrade']){
-    $exec("apt upgrade -y");
+    exec("apt upgrade -y");
   }
 
 ?>
@@ -17,8 +17,8 @@
 
    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
     <h2>Updates</h2>
-    <a href="updates.php?check" class="btn btn-outline-primary">Check For OS Updates</a>
-    <a href="post.php?upgrade" class="btn btn-outline-secondary">Upgrade OS Packages</a>
+    <a href="?check" class="btn btn-outline-primary">Check For OS Updates</a>
+    <a href="?upgrade" class="btn btn-outline-secondary">Upgrade OS Packages</a>
     <a href="post.php?upgrade_simpnas_overwrite_local_changes" class="btn btn-outline-secondary">Upgrade SimpNAS</a>
   </div>
 

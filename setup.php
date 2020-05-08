@@ -6,7 +6,7 @@
 
 	include("functions.php");
 	$os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
-	exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth", $net_devices_array);
+	exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v br-", $net_devices_array);
 
 ?>
 

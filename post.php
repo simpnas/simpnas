@@ -1693,8 +1693,9 @@ if(isset($_POST['setup'])){
     $stringData = "[Match]\nName=$interface\n\n[Network]\nDHCP=ipv4\n";
     fwrite($fh, $stringData);
     fclose($fh);
-    exec("sleep 1; systemctl restart systemd-networkd > /dev/null &");
-    echo "<script>window.location = 'http://$new_hostname/dashboard.php'</script>";
+    //exec("sleep 1; systemctl restart systemd-networkd > /dev/null &");
+    //exec("systemctl restart systemd-networkd");
+    //echo "<script>window.location = 'http://$new_hostname/dashboard.php'</script>";
   }
   
   if($method == 'Static'){
@@ -1704,64 +1705,10 @@ if(isset($_POST['setup'])){
     fwrite($fh, $stringData);
     fclose($fh);
     $new_ip = substr($address, 0, strpos($address, "/"));
-    exec("systemctl restart systemd-networkd > /dev/null &");
-    echo "<script>window.location = 'http://$new_ip/dashboard.php'</script>";
+    //exec("systemctl restart systemd-networkd > /dev/null &");
+    //echo "<script>window.location = 'http://$new_ip/dashboard.php'</script>";
   }
-
-}
-
-if(isset($_GET['reset'])){
-  //Stop Samba
-  exec("systemctl stop smbd");
-  exec("systemctl stop nmbd");
-
-  //Remove and stop all Dockers and docker images
-  exec ("docker stop $(docker ps -aq)");
-  exec ("docker rm $(docker ps -aq)");
-  exec ("docker rmi $(docker images -q)");
-  
-  //Remove all created groups
-  exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
-  foreach ($group_array as $group) {
-    exec("delgroup $group");
-  }
-
-  //Remove all created users
-  exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);
-  foreach ($username_array as $username) {
-    exec("smbpasswd -x $username");
-    exec("deluser --remove-home $username");
-  }
-
-  //Remove all Volumes and remove from fstab.conf to prevent automounting on boot
-  exec("ls /$config_mount_target", $volume_array);
-  foreach ($volume_array as $volume) {
-    exec("rm -rf /$config_mount_target/$volume/*");
-    exec ("umount /$config_mount_target/$volume");
-    deleteLineInFile("/etc/fstab","$volume");
-  }
-  exec("rm -rf /$config_mount_target/*");
-
-  //Wipe Each Disk
-  exec("smartctl --scan | awk '{ print $1 '}", $drive_list);
-  foreach ($drive_list as $disk) {
-    exec("wipefs -a $disk");
-  }
-
-  //Remove any backup cron scripts
-  exec ("rm -f /etc/cron.*/backup*");
-
-  //Remove Samba conf and replace it with the default
-  exec ("rm -f /etc/samba/smb.conf");
-  exec ("rm -f /etc/samba/shares.conf");
-  exec ("rm -f /etc/samba/shares/*");
-  exec ("cp /simpnas/conf/smb.conf /etc/samba/");
-  exec ("touch /etc/samba/shares.conf");
-  exec ("rm -f /simpnas/config.php");
-
-  exec("reboot");
-
-  echo "<script>window.location = 'dashboard.php'</script>";
+  header("Location: reboot.php");
 }
 
 ?>

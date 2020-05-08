@@ -1,15 +1,15 @@
 <?php 
     include("config.php");
     include("header.php");
-    include("side_nav.php");
-    exec("sleep 1; reboot > /dev/null &");
+    //include("side_nav.php");
+    //exec("sleep 1; reboot > /dev/null &");
 ?>
 
- <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+ <main class="col-md-12 pt-5">
 
 <center>
 	<h1 class="text-danger">Rebooting!</h1>
-	<h3>Redirecting to home after <span id="countdown">25</span> seconds</h3>
+	<h3>Redirecting to the Dashboard after <span id="countdown">25</span> seconds</h3>
 </center>
 
 </main>
@@ -26,7 +26,7 @@
         seconds = seconds - 1;
         if (seconds < 0) {
             // Chnage your redirection link here
-            window.location = "index.php";
+            window.location = "dashboard.php";
         } else {
             // Update remaining seconds
             document.getElementById("countdown").innerHTML = seconds;
@@ -41,3 +41,10 @@
 </script>
 
 <?php include("footer.php"); ?>
+
+<?php 
+
+    //exec("sleep 1; reboot > /dev/null &");
+    exec("shutdown -r");
+
+?>

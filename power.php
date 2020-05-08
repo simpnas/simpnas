@@ -23,9 +23,9 @@
     }
 
   ?>
-	<a href="post.php?shutdown" class="btn btn-lg btn-outline-danger">Shutdown</a>
+	<a href="shutdown.php" class="btn btn-lg btn-outline-danger">Shutdown</a>
 	<a href="reboot.php" class="btn btn-lg btn-outline-secondary">Reboot</a>
-	<a href="post.php?reset" class="btn btn-lg btn-danger">DESTROY!</a>
+	<a href="reset.php" class="btn btn-lg btn-danger">Reset to Factory Defaults</a>
 </main>
 
 <?php include("footer.php"); ?>
