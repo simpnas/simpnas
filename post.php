@@ -1029,7 +1029,7 @@ if(isset($_GET['uninstall_nextcloud'])){
 if(isset($_POST['configure_external_access'])){
 
   $domain = $_POST['domain'];
-  $sub_domains_array = $_POST['sub_domains[]'];
+  $sub_domains_array = $_POST['sub_domains'];
   
   $sub_domains = implode(',', $sub_domains_array);
 
@@ -1037,19 +1037,22 @@ if(isset($_POST['configure_external_access'])){
 
   exec("docker run -d --name letsencrypt --net=my-network --cap-add=NET_ADMIN -p 443:443 -p 80:80 --restart=unless-stopped -e URL='$domain' -e SUBDOMAINS='$sub_domains' -e VALIDATION=http -v /$config_mount_target/$config_docker_volume/docker/letsencrypt:/config linuxserver/letsencrypt");
 
-  //exec("sleep 5");
+  exec("sleep 15");
+
+  print_r($sub_domains_array);
 
   foreach($sub_domains_array as $sub_domain){
-    exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$sub_domain.subdomain.conf.sample cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$sub_domain.subdomain.conf");
-    if($sub_domain == 'nextcloud'){
-      exec("sed -i 's/server_name nextcloud./server_name cloud./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/nextcloud.subdomain.conf");
-    }
-    if($sub_domain == 'dokuwiki'){
-      exec("sed -i 's/server_name dokuwiki./server_name wiki./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/dokuwiki.subdomain.conf");
-    }
-    if($sub_domain == 'gitea'){
-      exec("sed -i 's/server_name gitea./server_name git./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/gitea.subdomain.conf");
-    }
+    exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$sub_domain.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$sub_domain.subdomain.conf");
+
+    //if($sub_domain == 'nextcloud'){
+    //  exec("sed -i 's/server_name nextcloud./server_name cloud./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/nextcloud.subdomain.conf");
+    //}
+    //if($sub_domain == 'dokuwiki'){
+      //exec("sed -i 's/server_name dokuwiki./server_name wiki./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/dokuwiki.subdomain.conf");
+    //}
+    //if($sub_domain == 'gitea'){
+      //exec("sed -i 's/server_name gitea./server_name git./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/gitea.subdomain.conf");
+    //}
   }
 
   header("Location: apps.php");
@@ -1070,7 +1073,7 @@ if(isset($_GET['install_dokuwiki'])){
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/");
 
-  exec("docker run -d --name dokuwiki -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki:/config linuxserver/dokuwiki");
+  exec("docker run -d --name dokuwiki --net=my-network -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki:/config linuxserver/dokuwiki");
   
   header("Location: apps.php");
 }
@@ -1193,7 +1196,7 @@ if(isset($_GET['install_syncthing'])){
 if(isset($_GET['install_home-assistant'])){
   mkdir("/$config_mount_target/$config_docker_volume/docker/homeassistant");
 
-  exec("docker run -d --name homeassistant --net=host --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
+  exec("docker run -d --name homeassistant --net=host --net=my-network --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
   header("Location: apps.php");
 }
 
@@ -1213,8 +1216,8 @@ if(isset($_GET['update_home-assistant'])){
 
 if(isset($_GET['uninstall_home-assistant'])){
   //stop and delete docker container
-  exec("docker stop home-assistant");
-  exec("docker rm home-assistant");
+  exec("docker stop homeassistant");
+  exec("docker rm homeassistant");
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/homeassistant");

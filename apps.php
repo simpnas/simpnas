@@ -168,7 +168,7 @@
             <br>
             Unifi Controller
             <br>
-            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi")) { ?>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi-controller")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
             <?php } ?>
           </td>
@@ -176,7 +176,7 @@
           <td>
             <div class="btn-group mr-2">
               <?php 
-                if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi")) {
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/unifi-controller")) {
               ?>
                 <a href="https://<?php echo $_SERVER['HTTP_HOST']; ?>:8443" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
                 <a href="update_unifi.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
@@ -230,7 +230,7 @@
             <br>
             Home Assistant
             <br>
-            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/home-assistant")) { ?>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/homeassistant")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
             <?php } ?>
           </td>
@@ -240,7 +240,7 @@
           <td>
             <div class="btn-group mr-2">
               <?php 
-                if(file_exists("/$config_mount_target/$config_docker_volume/docker/home-assistant")) {
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/homeassistant")) {
               ?>
                 <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:8123" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
                 <a href="update_home-assistant.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
