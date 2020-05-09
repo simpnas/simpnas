@@ -32,6 +32,7 @@
 	  <legend>Select apps you would like to configure External Access for</legend>
 	  <?php 
 	  foreach($app_sub_domains_array as $app_sub_domain){
+	  	if($app_sub)
 	  ?>
 		<div class="form-group form-check">
 		    <input type="checkbox" class="form-check-input" name="sub_domains[]" value="<?php echo $app_sub_domain; ?>">

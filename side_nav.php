@@ -87,6 +87,13 @@
           Network
         </a>
       </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="mail_settings.php">
+          <span data-feather="mail"></span>
+          Mail (SMTP)
+        </a>
+      </li>
       
       <li class="nav-item">
         <a class="nav-link" href="datetime.php">
