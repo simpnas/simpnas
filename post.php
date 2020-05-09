@@ -1026,14 +1026,31 @@ if(isset($_GET['uninstall_nextcloud'])){
 
 }
 
-if(isset($_POST['install_letsencrypt'])){
+if(isset($_POST['configure_external_access'])){
 
   $domain = $_POST['domain'];
-  $sub_domains = $_POST['sub_domains'];
+  $sub_domains_array = $_POST['sub_domains[]'];
+  
+  $sub_domains = implode(',', $sub_domains_array);
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/letsencrypt");
 
   exec("docker run -d --name letsencrypt --net=my-network --cap-add=NET_ADMIN -p 443:443 -p 80:80 --restart=unless-stopped -e URL='$domain' -e SUBDOMAINS='$sub_domains' -e VALIDATION=http -v /$config_mount_target/$config_docker_volume/docker/letsencrypt:/config linuxserver/letsencrypt");
+
+  //exec("sleep 5");
+
+  foreach($sub_domains_array as $sub_domain){
+    exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$sub_domain.subdomain.conf.sample cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$sub_domain.subdomain.conf");
+    if($sub_domain == 'nextcloud'){
+      exec("sed -i 's/server_name nextcloud./server_name cloud./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/nextcloud.subdomain.conf");
+    }
+    if($sub_domain == 'dokuwiki'){
+      exec("sed -i 's/server_name dokuwiki./server_name wiki./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/dokuwiki.subdomain.conf");
+    }
+    if($sub_domain == 'gitea'){
+      exec("sed -i 's/server_name gitea./server_name git./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/gitea.subdomain.conf");
+    }
+  }
 
   header("Location: apps.php");
 }
@@ -1052,9 +1069,8 @@ if(isset($_GET['uninstall_letsencrypt'])){
 if(isset($_GET['install_dokuwiki'])){
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/config");
 
-  exec("docker run -d --name dokuwiki -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki/config:/config linuxserver/dokuwiki");
+  exec("docker run -d --name dokuwiki -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki:/config linuxserver/dokuwiki");
   
   header("Location: apps.php");
 }
@@ -1175,9 +1191,9 @@ if(isset($_GET['install_syncthing'])){
 }
 
 if(isset($_GET['install_home-assistant'])){
-  mkdir("/$config_mount_target/$config_docker_volume/docker/home-assistant");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/homeassistant");
 
-  exec("docker run -d --name home-assistant --net=host --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/home-assistant:/config homeassistant/home-assistant:stable");
+  exec("docker run -d --name homeassistant --net=host --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
   header("Location: apps.php");
 }
 
@@ -1187,7 +1203,7 @@ if(isset($_GET['update_home-assistant'])){
   exec("docker stop home-assistant");
   exec("docker rm home-assistant");
 
-  exec("docker run -d --name home-assistant --net=host --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/home-assistant:/config homeassistant/home-assistant:stable");
+  exec("docker run -d --name homeassistant --net=host --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/home-assistant:/config homeassistant/home-assistant:stable");
 
   exec("docker image prune");
   
@@ -1201,15 +1217,15 @@ if(isset($_GET['uninstall_home-assistant'])){
   exec("docker rm home-assistant");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/home-assistant");
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/homeassistant");
   //redirect back to packages
   header("Location: apps.php");
 }
 
 if(isset($_GET['install_unifi'])){
-  mkdir("/$config_mount_target/$config_docker_volume/docker/unifi/");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/unifi-controller/");
 
-  exec("docker run -d --name unifi --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi:/config linuxserver/unifi-controller");
+  exec("docker run -d --name unifi-controller --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi-controller:/config linuxserver/unifi-controller");
   header("Location: apps.php");
 }
 

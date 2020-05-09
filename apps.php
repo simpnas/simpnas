@@ -258,36 +258,6 @@
         
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/wireguard.png" height="48" width="48" class="img-fluid rounded">
-            <br>
-            Double Commander
-            <br>
-            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/doublecommander")) { ?>
-            <small class="text-success"><span data-feather="check"></span>Installed</small>
-            <?php } ?>
-          </td>
-          <td>Web Based File Manager</td>
-          <td>
-            <div class="btn-group mr-2">
-              <?php 
-                if(file_exists("/$config_mount_target/$config_docker_volume/docker/doublecommander")) {
-              ?>
-                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:3000" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_doublecommander.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
-                <a href="post.php?uninstall_doublecommander" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
-              <?php
-              }else{
-              ?>
-              <a href="post.php?install_doublecommander" class="btn btn-outline-success">Install</a>
-              <?php  
-              }
-              ?>
-            </div>
-          </td>
-        </tr>
-        
-        <tr>
-          <td class="text-center text-muted">
             <img src="img/apps/wireguard.jpg" height="48" width="48" class="img-fluid rounded">
             <br>
             WireGuard VPN Server
@@ -440,25 +410,25 @@
           <td class="text-center text-muted">
             <img src="img/apps/letsencrypt.png" height="48" width="48" class="img-fluid rounded">
             <br>
-            LetsEncrypt
+            External Access
             <br>
             <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/letsencrypt")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
             <?php } ?>
           </td>
-          <td>Lets Encrypt Proxy for your Apps exposed to the Internet</td>
+          <td>Configures External Access for your APPs with Letsencrypt Certificates</td>
           <td>
             <div class="btn-group mr-2">
               <?php 
                 if(file_exists("/$config_mount_target/$config_docker_volume/docker/letsencrypt")) {
               ?>
-                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:80" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="configure_external_access.php" class="btn btn-outline-secondary"><span data-feather="settings"></span></a>
                 <a href="update_letsencrypt.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
                 <a href="post.php?uninstall_letsencrypt" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
               }else{
               ?>
-              <a href="install_letsencrypt.php" class="btn btn-outline-success">Install</a>
+              <a href="configure_external_access.php" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
@@ -488,7 +458,7 @@
               <?php
               }else{
               ?>
-              <a href="install_gitea.php" class="btn btn-outline-success">Install</a>
+              <a href="post.php?install_gitea" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
