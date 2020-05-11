@@ -375,7 +375,7 @@ if(isset($_POST['share_add'])){
   //Checks
   exec("ls /etc/samba/shares",$existing_shares_array);
   exec("find /$config_mount_target/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
-  $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "homes");
+  $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "users");
   $mounted = exec("df | grep $volume");
   
   if(in_array($name, $existing_shares_array)){
@@ -386,7 +386,7 @@ if(isset($_POST['share_add'])){
     $_SESSION['alert_message'] = "Directory $name already exists can not add share with the name $name, would you like to share the existing directory instead (Note this will update the permissions to user root with RWX and group to RWX and everyone else to --- or would you like to delete the directory and its contents and create a new directory!";
   }elseif(in_array($name, $docker_shares_array)){
     $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not create the share $name as it shares the same share name as an app. The followng share names are forbiddon media, downloads, video-surveillance, docker and homes!";
+    $_SESSION['alert_message'] = "Can not create the share $name as it shares the same share name as an app. The followng share names are forbiddon media, downloads, video-surveillance, docker and users!";
   }elseif(empty($mounted)){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not create the share $name because the volume $volume is not mounted";
@@ -443,7 +443,7 @@ if(isset($_POST['share_edit'])){
     //Name Checks
     exec("ls /etc/samba/shares",$existing_shares_array);
     exec("find /$config_mount_target/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
-    $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "homes");
+    $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "users");
     
     if(in_array($name, $existing_shares_array)){
       $_SESSION['alert_type'] = "warning";
@@ -453,7 +453,7 @@ if(isset($_POST['share_edit'])){
       $_SESSION['alert_message'] = "Directory $name already exists can not rename share $current_name to $name!";
     }elseif(in_array($name, $docker_shares_array)){
       $_SESSION['alert_type'] = "warning";
-      $_SESSION['alert_message'] = "Can not rename share $current_name to $name the share $name shares the same share name as an app. The followng share names are forbiddon media, downloads, video-surveillance, docker and homes!";
+      $_SESSION['alert_message'] = "Can not rename share $current_name to $name the share $name shares the same share name as an app. The followng share names are forbiddon media, downloads, video-surveillance, docker and users!";
     }else{
       exec("mv $current_share_path $share_path");
       exec("mv /etc/samba/shares/$current_name /etc/samba/shares/$name");
@@ -493,7 +493,7 @@ if(isset($_POST['share_edit'])){
 if(isset($_GET['share_delete'])){
   $name = $_GET['share_delete'];
 
-  $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "homes");
+  $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "users");
   if(in_array($name, $docker_shares_array)){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not delete the share $name as it shares the same share name as an app thats using it. The followng share names are forbiddon to delete media, downloads, video-surveillance. These can be deleted by deleting the app that is associated with it.";
@@ -1642,13 +1642,14 @@ if(isset($_POST['setup'])){
 
   //$txt = "<?php\n\n\$config_mount_target = 'mnt';\n\$config_docker_volume = \"$volume_name\";\n\$config_home_volume = \"$volume_name\";\n\$config_home_dir = 'homes';\n\n"
 
-  $data = "<?php\n\nreturn_array (\n'mount_target' => 'mnt',\n'docker_volume' => '\"$volume_name\"',\n'home_volume' => '\"$volume_name\"',\n'home_dir' => 'homes',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n);\n?>";
+  $data = "<?php\n\nreturn_array (\n'mount_target' => 'mnt',\n'docker_volume' => '\"$volume_name\"',\n'home_volume' => '\"$volume_name\"',\n'home_dir' => 'users',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n);\n?>";
 
   fwrite($file, $data);
 
   fclose($file);
 
-  include("config.php");
+  $config = include("config.php");
+  include("simple_vars.php");
   
   exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
   exec("hostnamectl set-hostname $hostname");
@@ -1661,7 +1662,7 @@ if(isset($_POST['setup'])){
   exec ("mount $hdd_part /$config_mount_target/$volume_name");
 
   exec ("mkdir /$config_mount_target/$volume_name/docker");
-  exec ("mkdir /$config_mount_target/$volume_name/homes");  
+  exec ("mkdir /$config_mount_target/$volume_name/users");  
 
   if($server_type == 'AD'){
     exec("ENV DEBIAN_FRONTEND noninteractive");
