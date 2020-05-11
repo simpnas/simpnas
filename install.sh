@@ -7,7 +7,6 @@ if [[ $(id -u) -ne 0 ]] ;
 	su ;
 	exit 1 ; 
 fi
-ENV DEBIAN_FRONTEND noninteractive
 echo "=================================================================================="
 echo "Checking For Updates..."
 echo "=================================================================================="
@@ -15,12 +14,12 @@ apt update
 echo "=================================================================================="
 echo "Installing Updates..."
 echo "=================================================================================="
-apt dist-upgrade -y
+DEBIAN_FRONTEND=noninteractive \apt dist-upgrade -y
 echo "=================================================================================="
 echo "Installing Additional Required Packages..."
 echo "Samba, PHP, SMARTmonTools, Rsync, mdadm (RAID) etc"
 echo "=================================================================================="
-apt install samba smartmontools rsync php-cgi cryptsetup git mdadm apt-transport-https curl gnupg-agent software-properties-common quota -y
+DEBIAN_FRONTEND=noninteractive \apt install samba smartmontools rsync php-cgi cryptsetup git mdadm apt-transport-https curl gnupg-agent software-properties-common quota -y
 echo "================================================================================="
 echo "Install Docker Repo and latest docker"
 echo "================================================================================="
@@ -57,5 +56,4 @@ echo "                                                   Almost There!										
 echo "                                           Your system will now reboot!														 "
 echo " Visit http://$IP or http://$HOSTNAME in your web browser to complete installation after reboot								 "
 echo "==============================================================================================================================="
-/usr/bin/sleep 15
 /sbin/reboot

@@ -47,9 +47,9 @@ if(isset($_POST['user_add'])){
     
     $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
     if(empty($ad_enabled)){
-      exec ("echo '$password\n$password' | smbpasswd -a $username");
-    }else{
       exec ("samba-tool user create $username '$password'");
+    }else{
+      exec ("echo '$password\n$password' | smbpasswd -a $username");
     }
     
     if(isset($_POST['group'])){
@@ -67,7 +67,7 @@ if(isset($_POST['user_add'])){
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "User $username successfully added!";
   }
-  header("Location: users.php");
+  //header("Location: users.php");
 }
 
 if(isset($_POST['user_edit'])){
@@ -1665,8 +1665,7 @@ if(isset($_POST['setup'])){
   exec ("mkdir /$config_mount_target/$volume_name/users");  
 
   if($server_type == 'AD'){
-    exec("ENV DEBIAN_FRONTEND noninteractive");
-    exec("apt -y install krb5-user winbind libpam-winbind libnss-winbind smbclient");
+    exec("DEBIAN_FRONTEND=noninteractive \apt -y install krb5-user winbind libpam-winbind libnss-winbind smbclient");
     exec("cp /simpnas/conf/krb5.conf /etc");
     exec("sed -i 's/NETBIOS/$ad_netbios_domain/g' /etc/krb5.conf");
     exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
@@ -1688,7 +1687,7 @@ if(isset($_POST['setup'])){
   //Check to see if theres already a user added
   $existing_username = exec("cat /etc/passwd | grep 1000 | awk -F: '{print $1}'");
   if(empty($existing_username)){
-    exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -p $password");
+    exec ("useradd -g users -m -d /$config_mount_target/$volume_name/$config_home_dir/$username $username -p $password");
     if($server_type == 'AD'){
       exec ("samba-tool user create $username $password");
     }else{
@@ -1697,7 +1696,7 @@ if(isset($_POST['setup'])){
 
     exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
   }else{
-    exec("usermod -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$existing_username $existing_username");
+    exec("usermod -m -d /$config_mount_target/$volume_name/$config_home_dir/$existing_username $existing_username");
   }
   
   $myFile = "/etc/fstab";
