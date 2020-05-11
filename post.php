@@ -1636,20 +1636,20 @@ if(isset($_POST['setup'])){
 
   $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
+  $config_mount_target = "mnt";
+  $config_home_dir = "users";
+
   //Create config.php file
   
   $file = fopen("config.php", "w");
 
   //$txt = "<?php\n\n\$config_mount_target = 'mnt';\n\$config_docker_volume = \"$volume_name\";\n\$config_home_volume = \"$volume_name\";\n\$config_home_dir = 'homes';\n\n"
 
-  $data = "<?php\n\nreturn_array (\n'mount_target' => 'mnt',\n'docker_volume' => '\"$volume_name\"',\n'home_volume' => '\"$volume_name\"',\n'home_dir' => 'users',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n);\n?>";
+  $data = "<?php\nreturn array(\n'mount_target' => '$config_mount_target',\n'docker_volume' => '$volume_name',\n'home_volume' => '$volume_name',\n'home_dir' => '$config_home_dir',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n);\n?>";
 
   fwrite($file, $data);
 
   fclose($file);
-
-  $config = include("config.php");
-  include("simple_vars.php");
   
   exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
   exec("hostnamectl set-hostname $hostname");
