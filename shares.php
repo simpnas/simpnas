@@ -1,5 +1,6 @@
 <?php 
-  include("config.php");
+  $config = include("config.php");
+  include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
   exec("awk -F: '$3 > 999 {print $1}' /etc/passwd", $username_array);

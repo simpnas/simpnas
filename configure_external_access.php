@@ -1,5 +1,6 @@
 <?php 
-    include("config.php");
+    $config = include("config.php");
+  	include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
     exec("ls /$config_mount_target/$config_docker_volume/docker | grep -v mariadb", $app_sub_domains_array);
@@ -32,11 +33,10 @@
 	  <legend>Select apps you would like to configure External Access for</legend>
 	  <?php 
 	  foreach($app_sub_domains_array as $app_sub_domain){
-	  	if($app_sub)
 	  ?>
 		<div class="form-group form-check">
-		    <input type="checkbox" class="form-check-input" name="sub_domains[]" value="<?php echo $app_sub_domain; ?>">
-		    <label class="form-check-label"><?php echo $app_sub_domain; ?></label>
+	    <input type="checkbox" class="form-check-input" name="sub_domains[]" value="<?php echo $app_sub_domain; ?>">
+	    <label class="form-check-label"><?php echo $app_sub_domain; ?></label>
 		</div>
 	  
 	  <?php

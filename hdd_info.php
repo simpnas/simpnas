@@ -1,5 +1,6 @@
 <?php 
-    include("config.php");
+    $config = include("config.php");
+    include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
 
@@ -23,11 +24,11 @@
 <h2>Disk <?php echo $hdd; ?> Info</h2>
 <?php
 
-  $cmd = "smartctl -a /dev/$hdd";
+  $hdd_info = shell_exec("smartctl -i /dev/$hdd | grep -v 'smartctl' | grep -v 'Copyright' | grep -v '=== START'");
+  $hdd_attributes = shell_exec("smartctl -A /dev/$hdd | grep -v 'smartctl' | grep -v 'Copyright' | grep -v '=== START' | grep -v 'revision number' | grep -v 'Vendor Specific SMART'");
 
-  $output = shell_exec($cmd);
-
-  echo "<pre>$output</pre>";
+  echo "<pre>$hdd_info</pre>";
+  echo "<pre>$hdd_attributes</pre>";
 
 ?>
 

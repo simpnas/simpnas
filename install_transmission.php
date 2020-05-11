@@ -1,5 +1,6 @@
 <?php 
-    include("config.php");
+    $config = include("config.php");
+  	include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
 ?>
@@ -43,12 +44,12 @@
 
 	  </select>
 	  </div>
-	  <div class="form-group">
-	  	<div class="custom-control custom-checkbox">
-		  <input type="checkbox" class="custom-control-input" name="enable_vpn" value="1" id="configVpn">
-		  <label class="custom-control-label" for="configVpn">Configure VPN</label>
-		</div>
+	 
+	  <div class="form-group form-check">
+	    <input type="checkbox" class="form-check-input" name="enable_vpn" value="1" id="configVpn">
+	    <label class="form-check-label ml-1">Configure VPN</label>
 	  </div>
+
 	  <div id="vpnSettings">		  
 		  <div class="form-group">
 		    <label>VPN Provider <strong class="text-danger">*</strong></label>

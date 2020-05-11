@@ -1,6 +1,7 @@
 <?php 
-    
-    include("config.php");
+
+    $config = include("config.php");
+    include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
     exec("smartctl --scan | awk '{print $1}'", $drive_list);
@@ -69,6 +70,11 @@
       $hdd_power_on_days = floor($hdd_power_on_days);
       $hdd_power_on_days = "$hdd_power_on_days Days";
       $hdd_health = exec("smartctl -H $hdd | grep 'SMART overall-health' | awk '{print $6}'");
+      if($hdd_health == 'PASSED'){
+        $hdd_health_color = 'success';
+      }else{
+        $hdd_health_color = 'danger';
+      }
       //$hdd_bad_blocks = exec("smartctl -a $hdd | grep 'Reallocated_Sector_Ct' | awk '{ print $10 '}");
     }
 
@@ -117,7 +123,7 @@
         <td><?php echo $hdd_type; ?></td>
         <td><?php echo $hdd_power_on_hours; ?><br><small><?php echo $hdd_power_on_days; ?></small></td>
         <td><?php echo $hdd_temp; ?></td>
-        <td><p class="text-success"><?php echo $hdd_health; ?></p></td>
+        <td><p class="text-<?php echo $hdd_health_color; ?>"><?php echo $hdd_health; ?></p></td>
         <td>
           <div class="btn-group mr-2">
           <a href="hdd_info.php?hdd=<?php echo $hdd_short_name; ?>" class="btn btn-outline-secondary"><span data-feather="info"></span></a>

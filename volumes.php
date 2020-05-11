@@ -1,5 +1,6 @@
 <?php 
-    include("config.php");
+    $config = include("config.php");
+    include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
     exec("ls /$config_mount_target", $volume_array);

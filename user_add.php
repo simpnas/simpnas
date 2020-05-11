@@ -1,5 +1,6 @@
 <?php 
-    include("config.php");
+    $config = include("config.php");
+ 	include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
     exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
@@ -25,28 +26,23 @@
 	    <input type="password" class="form-control" name="password" required>
 	  </div>
 	  <legend>Groups</legend>
-	  
-	  <div class="form-group">
-	  	<div class="custom-control custom-checkbox">
-			<input type="checkbox" class="custom-control-input" id="checkAll">
-			<label class="custom-control-label" for="customCheck">Select All</label>
-		</div>
-	  </div>
 
-	  <div class="form-group">
-	  	<div class="custom-control custom-checkbox">
-			<input type="checkbox" class="custom-control-input" checked>
-			<label class="custom-control-label" for="customCheck">users</label>
+	  <div class="form-group form-check">
+	    <input type="checkbox" class="form-check-input" id="checkAll">
+	    <label class="form-check-label ml-1">Select All</label>
 		</div>
-	  </div>
+
+	  <div class="form-group form-check">
+	    <input type="checkbox" class="form-check-input" checked>
+	    <label class="form-check-label ml-1">users</label>
+		</div>
 	  
 	  <?php foreach ($group_array as $group) { ?>
-	  <div class="form-group">
-	  	<div class="custom-control custom-checkbox">
-		  <input type="checkbox" class="custom-control-input" name="group[]" value="<?php echo "$group"; ?>" id="customCheck<?php echo $group; ?>">
-		  <label class="custom-control-label" for="customCheck<?php echo $group; ?>"><?php echo "$group"; ?></label>
+	  <div class="form-group form-check">
+	    <input type="checkbox" class="form-check-input" name="group[]" value="<?php echo "$group"; ?>">
+	    <label class="form-check-label ml-1"><?php echo "$group"; ?></label>
 		</div>
-	   </div>
+
 	  <?php } ?>
 
 	  <button type="submit" name="user_add" class="btn btn-primary">Submit</button>

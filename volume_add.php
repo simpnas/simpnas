@@ -1,5 +1,6 @@
 <?php 
-    include("config.php");
+    $config = include("config.php");
+  	include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
     exec("ls /$config_mount_target", $volume_array);
@@ -59,12 +60,12 @@
 	    <label>Volume Name</label>
 	    <input type="text" class="form-control" name="name" required pattern="[a-zA-Z0-9-]{1,15}">
 	  </div>
-	  <div class="form-group">
-	  	<div class="custom-control custom-checkbox">
-		  <input type="checkbox" class="custom-control-input" name="encrypt" value="1" id="encrypt">
-		  <label class="custom-control-label" for="encrypt">Encrypt</label>
-		</div>
+	  
+	  <div class="form-group form-check">
+	    <input type="checkbox" class="form-check-input" name="encrypt" value="1" id="encrypt">
+	    <label class="form-check-label ml-1">Encrypt</label>
 	  </div>
+
 	  <div class="form-group" id="passwordbox">
 	    <label>Disk Password</label>
 	    <input type="password" class="form-control" name="password">

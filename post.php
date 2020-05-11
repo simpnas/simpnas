@@ -2,18 +2,9 @@
 
   session_start();
   
-  include("config.php");
+  $config = include("config.php");
+  include("simple_vars.php");
   include("functions.php"); 
-
-if(isset($_GET['reboot'])){
-  exec("reboot");
-  header("Location: rebooting.php");
-}
-
-if(isset($_GET['shutdown'])){
-  exec("halt -p");
-  header("Location: index.php");
-}
 
 if(isset($_GET['upgrade_simpnas'])){
   exec("cd /simpnas");
@@ -657,6 +648,21 @@ if(isset($_GET['kill_wipe'])){
   header("Location: disks.php");
 }
 
+if(isset($_POST['mail_edit'])){
+  $config['smtp_server'] = $_POST['smtp_server'];
+  $config['smtp_port'] = $_POST['smtp_port'];
+  $config['smtp_username'] = $_POST['smtp_username'];
+  $config['smtp_password'] = $_POST['smtp_password'];
+  $config['mail_from'] = $_POST['mail_from'];
+  $config['mail_to'] = $_POST['mail_to'];
+
+  //file_put_contents('config.php', '<?php return ' . var_export($config, true) . ';');
+  file_put_contents('config.php', '<?php return ' . var_export($config, true) . ';');
+  sleep(3);
+
+  header("Location: mail_settings.php");
+}
+
 //APP SECTION
 
 if(isset($_POST['install_jellyfin'])){
@@ -1039,14 +1045,13 @@ if(isset($_POST['configure_external_access'])){
 
   exec("sleep 15");
 
-  print_r($sub_domains_array);
-
   foreach($sub_domains_array as $sub_domain){
     exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$sub_domain.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$sub_domain.subdomain.conf");
 
-    //if($sub_domain == 'nextcloud'){
+    if($sub_domain == 'nextcloud'){
     //  exec("sed -i 's/server_name nextcloud./server_name cloud./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/nextcloud.subdomain.conf");
-    //}
+        exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 4 --value=$sub_domain.$domain");
+    }
     //if($sub_domain == 'dokuwiki'){
       //exec("sed -i 's/server_name dokuwiki./server_name wiki./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/dokuwiki.subdomain.conf");
     //}
@@ -1054,6 +1059,9 @@ if(isset($_POST['configure_external_access'])){
       //exec("sed -i 's/server_name gitea./server_name git./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/gitea.subdomain.conf");
     //}
   }
+
+  //Tell Bots to not index our pages
+  exec("sed '/all ssl related config/ i add_header X-Robots-Tag \"noindex, nofollow, nosnippet, noarchive\";' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/site-confs/default");
 
   header("Location: apps.php");
 }
@@ -1630,13 +1638,15 @@ if(isset($_POST['setup'])){
 
   //Create config.php file
   
-  $myfile = fopen("config.php", "w");
+  $file = fopen("config.php", "w");
 
-  $txt = "<?php\n\n\$config_mount_target = 'mnt';\n\$config_docker_volume = \"$volume_name\";\n\$config_home_volume = \"$volume_name\";\n\$config_home_dir = 'homes';\n\n?>";
+  //$txt = "<?php\n\n\$config_mount_target = 'mnt';\n\$config_docker_volume = \"$volume_name\";\n\$config_home_volume = \"$volume_name\";\n\$config_home_dir = 'homes';\n\n"
 
-  fwrite($myfile, $txt);
+  $data = "<?php\n\nreturn_array (\n'mount_target' => 'mnt',\n'docker_volume' => '\"$volume_name\"',\n'home_volume' => '\"$volume_name\"',\n'home_dir' => 'homes',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n);\n?>";
 
-  fclose($myfile);
+  fwrite($file, $data);
+
+  fclose($file);
 
   include("config.php");
   

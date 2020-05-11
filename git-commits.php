@@ -1,5 +1,6 @@
 <?php 
-  include("config.php");
+  $config = include("config.php");
+  include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
   $git_log = shell_exec("git log --pretty=format:'<tr><td>%h</td><td>%an</td><td>%ar</td><td>%s</td></tr>'");

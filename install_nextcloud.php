@@ -1,5 +1,6 @@
 <?php 
-    include("config.php");
+    $config = include("config.php");
+  	include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
 ?>
@@ -17,9 +18,7 @@
   <ul>
   	<li>Samba Auth allow you to use nas logins instead of recreating new logins for nextcloud</li>
   	<li>Mount Home and Shares will automatically mount shares on nextcloud</li>
-  	<li>External access requires that a external domain name has been filled in under network, and that you have an a record set for cloud.DOMAIN.ext that points to your internet IP and your firewall has ports 80 and 443 forwarded to this IP</li>
-
-  	<li>When Installation is complete you can access Nextcloud by visiting https://<?php echo $_SERVER['HTTP_HOST']; ?></li>
+  	<li>When Installation is complete you can access Nextcloud by visiting https://<?php echo $_SERVER['HTTP_HOST']; ?>:6443</li>
   </ul>
  
   	<form method="post" action="post.php">
@@ -27,31 +26,21 @@
 		    <label>Nextcloud Admin Password</label>
 		    <input type="text" class="form-control" name="password" required>
 		</div>
-		<div class="form-group">
-			<div class="custom-control custom-checkbox">
-				<input type="checkbox" class="custom-control-input" name="enable_samba_auth" value="1" id="sambaAuth">
-				<label class="custom-control-label" for="sambaAuth">Samba Authentication</label>
-			</div>
-		</div>
-		<div class="form-group">
-			<div class="custom-control custom-checkbox">
-				<input type="checkbox" class="custom-control-input" name="enable_samba_mount" value="1" id="sambaMount">
-				<label class="custom-control-label" for="sambaMount">Samba Mount Home and Shares</label>
-			</div>
-		</div>
-		<div class="form-group">
-			<div class="custom-control custom-checkbox">
-				<input type="checkbox" class="custom-control-input" name="install_apps" value="1" id="installApps">
-				<label class="custom-control-label" for="installApps">Install Groupware Apps (Talk, Calendar, Contacts, Mail)</label>
-			</div>
-		</div>
+		
+		<div class="form-group form-check">
+	    <input type="checkbox" class="form-check-input" name="enable_samba_auth" value="1" id="sambaAuth">
+	    <label class="form-check-label ml-1">Samba Authentication</label>
+	  </div>
 
-		<div class="form-group">
-			<div class="custom-control custom-checkbox">
-				<input type="checkbox" class="custom-control-input" name="external_access" value="1" id="externalAccess">
-				<label class="custom-control-label" for="externalAccess">Enable External Access</label>
-			</div>
-		</div>
+	  <div class="form-group form-check">
+	    <input type="checkbox" class="form-check-input" name="enable_samba_mount" value="1" id="sambaMount">
+	    <label class="form-check-label ml-1">Samba Mount Home and Shares</label>
+	  </div>
+
+	  <div class="form-group form-check">
+	    <input type="checkbox" class="form-check-input" name="install_apps" value="1" id="installApps">
+	    <label class="form-check-label ml-1">Install Groupware Apps (Talk, Calendar, Contacts, Mail)</label>
+	  </div>
 
 		<button type="submit" name="install_nextcloud" class="btn btn-primary">Submit</button>
 	 

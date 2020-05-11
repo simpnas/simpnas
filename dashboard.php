@@ -1,5 +1,6 @@
 <?php 
-  include("config.php");
+  $config = include("config.php");
+  include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
 
@@ -104,7 +105,7 @@
           <td>
             Total: <?php echo $memory_installed; ?>
             <div class="progress">
-                <div class="progress-bar <?php if($free_memory > 85){ echo "bg-danger"; } ?>" style="width: <?php echo $free_memory; ?>%">
+                <div class="progress-bar <?php if($free_memory > 70){ echo "bg-warning"; } ?> <?php if($free_memory > 90){ echo "bg-danger"; } ?>" style="width: <?php echo $free_memory; ?>%">
                 </div>
             </div>
             (<?php echo $free_memory; ?>% Used)
@@ -293,14 +294,13 @@
 
   ?>
 
-
   new Chart(document.getElementById("doughnutChart<?php echo $volume; ?>"), {
     type: 'doughnut',
     data: {
       labels: ["<?php echo $used_space_formatted; ?> Used", "<?php echo $free_space_formatted; ?> Free"],
       datasets: [
         {
-          backgroundColor: ["#007bff", "#99999"],
+          backgroundColor: ["<?php if($used_space_percent > 85){ echo '#d9534f'; }else{ echo '#007bff'; } ?>", "#99999"],
           data: [<?php echo $used_space; ?>,<?php echo $free_space; ?>]    
         }
       ]
