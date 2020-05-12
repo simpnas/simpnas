@@ -45,11 +45,12 @@ if(isset($_POST['user_add'])){
    
     exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -s /bin/false -p $password");
     
-    $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+    $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
     if(empty($ad_enabled)){
-      exec ("samba-tool user create $username '$password'");
-    }else{
       exec ("echo '$password\n$password' | smbpasswd -a $username");
+      
+    }else{
+      exec ("samba-tool user create $username '$password'");
     }
     
     if(isset($_POST['group'])){
@@ -67,7 +68,7 @@ if(isset($_POST['user_add'])){
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "User $username successfully added!";
   }
-  //header("Location: users.php");
+  header("Location: users.php");
 }
 
 if(isset($_POST['user_edit'])){
@@ -96,7 +97,7 @@ if(isset($_GET['user_delete'])){
   $username = $_GET['user_delete'];
 
 
-  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+  $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
   if(empty($ad_enabled)){
     exec("smbpasswd -x $username");
   }else{
@@ -207,10 +208,11 @@ if(isset($_GET['unmount_volume'])){
   $volume = $_GET['unmount_volume'];
   exec ("umount /$config_mount_target/$volume");
   
-  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+  
+  $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
   if(empty($ad_enabled)){
     exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
+    exec("systemctl restart nmbd"); 
   }
 
   $_SESSION['alert_type'] = "info";
@@ -222,7 +224,7 @@ if(isset($_GET['mount_volume'])){
   $volume = $_GET['mount_volume'];
   exec ("mount /$config_mount_target/$volume");
   
-  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+  $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
   if(empty($ad_enabled)){
     exec("systemctl restart smbd");
     exec("systemctl restart nmbd");
@@ -417,7 +419,7 @@ if(isset($_POST['share_add'])){
     fwrite($fh, $stringData);
     fclose($fh);
 
-    $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+    $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
     if(empty($ad_enabled)){
       exec("systemctl restart smbd");
       exec("systemctl restart nmbd");
@@ -481,7 +483,7 @@ if(isset($_POST['share_edit'])){
   fwrite($fh, $stringData);
   fclose($fh);
 
-  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+  $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
   if(empty($ad_enabled)){
     exec("systemctl restart smbd");
     exec("systemctl restart nmbd");
@@ -506,7 +508,7 @@ if(isset($_GET['share_delete'])){
 
     deleteLineInFile("/etc/samba/shares.conf","$name");
 
-    $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+    $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
     if(empty($ad_enabled)){
       exec("systemctl restart smbd");
       exec("systemctl restart nmbd");
@@ -708,7 +710,7 @@ if(isset($_POST['install_jellyfin'])){
     fwrite($fh, $stringData);
     fclose($fh);
     
-    $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+    $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
     if(empty($ad_enabled)){
       exec("systemctl restart smbd");
       exec("systemctl restart nmbd");
@@ -753,7 +755,7 @@ if(isset($_GET['uninstall_jellyfin'])){
   exec ("rm -f /etc/samba/shares/media");
   deleteLineInFile("/etc/samba/shares.conf","media");
   //restart samba
-  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+  $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
   if(empty($ad_enabled)){
     exec("systemctl restart smbd");
     exec("systemctl restart nmbd");
@@ -794,7 +796,7 @@ if(isset($_POST['install_airsonic'])){
       fwrite($fh, $stringData);
       fclose($fh);
       
-      $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+      $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
       if(empty($ad_enabled)){
         exec("systemctl restart smbd");
         exec("systemctl restart nmbd");
@@ -838,7 +840,7 @@ if(isset($_POST['install_lychee'])){
   fwrite($fh, $stringData);
   fclose($fh);
     
-  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+  $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
   if(empty($ad_enabled)){
     exec("systemctl restart smbd");
     exec("systemctl restart nmbd");
@@ -881,7 +883,7 @@ if(isset($_GET['uninstall_lychee'])){
   exec ("rm -f /etc/samba/shares/photos");
   deleteLineInFile("/etc/samba/shares.conf","photos");
   //restart samba
-  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+  $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
   if(empty($ad_enabled)){
     exec("systemctl restart smbd");
     exec("systemctl restart nmbd");
@@ -1293,7 +1295,7 @@ if(isset($_POST['install_unifi-video'])){
     fwrite($fh, $stringData);
     fclose($fh);
     
-    $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+    $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
     if(empty($ad_enabled)){
       exec("systemctl restart smbd");
       exec("systemctl restart nmbd");
@@ -1339,7 +1341,7 @@ if(isset($_GET['uninstall_unifi-video'])){
   exec ("rm -f /etc/samba/shares/video-surveillance");
   deleteLineInFile("/etc/samba/shares.conf","video-surveillance");
   //restart samba
-  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+  $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
   if(empty($ad_enabled)){
     exec("systemctl restart smbd");
     exec("systemctl restart nmbd");
@@ -1403,7 +1405,7 @@ if(isset($_POST['install_transmission'])){
   fwrite($fh, $stringData);
   fclose($fh);
     
-  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+  $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
   if(empty($ad_enabled)){
     exec("systemctl restart smbd");
     exec("systemctl restart nmbd");
@@ -1476,7 +1478,7 @@ if(isset($_GET['uninstall_transmission'])){
   exec ("rm -f /etc/samba/shares/downloads");
   deleteLineInFile("/etc/samba/shares.conf","downloads");
   //restart samba
-  $ad_enabled = exec("systemctl status samba-ad-dc | grep masked");
+  $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
   if(empty($ad_enabled)){
     exec("systemctl restart smbd");
     exec("systemctl restart nmbd");

@@ -23,7 +23,7 @@
 	  </div>
 	  <div class="form-group">
 	    <label>Password:</label>
-	    <input type="password" class="form-control" name="password" required>
+	    <input type="password" class="form-control" name="password" required autocomplete="new-password">
 	  </div>
 	  <legend>Groups</legend>
 
