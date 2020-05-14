@@ -1037,35 +1037,63 @@ if(isset($_GET['uninstall_nextcloud'])){
 if(isset($_POST['configure_external_access'])){
 
   $domain = $_POST['domain'];
-  $sub_domains_array = $_POST['sub_domains'];
-  
+  $apps_array = $_POST['app'];
+  foreach($apps_array as $app){
+    if($app == 'nextcloud'){
+      $sub_domains_array[] = 'cloud';
+    }elseif($app == 'unifi-controller'){
+      $sub_domains_array[] = 'unifi';
+    }elseif($app == 'gitea'){
+      $sub_domains_array[] = 'git';
+    }elseif($app == 'dokuwiki'){
+      $sub_domains_array[] = 'wiki';
+    }elseif($app == 'bitwarden'){
+      $sub_domains_array[] = 'vault';
+    }else{
+      $sub_domains_array[] = $app;
+    }
+  }
+
   $sub_domains = implode(',', $sub_domains_array);
+
+  //stop and delete docker container
+  exec("docker stop letsencrypt");
+  exec("docker rm letsencrypt");
+
+  //delete docker config
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/letsencrypt");
 
   mkdir("/$config_mount_target/$config_docker_volume/docker/letsencrypt");
 
   exec("docker run -d --name letsencrypt --net=my-network --cap-add=NET_ADMIN -p 443:443 -p 80:80 --restart=unless-stopped -e URL='$domain' -e SUBDOMAINS='$sub_domains' -e VALIDATION=http -v /$config_mount_target/$config_docker_volume/docker/letsencrypt:/config linuxserver/letsencrypt");
 
-  exec("sleep 15");
+  exec("sleep 1");
 
-  foreach($sub_domains_array as $sub_domain){
-    exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$sub_domain.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$sub_domain.subdomain.conf");
-
-    if($sub_domain == 'nextcloud'){
-    //  exec("sed -i 's/server_name nextcloud./server_name cloud./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/nextcloud.subdomain.conf");
-        exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 4 --value=$sub_domain.$domain");
+  foreach($apps_array as $app){
+    if($app == 'nextcloud'){
+      exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+      
+      exec("sed -i 's/server_name $app./server_name cloud./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+      
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 4 --value=cloud.$domain");
+    }elseif($app == 'bitwarden'){
+      exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+      exec("sed -i 's/server_name $app./server_name vault./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+    }elseif($app == 'dokuwiki'){
+      exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+      exec("sed -i 's/server_name $app./server_name wiki./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+    }elseif($app == 'gitea'){
+      exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+      exec("sed -i 's/server_name $app./server_name git./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+    }else{
+      exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
     }
-    //if($sub_domain == 'dokuwiki'){
-      //exec("sed -i 's/server_name dokuwiki./server_name wiki./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/dokuwiki.subdomain.conf");
-    //}
-    //if($sub_domain == 'gitea'){
-      //exec("sed -i 's/server_name gitea./server_name git./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/gitea.subdomain.conf");
-    //}
   }
 
   //Tell Bots to not index our pages
   exec("sed '/all ssl related config/ i add_header X-Robots-Tag \"noindex, nofollow, nosnippet, noarchive\";' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/site-confs/default");
 
-  header("Location: apps.php");
+  header("Location: configure_external_access.php");
 }
 
 if(isset($_GET['uninstall_letsencrypt'])){

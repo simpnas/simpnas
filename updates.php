@@ -4,11 +4,11 @@
   include("header.php");
   include("side_nav.php");
 
-  if($_GET['check']){
+  if(isset($_GET['check'])){
     exec("apt update");
   }
 
-  if($_GET['upgrade']){
+  if(isset($_GET['upgrade'])){
     exec("apt upgrade -y");
   }
 
