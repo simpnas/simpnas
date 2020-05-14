@@ -1070,28 +1070,22 @@ if(isset($_POST['configure_external_access'])){
   exec("sleep 1");
 
   foreach($apps_array as $app){
+    exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+
     if($app == 'nextcloud'){
-      exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
-      
       exec("sed -i 's/server_name $app./server_name cloud./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
-      
       exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 4 --value=cloud.$domain");
     }elseif($app == 'bitwarden'){
-      exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
       exec("sed -i 's/server_name $app./server_name vault./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
     }elseif($app == 'dokuwiki'){
-      exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
       exec("sed -i 's/server_name $app./server_name wiki./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
     }elseif($app == 'gitea'){
-      exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
       exec("sed -i 's/server_name $app./server_name git./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
-    }else{
-      exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
     }
   }
 
   //Tell Bots to not index our pages
-  exec("sed '/all ssl related config/ i add_header X-Robots-Tag \"noindex, nofollow, nosnippet, noarchive\";' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/site-confs/default");
+  exec("sed '/all ssl related config/ i add_header X-Robots-Tag \\\"noindex, nofollow, nosnippet, noarchive\\\";' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/site-confs/default");
 
   header("Location: configure_external_access.php");
 }
