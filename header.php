@@ -27,7 +27,7 @@ $startScriptTime=microtime(TRUE);
 
     <!-- Custom styles for this template -->
     <link href="css/dashboard.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/datatables.min.css"/>
   </head>
 
   <body>

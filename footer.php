@@ -12,8 +12,8 @@ echo "\n\r".'<!-- Load time: '.number_format($totalScriptTime, 4).' seconds -->'
 
 		<script src="js/jquery.min.js"></script>
 		<script src="js/bootstrap.bundle.min.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.js"></script>
-		<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+		<script type="text/javascript" src="js/datatables.min.js"></script>
+		<script src="js/feather.min.js"></script>
 		<script>
 			feather.replace()
 		</script>
