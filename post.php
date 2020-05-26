@@ -43,10 +43,10 @@ if(isset($_POST['user_add'])){
       mkdir("/$config_mount_target/$config_home_volume/$config_home_dir/");
     }
    
-    exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/$username");
-    exec ("chown -R $username:users /$config_mount_target/$volume_name/$config_home_dir/$username");
-    exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");   
+    exec ("mkdir /$config_mount_target/$config_home_volume/$config_home_dir/$username");
+    exec ("chmod -R 700 /$config_mount_target/$config_home_volume/$config_home_dir/$username");  
     exec ("useradd -g users -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -s /bin/false -p $password");
+    exec ("chown -R $username:users /$config_mount_target/$config_home_volume/$config_home_dir/$username");
     
     $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
     if(empty($ad_enabled)){
@@ -1720,18 +1720,16 @@ if(isset($_POST['setup'])){
 
   //Check to see if theres already a user added
   $existing_username = exec("cat /etc/passwd | grep 1000 | awk -F: '{print $1}'");
-  if(empty($existing_username)){
-    exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/$username");
-    exec ("chown -R $username:users /$config_mount_target/$volume_name/$config_home_dir/$username");
-    exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
-    exec ("useradd -g users -d /$config_mount_target/$volume_name/$config_home_dir/$username $username -p $password");
+  if(empty($existing_username)){  
     if($server_type == 'AD'){
       exec ("samba-tool user create $username $password");
     }else{
       exec ("echo '$password\n$password' | smbpasswd -a $username");
     }
-
+    exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/$username");
     exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
+    exec ("useradd -g users -d /$config_mount_target/$volume_name/$config_home_dir/$username $username -p $password");
+    exec ("chown -R $username:users /$config_mount_target/$volume_name/$config_home_dir/$username");
   }else{
     exec("usermod -m -d /$config_mount_target/$volume_name/$config_home_dir/$existing_username $existing_username");
   }
