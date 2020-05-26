@@ -62,6 +62,7 @@
             </div>
           </td>
         </tr>
+        
         <tr>
           <td class="text-center text-muted">
             <img src="img/apps/jellyfin.png" height="48" width="48" class="img-fluid rounded">
@@ -91,6 +92,7 @@
             </div>
           </td>
         </tr>
+        
         <tr>
           <td class="text-center text-muted">
             <img src="img/apps/dokuwiki.png" height="48" width="48" class="img-fluid rounded">
@@ -120,49 +122,7 @@
             </div>
           </td>
         </tr>
-        <tr>
-          <td class="text-center text-muted">
-            <img src="img/apps/syncthing.png" height="48" width="48" class="img-fluid rounded">
-            <br>
-            Syncthing
-            <br>
-          <td>Sync those Thingx</td>
-          <td>
-            <a href="post.php?install_syncthing" class="btn btn-outline-success">Install</a>
-          </td>
-        </tr>
-        <tr>
-          <td class="text-center text-muted">
-            <img src="img/apps/transmission.png" height="48" width="48" class="img-fluid rounded">
-            <br>
-            Transmssion
-            <br>
-            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission")) { ?>
-            <small class="text-success"><span data-feather="check"></span>Installed</small>
-            <?php } ?>
-          </td>
-          <td>
-            <p>Torrent downloads has VPN support to hide your IP when you download (Requires a VPN Provider like PIA)</p>
-            <p class="text-secondary">VPN IP: <strong><?php $vpn_ip = exec("docker exec -i transmission curl ifconfig.co"); echo $vpn_ip; ?></strong></p>
-          </td>
-          <td>
-            <div class="btn-group mr-2">
-              <?php 
-                if(file_exists("/$config_mount_target/$config_docker_volume/docker/transmission")) {
-              ?>
-                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:9091" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="transmission_update.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
-                <a href="post.php?uninstall_transmission" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
-              <?php
-              }else{
-              ?>
-              <a href="install_transmission.php" class="btn btn-outline-success">Install</a>
-              <?php  
-              }
-              ?>
-            </div>
-          </td>
-        </tr>
+        
         <tr>
           <td class="text-center text-muted">
             <img src="img/apps/unifi.png" height="48" width="48" class="img-fluid rounded">
@@ -340,126 +300,6 @@
               }else{
               ?>
               <a href="post.php?install_bitwarden" class="btn btn-outline-success">Install</a>
-              <?php  
-              }
-              ?>
-            </div>
-          </td>
-        </tr>
-
-        <tr>
-          <td class="text-center text-muted">
-            <img src="img/apps/bookstack.png" height="48" width="48" class="img-fluid rounded">
-            <br>
-            Bookstack
-            <br>
-            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/bookstack")) { ?>
-            <small class="text-success"><span data-feather="check"></span>Installed</small>
-            <?php } ?>
-          </td>
-          <td>Documentation Portal</td>
-          <td>
-            <div class="btn-group mr-2">
-              <?php 
-                if(file_exists("/$config_mount_target/$config_docker_volume/docker/bookstack")) {
-              ?>
-                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:84" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_bookstack.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
-                <a href="post.php?uninstall_bookstack" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
-              <?php
-              }else{
-              ?>
-              <a href="post.php?install_bookstack" class="btn btn-outline-success">Install</a>
-              <?php  
-              }
-              ?>
-            </div>
-          </td>
-        </tr>
-
-        <tr>
-          <td class="text-center text-muted">
-            <img src="img/apps/snipeit.png" height="48" width="48" class="img-fluid rounded">
-            <br>
-            SnipeIT
-            <br>
-            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/snipeit")) { ?>
-            <small class="text-success"><span data-feather="check"></span>Installed</small>
-            <?php } ?>
-          </td>
-          <td>Asset Management</td>
-          <td>
-            <div class="btn-group mr-2">
-              <?php 
-                if(file_exists("/$config_mount_target/$config_docker_volume/docker/snipeit")) {
-              ?>
-                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:83" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_snipeit.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
-                <a href="post.php?uninstall_ssnipeit" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
-              <?php
-              }else{
-              ?>
-              <a href="post.php?install_snipeit" class="btn btn-outline-success">Install</a>
-              <?php  
-              }
-              ?>
-            </div>
-          </td>
-        </tr>
-
-        <tr>
-          <td class="text-center text-muted">
-            <img src="img/apps/letsencrypt.png" height="48" width="48" class="img-fluid rounded">
-            <br>
-            External Access
-            <br>
-            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/letsencrypt")) { ?>
-            <small class="text-success"><span data-feather="check"></span>Installed</small>
-            <?php } ?>
-          </td>
-          <td>Configures External Access for your APPs with Letsencrypt Certificates</td>
-          <td>
-            <div class="btn-group mr-2">
-              <?php 
-                if(file_exists("/$config_mount_target/$config_docker_volume/docker/letsencrypt")) {
-              ?>
-                <a href="configure_external_access.php" class="btn btn-outline-secondary"><span data-feather="settings"></span></a>
-                <a href="update_letsencrypt.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
-                <a href="post.php?uninstall_letsencrypt" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
-              <?php
-              }else{
-              ?>
-              <a href="configure_external_access.php" class="btn btn-outline-success">Install</a>
-              <?php  
-              }
-              ?>
-            </div>
-          </td>
-        </tr>
-
-        <tr>
-          <td class="text-center text-muted">
-            <img src="img/apps/gitea.png" height="48" width="48" class="img-fluid rounded">
-            <br>
-            Gitea
-            <br>
-            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/gitea")) { ?>
-            <small class="text-success"><span data-feather="check"></span>Installed</small>
-            <?php } ?>
-          </td>
-          <td>Web UI Code Organizer / version control using using git</td>
-          <td>
-            <div class="btn-group mr-2">
-              <?php 
-                if(file_exists("/$config_mount_target/$config_docker_volume/docker/gitea")) {
-              ?>
-                <a href="http://<?php echo $_SERVER['HTTP_HOST']; ?>:80" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
-                <a href="update_gitea.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
-                <a href="post.php?uninstall_gitea" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
-              <?php
-              }else{
-              ?>
-              <a href="post.php?install_gitea" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>

@@ -89,6 +89,13 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link" href="configure_external_access.php">
+          <span data-feather="globe"></span>
+          External Access
+        </a>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link" href="mail_settings.php">
           <span data-feather="mail"></span>
           Mail (SMTP)

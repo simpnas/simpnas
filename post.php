@@ -43,7 +43,10 @@ if(isset($_POST['user_add'])){
       mkdir("/$config_mount_target/$config_home_volume/$config_home_dir/");
     }
    
-    exec ("useradd -g users -m -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -s /bin/false -p $password");
+    exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/$username");
+    exec ("chown -R $username:users /$config_mount_target/$volume_name/$config_home_dir/$username");
+    exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");   
+    exec ("useradd -g users -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -s /bin/false -p $password");
     
     $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
     if(empty($ad_enabled)){
@@ -59,11 +62,6 @@ if(isset($_POST['user_add'])){
       	exec ("adduser $username $group");
     	}
     }
-    
-    exec ("chmod -R 700 /$config_mount_target/$config_home_volume/$config_home_dir/$username");
-
-    //exec("systemctl restart smbd");
-    //exec("systemctl restart nmbd");
 
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "User $username successfully added!";
@@ -1703,6 +1701,18 @@ if(isset($_POST['setup'])){
     exec("systemctl start samba-ad-dc");
     exec("systemctl enable samba-ad-dc");
   }else{
+    $myFile = "/etc/samba/shares/users";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[users]\n   comment = Users Home Folders\n   path = /$config_mount_target/$volume_name/users\n   read only = no\n   force create mode = 0660\n   force directory mode = 0770";
+    fwrite($fh, $stringData);
+    fclose($fh);
+
+    $myFile = "/etc/samba/shares.conf";
+    $fh = fopen($myFile, 'a') or die("not able to write to file");
+    $stringData = "\ninclude = /etc/samba/shares/users";
+    fwrite($fh, $stringData);
+    fclose($fh);
+    
     exec("systemctl restart smbd");
     exec("systemctl restart nmbd");
 
@@ -1711,7 +1721,10 @@ if(isset($_POST['setup'])){
   //Check to see if theres already a user added
   $existing_username = exec("cat /etc/passwd | grep 1000 | awk -F: '{print $1}'");
   if(empty($existing_username)){
-    exec ("useradd -g users -m -d /$config_mount_target/$volume_name/$config_home_dir/$username $username -p $password");
+    exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/$username");
+    exec ("chown -R $username:users /$config_mount_target/$volume_name/$config_home_dir/$username");
+    exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
+    exec ("useradd -g users -d /$config_mount_target/$volume_name/$config_home_dir/$username $username -p $password");
     if($server_type == 'AD'){
       exec ("samba-tool user create $username $password");
     }else{
