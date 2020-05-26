@@ -395,19 +395,9 @@ if(isset($_POST['share_add'])){
     chgrp("$share_path", $group);
     chmod("$share_path", 0770);
 
-    //exec ("mkdir '$share_path'");
-    //exec ("chgrp root:$group '$share_path'");
-    //exec ("chmod 2777 '$share_path'");
-       
-       //$myFile = "/etc/samba/smb.conf";
-  	   //$fh = fopen($myFile, 'a') or die("can't open file");
-  	   //$stringData = "\n[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770\n\n";
-  	   //fwrite($fh, $stringData);
-  	   //fclose($fh);
-
     $myFile = "/etc/samba/shares/$name";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
+    $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group, @admins\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
     fwrite($fh, $stringData);
     fclose($fh);
 
@@ -1703,7 +1693,7 @@ if(isset($_POST['setup'])){
   }else{
     $myFile = "/etc/samba/shares/users";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[users]\n   comment = Users Home Folders\n   path = /$config_mount_target/$volume_name/users\n   read only = no\n   force create mode = 0660\n   force directory mode = 0770";
+    $stringData = "[users]\n   comment = Users Home Folders\n   path = /$config_mount_target/$volume_name/users\n   read only = no\n   force create mode = 0660\n   force directory mode = 0770\n   valid users = @admins";
     fwrite($fh, $stringData);
     fclose($fh);
 
@@ -1730,8 +1720,11 @@ if(isset($_POST['setup'])){
     exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
     exec ("useradd -g users -d /$config_mount_target/$volume_name/$config_home_dir/$username $username -p $password");
     exec ("chown -R $username:users /$config_mount_target/$volume_name/$config_home_dir/$username");
+    exec ("usermod -a -G admins $username");
+
   }else{
     exec("usermod -m -d /$config_mount_target/$volume_name/$config_home_dir/$existing_username $existing_username");
+    exec("usermod -a -G admins $existing_username");
   }
   
   $myFile = "/etc/fstab";

@@ -28,6 +28,10 @@ add-apt-repository "deb [arch=$(dpkg --print-architecture)] https://download.doc
 apt update
 apt install docker-ce docker-ce-cli containerd.io -y
 echo "=================================================================================="
+echo "Adding group admins"
+echo "=================================================================================="
+groupadd admins
+echo "=================================================================================="
 echo "Allowing SSH Root Login..."
 echo "=================================================================================="
 sed -i 's/prohibit-password/yes/' /etc/ssh/sshd_config
