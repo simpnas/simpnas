@@ -32,6 +32,10 @@ echo "Adding group admins"
 echo "=================================================================================="
 groupadd admins
 echo "=================================================================================="
+echo "Creating docker network"
+echo "=================================================================================="
+docker network create my-network
+echo "=================================================================================="
 echo "Allowing SSH Root Login..."
 echo "=================================================================================="
 sed -i 's/prohibit-password/yes/' /etc/ssh/sshd_config
@@ -58,6 +62,6 @@ HOSTNAME="$(hostname)";
 echo "==============================================================================================================================="
 echo "                                                   Almost There!																 " 
 echo "                                           Your system will now reboot!														 "
-echo " Visit http://$IP or http://$HOSTNAME in your web browser to complete installation after reboot								 "
+echo "                    Visit http://$IP:81 in your web browser to complete installation after reboot								 "
 echo "==============================================================================================================================="
 /sbin/reboot
