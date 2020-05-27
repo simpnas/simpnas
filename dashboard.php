@@ -280,17 +280,18 @@
         <!-- Graphs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 <script>
-  <?php foreach($volume_array as $volume){
+  <?php 
+  foreach($volume_array as $volume){
     $mounted = exec("df | grep $volume");
-        if(!empty($mounted)){
-    
-          $total_space = exec("df | grep /$config_mount_target/$volume | awk '{print $2}'");
-          $total_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $2}'");
-          $used_space = exec("df | grep /$config_mount_target/$volume | awk '{print $3}'");
-          $used_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $3}'");
-          $free_space = exec("df | grep /$config_mount_target/$volume | awk '{print $4}'");
-          $free_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $4}'");
-          $used_space_percent = exec("df | grep /$config_mount_target/$volume | awk '{print $5}'");
+    if(!empty($mounted)){
+
+      $total_space = exec("df | grep /$config_mount_target/$volume | awk '{print $2}'");
+      $total_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $2}'");
+      $used_space = exec("df | grep /$config_mount_target/$volume | awk '{print $3}'");
+      $used_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $3}'");
+      $free_space = exec("df | grep /$config_mount_target/$volume | awk '{print $4}'");
+      $free_space_formatted = exec("df -h | grep /$config_mount_target/$volume | awk '{print $4}'");
+      $used_space_percent = exec("df | grep /$config_mount_target/$volume | awk '{print $5}'");
 
   ?>
 
@@ -317,4 +318,6 @@
 
 </script>
 
-<?php include("footer.php"); ?>
+<?php include("footer.php"); 
+
+?>

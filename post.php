@@ -259,9 +259,11 @@ if(isset($_POST['volume_add'])){
       exec ("mkfs.ext4 $hdd_part");
       exec ("mount $hdd_part /$config_mount_target/$name");  
       
+      $uuid = exec("blkid -o value --match-tag UUID /dev/$hdd_part");
+
       $myFile = "/etc/fstab";
       $fh = fopen($myFile, 'a') or die("can't open file");
-      $stringData = "$hdd_part    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
+      $stringData = "UUID=$uuid    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
       fwrite($fh, $stringData);
       fclose($fh);
     }
@@ -274,7 +276,7 @@ if(isset($_GET['volume_delete'])){
   //check to make sure no shares are linked to the volume
   //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
   //the code to do that here
-  $hdd = exec("findmnt $config_mount_target -n -o SOURCE --target /$config_mount_target/$name");
+  $hdd = exec("findmnt -n -o SOURCE --target /$config_mount_target/$name");
   
   exec("ls /$config_mount_target/$name | grep -v lost+found", $directory_list_array);
   if(!empty($directory_list_array)){
@@ -284,11 +286,10 @@ if(isset($_GET['volume_delete'])){
     exec ("umount -l /$config_mount_target/$name");
     exec ("rm -rf /$config_mount_target/$name");
     exec ("wipefs -a $hdd");
+    $uuid = exec("blkid -o value --match-tag UUID /dev/$hdd");
     
-    deleteLineInFile("/etc/fstab","$hdd");
+    deleteLineInFile("/etc/fstab","$uuid");
 
-    //exec("systemctl restart smbd");
-    //exec("systemctl restart nmbd");
   }
   
   header("Location: volumes.php");
@@ -356,9 +357,10 @@ if(isset($_POST['volume_add_backup'])){
     exec ("mkfs.ext4 $hdd_part");
     exec ("mount $hdd_part /$config_mount_target/$name");  
     
+    $uuid = exec("blkid -o value --match-tag UUID /dev/$hdd_part");
     $myFile = "/etc/fstab";
     $fh = fopen($myFile, 'a') or die("can't open file");
-    $stringData = "$hdd_part    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
+    $stringData = "$uuid    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
     fwrite($fh, $stringData);
     fclose($fh);    
   }
@@ -1726,10 +1728,10 @@ if(isset($_POST['setup'])){
     exec("usermod -m -d /$config_mount_target/$volume_name/$config_home_dir/$existing_username $existing_username");
     exec("usermod -a -G admins $existing_username");
   }
-  
+  $uuid = exec("blkid -o value --match-tag UUID /dev/$hdd_part");
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "$hdd_part    /$config_mount_target/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
+  $stringData = "UUID=$uuid    /$config_mount_target/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
   fwrite($fh, $stringData);
   fclose($fh);
 
