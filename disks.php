@@ -50,7 +50,6 @@
     </thead>
     <tbody>
       <?php
-  unset($hdd);
   foreach ($drive_list as $hdd) {
     $hdd_short_name = basename($hdd);
     $hdd_smart = exec("smartctl -i $hdd | grep 'SMART support is' | cut -d' ' -f 8-");

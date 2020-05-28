@@ -248,7 +248,7 @@
         //check to see if mounted
         $mounted = exec("df | grep $volume");
         if(!empty($mounted)){
-          $hdd = exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume");
+          $hdd = exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume | cut -c -8");
           $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family:' | awk '{print $3,$4,$5}'");
           if(empty($hdd_vendor)){
             $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3,$4,$5}'");
