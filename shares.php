@@ -37,7 +37,7 @@
           <th>Name</th>
           <th>Description</th>
           <th>Volume</th>
-          <th>Group Permission (r+w)</th>
+          <th>Group</th>
           <th>Size</th>
           <th>Action</th>
         </tr>
@@ -55,18 +55,14 @@
             $comment = $sambaConfigArray['comment'];
             $group = $sambaConfigArray['force group'];
             $used_space = exec("du -sh $path | awk '{print $1}'");
-            if($share == "$config_home_dir"){
-              $volume = "$config_home_volume";
-              $group = "-";
-              $used_space = "-";
-            }
+
         ?>
 
         <tr>
           <td><span class="mr-2" data-feather="folder"></span><?php echo $share; ?></td>
           <td><?php echo $comment; ?></td>
-          <td><span class="mr-2" data-feather="database"></span><?php echo $volume; ?></td>
-          <td><span class="mr-2" data-feather="users"></span><?php echo $group; ?></td>
+          <td><?php echo $volume; ?></td>
+          <td><?php echo $group; ?></td>
           <td><?php echo $used_space; ?></td>
           <td>
           	<div class="btn-group mr-2">

@@ -1715,7 +1715,7 @@ if(isset($_POST['setup'])){
   if(empty($existing_username)){  
     if($server_type == 'AD'){
       exec ("samba-tool user create $username $password");
-    }else{
+    }elseif($server_type == 'standalone'){
       exec ("echo '$password\n$password' | smbpasswd -a $username");
     }
     exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/$username");

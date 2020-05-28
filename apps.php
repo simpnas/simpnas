@@ -3,6 +3,55 @@
   include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
+
+  $apps = array(
+    array(
+      "title" => "Nextcloud",
+      "description" => "Access and share your files anywhere over the Internet",
+      "website" => "https://nextcloud.com",
+      "image" => "nextcloud.png",
+      "container_name" => "nextcloud",
+      "external_hostname" => "cloud",
+      "local_port" => 6443,
+    ),
+    array(
+      "title" => "Jellyfin",
+      "description" => "Turn your NAS into a media streaming platform for your Smart TVs, Smart devices (Roku, Amazon TV, Apple TV, Google TV), computers, phones etc",
+      "website" => "https://jellyfin.com",
+      "image" => "jellyfin.png",
+      "container_name" => "jellyfin",
+      "external_hostname" => "jellyfin",
+      "local_port" => 8096,
+    ),
+    array(
+      "title" => "Dokuwiki",
+      "description" => "Make some notes.",
+      "website" => "https://dokuwiki.com",
+      "image" => "dokuwiki.png",
+      "container_name" => "dokuwiki",
+      "external_hostname" => "wiki",
+      "local_port" => 85,
+    ),
+    array(
+      "title" => "Unifi Controller",
+      "description" => "Manage Unifi network devices.",
+      "website" => "https://dokuwiki.com",
+      "image" => "unifi.png",
+      "container_name" => "unifi-controller",
+      "external_hostname" => "unifi",
+      "local_port" => 8443,
+    ),
+    array(
+      "title" => "Dokuwiki",
+      "description" => "Access and share your files anywhere over the Internet",
+      "website" => "https://dokuwiki.com",
+      "image" => "dokuwiki.png",
+      "container_name" => "dokuwiki",
+      "external_hostname" => "wiki",
+      "local_port" => 85,
+    )
+  );
+
 ?>
 
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
