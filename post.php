@@ -259,7 +259,7 @@ if(isset($_POST['volume_add'])){
       exec ("mkfs.ext4 $hdd_part");
       exec ("mount $hdd_part /$config_mount_target/$name");  
       
-      $uuid = exec("blkid -o value --match-tag UUID /dev/$hdd_part");
+      $uuid = exec("blkid -o value --match-tag UUID $hdd_part");
 
       $myFile = "/etc/fstab";
       $fh = fopen($myFile, 'a') or die("can't open file");
@@ -286,7 +286,7 @@ if(isset($_GET['volume_delete'])){
     exec ("umount -l /$config_mount_target/$name");
     exec ("rm -rf /$config_mount_target/$name");
     exec ("wipefs -a $hdd");
-    $uuid = exec("blkid -o value --match-tag UUID /dev/$hdd");
+    $uuid = exec("blkid -o value --match-tag UUID $hdd");
     
     deleteLineInFile("/etc/fstab","$uuid");
 
@@ -1728,7 +1728,7 @@ if(isset($_POST['setup'])){
     exec("usermod -m -d /$config_mount_target/$volume_name/$config_home_dir/$existing_username $existing_username");
     exec("usermod -a -G admins $existing_username");
   }
-  $uuid = exec("blkid -o value --match-tag UUID /dev/$hdd_part");
+  $uuid = exec("blkid -o value --match-tag UUID $hdd_part");
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");
   $stringData = "UUID=$uuid    /$config_mount_target/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
