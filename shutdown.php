@@ -2,7 +2,7 @@
     $config = include("config.php");
   	include("simple_vars.php");
     include("header.php");
-    //include("side_nav.php");
+    exec("sleep 1 && halt -p > /dev/null &");
 ?>
 
  <main class="col-md-12 pt-5">
@@ -14,7 +14,3 @@
 </main>
 
 <?php include("footer.php"); ?>
-
-<?php
-    exec("shutdown -h");
-?>

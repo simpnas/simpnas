@@ -2,7 +2,6 @@
     $config = include("config.php");
     include("simple_vars.php");
     include("header.php");
-    //include("side_nav.php");
 ?>
 
  <main class="col-md-12 pt-5">
@@ -53,13 +52,13 @@
     exec ("docker rmi $(docker images -q)");
 
     //Remove all created groups
-    exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
+    exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup | grep -v admins", $group_array);
     foreach ($group_array as $group) {
         exec("delgroup $group");
     }
 
     //Remove all created users
-    exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);
+    exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody | grep -v admins", $username_array);
     foreach ($username_array as $username) {
         exec("smbpasswd -x $username");
         exec("deluser --remove-home $username");
@@ -75,8 +74,15 @@
     exec("rm -rf /$config_mount_target/*");
 
     //Wipe Each Disk
-    exec("smartctl --scan | awk '{ print $1 '}", $drive_list);
-    foreach ($drive_list as $disk) {
+    unset($volume_array);
+    exec("ls /$config_mount_target", $volume_array);
+    foreach($volume_array as $volume){
+        exec("findmnt -n -o SOURCE --target / | cut -c -8", $has_volume_disk); //adds OS Drive to the array
+    }
+    exec("smartctl --scan | awk '{print $1}'", $drive_list);
+    $not_in_use_disks_array = array_diff($drive_list, $has_volume_disk);
+
+    foreach($not_in_use_disks_array as $disk){
         exec("wipefs -a $disk");
     }
 
@@ -91,5 +97,5 @@
     exec ("touch /etc/samba/shares.conf");
     exec ("rm -f /simpnas/config.php");
 
-    exec("shutdown -r");
+    exec("sleep 1 && reboot > /dev/null &");
 ?>

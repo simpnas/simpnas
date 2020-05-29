@@ -2,8 +2,8 @@
     $config = include("config.php");
     include("simple_vars.php");
     include("header.php");
-    //Using && is safer than ; because it ensures that command ... will run only if the sleep timer expires.
-    exec("sleep 1 && reboot > /dev/null &");
+    //include("side_nav.php");
+    //exec("sleep 1; reboot > /dev/null &");
 ?>
 
  <main class="col-md-12 pt-5">
@@ -42,3 +42,10 @@
 </script>
 
 <?php include("footer.php"); ?>
+
+<?php 
+
+    //exec("sleep 1; reboot > /dev/null &");
+    exec("sleep 20 && reboot > /dev/null &");
+
+?>
