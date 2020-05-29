@@ -905,8 +905,6 @@ if(isset($_POST['install_nextcloud'])){
 
   exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data linuxserver/nextcloud");
 
-  //$mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_nextcloud");
-
   exec("sleep 40");
   
   exec("docker exec nextcloud rm -rf /config/www/nextcloud/core/skeleton");
@@ -919,9 +917,7 @@ if(isset($_POST['install_nextcloud'])){
   //Add Trusted Hosts
   $current_hostname = gethostname();
   $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
-
-  //Add Domain
-  //sudo -u php-nextcloud php occ config:system:set overwrite.cli.url --value="https://nextcloud.my.domain"
+  $docker_gateway = exec("docker network inspect my-network | grep Gateway | awk '{print $2}' | sed 's/\\\"//g'");
 
   //Add Hostname and Primary IP to trusted_domains list
   exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 2 --value=$current_hostname");
@@ -965,7 +961,7 @@ if(isset($_POST['install_nextcloud'])){
   if($enable_samba_auth == 1){
     exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install user_external");
     exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable user_external");
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 arguments 0 --value=$primary_ip");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 arguments 0 --value=$docker_gateway");
     exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 class --value=OC_User_SMB");
   }
   
@@ -978,13 +974,13 @@ if(isset($_POST['install_nextcloud'])){
     exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable files_external");
     //Add Network Shares
     //Add Users Home folder
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create Home 'smb' password::logincredentials -c host=$primary_ip -c share='\$user' -c domain=WORKGROUP");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create Home 'smb' password::logincredentials -c host=$docker_gateway -c share='users/\$user' -c domain=WORKGROUP");
     //Enable Nextcloud Sharing on Users Home 
     exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:option 1 enable_sharing true");
     //Add All Other Shares
     exec("ls /etc/samba/shares", $share_list);
     foreach ($share_list as $share) {
-      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create /Shared-Folders/$share 'smb' password::logincredentials -c host=$primary_ip -c share='$share' -c domain=WORKGROUP");
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create /Shared-Folders/$share 'smb' password::logincredentials -c host=$docker_gateway -c share='$share' -c domain=WORKGROUP");
     }
   }
 
@@ -1701,7 +1697,7 @@ if(isset($_POST['setup'])){
   }else{
     $myFile = "/etc/samba/shares/users";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[users]\n   comment = Users Home Folders\n   path = /$config_mount_target/$volume_name/users\n   read only = no\n   force create mode = 0660\n   force directory mode = 0770\n   valid users = @admins";
+    $stringData = "[users]\n   comment = Users Home Folders\n   path = /$config_mount_target/$volume_name/users\n   read only = no\n   force create mode = 0600\n   force directory mode = 0700\n   valid users = @admins";
     fwrite($fh, $stringData);
     fclose($fh);
 

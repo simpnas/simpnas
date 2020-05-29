@@ -8,7 +8,7 @@
 
 <center>
 	<h1 class="text-danger">Deleting all Data, Configuration and Resetting SimpNAS back to Factory Defaults!</h1>
-	<h3>Redirecting to setup page in <span id="countdown">25</span> seconds</h3>
+	<h3>Redirecting to setup page in <span id="countdown">45</span> seconds</h3>
 </center>
 
 </main>
@@ -19,7 +19,7 @@
 <script type="text/javascript">
     
     // Total seconds to wait
-    var seconds = 25;
+    var seconds = 45;
     
     function countdown() {
         seconds = seconds - 1;
