@@ -30,6 +30,10 @@
 	  		<label>Hostname</label>
 	  		<input type="text" class="form-control" name="hostname" value="<?php echo gethostname(); ?>" required pattern="[a-zA-Z0-9-]{1,15}">
 	  </div>
+    <div class="form-group form-check">
+      <input type="checkbox" class="form-check-input" name="enable_beta" value="1" <?php if($config['enable_beta'] == 1){ echo "checked"; } ?> >
+      <label class="form-check-label ml-1 text-danger">Enable Beta Features</label>
+    </div>
 	  <button type="submit" name="general_edit" class="btn btn-primary">Submit</button>
 	</form>
 </main>

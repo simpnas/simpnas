@@ -192,6 +192,12 @@ if(isset($_GET['group_delete'])){
 if(isset($_POST['general_edit'])){
   $hostname = $_POST['hostname'];
   $current_hostname = exec("hostname");
+  $config['enable_beta'] = $_POST['enable_beta'];
+
+  //file_put_contents('config.php', '<?php return ' . var_export($config, true) . ';');
+  file_put_contents('config.php', '<?php return ' . var_export($config, true) . ';');
+  
+  sleep(3);
   
   exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
   exec("hostnamectl set-hostname $hostname");
@@ -1659,7 +1665,7 @@ if(isset($_POST['setup'])){
 
   //$txt = "<?php\n\n\$config_mount_target = 'mnt';\n\$config_docker_volume = \"$volume_name\";\n\$config_home_volume = \"$volume_name\";\n\$config_home_dir = 'homes';\n\n"
 
-  $data = "<?php\nreturn array(\n'mount_target' => '$config_mount_target',\n'docker_volume' => '$volume_name',\n'home_volume' => '$volume_name',\n'home_dir' => '$config_home_dir',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n);\n?>";
+  $data = "<?php\nreturn array(\n'mount_target' => '$config_mount_target',\n'docker_volume' => '$volume_name',\n'home_volume' => '$volume_name',\n'home_dir' => '$config_home_dir',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'enable_beta' => '0'\n);\n?>";
 
   fwrite($file, $data);
 
@@ -1710,24 +1716,25 @@ if(isset($_POST['setup'])){
 
   }
 
-  //Check to see if theres already a user added
+  //Check to see if theres already a user added and delete that user
   $existing_username = exec("cat /etc/passwd | grep 1000 | awk -F: '{print $1}'");
-  if(empty($existing_username)){  
-    if($server_type == 'AD'){
-      exec ("samba-tool user create $username $password");
-    }elseif($server_type == 'standalone'){
-      exec ("echo '$password\n$password' | smbpasswd -a $username");
-    }
-    exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/$username");
-    exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
-    exec ("useradd -g users -d /$config_mount_target/$volume_name/$config_home_dir/$username $username -p $password");
-    exec ("chown -R $username:users /$config_mount_target/$volume_name/$config_home_dir/$username");
-    exec ("usermod -a -G admins $username");
-
-  }else{
-    exec("usermod -m -d /$config_mount_target/$volume_name/$config_home_dir/$existing_username $existing_username");
-    exec("usermod -a -G admins $existing_username");
+  if(!empty($existing_username)){
+    exec("deluser --remove-home $existing_username");
   }
+
+  //Create the new user
+  exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/$username");
+  exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
+  exec ("useradd -g users -d /$config_mount_target/$volume_name/$config_home_dir/$username $username -p $password");
+  exec ("chown -R $username:users /$config_mount_target/$volume_name/$config_home_dir/$username");
+  exec ("usermod -a -G admins $username");
+  exec ("usermod -a -G sudo $username");
+  if($server_type == 'AD'){
+    exec ("samba-tool user create $username $password");
+  }else{
+    exec ("echo '$password\n$password' | smbpasswd -a $username");
+  }
+  
   $uuid = exec("blkid -o value --match-tag UUID $hdd_part");
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");

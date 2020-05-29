@@ -18,7 +18,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title></title>
+    <title>SimpNAS | Setup</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -29,7 +29,7 @@
 
   <body>
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#"><?php echo gethostname(); ?></a>
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="index.php"><span data-feather="box"></span> SimpNAS <small>(<?php echo gethostname(); ?>)</small></a>
       <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
           <a class="nav-link" href="login.php">Logout</a>
@@ -108,7 +108,7 @@
 		?>
 
 	  </select>
-	  <small class="form-text text-muted">Select a disk to create your first volume on. user home and docker directories will be created here, note you cannot use the disk your OS is installed on and will not show here</small>
+	  <small class="form-text text-muted">Select a disk to create your first volume on. user home and docker directories will be created here. Note SimpNAS requires at minimum two hard drives one for the OS and other for the data.</small>
 	  </div>
 	  <div class="form-group">
 	    <label>Volume Name</label>
@@ -125,7 +125,7 @@
 
 	  <div id="activeDirectorySettings">
 		  <div class="form-group">
-		    <label>AD Domain</label>
+		    <label>Domain</label>
 		    <input type="text" class="form-control" name="ad_domain" placeholder="ex. company.int">
 		  </div>
 		  
@@ -149,23 +149,23 @@
 
 	  <div class="form-group">
 	  	<label>Network Interface</label>
-		<select class="form-control" name="interface">
-			<?php
-			foreach ($net_devices_array as $net_device) {
-			?>
-			<option><?php echo $net_device; ?></option>
-			<?php
-			}
-			?>
-		</select>
+			<select class="form-control" name="interface">
+				<?php
+				foreach ($net_devices_array as $net_device) {
+				?>
+				<option><?php echo $net_device; ?></option>
+				<?php
+				}
+				?>
+			</select>
 	  </div>
 	  
 	  <div class="form-group">
-		<label>Method</label>
-		<select class="form-control" name="method" id="method">
-			<option id="dhcp">DHCP</option>
-			<option id="static">Static</option>
-		</select>
+			<label>Method</label>
+			<select class="form-control" name="method" id="method">
+				<option id="dhcp">DHCP</option>
+				<option id="static">Static</option>
+			</select>
 	  </div>
 	  
 	  <div id="staticSettings">
@@ -185,36 +185,26 @@
 		  </div>
 	  </div>
 
-	  <?php
-	  //Check to see if theres already a user added
-	  $existing_username = exec("cat /etc/passwd | grep 1000 | awk -F: '{print $1}'");
-	  if(empty($existing_username)){
-	  ?>
+	  <legend>Setup Admin User</legend>
 
-		  <legend>Setup User</legend>
+	  <div class="form-group">
+	    <label>Username</label>
+	    <input type="text" class="form-control" name="username" required>
+	  </div>
+	  
+	  <div class="form-group">
+	    <label>Password</label>
+	    <input type="password" class="form-control" name="password" required autocomplete="new-password">
+	  </div>
 
-		  <div class="form-group">
-		    <label>Username</label>
-		    <input type="text" class="form-control" name="username" required>
-		  </div>
-		  
-		  <div class="form-group">
-		    <label>Password</label>
-		    <input type="password" class="form-control" name="password" required autocomplete="new-password">
-		  </div>
-
-	  <?php
-	  }
-	  ?>
-
-		  <legend>Send Statistic Data</legend>
-		  <p>This will collect a Unique Machine ID used for Unique Installs on our Webpage.</p>
-		  <div class="form-group">
-		  	<div class="custom-control custom-checkbox">
-			  <input type="checkbox" class="custom-control-input" name="collect" value="1" id="collect">
-			  <label class="custom-control-label" for="collect">Yes Collect Statistic Data</label>
-			</div>
-		  </div>
+	  <legend>Send Statistic Data</legend>
+	  <p>This will collect a Unique Machine ID used for Unique Installs on our Webpage.</p>
+	  <div class="form-group">
+	  	<div class="custom-control custom-checkbox">
+		  <input type="checkbox" class="custom-control-input" name="collect" value="1" id="collect">
+		  <label class="custom-control-label" for="collect">Yes Collect Statistic Data</label>
+		</div>
+	  </div>
 	  
 	  <button type="submit" name="setup" class="btn btn-primary">Submit</button>
 	</form>

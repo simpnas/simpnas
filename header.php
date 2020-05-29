@@ -6,8 +6,6 @@ if(!file_exists('config.php')){
 
 session_start();
 
-$startScriptTime=microtime(TRUE);
-
 ?>
 
 <?php include("functions.php"); ?>
