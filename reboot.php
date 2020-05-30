@@ -2,15 +2,13 @@
     $config = include("config.php");
     include("simple_vars.php");
     include("header.php");
-    //Using && is safer than ; because it ensures that command ... will run only if the sleep timer expires.
-    exec("sleep 1 && reboot > /dev/null &");
 ?>
 
  <main class="col-md-12 pt-5">
 
 <center>
 	<h1 class="text-danger">Rebooting!</h1>
-	<h3>Redirecting to the Dashboard after <span id="countdown">25</span> seconds</h3>
+	<h3>Redirecting to the Dashboard after <span id="countdown">45</span> seconds</h3>
 </center>
 
 </main>
@@ -21,7 +19,7 @@
 <script type="text/javascript">
     
     // Total seconds to wait
-    var seconds = 25;
+    var seconds = 45;
     
     function countdown() {
         seconds = seconds - 1;
@@ -41,4 +39,11 @@
 
 </script>
 
-<?php include("footer.php"); ?>
+<?php 
+
+include("footer.php"); 
+
+//Using && is safer than ; because it ensures that command ... will run only if the sleep timer expires.
+exec("sleep 1 && reboot > /dev/null &");
+
+?>

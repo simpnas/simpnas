@@ -1,12 +1,3 @@
-			<?php
-
-		$endScriptTime=microtime(TRUE);
-$totalScriptTime=$endScriptTime-$startScriptTime;
-echo "\n\r".'<!-- Load time: '.number_format($totalScriptTime, 4).' seconds -->';
-
-?>
-
-
 			</div>
 		</div>
 

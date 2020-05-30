@@ -74,16 +74,14 @@
     exec("rm -rf /$config_mount_target/*");
 
     //Wipe Each Disk
-    unset($volume_array);
-    exec("ls /$config_mount_target", $volume_array);
-    foreach($volume_array as $volume){
-        exec("findmnt -n -o SOURCE --target / | cut -c -8", $has_volume_disk); //adds OS Drive to the array
-    }
+    exec("findmnt -n -o SOURCE --target / | cut -c -8", $os_disk); //adds OS Drive to the array
     exec("smartctl --scan | awk '{print $1}'", $drive_list);
-    $not_in_use_disks_array = array_diff($drive_list, $has_volume_disk);
+    $not_in_use_disks_array = array_diff($drive_list, $os_disk);
 
     foreach($not_in_use_disks_array as $disk){
-        exec("wipefs -a $disk");
+        $output = exec("wipefs -a $disk");
+        echo "Wiping disk $disk...<br>";
+        echo "$output<br><br>";
     }
 
     //Remove any backup cron scripts

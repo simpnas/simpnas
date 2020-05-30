@@ -42,14 +42,50 @@
       "local_port" => 8443,
     ),
     array(
-      "title" => "Dokuwiki",
-      "description" => "Access and share your files anywhere over the Internet",
-      "website" => "https://dokuwiki.com",
-      "image" => "dokuwiki.png",
-      "container_name" => "dokuwiki",
-      "external_hostname" => "wiki",
-      "local_port" => 85,
-    )
+      "title" => "Unifi Video",
+      "description" => "NVR",
+      "website" => "https://ui.com",
+      "image" => "unifi-video2.png",
+      "container_name" => "unifi-video",
+      "external_hostname" => "unifi-video",
+      "local_port" => 7443,
+    ),
+    array(
+      "title" => "Home Assistant",
+      "description" => "Home Automation (Control Lights, switches, smart devices)",
+      "website" => "https://homeassistant.com",
+      "image" => "homeassistant.png",
+      "container_name" => "homeassistant",
+      "external_hostname" => "homeassistant",
+      "local_port" => 8123,
+    ),
+    array(
+      "title" => "Wireguard VPN Server",
+      "description" => "Allow secure external access inside your network",
+      "website" => "https://wireguard.com",
+      "image" => "wireguard.png",
+      "container_name" => "wireguard",
+      "external_hostname" => "vpn",
+      "local_port" => 0,
+    ),
+    array(
+      "title" => "OpenVPN VPN Server",
+      "description" => "Allow secure external access inside your network",
+      "website" => "https://openvpn.org",
+      "image" => "openvpn.png",
+      "container_name" => "openvpn",
+      "external_hostname" => "vpn",
+      "local_port" => 943,
+    ),
+    array(
+      "title" => "Bitwarden RS",
+      "description" => "Password Manager",
+      "website" => "https://bitwarden.org",
+      "image" => "bitwarden.png",
+      "container_name" => "bitwarden",
+      "external_hostname" => "vault",
+      "local_port" => 88,
+    ),
   );
 
 ?>
@@ -80,6 +116,40 @@
   <div class="table-responsive">
     <table class="table">
       <tbody>                
+        
+        <tr>
+          <td class="text-center text-muted">
+            <img src="img/apps/<?php echo $apps['image']; ?>" height="48" width="48" class="img-fluid rounded">
+            <br>
+            <?php echo $apps['title']; ?>
+            <br>
+            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/ ". $apps['container_name'] ." ")) { ?>
+            <small class="text-success"><span data-feather="check"></span>Installed</small>
+            <?php } ?>
+          </td>
+          <td>
+            <?php echo $apps['description']; ?>
+          </td>
+          <td>
+            <div class="btn-group mr-2">
+              <?php 
+                if(file_exists("/$config_mount_target/$config_docker_volume/docker/".$apps['container_name'] ." ")) {
+              ?>
+                <a href="https://<?php echo $_SERVER['HTTP_HOST']; ?>:$apps['local_port']" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="update_<?php echo $apps['container_name']; ?>.php" class="btn btn-outline-success"><span data-feather="arrow-up"></span></a>
+                <a href="post.php?uninstall_<?php echo $apps['container_name']; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <?php
+              }else{
+              ?>
+              <a href="install_<?php echo $apps['container_name']; ?>.php" class="btn btn-outline-success">Install</a>
+              <?php  
+              }
+              ?>
+            </div>
+          </td>
+        </tr>
+
+
         <tr>
           <td class="text-center text-muted">
             <img src="img/apps/nextcloud.png" height="48" width="48" class="img-fluid rounded">

@@ -194,7 +194,6 @@ if(isset($_POST['general_edit'])){
   $current_hostname = exec("hostname");
   $config['enable_beta'] = $_POST['enable_beta'];
 
-  //file_put_contents('config.php', '<?php return ' . var_export($config, true) . ';');
   file_put_contents('config.php', '<?php return ' . var_export($config, true) . ';');
   
   sleep(3);
@@ -204,8 +203,15 @@ if(isset($_POST['general_edit'])){
   
   exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
-  $new_hostname = $exec("hostname");
-  header("Location: http://$new_hostname/general.php");
+  $new_hostname = exec("hostname");
+  header("Location: http://$new_hostname:81/general.php");
+}
+
+if(isset($_POST['datetime_update'])){
+  $timezone = $_POST['timezone'];
+  
+  exec("timedatectl set-timezone '$timezone'");
+  header("Location: datetime.php");
 }
 
 if(isset($_GET['unmount_volume'])){
