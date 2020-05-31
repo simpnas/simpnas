@@ -8,6 +8,11 @@
 	$os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 	exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v br-", $net_devices_array);
 
+	$current_time_zone = exec("timedatectl show -p Timezone --value");
+    $current_local_date = exec("timedatectl show -p TimeUSec --value | awk '{print $2}'");
+    $current_local_time = exec("timedatectl show -p TimeUSec --value | awk '{print $3}'");
+    exec("timedatectl list-timezones", $timezones_array);
+
 ?>
 
 <!doctype html>
@@ -73,6 +78,20 @@
 	  <div class="form-group">
 	    <label>Hostname</label>
 	    <input type="text" class="form-control" name="hostname" value="<?php echo gethostname(); ?>">
+	  </div>
+
+	  <legend>TimeZone</legend>
+	  <div class="form-group">
+	    <label>Timezone:</label>
+	    <select class="form-control" name="timezone">
+	    	<?php
+	    	foreach ($timezones_array as $timezone) {
+	    	?>
+	    	<option <?php if($current_time_zone === $timezone){ echo "selected"; } ?> ><?php echo $timezone; ?></option>
+	    	<?php
+	    	}
+	    	?>
+	    </select>
 	  </div>
 	  
 	  <legend>Disk and Volume Setup</legend>

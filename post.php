@@ -1635,6 +1635,7 @@ if(isset($_GET['uninstall_openvpn'])){
 }
 
 if(isset($_POST['setup'])){
+  $timezone = $_POST['timezone'];
   $volume_name = $_POST['volume_name'];
   $hdd = $_POST['disk'];
   $hdd_part = $hdd."1";
@@ -1661,11 +1662,12 @@ if(isset($_POST['setup'])){
   $config_mount_target = "mnt";
   $config_home_dir = "users";
 
+  //Set TimeZone
+  exec("timedatectl set-timezone '$timezone'");
+
   //Create config.php file
   
   $file = fopen("config.php", "w");
-
-  //$txt = "<?php\n\n\$config_mount_target = 'mnt';\n\$config_docker_volume = \"$volume_name\";\n\$config_home_volume = \"$volume_name\";\n\$config_home_dir = 'homes';\n\n"
 
   $data = "<?php\nreturn array(\n'mount_target' => '$config_mount_target',\n'docker_volume' => '$volume_name',\n'home_volume' => '$volume_name',\n'home_dir' => '$config_home_dir',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'enable_beta' => '0'\n);\n?>";
 
