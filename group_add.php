@@ -15,7 +15,7 @@
 </nav>
 
   <h2>Add Group</h2>
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
     <div class="form-group">
 	    <label>Group:</label>
 	    <input type="text" class="form-control" name="group" required pattern="[a-zA-Z0-9-]{1,25}">

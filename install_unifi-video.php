@@ -23,7 +23,7 @@
   	<li>When installation is complete you can access and setup Unifi Video by visiting https://<?php echo $_SERVER['HTTP_HOST']; ?>:7443</li>
   </ul>
  
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 
 	  <div class="form-group">
 	    <label>Volume to create video-surveillance Share</label>

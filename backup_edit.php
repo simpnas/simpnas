@@ -23,7 +23,7 @@
 
   <h2>Edit Backup Task</h2>
 
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 	  <input type="hidden" name="current_backup" value="<?php echo $backup; ?>">
 	  <input type="hidden" name="current_occurance" value="<?php echo $occurance; ?>">
 

@@ -23,7 +23,7 @@
   	<li>When Installation is complete you can access and setup jellyfin by visiting http://<?php echo $_SERVER['HTTP_HOST']; ?>:8096</li>
   </ul>
  
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 
 	  <div class="form-group">
 	    <label>Volume to create media Share</label>

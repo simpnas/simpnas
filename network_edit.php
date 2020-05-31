@@ -3,7 +3,7 @@
   	include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
-    exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth", $net_devices_array);
+    exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v br", $net_devices_array);
 ?>
 
 <?php
@@ -30,7 +30,7 @@ $dhcp = $networkConfigArray['DHCP'];
 </nav>
 
   <h2>Edit Network</h2>
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 	<input type="hidden" name="interface" value="<?php echo $name; ?>">
 	<div class="form-group">
 		<label>Interface</label>

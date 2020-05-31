@@ -25,7 +25,7 @@
 
   ?>
 
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 	  <div class="form-group">
 	  		<label>SMTP Server</label>
 	  		<input type="text" class="form-control" name="smtp_server" value="<?php echo $config['smtp_server']; ?>">
@@ -44,7 +44,7 @@
     </div>
     <div class="form-group">
         <label>SMTP Password</label>
-        <input type="text" class="form-control" name="smtp_password" value="<?php echo $config['smtp_password']; ?>">
+        <input type="text" class="form-control" name="smtp_password" value="<?php echo $config['smtp_password']; ?>" autocomplete="new-password">
     </div>
     <div class="form-group">
         <label>Default Mail From</label>

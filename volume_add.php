@@ -23,7 +23,7 @@
 
   <h2>Add Volume</h2>
 
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 	  <div class="form-group">
 	    <label>Disk:</label>
 	    <select class="form-control" name="disk" required>

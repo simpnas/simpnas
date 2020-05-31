@@ -23,7 +23,7 @@
 
   <h2>Add RAID Volume</h2>
 
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 	<label>Select Disks</label>
 
 	<?php foreach ($not_in_use_disks_array as $hdd) {

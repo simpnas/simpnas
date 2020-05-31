@@ -32,7 +32,7 @@
 
   ?>
   
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 	  <div class="form-group">
 	    <label>Timezone:</label>
 	    <select class="form-control" name="timezone">

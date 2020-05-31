@@ -25,7 +25,7 @@
 
   <h2>Edit Share</h2>
  
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 
 	  <div class="form-group">
 	    <label>Volume</label>

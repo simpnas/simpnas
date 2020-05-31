@@ -22,7 +22,7 @@
   	<li>When installation is complete you can access and setup Lychee by visiting to http://<?php echo $_SERVER['HTTP_HOST']; ?>:4560</li>
   </ul>
  
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 
 	  <div class="form-group">
 	    <label>Volume to create photos Share</label>

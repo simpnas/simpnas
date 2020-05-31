@@ -3,7 +3,7 @@
   	include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
-    exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth", $net_devices_array);
+    exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v br", $net_devices_array);
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -16,7 +16,7 @@
 </nav>
 
   <h2>Add Network</h2>
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 	<div class="form-group">
 		<label>Interface</label>
 		<select class="form-control" name="interface">

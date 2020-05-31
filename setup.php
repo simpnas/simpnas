@@ -72,7 +72,7 @@
   
   <h2>First Time Setup Wizard</h2>
   <hr>
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 	  <legend>Naming Setup</legend>
 
 	  <div class="form-group">

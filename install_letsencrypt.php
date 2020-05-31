@@ -21,7 +21,7 @@
   	<li>When Installation is complete you can access Nextcloud by visiting http://<?php echo $_SERVER['HTTP_HOST']; ?></li>
   </ul>
  
-  	<form method="post" action="post.php">
+  	<form method="post" action="post.php" autocomplete="off">
   		<div class="form-group">
 		    <label>Domain</label>
 		    <input type="text" class="form-control" name="domain" required>

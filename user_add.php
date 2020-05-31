@@ -16,7 +16,7 @@
 </nav>
 
   <h2>Add User</h2>
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 	  <div class="form-group">
 	    <label>Username</label>
 	    <input type="text" class="form-control" name="username" required pattern="[a-zA-Z0-9]{1,20}">

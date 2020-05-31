@@ -21,10 +21,10 @@
   	<li>When Installation is complete you can access Nextcloud by visiting https://<?php echo $_SERVER['HTTP_HOST']; ?>:6443</li>
   </ul>
  
-  	<form method="post" action="post.php">
+  	<form method="post" action="post.php" autocomplete="off">
   		<div class="form-group">
 		    <label>Nextcloud Admin Password</label>
-		    <input type="text" class="form-control" name="password" required>
+		    <input type="password" class="form-control" name="password" required autocomplete="new-password">
 		</div>
 		
 		<div class="form-group form-check">

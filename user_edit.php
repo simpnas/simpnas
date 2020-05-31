@@ -21,7 +21,7 @@
 	</nav>
 
   <h2>Edit User</h2>
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 	  
 	  <div class="form-group">
 	    <label>Username</label>
@@ -30,7 +30,7 @@
 	  
 	  <div class="form-group">
 	    <label>Password</label>
-	    <input type="password" class="form-control" name="password" placeholder="Leave blank for no change">
+	    <input type="password" class="form-control" name="password" placeholder="Leave blank for no change" autocomplete="new-password">
 	  </div>
 	  
 	  <legend>Groups</legend>

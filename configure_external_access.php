@@ -49,7 +49,7 @@
   	<li>Configure your firewall or router to port forward port 80 and port 443 TCP to IP</li>
   </ul>
  
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 
 	  <div class="form-group">
 	    <label>Domain</label>

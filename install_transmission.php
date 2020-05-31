@@ -23,7 +23,7 @@
   	<li>When Installation is complete you can access Transmission by visiting http://<?php echo $_SERVER['HTTP_HOST']; ?>:9091</li>
   </ul>
  
-  <form method="post" action="post.php">
+  <form method="post" action="post.php" autocomplete="off">
 
 	  <div class="form-group">
 	    <label>Volume to create downloads share <strong class="text-danger">*</strong></label></label>
@@ -68,7 +68,7 @@
 		  </div>
 		  <div class="form-group">
 		    <label>VPN Password <strong class="text-danger">*</strong></label></label>
-		    <input type="password" class="form-control" name="password" placeholder="Password">
+		    <input type="password" class="form-control" name="password" placeholder="Password" autocomplete="new-password">
 		  </div>
 		  <div class="form-group">
 		    <label>DNS Server <small class="text-secondary">(Optional)</small></label>
