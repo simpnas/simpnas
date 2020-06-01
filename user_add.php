@@ -47,6 +47,8 @@
 
 	  <button type="submit" name="user_add" class="btn btn-primary">Submit</button>
 	</form>
+
 </main>
+
 
 <?php include("footer.php"); ?>
