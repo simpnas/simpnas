@@ -35,9 +35,9 @@
       <table class="table table-striped">
         <thead>
           <tr>
-            <th>Name</th>
-            <th><span data-feather="user"></span>
-            <th>Reference Shares</th>
+            <th>Group</th>
+            <th>Users</span>
+            <th>Shares</th>
             <th>Action</th>
           </tr>
         </thead>

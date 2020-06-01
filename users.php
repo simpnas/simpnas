@@ -36,7 +36,7 @@
       <thead>
         <tr>
           <th>User</th>
-          <th><span data-feather="users"></span></th>
+          <th>Groups</th>
           <th>Used Space</th>
           <th>Action</th>
         </tr>

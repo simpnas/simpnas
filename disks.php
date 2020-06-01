@@ -42,9 +42,6 @@
         <th>Serial</th>
         <th>Capacity</th>
         <th>Disk Type</th>
-        <th>On Time</th>
-        <th>Temp</th>
-        <th>Health</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -53,29 +50,6 @@
   foreach ($drive_list as $hdd) {
     $hdd_short_name = basename($hdd);
     $hdd_smart = exec("smartctl -i $hdd | grep 'SMART support is' | cut -d' ' -f 8-");
-    
-    if($hdd_smart == "Unavailable - device lacks SMART capability."){
-      $hdd_temp = "-";
-      $hdd_power_on_hours = "-";
-      //$hdd_bad_blocks = "-";
-      $hdd_health = "-";
-    }else{
-      $hdd_temp = exec("smartctl -a $hdd | grep '194 Temperature_Celsius' | awk '{ print $10 '}");
-      $hdd_temp = ($hdd_temp * 1.8) + 32;
-      $hdd_temp = "$hdd_temp &#176;F";
-      $hdd_power_on_hours = exec("smartctl -a $hdd | grep 'Power_On_Hours' | awk '{ print $10 '}");
-      $hdd_power_on_hours = "$hdd_power_on_hours Hours";
-      $hdd_power_on_days = $hdd_power_on_hours / 24;
-      $hdd_power_on_days = floor($hdd_power_on_days);
-      $hdd_power_on_days = "$hdd_power_on_days Days";
-      $hdd_health = exec("smartctl -H $hdd | grep 'SMART overall-health' | awk '{print $6}'");
-      if($hdd_health == 'PASSED'){
-        $hdd_health_color = 'success';
-      }else{
-        $hdd_health_color = 'danger';
-      }
-      //$hdd_bad_blocks = exec("smartctl -a $hdd | grep 'Reallocated_Sector_Ct' | awk '{ print $10 '}");
-    }
 
     $hdd_make = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3}'");
     if($hdd_make == 'WDC'){
@@ -120,12 +94,9 @@
         <td><?php echo $hdd_serial; ?></td>
         <td><?php echo $hdd_label_size; ?></td>
         <td><?php echo $hdd_type; ?></td>
-        <td><?php echo $hdd_power_on_hours; ?><br><small><?php echo $hdd_power_on_days; ?></small></td>
-        <td><?php echo $hdd_temp; ?></td>
-        <td><p class="text-<?php echo $hdd_health_color; ?>"><?php echo $hdd_health; ?></p></td>
         <td>
           <div class="btn-group mr-2">
-          <a href="hdd_info.php?hdd=<?php echo $hdd_short_name; ?>" class="btn btn-outline-secondary"><span data-feather="info"></span></a>
+          <a href="hdd_info.php?hdd=<?php echo $hdd_short_name; ?>" class="btn btn-outline-secondary btn-sm">Health Info</a>
         </div>
         </td>
       </tr>

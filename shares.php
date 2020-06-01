@@ -34,9 +34,8 @@
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>Name</th>
+          <th>Share</th>
           <th>Description</th>
-          <th>Volume</th>
           <th>Group</th>
           <th>Size</th>
           <th>Action</th>
@@ -59,9 +58,12 @@
         ?>
 
         <tr>
-          <td><span class="mr-2" data-feather="folder"></span><?php echo $share; ?></td>
+          <td>
+            <span class="mr-2" data-feather="folder"></span><strong><?php echo $share; ?></strong>
+            <br>
+            <div class="ml-4 text-secondary"><?php echo $volume; ?></div>
+          </td>
           <td><?php echo $comment; ?></td>
-          <td><?php echo $volume; ?></td>
           <td><?php echo $group; ?></td>
           <td><?php echo $used_space; ?></td>
           <td>

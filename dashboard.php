@@ -15,7 +15,9 @@
   $free_memory = exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
   $free_memory = floor($free_memory);
   //$cpu_usage = exec("top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\([0-9.]*\)%* id.*/\1/' | awk '{print 100 - $1'%'}'");
-  $load_avg = exec("uptime | awk -F 'average: ' '{ print $2}'");
+  $load = exec("cat /proc/loadavg | awk '{print $1}'");
+
+  //$load_avg = exec("uptime | awk -F 'average: ' '{ print $2}'");
   $uptime = exec("uptime -p | cut -c 4-");
   $system_time = exec("date");
   $machine_id = exec("cat /etc/machine-id");
@@ -61,27 +63,15 @@
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
   <div class="row">
     <div class="col-md-6">
-      <legend>Overview</legend>
-      <table class="table mb-5">
+      <div class="alert alert-success">
+        <h4>Healthy!</h4>
+        System is healthy.
+      </div>
+      <table class="table table-borderless mb-5">
         
         <tr>
-          <td>Hostname</td>
-          <td><?php echo gethostname(); ?></td>
-        </tr>
-
-        <tr>
-          <td>OS</td>
-          <td><?php echo $OS; ?></td>
-        </tr>
-
-        <tr>
-          <td>Kernel</td>
-          <td><?php echo $kernel; ?></td>
-        </tr>
-
-        <tr>
-          <td>Machine ID</td>
-          <td><?php echo $machine_id; ?></td>
+          <td>Server Name</td>
+          <th><?php echo gethostname(); ?></th>
         </tr>
 
         <tr>
@@ -104,13 +94,8 @@
         </tr>
         
         <tr>
-          <td>Load Average</td>
-          <td><?php echo $load_avg; ?></td>
-        </tr>
-
-        <tr>
-          <td>System Time</td>
-          <td><?php echo $system_time; ?></td>
+          <td>Load</td>
+          <td><?php echo $load; ?></td>
         </tr>
         
         <tr>
@@ -119,121 +104,10 @@
         </tr>
       
       </table>
-      
-      <div class="row">
-          <div class="col-md-12">
-            <legend>Stats</legend>
-            <hr>
-          </div>
-          
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title">Users</h5>
-                <p class="card-text"><?php echo $num_of_users; ?></p>
-              </div>
-            </div>
-          </div>
-    
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title">Groups</h5>
-                <p class="card-text"><?php echo $num_of_groups; ?></p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title">Apps</h5>
-                <p class="card-text"><?php echo $num_of_apps; ?></p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-4">
-            <div class="card text-center border-t-danger">
-              <div class="card-body">
-                <h5 class="card-title">Disks</h5>
-                <p class="card-text"><?php echo $num_of_disks; ?></p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title">Volumes</h5>
-                <p class="card-text"><?php echo $num_of_volumes; ?></p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title">Shares</h5>
-                <p class="card-text"><?php echo $num_of_shares; ?></p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title">Backup Jobs</h5>
-                <p class="card-text"><?php echo $num_of_backup_jobs; ?></p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title">Net Devices</h5>
-                <p class="card-text"><?php echo $num_of_network_devices; ?></p>
-              </div>
-            </div>
-          </div>
-        
-      
-      </div> <!-- nested /row -->
-
-      <div class="row">
-          <div class="col-md-12">
-            <legend>Services</legend>
-            <hr>
-          </div>
-          
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title">Samba (File Share)</h5>
-                <p class="card-text"><?php echo $status_service_smbd; ?></p>
-              </div>
-            </div>
-          </div>
-    
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title">SSH (Remote Terminal Shell)</h5>
-                <p class="card-text"><?php echo $status_service_ssh; ?></p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title">Docker (Apps)</h5>
-                <p class="card-text"><?php echo $status_service_docker; ?></p>
-              </div>
-            </div>
-          </div>
-      
-      </div> <!-- nested /row -->
-
 
     </div> <!-- /col-6 -->
     
     <div class="col-md-6">
-      <legend class="text-center mb-3">Volumes</legend>
       <?php
       foreach($volume_array as $volume){
         //check to see if mounted
@@ -255,7 +129,6 @@
       ?>
           <div class="col-md-12 mb-4">
             <h4 class="text-center"><?php echo $volume; ?></h4>
-            <h5 class="text-center text-secondary"><?php echo "$hdd_vendor ($hdd_label_size)"; ?></h5>
             <canvas id="doughnutChart<?php echo $volume; ?>"></canvas>
           </div>
         <?php 
@@ -289,7 +162,7 @@
   new Chart(document.getElementById("doughnutChart<?php echo $volume; ?>"), {
     type: 'doughnut',
     data: {
-      labels: ["<?php echo $used_space_formatted; ?> Used", "<?php echo $free_space_formatted; ?> Free"],
+      labels: ["<?php echo $used_space_formatted; ?> Used", "<?php echo $free_space_formatted; ?> Available"],
       datasets: [
         {
           backgroundColor: ["<?php if($used_space_percent > 85){ echo '#d9534f'; }else{ echo '#007bff'; } ?>", "#99999"],
