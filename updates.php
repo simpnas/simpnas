@@ -3,6 +3,7 @@
   include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
+  exec("apt update");
 
   if(isset($_GET['check'])){
     exec("apt update");
@@ -40,8 +41,6 @@
             <th>Package</th>
             <th>Current Version</th>
             <th>New Version</th>
-            <th>Update Type</th>
-            <th>Change Log</th>
           </tr>
         </thead>
         <tbody> 
@@ -57,8 +56,6 @@
             <td><?php echo $nice_package_name; ?></td>
             <td><?php echo $current_version; ?></td>
             <td><?php echo $new_version; ?></td>
-            <td>Security</td>
-            <td>Check here</td>
           </tr>
           <?php
           }

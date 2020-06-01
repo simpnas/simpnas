@@ -10,9 +10,11 @@
     }
     exec("smartctl --scan | awk '{print $1}'", $drive_list);
     $not_in_use_disks_array = array_diff($drive_list, $has_volume_disk);
+
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
 <nav>
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
@@ -21,11 +23,15 @@
   </ol>
 </nav>
 
-  <h2>Add Volume</h2>
+<?php
+if(count($not_in_use_disks_array) > 0){ 
+?>
+
+  <h2>Create Volume</h2>
 
   <form method="post" action="post.php" autocomplete="off">
 	  <div class="form-group">
-	    <label>Disk:</label>
+	    <label>Disk</label>
 	    <select class="form-control" name="disk" required>
 	  		<option value=''>--Select A Drive--</option>
 	  	<?php
@@ -60,18 +66,18 @@
 	    <label>Volume Name</label>
 	    <input type="text" class="form-control" name="name" required pattern="[a-zA-Z0-9-]{1,15}">
 	  </div>
-	  
-	  <div class="form-group form-check">
-	    <input type="checkbox" class="form-check-input" name="encrypt" value="1" id="encrypt">
-	    <label class="form-check-label ml-1">Encrypt</label>
-	  </div>
-
-	  <div class="form-group" id="passwordbox">
-	    <label>Disk Password</label>
-	    <input type="password" class="form-control" name="password">
-	  </div>
+	 
 	  <button type="submit" name="volume_add" class="btn btn-primary">Submit</button>
 	</form>
+
+<?php
+}else{
+?>
+<h2 class="text-secondary mt-5 text-center">All disks have volumes<br>You must add another disk to create a new volume</h2>
+<?php
+} 
+?>
+
 </main>
 
 <?php include("footer.php"); ?>

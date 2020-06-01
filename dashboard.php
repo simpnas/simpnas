@@ -59,9 +59,6 @@
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-    <h1 class="h2">Dashboard</h1>
-  </div>
   <div class="row">
     <div class="col-md-6">
       <legend>Overview</legend>
@@ -91,12 +88,6 @@
           <td>Processor</td>
           <td>
             <?php echo $cpu_model; ?>
-            <div class="progress">
-                <div class="progress-bar" style="width: <?php echo $cpu_usage; ?>%">
-                </div>
-            </div>
-            (<?php echo get_server_cpu_usage(); ?>% Used)
-
           </td>
         </tr>
         

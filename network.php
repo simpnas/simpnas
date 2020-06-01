@@ -68,7 +68,6 @@
           <td>
           	<div class="btn-group mr-2">
         		<a href="network_edit.php?name=<?php echo $name; ?>" class="btn btn-outline-secondary"><span data-feather="edit-2"></span></a>
-        		<a href="post.php?network_delete=<?php echo $name; ?>" class="btn btn-outline-secondary"><span data-feather="trash"></span></a>
       		</div>
       	  </td>
         </tr>

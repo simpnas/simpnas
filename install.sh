@@ -19,7 +19,7 @@ echo "==========================================================================
 echo "Installing Additional Required Packages..."
 echo "Samba, PHP, SMARTmonTools, Rsync, mdadm (RAID) etc"
 echo "=================================================================================="
-DEBIAN_FRONTEND=noninteractive \apt install samba smartmontools rsync php-cgi cryptsetup git mdadm apt-transport-https curl gnupg-agent software-properties-common quota -y
+DEBIAN_FRONTEND=noninteractive \apt install samba smartmontools rsync php-cgi cryptsetup git mdadm apt-transport-https curl gnupg-agent software-properties-common quota dnsutils -y
 echo "================================================================================="
 echo "Install Docker Repo and latest docker"
 echo "================================================================================="

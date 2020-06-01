@@ -77,13 +77,13 @@
 
 	  <div class="form-group">
 	    <label>Hostname</label>
-	    <input type="text" class="form-control" name="hostname" value="<?php echo gethostname(); ?>">
+	    <input type="text" class="form-control" name="hostname" value="<?php echo gethostname(); ?>" required>
 	  </div>
 
 	  <legend>TimeZone</legend>
 	  <div class="form-group">
 	    <label>Timezone:</label>
-	    <select class="form-control" name="timezone">
+	    <select class="form-control" name="timezone" required>
 	    	<?php
 	    	foreach ($timezones_array as $timezone) {
 	    	?>
@@ -98,7 +98,7 @@
 
 	  <div class="form-group">
 	    <label>Disk</small></label>
-	    <select class="form-control" name="disk">
+	    <select class="form-control" name="disk" required>
 	  	<?php
 			exec("smartctl --scan | awk '{print $1}'", $drive_list);
 			foreach ($drive_list as $hdd) {
@@ -181,7 +181,7 @@
 	  
 	  <div class="form-group">
 			<label>Method</label>
-			<select class="form-control" name="method" id="method">
+			<select class="form-control" name="method" id="method" required>
 				<option id="dhcp">DHCP</option>
 				<option id="static">Static</option>
 			</select>

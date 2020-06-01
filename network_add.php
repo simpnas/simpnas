@@ -44,7 +44,7 @@
 		  </div>
 		  <div class="form-group">
 		    <label>Gateway</label>
-		    <input type="text" class="form-control" name="gateway">
+		    <input type="text" class="form-control" name="gateway" data-inputmask="'alias': 'ip'">
 		  </div>
 		  <div class="form-group">
 		    <label>DNS Server(s)</label>

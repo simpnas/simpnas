@@ -3,7 +3,8 @@
   	include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
-    exec("ls /$config_mount_target/$config_docker_volume/docker | grep -v mariadb | grep -v letsencrypt", $apps_array);
+    $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
+    exec("ls /$config_mount_target/$config_docker_volume/docker | grep -v mariadb | grep -v letsencrypt | grep -v transmission", $apps_array);
     foreach($apps_array as $app){
 	  	if($app == 'nextcloud'){
 	  		$sub_domains_array[] = 'cloud';
@@ -35,18 +36,19 @@
 
   <h2>External Access to your Apps</h2>
   <ul>
-  	<li>This will enable external access to the following apps</li>
+  	<li>This will enable external access to the following apps and assign a valid SSL Cert using LetsEncrypt Service</li>
   	<li>Make sure the following A or CNAME DNS records exist for your domain and that they are pointing to your public IP</li>
 		<ul>
 			<?php
 			foreach($sub_domains_array as $sub_domain){
+				//$resolvable_ip = exec("nslookup $sub_domain.dojo.pittpc.com | grep -v 127.0.0 | grep Address | awk '{print $2}'");
 			?>
-			<li><?php echo $sub_domain; ?></li>
+			<li><?php echo $sub_domain; ?> <?php echo $resolvable_ip; ?></li>
 			<?php
 			}
 			?>
 		</ul>
-  	<li>Configure your firewall or router to port forward port 80 and port 443 TCP to IP</li>
+  	<li>Configure your firewall or router to port forward port 80 and port 443 TCP to your internal IP address <?php echo $primary_ip; ?></li>
   </ul>
  
   <form method="post" action="post.php" autocomplete="off">

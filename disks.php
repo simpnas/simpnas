@@ -126,7 +126,6 @@
         <td>
           <div class="btn-group mr-2">
           <a href="hdd_info.php?hdd=<?php echo $hdd_short_name; ?>" class="btn btn-outline-secondary"><span data-feather="info"></span></a>
-          <button class="btn btn-outline-danger"><span data-feather="zap"></span></button>
         </div>
         </td>
       </tr>

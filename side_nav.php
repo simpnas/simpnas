@@ -118,13 +118,6 @@
     <ul class="nav flex-column mb-2">
       
       <li class="nav-item">
-        <a class="nav-link" href="backups.php">
-          <span data-feather="archive"></span>
-          Backups
-        </a>
-      </li>
-      
-      <li class="nav-item">
         <a class="nav-link" href="updates.php">
           <span data-feather="download"></span>
           Updates

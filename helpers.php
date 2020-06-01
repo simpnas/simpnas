@@ -25,4 +25,13 @@ exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth", $net_devi
 //get the disk that a volume is attached to
 $disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
+//Get Hostname
+$current_hostname = gethostname();
+  
+//Get IP Prmary Address
+$primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
+
+//Get Docker Gateway IP
+$docker_gateway = exec("docker network inspect my-network | grep Gateway | awk '{print $2}' | sed 's/\\\"//g'");
+
 ?>
