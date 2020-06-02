@@ -54,10 +54,10 @@
             $share_list = "-";
           }else{
             $disk = basename(exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume"));
-            $total_space = exec("df -h | grep /$config_mount_target/$volume | awk '{print $2}'");
-            $used_space = exec("df -h | grep /$config_mount_target/$volume | awk '{print $3}'");
-            $free_space = exec("df -h | grep /$config_mount_target/$volume | awk '{print $4}'");
-            $used_space_percent = exec("df | grep /$config_mount_target/$volume | awk '{print $5}'");
+            $total_space = exec("df -h | grep -w /$config_mount_target/$volume | awk '{print $2}'");
+            $used_space = exec("df -h | grep -w /$config_mount_target/$volume | awk '{print $3}'");
+            $free_space = exec("df -h | grep -w /$config_mount_target/$volume | awk '{print $4}'");
+            $used_space_percent = exec("df | grep -w /$config_mount_target/$volume | awk '{print $5}'");
             exec("ls /$config_mount_target/$volume | grep -v docker | grep -v lost+found", $share_list_array);
             $share_list = implode(", ",$share_list_array);
           }
