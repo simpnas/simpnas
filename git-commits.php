@@ -11,7 +11,7 @@
 
    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
     <h2>Updates</h2>
-    Current Version: <?php echo $current_version; ?>
+    <strong>Current Version: <?php echo $current_version; ?></strong>
     <a href="post.php?upgrade_simpnas_overwrite_local_changes" class="btn btn-outline-secondary">Upgrade SimpNAS</a>
   </div>
   <table class="table ">

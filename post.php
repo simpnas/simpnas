@@ -289,6 +289,7 @@ if(isset($_GET['volume_delete'])){
   //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
   //the code to do that here
   $hdd = exec("findmnt -n -o SOURCE --target /$config_mount_target/$name");
+  $uuid = exec("blkid -o value --match-tag UUID $hdd");
   
   exec("ls /$config_mount_target/$name | grep -v lost+found", $directory_list_array);
   if(!empty($directory_list_array)){
@@ -298,8 +299,7 @@ if(isset($_GET['volume_delete'])){
     exec ("umount -l /$config_mount_target/$name");
     exec ("rm -rf /$config_mount_target/$name");
     exec ("wipefs -a $hdd");
-    $uuid = exec("blkid -o value --match-tag UUID $hdd");
-    
+  
     deleteLineInFile("/etc/fstab","$uuid");
 
   }
