@@ -8,7 +8,7 @@
 
 <center>
 	<h1 class="text-danger">Rebooting!</h1>
-	<h3>Redirecting to the Dashboard after <span id="countdown">45</span> seconds</h3>
+	<h3>Redirecting to the Dashboard after <span id="countdown"></span> seconds</h3>
 </center>
 
 </main>
@@ -19,7 +19,7 @@
 <script type="text/javascript">
     
     // Total seconds to wait
-    var seconds = 45;
+    var seconds = 60;
     
     function countdown() {
         seconds = seconds - 1;
@@ -44,6 +44,6 @@
 include("footer.php"); 
 
 //Using && is safer than ; because it ensures that command ... will run only if the sleep timer expires.
-exec("sleep 1 && reboot > /dev/null &");
+exec("sleep 2 && reboot > /dev/null &");
 
 ?>
