@@ -1255,14 +1255,14 @@ if(isset($_GET['uninstall_home-assistant'])){
   header("Location: apps.php");
 }
 
-if(isset($_GET['install_unifi'])){
+if(isset($_GET['install_unifi-controller'])){
   mkdir("/$config_mount_target/$config_docker_volume/docker/unifi-controller/");
 
   exec("docker run -d --name unifi-controller --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi-controller:/config linuxserver/unifi-controller");
   header("Location: apps.php");
 }
 
-if(isset($_GET['update_unifi'])){
+if(isset($_GET['update_unifi-controller'])){
 
   exec("docker pull linuxserver/unifi-controller");
   exec("docker stop unifi");
@@ -1276,13 +1276,13 @@ if(isset($_GET['update_unifi'])){
 
 }
 
-if(isset($_GET['uninstall_unifi'])){
+if(isset($_GET['uninstall_unifi-controller'])){
   //stop and delete docker container
-  exec("docker stop unifi");
-  exec("docker rm unifi");
+  exec("docker stop unifi-controller");
+  exec("docker rm unifi-controller");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi");
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi-controller");
   //redirect back to packages
   header("Location: apps.php");
 }

@@ -7,7 +7,7 @@
   $current_hostname = gethostname();
   $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
 
-  $image_size = 80;
+  $image_size = 48;
   $apps_array = array(
     array(
       "title" => "Nextcloud",
@@ -17,6 +17,8 @@
       "container_name" => "nextcloud",
       "external_hostname" => "cloud",
       "local_port" => 6443,
+      "protocol" => "https://",
+      "install" => "install_nextcloud.php",
     ),
     array(
       "title" => "Jellyfin",
@@ -26,6 +28,8 @@
       "container_name" => "jellyfin",
       "external_hostname" => "jellyfin",
       "local_port" => 8096,
+      "protocol" => "http://",
+      "install" => "install_jellyfin.php",
     ),
     array(
       "title" => "Transmission",
@@ -34,7 +38,9 @@
       "image" => "transmission.png",
       "container_name" => "transmission",
       "external_hostname" => "transmission",
-      "local_port" => 9091
+      "local_port" => 9091,
+      "protocol" => "http://",
+      "install" => "install_transmission.php",
     ),
     array(
       "title" => "Bitwarden RS",
@@ -44,6 +50,8 @@
       "container_name" => "bitwarden",
       "external_hostname" => "vault",
       "local_port" => 88,
+      "protocol" => "http://",
+      "install" => "post.php?install_bitwarden",
     ),
     array(
       "title" => "Home Assistant",
@@ -53,6 +61,8 @@
       "container_name" => "homeassistant",
       "external_hostname" => "homeassistant",
       "local_port" => 8123,
+      "protocol" => "http://",
+      "install" => "post.php?install_homeassistant",
     ),
     array(
       "title" => "Dokuwiki",
@@ -62,6 +72,8 @@
       "container_name" => "dokuwiki",
       "external_hostname" => "wiki",
       "local_port" => 85,
+      "protocol" => "http://",
+      "install" => "post.php?install_dokuwiki",
     ),
     array(
       "title" => "Unifi Controller",
@@ -71,6 +83,8 @@
       "container_name" => "unifi-controller",
       "external_hostname" => "unifi",
       "local_port" => 8443,
+      "protocol" => "https://",
+      "install" => "post.php?install_unifi-controller",
     ),
     array(
       "title" => "Unifi Video",
@@ -80,6 +94,8 @@
       "container_name" => "unifi-video",
       "external_hostname" => "unifi-video",
       "local_port" => 7443,
+      "protocol" => "https://",
+      "install" => "install_unifi-video.php",
     ),
     array(
       "title" => "Wireguard VPN Server",
@@ -89,6 +105,8 @@
       "container_name" => "wireguard",
       "external_hostname" => "vpn",
       "local_port" => 0,
+      "protocol" => "http://",
+      "install" => "post.php?install_wireguard",
     ),
     array(
       "title" => "OpenVPN VPN Server",
@@ -98,6 +116,8 @@
       "container_name" => "openvpn",
       "external_hostname" => "vpn",
       "local_port" => 943,
+      "protocol" => "http://",
+      "install" => "post.php?install_openvpn",
     ),
   );
 
@@ -155,12 +175,12 @@
               <?php 
                 if(file_exists("/$config_mount_target/$config_docker_volume/docker/".$app['container_name']."")) {
               ?>
-                <a href="http://<?php echo $primary_ip; ?>:<?php echo $app['local_port']; ?>" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="<?php echo $app['protocol']; ?><?php echo $primary_ip; ?>:<?php echo $app['local_port']; ?>" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
                 <a href="post.php?uninstall_<?php echo $app['container_name']; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
               }else{
               ?>
-              <a href="install_<?php echo $app['container_name']; ?>.php" class="btn btn-outline-success">Install</a>
+              <a href="<?php echo $app['install']; ?>" class="btn btn-outline-success">Install</a>
               <?php  
               }
               ?>
