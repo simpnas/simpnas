@@ -1688,7 +1688,8 @@ if(isset($_POST['setup'])){
   exec ("mount $hdd_part /$config_mount_target/$volume_name");
 
   exec ("mkdir /$config_mount_target/$volume_name/docker");
-  exec ("mkdir /$config_mount_target/$volume_name/users");  
+  exec ("mkdir /$config_mount_target/$volume_name/users");
+  exec ("mkdir /$config_mount_target/$volume_name/share");  
 
   if($server_type == 'AD'){
     exec("DEBIAN_FRONTEND=noninteractive \apt -y install krb5-user winbind libpam-winbind libnss-winbind smbclient");
@@ -1714,6 +1715,18 @@ if(isset($_POST['setup'])){
     $myFile = "/etc/samba/shares.conf";
     $fh = fopen($myFile, 'a') or die("not able to write to file");
     $stringData = "\ninclude = /etc/samba/shares/users";
+    fwrite($fh, $stringData);
+    fclose($fh);
+
+    $myFile = "/etc/samba/shares/share";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[share]\n   comment = Shared files\n   path = /$config_mount_target/$volume_name/share\n   read only = no\n   force create mode = 0600\n   force directory mode = 0700\n   valid users = @users";
+    fwrite($fh, $stringData);
+    fclose($fh);
+
+    $myFile = "/etc/samba/shares.conf";
+    $fh = fopen($myFile, 'a') or die("not able to write to file");
+    $stringData = "\ninclude = /etc/samba/shares/share";
     fwrite($fh, $stringData);
     fclose($fh);
     
