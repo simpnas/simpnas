@@ -470,7 +470,6 @@ if(isset($_POST['share_edit'])){
     }
     
   }elseif($group != $current_group){
-    chgrp("$current_share_path", $group);
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "changed group $current_group to $group on share $name successfully!";
   }elseif($volume != $current_volume){
@@ -478,6 +477,9 @@ if(isset($_POST['share_edit'])){
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "Moved share $name from $current_volume to $volume successfully!";
   }
+
+  //Update User Group Permssions no matter what
+  exec("chown -R root:$group $share_path");
 
   $myFile = "/etc/samba/shares/$name";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
