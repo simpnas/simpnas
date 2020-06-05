@@ -534,7 +534,7 @@ if(isset($_POST['network_add'])){
     fwrite($fh, $stringData);
     fclose($fh);
     exec("systemctl restart systemd-networkd");
-    echo "<script>window.location = 'http://$hostname/network.php'</script>";
+    echo "<script>window.location = 'http://$hostname:81/network.php'</script>";
   }
   if($method == 'Static'){
     $myFile = "/etc/systemd/network/$interface.network";
@@ -544,7 +544,7 @@ if(isset($_POST['network_add'])){
     fclose($fh);
     $new_ip = substr($address, 0, strpos($address, "/"));
     exec("systemctl restart systemd-networkd");
-    echo "<script>window.location = 'http://$new_ip/network.php'</script>";
+    echo "<script>window.location = 'http://$new_ip:81/network.php'</script>";
   }
   
 }
