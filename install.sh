@@ -23,10 +23,11 @@ DEBIAN_FRONTEND=noninteractive \apt install samba smartmontools rsync php-cgi cr
 echo "================================================================================="
 echo "Install Docker Repo and latest docker"
 echo "================================================================================="
-curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+curl -fsSL https://download.docker.com/linux/$(lsb_release -s -i | tr '[:upper:]' '[:lower:]')/gpg | apt-key add -
 add-apt-repository "deb [arch=$(dpkg --print-architecture)] https://download.docker.com/linux/$(lsb_release -s -i | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable"
 apt update
 apt install docker-ce docker-ce-cli containerd.io -y
+apt install docker.io -y
 echo "=================================================================================="
 echo "Adding group admins"
 echo "=================================================================================="
