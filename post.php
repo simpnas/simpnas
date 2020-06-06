@@ -1690,17 +1690,18 @@ if(isset($_GET['uninstall_openvpn'])){
 }
 
 if(isset($_POST['setup_network'])){
-  $current_hostname = exec("hostname");
+  
+  $hostname = $_POST['hostname'];
   $interface = $_POST['interface'];
   $method = $_POST['method'];
   $address = $_POST['address'];
   $gateway = $_POST['gateway'];
   $dns = $_POST['dns'];
   
+  $current_hostname = exec("hostname");
+
   exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
   exec("hostnamectl set-hostname $hostname");
-
-  $new_hostname = exec("hostname");
 
   exec ("mv /etc/network/interfaces /etc/network/interfaces.save");
   exec ("systemctl enable systemd-networkd");
@@ -1712,8 +1713,7 @@ if(isset($_POST['setup_network'])){
     fwrite($fh, $stringData);
     fclose($fh);
     exec("sleep 1 && systemctl restart systemd-networkd > /dev/null &");
-    //exec("systemctl restart systemd-networkd");
-    echo "<script>window.location = 'http://$new_hostname:81/setup2.php'</script>";
+    echo "<script>window.location = 'http://$hostname:81/setup2.php'</script>";
   }
   
   if($method == 'Static'){
@@ -1735,7 +1735,6 @@ if(isset($_POST['setup_final'])){
   $volume_name = $_POST['volume_name'];
   $hdd = $_POST['disk'];
   $hdd_part = $hdd."1";
-  $hostname = $_POST['hostname'];  
   $username = $_POST['username'];
   $password = $_POST['password'];
 
@@ -1745,7 +1744,7 @@ if(isset($_POST['setup_final'])){
   $ad_admin_password = $_POST['ad_admin_password'];
   $ad_dns_forwarders = $_POST['ad_dns_forwarders'];
 
-  $current_hostname = exec("hostname");
+  $hostname = exec("hostname");
   $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
 
   $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
@@ -1783,12 +1782,12 @@ if(isset($_POST['setup_final'])){
     exec("rm /etc/samba/smb.conf");
     exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$ad_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
     exec("echo '127.0.0.1      localhost' > /etc/hosts");
-    exec("echo '$primary_ip     $current_hostname' >> /etc/hosts");
+    exec("echo '$primary_ip     $hostname' >> /etc/hosts");
     exec("echo 'nameserver $primary_ip' > /etc/resolv.conf");
     exec("echo 'search $ad_domain' >> /etc/resolv.conf");
     //exec("echo 'DNS=$primary_ip' >> /etc/systemd/network/$network_int_file");
     exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
-    exec("sed - i '/netlogon/ i winbind enum users = yes\nwinbind enum groups = yes' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind enum users = yes\nwinbind enum groups = yes' /etc/samba/smb.conf");
     exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
     exec("systemctl stop smbd nmbd winbind");
     exec("systemctl disable smbd nmbd winbind");
@@ -1839,8 +1838,8 @@ if(isset($_POST['setup_final'])){
   
   if($server_type == 'AD'){
     //Create the new user AD Style
-    exec ("samba-tool user create $username $password --home-drive=H --unix-home=/$config_mount_target/$volume_name/users/$username --home-directory='\\$hostname\users\$username' --login-shell=/bin/bash");
-    exec("usermod -aG sudo '$ad_netbios_domain\$username'");
+    exec ("samba-tool user create $username $password --home-drive=H --unix-home=/$config_mount_target/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username' --login-shell=/bin/bash");
+    exec("usermod -aG sudo '$ad_netbios_domain\\$username'");
   }else{
     //Create the new user UNIX way
     exec ("useradd -g users -d /$config_mount_target/$volume_name/$config_home_dir/$username $username -p $password");

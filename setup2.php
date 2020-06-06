@@ -70,11 +70,10 @@
 
   ?>
   
-  <h2>First Time Setup Wizard</h2>
+  <h2>Finalize Setup</h2>
   <hr>
   <form method="post" action="post.php" autocomplete="off">
 
-	  <legend>TimeZone</legend>
 	  <div class="form-group">
 	    <label>Timezone:</label>
 	    <select class="form-control" name="timezone" required>
