@@ -1727,7 +1727,7 @@ if(isset($_POST['setup_network'])){
     echo "<script>window.location = 'http://$new_ip:81/setup2.php'</script>";
   }
 
-  header("Location: reboot.php");
+  //header("Location: reboot.php");
 }
 
 if(isset($_POST['setup_final'])){
@@ -1776,18 +1776,18 @@ if(isset($_POST['setup_final'])){
   exec ("mount $hdd_part /$config_mount_target/$volume_name"); 
 
   if($server_type == 'AD'){
-    exec("echo '127.0.0.1      localhost' > /etc/hosts");
-    exec("echo '$primary_ip     $current_hostname' >> /etc/hosts");
-    exec("echo 'nameserver $primary_ip' > /etc/resolv.conf");
-    exec("echo 'search $ad_domain' >> /etc/resolv.conf");
-    exec("echo 'DNS=$primary_ip' >> /etc/systemd/network/$network_int_file");
-    exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
     exec("DEBIAN_FRONTEND=noninteractive \apt -y install krb5-user winbind libpam-winbind libnss-winbind smbclient");
     exec("cp /simpnas/conf/krb5.conf /etc");
     exec("sed -i 's/NETBIOS/$ad_netbios_domain/g' /etc/krb5.conf");
     exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
     exec("rm /etc/samba/smb.conf");
     exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$ad_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
+    exec("echo '127.0.0.1      localhost' > /etc/hosts");
+    exec("echo '$primary_ip     $current_hostname' >> /etc/hosts");
+    exec("echo 'nameserver $primary_ip' > /etc/resolv.conf");
+    exec("echo 'search $ad_domain' >> /etc/resolv.conf");
+    //exec("echo 'DNS=$primary_ip' >> /etc/systemd/network/$network_int_file");
+    exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
     exec("sed - i '/netlogon/ i winbind enum users = yes\nwinbind enum groups = yes' /etc/samba/smb.conf");
     exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
     exec("systemctl stop smbd nmbd winbind");
