@@ -1710,6 +1710,8 @@ if(isset($_POST['setup_network'])){
     $stringData = "[Match]\nName=$interface\n\n[Network]\nDHCP=ipv4\n";
     fwrite($fh, $stringData);
     fclose($fh);
+    exec("echo '127.0.0.1      localhost' > /etc/hosts");
+    exec("echo '127.0.0.2     $hostname' >> /etc/hosts");
     exec("sleep 1 && systemctl restart systemd-networkd > /dev/null &");
     echo "<script>window.location = 'http://$hostname:81/setup2.php'</script>";
   }
@@ -1721,6 +1723,8 @@ if(isset($_POST['setup_network'])){
     fwrite($fh, $stringData);
     fclose($fh);
     $new_ip = substr($address, 0, strpos($address, "/"));
+    exec("echo '127.0.0.1      localhost' > /etc/hosts");
+    exec("echo '$new_ip     $hostname' >> /etc/hosts");
     exec("sleep 1 && systemctl restart systemd-networkd > /dev/null &");
     echo "<script>window.location = 'http://$new_ip:81/setup2.php'</script>";
   }
@@ -1781,8 +1785,8 @@ if(isset($_POST['setup_final'])){
     exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$ad_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
     //exec("echo '127.0.0.1      localhost' > /etc/hosts");
     //exec("echo '$primary_ip     $hostname' >> /etc/hosts");
-    //exec("echo 'nameserver $primary_ip' > /etc/resolv.conf");
-    //exec("echo 'search $ad_domain' >> /etc/resolv.conf");
+    exec("echo 'nameserver $primary_ip' > /etc/resolv.conf");
+    exec("echo 'search $ad_domain' >> /etc/resolv.conf");
     //exec("echo 'DNS=$primary_ip' >> /etc/systemd/network/$network_int_file");
     exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
     exec("sed -i '/netlogon/ i winbind enum users = yes\nwinbind enum groups = yes' /etc/samba/smb.conf");
