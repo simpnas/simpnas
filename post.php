@@ -1090,7 +1090,7 @@ if(isset($_POST['configure_external_access'])){
   }
 
   //Tell Bots to not index our pages
-  exec("sed '/all ssl related config/ i add_header X-Robots-Tag \\\"noindex, nofollow, nosnippet, noarchive\\\";' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/site-confs/default");
+  exec("sed -i '/all ssl related config/ i add_header X-Robots-Tag \\\"noindex, nofollow, nosnippet, noarchive\\\";' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/site-confs/default");
 
   header("Location: configure_external_access.php");
 }
@@ -1689,7 +1689,48 @@ if(isset($_GET['uninstall_openvpn'])){
   header("Location: apps.php");
 }
 
-if(isset($_POST['setup'])){
+if(isset($_POST['setup_network'])){
+  $current_hostname = exec("hostname");
+  $interface = $_POST['interface'];
+  $method = $_POST['method'];
+  $address = $_POST['address'];
+  $gateway = $_POST['gateway'];
+  $dns = $_POST['dns'];
+  
+  exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
+  exec("hostnamectl set-hostname $hostname");
+
+  $new_hostname = exec("hostname");
+
+  exec ("mv /etc/network/interfaces /etc/network/interfaces.save");
+  exec ("systemctl enable systemd-networkd");
+
+  if($method == 'DHCP'){
+    $myFile = "/etc/systemd/network/$interface.network";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[Match]\nName=$interface\n\n[Network]\nDHCP=ipv4\n";
+    fwrite($fh, $stringData);
+    fclose($fh);
+    exec("sleep 1 && systemctl restart systemd-networkd > /dev/null &");
+    //exec("systemctl restart systemd-networkd");
+    echo "<script>window.location = 'http://$new_hostname:81/setup2.php'</script>";
+  }
+  
+  if($method == 'Static'){
+    $myFile = "/etc/systemd/network/$interface.network";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[Match]\nName=$interface\n\n[Network]\nAddress=$address\nGateway=$gateway\nDNS=$dns\n";
+    fwrite($fh, $stringData);
+    fclose($fh);
+    $new_ip = substr($address, 0, strpos($address, "/"));
+    exec("sleep 1 && systemctl restart systemd-networkd > /dev/null &");
+    echo "<script>window.location = 'http://$new_ip:81/setup2.php'</script>";
+  }
+
+  header("Location: reboot.php");
+}
+
+if(isset($_POST['setup_final'])){
   $timezone = $_POST['timezone'];
   $volume_name = $_POST['volume_name'];
   $hdd = $_POST['disk'];
@@ -1705,17 +1746,14 @@ if(isset($_POST['setup'])){
   $ad_dns_forwarders = $_POST['ad_dns_forwarders'];
 
   $current_hostname = exec("hostname");
-  $interface = $_POST['interface'];
-  $method = $_POST['method'];
-  $address = $_POST['address'];
-  $gateway = $_POST['gateway'];
-  $dns = $_POST['dns'];
-  $collect = $_POST['collect'];
+  $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
 
   $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
   $config_mount_target = "mnt";
   $config_home_dir = "users";
+
+  $network_int_file = exec("ls /etc/systemd/network");
 
   //Set TimeZone
   exec("timedatectl set-timezone '$timezone'");
@@ -1729,32 +1767,29 @@ if(isset($_POST['setup'])){
   fwrite($file, $data);
 
   fclose($file);
-  
-  exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
-  exec("hostnamectl set-hostname $hostname");
 
   exec ("wipefs -a $hdd");
   exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
   exec ("mkdir /$config_mount_target/$volume_name");
   exec ("mkfs.ext4 $hdd_part");
   exec ("e2label $hdd_part $volume_name");
-  exec ("mount $hdd_part /$config_mount_target/$volume_name");
-
-  exec ("mkdir /$config_mount_target/$volume_name/docker");
-  exec ("mkdir /$config_mount_target/$volume_name/users");
-  exec ("mkdir /$config_mount_target/$volume_name/share");  
+  exec ("mount $hdd_part /$config_mount_target/$volume_name"); 
 
   if($server_type == 'AD'){
+    exec("echo '127.0.0.1      localhost' > /etc/hosts");
+    exec("echo '$primary_ip     $current_hostname' >> /etc/hosts");
+    exec("echo 'nameserver $primary_ip' > /etc/resolv.conf");
+    exec("echo 'search $ad_domain' >> /etc/resolv.conf");
+    exec("echo 'DNS=$primary_ip' >> /etc/systemd/network/$network_int_file");
+    exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
     exec("DEBIAN_FRONTEND=noninteractive \apt -y install krb5-user winbind libpam-winbind libnss-winbind smbclient");
     exec("cp /simpnas/conf/krb5.conf /etc");
     exec("sed -i 's/NETBIOS/$ad_netbios_domain/g' /etc/krb5.conf");
     exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
     exec("rm /etc/samba/smb.conf");
     exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$ad_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
-    exec("echo 'winbind enum users = yes' >> /etc/samba/smb.conf");
-    exec("echo 'winbind enum groups = yes' >> /etc/samba/smb.conf");
+    exec("sed - i '/netlogon/ i winbind enum users = yes\nwinbind enum groups = yes' /etc/samba/smb.conf");
     exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
-    exec("echo domain $ad_domain >> /etc/resolv.conf");
     exec("systemctl stop smbd nmbd winbind");
     exec("systemctl disable smbd nmbd winbind");
     exec("systemctl unmask samba-ad-dc");
@@ -1763,55 +1798,61 @@ if(isset($_POST['setup'])){
     exec("mv /etc/nsswitch.conf /etc/nsswitch.conf.ori");
     exec("cp /simpnas/conf/nsswitch.conf /etc");
 
-  }else{
-    $myFile = "/etc/samba/shares/users";
-    $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[users]\n   comment = Users Home Folders\n   path = /$config_mount_target/$volume_name/users\n   read only = no\n   force create mode = 0600\n   force directory mode = 0700\n   valid users = @admins";
-    fwrite($fh, $stringData);
-    fclose($fh);
-
-    $myFile = "/etc/samba/shares.conf";
-    $fh = fopen($myFile, 'a') or die("not able to write to file");
-    $stringData = "\ninclude = /etc/samba/shares/users";
-    fwrite($fh, $stringData);
-    fclose($fh);
-
-    $myFile = "/etc/samba/shares/share";
-    $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[share]\n   comment = Shared files\n   path = /$config_mount_target/$volume_name/share\n   read only = no\n   force create mode = 0600\n   force directory mode = 0700\n   valid users = @users";
-    fwrite($fh, $stringData);
-    fclose($fh);
-
-    $myFile = "/etc/samba/shares.conf";
-    $fh = fopen($myFile, 'a') or die("not able to write to file");
-    $stringData = "\ninclude = /etc/samba/shares/share";
-    fwrite($fh, $stringData);
-    fclose($fh);
-    
+  }else{    
     exec("systemctl restart smbd");
     exec("systemctl restart nmbd");
-
   }
+
+  exec ("mkdir /$config_mount_target/$volume_name/docker");
+  exec ("mkdir /$config_mount_target/$volume_name/users");
+  exec ("mkdir /$config_mount_target/$volume_name/share");
+
+  $myFile = "/etc/samba/shares/users";
+  $fh = fopen($myFile, 'w') or die("not able to write to file");
+  $stringData = "[users]\n   comment = Users Home Folders\n   path = /$config_mount_target/$volume_name/users\n   read only = no\n   force create mode = 0600\n   force directory mode = 0700\n";
+  fwrite($fh, $stringData);
+  fclose($fh);
+
+  $myFile = "/etc/samba/shares.conf";
+  $fh = fopen($myFile, 'a') or die("not able to write to file");
+  $stringData = "\ninclude = /etc/samba/shares/users";
+  fwrite($fh, $stringData);
+  fclose($fh);
+
+  $myFile = "/etc/samba/shares/share";
+  $fh = fopen($myFile, 'w') or die("not able to write to file");
+  $stringData = "[share]\n   comment = Shared files\n   path = /$config_mount_target/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @users\n   force group = users\n   create mask = 0660\n   directory mask = 0770";
+  fwrite($fh, $stringData);
+  fclose($fh);
+
+  $myFile = "/etc/samba/shares.conf";
+  $fh = fopen($myFile, 'a') or die("not able to write to file");
+  $stringData = "\ninclude = /etc/samba/shares/share";
+  fwrite($fh, $stringData);
+  fclose($fh);
 
   //Check to see if theres already a user added and delete that user
   $existing_username = exec("cat /etc/passwd | grep 1000 | awk -F: '{print $1}'");
   if(!empty($existing_username)){
     exec("deluser --remove-home $existing_username");
   }
-
-  //Create the new user
-  exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/$username");
-  exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
-  exec ("useradd -g users -d /$config_mount_target/$volume_name/$config_home_dir/$username $username -p $password");
-  exec ("chown -R $username:users /$config_mount_target/$volume_name/$config_home_dir/$username");
-  exec ("usermod -a -G admins $username");
-  exec ("usermod -a -G sudo $username");
+  
   if($server_type == 'AD'){
-    exec ("samba-tool user create $username $password");
+    //Create the new user AD Style
+    exec ("samba-tool user create $username $password --home-drive=H --unix-home=/$config_mount_target/$volume_name/users/$username --home-directory='\\$hostname\users\$username' --login-shell=/bin/bash");
+    exec("usermod -aG sudo '$ad_netbios_domain\$username'");
   }else{
+    //Create the new user UNIX way
+    exec ("useradd -g users -d /$config_mount_target/$volume_name/$config_home_dir/$username $username -p $password");
+    exec ("usermod -a -G admins $username");
+    exec ("usermod -a -G sudo $username");
     exec ("echo '$password\n$password' | smbpasswd -a $username");
   }
   
+  exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/$username");
+  exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
+  exec ("chown -R $username:users /$config_mount_target/$volume_name/$config_home_dir/$username");
+
   $uuid = exec("blkid -o value --match-tag UUID $hdd_part");
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");
@@ -1823,33 +1864,8 @@ if(isset($_POST['setup'])){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
   }
 
-  $new_hostname = exec("hostname");
-
-  exec ("mv /etc/network/interfaces /etc/network/interfaces.save");
-  exec ("systemctl enable systemd-networkd");
-
-  if($method == 'DHCP'){
-    $myFile = "/etc/systemd/network/$interface.network";
-    $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[Match]\nName=$interface\n\n[Network]\nDHCP=ipv4\n";
-    fwrite($fh, $stringData);
-    fclose($fh);
-    //exec("sleep 1; systemctl restart systemd-networkd > /dev/null &");
-    //exec("systemctl restart systemd-networkd");
-    //echo "<script>window.location = 'http://$new_hostname/dashboard.php'</script>";
-  }
-  
-  if($method == 'Static'){
-    $myFile = "/etc/systemd/network/$interface.network";
-    $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[Match]\nName=$interface\n\n[Network]\nAddress=$address\nGateway=$gateway\nDNS=$dns\n";
-    fwrite($fh, $stringData);
-    fclose($fh);
-    $new_ip = substr($address, 0, strpos($address, "/"));
-    //exec("systemctl restart systemd-networkd > /dev/null &");
-    //echo "<script>window.location = 'http://$new_ip/dashboard.php'</script>";
-  }
   header("Location: reboot.php");
 }
+
 
 ?>
