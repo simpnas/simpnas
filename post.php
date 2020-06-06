@@ -1751,6 +1751,8 @@ if(isset($_POST['setup'])){
     exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
     exec("rm /etc/samba/smb.conf");
     exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$ad_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
+    exec("echo 'winbind enum users = yes' >> /etc/samba/smb.conf");
+    exec("echo 'winbind enum groups = yes' >> /etc/samba/smb.conf");
     exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
     exec("echo domain $ad_domain >> /etc/resolv.conf");
     exec("systemctl stop smbd nmbd winbind");
@@ -1758,6 +1760,9 @@ if(isset($_POST['setup'])){
     exec("systemctl unmask samba-ad-dc");
     exec("systemctl start samba-ad-dc");
     exec("systemctl enable samba-ad-dc");
+    exec("mv /etc/nsswitch.conf /etc/nsswitch.conf.ori");
+    exec("cp /simpnas/conf/nsswitch.conf /etc");
+
   }else{
     $myFile = "/etc/samba/shares/users";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
