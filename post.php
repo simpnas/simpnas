@@ -1697,8 +1697,6 @@ if(isset($_POST['setup_network'])){
   $address = $_POST['address'];
   $gateway = $_POST['gateway'];
   $dns = $_POST['dns'];
-  
-  $current_hostname = exec("hostname");
 
   exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
   exec("hostnamectl set-hostname $hostname");
@@ -1781,10 +1779,10 @@ if(isset($_POST['setup_final'])){
     exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
     exec("rm /etc/samba/smb.conf");
     exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$ad_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
-    exec("echo '127.0.0.1      localhost' > /etc/hosts");
-    exec("echo '$primary_ip     $hostname' >> /etc/hosts");
-    exec("echo 'nameserver $primary_ip' > /etc/resolv.conf");
-    exec("echo 'search $ad_domain' >> /etc/resolv.conf");
+    //exec("echo '127.0.0.1      localhost' > /etc/hosts");
+    //exec("echo '$primary_ip     $hostname' >> /etc/hosts");
+    //exec("echo 'nameserver $primary_ip' > /etc/resolv.conf");
+    //exec("echo 'search $ad_domain' >> /etc/resolv.conf");
     //exec("echo 'DNS=$primary_ip' >> /etc/systemd/network/$network_int_file");
     exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
     exec("sed -i '/netlogon/ i winbind enum users = yes\nwinbind enum groups = yes' /etc/samba/smb.conf");
