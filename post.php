@@ -755,6 +755,8 @@ if(isset($_GET['uninstall_jellyfin'])){
   exec ("rm -rf $path"); //Delete
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/jellyfin");
+  //Remove unused docker images
+  exec("docker image prune");
   //delete samba share
   exec ("rm -f /etc/samba/shares/media");
   deleteLineInFile("/etc/samba/shares.conf","media");
@@ -1060,6 +1062,9 @@ if(isset($_POST['configure_external_access'])){
   exec("docker stop letsencrypt");
   exec("docker rm letsencrypt");
 
+  //delete images
+  exec("docker image prune");
+
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/letsencrypt");
 
@@ -1097,6 +1102,10 @@ if(isset($_GET['uninstall_letsencrypt'])){
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/letsencrypt");
+
+  //delete images
+  exec("docker image prune");
+
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1131,6 +1140,10 @@ if(isset($_GET['uninstall_dokuwiki'])){
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/dokuwiki");
+
+  //delete images
+  exec("docker image prune");
+
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1159,6 +1172,10 @@ if(isset($_GET['uninstall_bookstack'])){
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/bookstack");
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb_bookstack");
+
+  //delete images
+  exec("docker image prune");
+
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1193,6 +1210,10 @@ if(isset($_GET['uninstall_bitwarden'])){
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/bitwarden");
+
+  //delete images
+  exec("docker image prune");
+
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1213,6 +1234,10 @@ if(isset($_GET['uninstall_gitea'])){
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/gitea");
+
+  //delete images
+  exec("docker image prune");
+
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1253,6 +1278,10 @@ if(isset($_GET['uninstall_home-assistant'])){
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/homeassistant");
+
+  //delete images
+  exec("docker image prune");
+
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1285,6 +1314,10 @@ if(isset($_GET['uninstall_unifi-controller'])){
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi-controller");
+
+  //delete images
+  exec("docker image prune");
+
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1351,6 +1384,10 @@ if(isset($_GET['uninstall_unifi-video'])){
   //stop and delete docker container
   exec("docker stop unifi-video");
   exec("docker rm unifi-video");
+
+  //delete images
+  exec("docker image prune");
+
   //delete media group
   exec ("delgroup video-surveillance");
   //get path to media directory
@@ -1505,6 +1542,10 @@ if(isset($_GET['uninstall_transmission'])){
     exec("systemctl restart smbd");
     exec("systemctl restart nmbd");
   }
+
+  //delete images
+  exec("docker image prune");
+
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1552,6 +1593,10 @@ if(isset($_GET['uninstall_snipeit'])){
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/snipeit");
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb_snipeit");
+
+  //delete images
+  exec("docker image prune");
+
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1613,6 +1658,10 @@ if(isset($_GET['uninstall_wireguard'])){
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/wireguard");
+
+  //delete images
+  exec("docker image prune");
+
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -1632,6 +1681,10 @@ if(isset($_GET['uninstall_openvpn'])){
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/openvpn");
+
+  //delete images
+  exec("docker image prune");
+  
   //redirect back to packages
   header("Location: apps.php");
 }
