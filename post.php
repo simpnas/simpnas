@@ -1777,15 +1777,15 @@ if(isset($_POST['setup_final'])){
   exec ("mount $hdd_part /$config_mount_target/$volume_name"); 
 
   if($server_type == 'AD'){
+    exec("echo '127.0.0.1      localhost' > /etc/hosts");
+    exec("echo '$primary_ip     $hostname $hostname.$ad_domain $ad_domain' >> /etc/hosts");
     exec("DEBIAN_FRONTEND=noninteractive \apt -y install krb5-user winbind libpam-winbind libnss-winbind smbclient");
     exec("cp /simpnas/conf/krb5.conf /etc");
     exec("sed -i 's/NETBIOS/$ad_netbios_domain/g' /etc/krb5.conf");
     exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
     exec("rm /etc/samba/smb.conf");
     exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$ad_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
-    //exec("echo '127.0.0.1      localhost' > /etc/hosts");
-    //exec("echo '$primary_ip     $hostname' >> /etc/hosts");
-    exec("echo 'nameserver $primary_ip' > /etc/resolv.conf");
+    exec("echo 'nameserver 127.0.0.1' > /etc/resolv.conf");
     exec("echo 'search $ad_domain' >> /etc/resolv.conf");
     //exec("echo 'DNS=$primary_ip' >> /etc/systemd/network/$network_int_file");
     exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
