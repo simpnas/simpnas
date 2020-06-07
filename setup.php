@@ -70,7 +70,7 @@
 
 	  <div class="form-group">
 	    <label>Server Name</label>
-	    <input type="text" class="form-control" name="hostname" value="<?php echo gethostname(); ?>" required>
+	    <input type="text" class="form-control" name="hostname" required>
 	  </div>
 
 	  <div class="form-group">
