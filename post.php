@@ -1812,6 +1812,8 @@ if(isset($_POST['setup_final'])){
   exec ("mkdir /$config_mount_target/$volume_name/docker");
   exec ("mkdir /$config_mount_target/$volume_name/users");
   exec ("mkdir /$config_mount_target/$volume_name/share");
+  exec ("chmod 770 /$config_mount_target/$volume_name/share");
+  exec ("chgrp users /$config_mount_target/$volume_name/share");
 
   $myFile = "/etc/samba/shares/users";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
@@ -1865,11 +1867,6 @@ if(isset($_POST['setup_final'])){
   $stringData = "UUID=$uuid    /$config_mount_target/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
   fwrite($fh, $stringData);
   fclose($fh);
-
-  //Install Docker
-  exec("docker network create my-network");
-  exec("apt install docker-ce docker-ce-cli containerd.io -y");
-  exec("apt install docker.io -y");
 
   if($collect == 1){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
