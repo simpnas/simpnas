@@ -1861,6 +1861,9 @@ if(isset($_POST['setup_final'])){
   exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
   exec ("chown -R $username:users /$config_mount_target/$volume_name/$config_home_dir/$username");
 
+  exec("echo 'To manage SimpNAS point your browser to the following URL' >> /etc/issue");
+  exec("echo 'http://$primary_ip:81' >> /etc/issue");
+
   $uuid = exec("blkid -o value --match-tag UUID $hdd_part");
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");
