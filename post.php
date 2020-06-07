@@ -1755,6 +1755,7 @@ if(isset($_POST['setup_final'])){
   $config_home_dir = "users";
 
   $network_int_file = exec("ls /etc/systemd/network");
+  $network_int = exec("ls /etc/systemd/network | awk -F'.' '{print $1}'");
 
   //Set TimeZone
   exec("timedatectl set-timezone '$timezone'");
@@ -1789,8 +1790,9 @@ if(isset($_POST['setup_final'])){
     exec("echo 'search $ad_domain' >> /etc/resolv.conf");
     //exec("echo 'DNS=$primary_ip' >> /etc/systemd/network/$network_int_file");
     exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
-    exec("sed -i '/netlogon/ i winbind enum users = yes\nwinbind enum groups = yes' /etc/samba/smb.conf");
     exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind enum users = yes\nwinbind enum groups = yes' /etc/samba/smb.conf");
+    exec("sed -i '/dns forwarder/ i bind interfaces only = yes\ninterfaces = lo $network_int' /etc/samba/smb.conf");
     exec("systemctl stop smbd nmbd winbind");
     exec("systemctl disable smbd nmbd winbind");
     exec("systemctl unmask samba-ad-dc");
