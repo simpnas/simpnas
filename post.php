@@ -1786,9 +1786,10 @@ if(isset($_POST['setup_final'])){
     exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
     exec("rm /etc/samba/smb.conf");
     exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$ad_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
-    exec("echo 'nameserver 127.0.0.1' > /etc/resolv.conf");
-    exec("echo 'search $ad_domain' >> /etc/resolv.conf");
-    //exec("echo 'DNS=$primary_ip' >> /etc/systemd/network/$network_int_file");
+    //exec("echo 'nameserver 127.0.0.1' > /etc/resolv.conf");
+    //exec("echo 'search $ad_domain' >> /etc/resolv.conf");
+    deleteLineInFile("/etc/systemd/network/$network_int_file","DNS=");
+    exec("echo 'DNS=127.0.0.1' >> /etc/systemd/network/$network_int_file");
     exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
     exec("sed -i '/netlogon/ i winbind enum users = yes' /etc/samba/smb.conf");
     exec("sed -i '/netlogon/ i winbind enum groups = yes' /etc/samba/smb.conf");
