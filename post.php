@@ -1790,7 +1790,10 @@ if(isset($_POST['setup_final'])){
     exec("echo 'search $ad_domain' >> /etc/resolv.conf");
     //exec("echo 'DNS=$primary_ip' >> /etc/systemd/network/$network_int_file");
     exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
-    exec("sed -i '/netlogon/ i winbind enum users = yes\nwinbind enum groups = yes\nbind interfaces only = yes\ninterfaces = lo $network_int' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind enum users = yes' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind enum groups = yes' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i interfaces only = yes' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i interfaces = lo $network_int' /etc/samba/smb.conf");
     exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
     exec("systemctl stop smbd nmbd winbind");
     exec("systemctl disable smbd nmbd winbind");
