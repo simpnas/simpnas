@@ -1817,7 +1817,7 @@ if(isset($_POST['setup_final'])){
 
   $myFile = "/etc/samba/shares/users";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[users]\n   comment = Users Home Folders\n   path = /$config_mount_target/$volume_name/users\n   read only = no\n   force create mode = 0600\n   force directory mode = 0700\n";
+  $stringData = "[users]\n   comment = Users Home Folders\n   path = /$config_mount_target/$volume_name/users\n   read only = no\n   create mask = 0600\n   directory mask = 0700\n";
   fwrite($fh, $stringData);
   fclose($fh);
 
