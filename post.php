@@ -1794,7 +1794,7 @@ if(isset($_POST['setup_final'])){
     exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
     exec("sed -i '/netlogon/ i winbind enum users = yes' /etc/samba/smb.conf");
     exec("sed -i '/netlogon/ i winbind enum groups = yes' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i interfaces only = yes' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i bind interfaces only = yes' /etc/samba/smb.conf");
     exec("sed -i '/netlogon/ i interfaces = lo $network_int' /etc/samba/smb.conf");
     exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
     exec("systemctl stop smbd nmbd winbind");

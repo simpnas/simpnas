@@ -4,7 +4,13 @@
     include("header.php");
     include("side_nav.php");
     
-    exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);
+    $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
+    if(empty($ad_enabled)){
+      exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);  
+    }else{
+      exec("getent passwd | awk -F: '$3 > 3000000 {print $1}' | grep -v krbtgt | grep -v guest", $username_array);
+    }
+
 ?>
 
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
