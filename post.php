@@ -405,9 +405,9 @@ if(isset($_POST['share_add'])){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not create the share $name because the volume $volume is not mounted";
   }else{
-    mkdir("$share_path");
-    chgrp("$share_path", $group);
-    chmod("$share_path", 0770);
+    exec("mkdir $share_path");
+    exec("chgrp $group $share_path");
+    exec("chmod 0770 $share_path");
 
     $myFile = "/etc/samba/shares/$name";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
