@@ -53,7 +53,8 @@ if(isset($_POST['user_add'])){
       exec ("echo '$password\n$password' | smbpasswd -a $username");
       
     }else{
-      exec ("samba-tool user create $username '$password'");
+      $hostname = exec("hostname");
+      exec ("samba-tool user create $username $password --home-drive=H --unix-home=/$config_mount_target/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username'");
     }
     
     if(isset($_POST['group'])){
@@ -411,7 +412,7 @@ if(isset($_POST['share_add'])){
 
     $myFile = "/etc/samba/shares/$name";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group, @admins\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
+    $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
     fwrite($fh, $stringData);
     fclose($fh);
 
