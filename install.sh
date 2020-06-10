@@ -58,11 +58,10 @@ echo "==========================================================================
 cp /simpnas/conf/simpnas.service /etc/systemd/system/
 chmod 755 /etc/systemd/system/simpnas.service
 systemctl enable simpnas
+systemctl start simpnas
 IP="$(ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||')";
 HOSTNAME="$(hostname)";
 echo "==============================================================================================================================="
-echo "                                                   Almost There!																 " 
-echo "                                           Your system will now reboot!														 "
-echo "                    Visit http://$IP:81 in your web browser to complete installation after reboot								 "
+echo "                                                   Almost There!																 "
+echo "                    		Visit http://$IP:81 in your web browser to complete installation								 	 "
 echo "==============================================================================================================================="
-/sbin/reboot
