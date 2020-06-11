@@ -75,7 +75,7 @@
   <form method="post" action="post.php" autocomplete="off">
 
 	  <div class="form-group">
-	    <label>Timezone:</label>
+	    <label>Timezone</label>
 	    <select class="form-control" name="timezone" required>
 	    	<?php
 	    	foreach ($timezones_array as $timezone) {
@@ -126,7 +126,7 @@
 	  </div>
 
 	  <div class="form-group">
-		<label>File Server Type</label>
+		<label>Server Type</label>
 		<select class="form-control" name="server_type" id="serverType">
 			<option id="standAlone" value="standalone">File Server</option>
 			<option id="activeDirectory" value="AD">Directory / File Server</option>

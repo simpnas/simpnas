@@ -1716,7 +1716,8 @@ if(isset($_POST['setup_network'])){
     fclose($fh);
     exec("echo '127.0.0.1      localhost' > /etc/hosts");
     exec("echo '127.0.0.2     $hostname' >> /etc/hosts");
-    exec("sleep 1 && systemctl restart systemd-networkd > /dev/null &");
+    exec("systemctl restart systemd-networkd > /dev/null &");
+    exec("sleep 2");
     echo "<script>window.location = 'http://$hostname:81/setup2.php'</script>";
   }
   
@@ -1729,7 +1730,8 @@ if(isset($_POST['setup_network'])){
     $new_ip = substr($address, 0, strpos($address, "/"));
     exec("echo '127.0.0.1      localhost' > /etc/hosts");
     exec("echo '$new_ip     $hostname' >> /etc/hosts");
-    exec("sleep 1 && systemctl restart systemd-networkd > /dev/null &");
+    //exec("sleep 1 && systemctl restart systemd-networkd > /dev/null &");
+    exec("systemctl restart systemd-networkd > /dev/null &");
     echo "<script>window.location = 'http://$new_ip:81/setup2.php'</script>";
   }
 
