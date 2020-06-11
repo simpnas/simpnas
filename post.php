@@ -1809,7 +1809,8 @@ if(isset($_POST['setup_final'])){
     $myFile = "/etc/samba/shares/share";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
     $stringData = "[share]\n   comment = Shared files\n   path = /$config_mount_target/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @\"$ad_netbios_domain\domain users\"\n   force group = \"$ad_netbios_domain\domain users\"\n   create mask = 0660\n   directory mask = 0770";
-
+    fwrite($fh, $stringData);
+    fclose($fh);
   }else{    
     $myFile = "/etc/samba/shares/share";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
