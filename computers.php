@@ -4,14 +4,14 @@
     include("header.php");
     include("side_nav.php");
     
-    exec("samba-tool user list | grep -v Administrator | grep -v Guest | grep -v krbtgt", $username_array);
+    exec("samba-tool computer list", $computers_array);
 ?>
 
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 
    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
-    <h2>Users</h2>
-    <a href="user_add.php" class="btn btn-outline-primary">Add User</a>
+    <h2>Computers</h2>
+    <a href="user_computer.php" class="btn btn-outline-primary">Add Computer</a>
   </div>
 
   <?php
@@ -35,26 +35,21 @@
     <table class="table table-striped" id="dt">
       <thead>
         <tr>
-          <th>User</th>
-          <th>Groups</th>
-          <th>Used Space</th>
+          <th>Computer</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
         <?php 	  
-        foreach($username_array as $username){
-          $groups = str_replace(' ',", ",exec("groups $username | sed 's/\($username\| : \)//g'")); //replace space with a , and a space makes it look neater
-          $home_dir_usage = exec("du -sh /$config_mount_target/$config_home_volume/$config_home_dir/$username | awk '{print $1}'");
+        foreach($computers_array as $computer){
+          $computer = rtrim($computer,"$");
         ?>
           <tr>
-            <td><span class="mr-2" data-feather="user"></span><?php echo $username; ?></td>
-            <td><?php echo $groups; ?></td>
-            <td><?php echo $home_dir_usage; ?></td>
+            <td><span class="mr-2" data-feather="monitor"></span><?php echo $computer; ?></td>
             <td>
               <div class="btn-group mr-2">
-              <a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
-              <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <a href="computer_edit.php?username=<?php echo $computer; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
+              <a href="post.php?computer_delete=<?php echo $computer; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
             </div>
             </td>
           </tr>

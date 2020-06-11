@@ -51,6 +51,13 @@
           Groups
         </a>
       </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="computers.php">
+          <span data-feather="monitor"></span>
+          Computers
+        </a>
+      </li>
       
       <li class="nav-item">
         <a class="nav-link" href="shares.php">

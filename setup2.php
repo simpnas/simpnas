@@ -135,33 +135,13 @@
 
 	  <div id="activeDirectorySettings">
 		  <div class="form-group">
-		    <label>Domain</label>
+		    <label>Domain Name</label>
 		    <input type="text" class="form-control" name="ad_domain" placeholder="ex. company.int">
 		  </div>
-		  
-		  <div class="form-group">
-		    <label>NETBIOS Domain</label>
-		    <input type="text" class="form-control" name="ad_netbios_domain">
-		  </div>
-		  
-		  <div class="form-group">
-		    <label>Administrator Password</label>
-		    <input type="text" class="form-control" name="ad_admin_password">
-		  </div>
-
-		  <div class="form-group">
-		    <label>DNS Forwarder(s)</label>
-		    <input type="text" class="form-control" name="ad_dns_forwarders">
-		  </div>
 	  </div>
 
 	  <div class="form-group">
-	    <label>Admin Username</label>
-	    <input type="text" class="form-control" name="username" required>
-	  </div>
-	  
-	  <div class="form-group">
-	    <label>Admin Password</label>
+	    <label>Administrator Password</label>
 	    <input type="password" class="form-control" name="password" required autocomplete="new-password">
 	  </div>
 

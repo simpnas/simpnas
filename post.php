@@ -4,7 +4,9 @@
   
   $config = include("config.php");
   include("simple_vars.php");
-  include("functions.php"); 
+  include("functions.php");
+  $config_ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
+  $config_netbios_domain = exec("samba-tool domain info 127.0.0.1 | grep Netbios | awk '{print $4}'");
 
 if(isset($_GET['upgrade_simpnas'])){
   exec("cd /simpnas");
@@ -42,25 +44,26 @@ if(isset($_POST['user_add'])){
     if(!file_exists("/$config_mount_target/$config_home_volume/$config_home_dir/")){
       mkdir("/$config_mount_target/$config_home_volume/$config_home_dir/");
     }
-   
     exec ("mkdir /$config_mount_target/$config_home_volume/$config_home_dir/$username");
     exec ("chmod -R 700 /$config_mount_target/$config_home_volume/$config_home_dir/$username");  
-    exec ("useradd -g users -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -s /bin/false -p $password");
-    exec ("chown -R $username:users /$config_mount_target/$config_home_volume/$config_home_dir/$username");
     
-    $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
-    if(empty($ad_enabled)){
+    if(empty($config_ad_enabled)){
+      exec ("useradd -g users -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -s /bin/false -p $password");
       exec ("echo '$password\n$password' | smbpasswd -a $username");
-      
     }else{
       $hostname = exec("hostname");
       exec ("samba-tool user create $username $password --home-drive=H --unix-home=/$config_mount_target/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username'");
     }
+    exec ("chown -R $username /$config_mount_target/$config_home_volume/$config_home_dir/$username");
     
     if(isset($_POST['group'])){
     	$group_array = $_POST['group'];
     	foreach($group_array as $group){
-      	exec ("adduser $username $group");
+      	if(empty($config_ad_enabled)){
+          exec ("adduser $username $group");
+        }else{
+          exec("samba-tool group addmembers '$group' $username");
+        }
     	}
     }
 
@@ -1738,14 +1741,11 @@ if(isset($_POST['setup_final'])){
   $volume_name = $_POST['volume_name'];
   $hdd = $_POST['disk'];
   $hdd_part = $hdd."1";
-  $username = $_POST['username'];
   $password = $_POST['password'];
 
   $server_type = $_POST['server_type'];
   $ad_domain = $_POST['ad_domain'];
-  $ad_netbios_domain = $_POST['ad_netbios_domain'];
-  $ad_admin_password = $_POST['ad_admin_password'];
-  $ad_dns_forwarders = $_POST['ad_dns_forwarders'];
+  $ad_netbios_domain = strtoupper(strtok($ad_domain, '.'));
 
   $hostname = exec("hostname");
   $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
@@ -1786,7 +1786,7 @@ if(isset($_POST['setup_final'])){
     exec("sed -i 's/NETBIOS/$ad_netbios_domain/g' /etc/krb5.conf");
     exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
     exec("rm /etc/samba/smb.conf");
-    exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$ad_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
+    exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
     exec("echo 'nameserver 127.0.0.1' > /etc/resolv.conf");
     exec("echo 'search $ad_domain' >> /etc/resolv.conf");
     deleteLineInFile("/etc/systemd/network/$network_int_file","DNS=");
@@ -1804,17 +1804,23 @@ if(isset($_POST['setup_final'])){
     exec("systemctl enable samba-ad-dc");
     exec("mv /etc/nsswitch.conf /etc/nsswitch.conf.ori");
     exec("cp /simpnas/conf/nsswitch.conf /etc");
+    $myFile = "/etc/samba/shares/share";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[share]\n   comment = Shared files\n   path = /$config_mount_target/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @\"$ad_netbios_domain\domain users\"\n   force group = \"$ad_netbios_domain\domain users\"\n   create mask = 0660\n   directory mask = 0770";
 
   }else{    
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
+    $myFile = "/etc/samba/shares/share";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[share]\n   comment = Shared files\n   path = /$config_mount_target/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @users\n   force group = users\n   create mask = 0660\n   directory mask = 0770";
+    fwrite($fh, $stringData);
+    fclose($fh);
   }
 
   exec ("mkdir /$config_mount_target/$volume_name/docker");
   exec ("mkdir /$config_mount_target/$volume_name/users");
   exec ("mkdir /$config_mount_target/$volume_name/share");
   exec ("chmod 770 /$config_mount_target/$volume_name/share");
-  exec ("chgrp users /$config_mount_target/$volume_name/share");
+  
 
   $myFile = "/etc/samba/shares/users";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
@@ -1825,12 +1831,6 @@ if(isset($_POST['setup_final'])){
   $myFile = "/etc/samba/shares.conf";
   $fh = fopen($myFile, 'a') or die("not able to write to file");
   $stringData = "\ninclude = /etc/samba/shares/users";
-  fwrite($fh, $stringData);
-  fclose($fh);
-
-  $myFile = "/etc/samba/shares/share";
-  $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[share]\n   comment = Shared files\n   path = /$config_mount_target/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @users\n   force group = users\n   create mask = 0660\n   directory mask = 0770";
   fwrite($fh, $stringData);
   fclose($fh);
 
@@ -1847,20 +1847,22 @@ if(isset($_POST['setup_final'])){
   }
   
   if($server_type == 'AD'){
+    exec ("chgrp '$ad_netbios_domain\domain users' /$config_mount_target/$volume_name/share");
     //Create the new user AD Style
-    exec ("samba-tool user create $username $password --home-drive=H --unix-home=/$config_mount_target/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username' --login-shell=/bin/bash");
-    exec("usermod -aG sudo '$ad_netbios_domain\\$username'");
+    //exec ("samba-tool user create $username $password --home-drive=H --unix-home=/$config_mount_target/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username' --login-shell=/bin/bash");
+    //exec("usermod -aG sudo '$ad_netbios_domain\\$username'");
   }else{
+    exec ("chgrp users /$config_mount_target/$volume_name/share");
     //Create the new user UNIX way
-    exec ("useradd -g users -d /$config_mount_target/$volume_name/$config_home_dir/$username $username -p $password");
-    exec ("usermod -a -G admins $username");
-    exec ("usermod -a -G sudo $username");
-    exec ("echo '$password\n$password' | smbpasswd -a $username");
+    exec ("useradd -g users -d /$config_mount_target/$volume_name/$config_home_dir/administrator administrator -p $password");
+    exec ("usermod -a -G admins administrator");
+    exec ("usermod -a -G sudo administrator");
+    exec ("echo '$password\n$password' | smbpasswd -a administrator");
   }
   
-  exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/$username");
-  exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/$username");
-  exec ("chown -R $username:users /$config_mount_target/$volume_name/$config_home_dir/$username");
+  exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/administrator");
+  exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/administrator");
+  exec ("chown -R administrator /$config_mount_target/$volume_name/$config_home_dir/administrator");
 
   exec("echo 'To manage SimpNAS point your browser to the following URL' >> /etc/issue");
   exec("echo 'http://$primary_ip:81' >> /etc/issue");
