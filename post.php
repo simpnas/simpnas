@@ -1877,6 +1877,10 @@ if(isset($_POST['setup_final'])){
   fwrite($fh, $stringData);
   fclose($fh);
 
+  exec("apt install docker-ce docker-ce-cli containerd.io -y");
+  exec("apt install docker.io -y");
+  exec("docker network create my-network");
+
   if($collect == 1){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
   }
