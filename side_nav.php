@@ -51,13 +51,15 @@
           Groups
         </a>
       </li>
-
+      
+      <?php if(!empty($config_ad_enabled)){ ?>
       <li class="nav-item">
         <a class="nav-link" href="computers.php">
           <span data-feather="monitor"></span>
           Computers
         </a>
       </li>
+      <?php } ?>
       
       <li class="nav-item">
         <a class="nav-link" href="shares.php">

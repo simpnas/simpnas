@@ -6,9 +6,20 @@
   if(isset($_GET['username'])){
 		$username = $_GET['username'];
 	}
-  $primary_group = exec("id -g -n $username");
-  exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
-  $group_member_array = explode(' ',exec("groups $username"));
+  
+  if(empty($config_ad_enabled)){
+    exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
+    $group_member_array = explode(' ',exec("groups $username"));
+  }else{
+  	$ad_builtin_groups_array = array("Performance Monitor Users", "Remote Desktop Users", "Read-only Domain Controllers", "IIS_IUSRS", "Denied RODC Password Replication Group", "DnsUpdateProxy", "Enterprise Admins", "Replicator", "Windows Authorization Access Group", "Domain Controllers", "Pre-Windows 2000 Compatible Access", "Certificate Service DCOM Access", "Domain Guests", "Enterprise Read-only Domain Controllers", "Schema Admins", "Distributed COM Users", "Domain Computers", "Performance Log Users", "Network Configuration Operators", "Account Operators", "Backup Operators", "Terminal Server License Servers", "DnsAdmins", "Guests", "Cert Publishers", "Incoming Forest Trust Builders", "Print Operators", "Administrators", "Server Operators", "RAS and IAS Servers", "Allowed RODC Password Replication Group", "Cryptographic Operators", "Group Policy Creator Owners", "Event Log Readers");
+
+  	exec("samba-tool group list", $all_groups_array);
+  
+  	$group_array = array_diff($all_groups_array,$ad_builtin_groups_array);
+  	$group_member_array = explode(' ',exec("groups $username"));
+  }
+
+  
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -34,11 +45,6 @@
 	  </div>
 	  
 	  <legend>Groups</legend>
-
-	  <div class="form-group form-check">
-	    <input type="checkbox" class="form-check-input" checked>
-	    <label class="form-check-label ml-1">users</label>
-	  </div>
 	  
 	  <?php 
 	  foreach($group_array as $group){ 

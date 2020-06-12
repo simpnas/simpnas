@@ -135,7 +135,12 @@ if(isset($_POST['group_add'])){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not add group $group because the group $group is reserved for an App, the following group names are forbiddon media, downloads and video-surveillance!";
   }else{
-    exec ("addgroup $group");
+    if(empty($config_ad_enabled)){
+      exec("addgroup $group");
+    }else{
+      exec("samba-tool group add $group");
+    }
+    
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "Group $group successfully added!";
   }  
@@ -165,9 +170,18 @@ if(isset($_POST['group_edit'])){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not rename group $old_group to $group because the group $group is reserved for an App, the following group names are forbiddon media, downloads and video-surveillance!";
   }else{
-    exec ("groupmod -n $group $old_group");
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
+    if(empty($config_ad_enabled)){
+      exec ("groupmod -n $group $old_group");
+      exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
+    }else{
+      exec("samba-tool group delete $old_group");
+      exec("samba-tool group listmembers $old_group",$group_members_array);
+      exec("samba-tool group add $group");
+      foreach ($group_members_array as $user){
+        exec("samba-tool group addmembers $group $user");
+      }
+    }
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "Group $old_group renamed to $group successfully!";
   }  
@@ -183,10 +197,15 @@ if(isset($_GET['group_delete'])){
     $_SESSION['alert_message'] = "Can not delete group $group as its currently being used by a file share, to delete this group, delete the file share or change the group on the share to another group and try again!";
   }else{
 
-    exec("delgroup $group");
+    if(empty($config_ad_enabled)){
+      exec("delgroup $group");
+      exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
+    
+    }else{
+      exec("samba-tool group delete $group");
+    }
 
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "Group $group deleted!";
   }
@@ -1704,6 +1723,7 @@ if(isset($_POST['setup_network'])){
 
   exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
   exec("hostnamectl set-hostname $hostname");
+  $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
 
   exec ("mv /etc/network/interfaces /etc/network/interfaces.save");
   exec ("systemctl enable systemd-networkd");
@@ -1717,8 +1737,7 @@ if(isset($_POST['setup_network'])){
     exec("echo '127.0.0.1      localhost' > /etc/hosts");
     exec("echo '127.0.0.2     $hostname' >> /etc/hosts");
     exec("systemctl restart systemd-networkd > /dev/null &");
-    exec("sleep 2");
-    echo "<script>window.location = 'http://$hostname:81/setup2.php'</script>";
+    echo "<script>window.location = 'http://$primary_ip:81/setup2.php'</script>";
   }
   
   if($method == 'Static'){
@@ -1730,7 +1749,6 @@ if(isset($_POST['setup_network'])){
     $new_ip = substr($address, 0, strpos($address, "/"));
     exec("echo '127.0.0.1      localhost' > /etc/hosts");
     exec("echo '$new_ip     $hostname' >> /etc/hosts");
-    //exec("sleep 1 && systemctl restart systemd-networkd > /dev/null &");
     exec("systemctl restart systemd-networkd > /dev/null &");
     echo "<script>window.location = 'http://$new_ip:81/setup2.php'</script>";
   }

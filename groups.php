@@ -3,8 +3,18 @@
   include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
-  exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
-  exec("find /$config_mount_target/*/* -maxdepth 0 -type d -group users -printf '%f\n'", $users_owned_directories_array); ?>
+
+  $config_ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
+  if(empty($config_ad_enabled)){
+    exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);  
+  }else{
+    $ad_builtin_groups_array = array("Performance Monitor Users", "Remote Desktop Users", "Read-only Domain Controllers", "IIS_IUSRS", "Denied RODC Password Replication Group", "DnsUpdateProxy", "Enterprise Admins", "Replicator", "Windows Authorization Access Group", "Domain Controllers", "Pre-Windows 2000 Compatible Access", "Certificate Service DCOM Access", "Domain Guests", "Enterprise Read-only Domain Controllers", "Schema Admins", "Distributed COM Users", "Domain Computers", "Performance Log Users", "Network Configuration Operators", "Account Operators", "Backup Operators", "Terminal Server License Servers", "DnsAdmins", "Guests", "Cert Publishers", "Incoming Forest Trust Builders", "Print Operators", "Administrators", "Server Operators", "RAS and IAS Servers", "Allowed RODC Password Replication Group", "Cryptographic Operators", "Group Policy Creator Owners", "Event Log Readers");
+
+    exec("samba-tool group list", $all_groups_array);
+    
+    $group_array = array_diff($all_groups_array,$ad_builtin_groups_array);
+  }
+
 ?>
 
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -37,29 +47,20 @@
           <tr>
             <th>Group</th>
             <th>Users</span>
-            <th>Shares</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr>    
-            <td><span class="mr-2" data-feather="users"></span>users <small class="text-secondary">(Cannot be removed)</small><br><br></td>
-            <td>Everyone</td>
-            <td><?php echo implode(", ",$users_owned_directories_array); ?></td>
-            <td>-</td>
-          </tr>
-          
           <?php 
           foreach ($group_array as $group){
-            $users = str_replace(',',', ',exec("awk -F: '/^$group/ {print $4;}' /etc/group"));
+            if(empty($config_ad_enabled)){
+              $users = str_replace(',',', ',exec("awk -F: '/^$group/ {print $4;}' /etc/group"));
+            }else{
+              exec("samba-tool group listmembers '$group' | grep -v krbtgt",$group_list_array);
+              $users = implode(", ",$group_list_array); 
+            }
             if(empty($users)){
               $users = "-";
-            }
-
-            exec("find /$config_mount_target/*/* -maxdepth 0 -type d -group $group -printf '%f\n'",$group_owned_directories_array);
-            $group_owned_directories = implode(", ",$group_owned_directories_array);
-            if(empty($group_owned_directories)){
-              $group_owned_directories = "-";
             }
             
           ?>
@@ -67,7 +68,6 @@
           <tr>    
             <td><span class="mr-2" data-feather="users"></span><?php echo $group; ?></td>
             <td><?php echo $users; ?></td>
-            <td><?php echo $group_owned_directories; ?></td>
             <td>
               <div class="btn-group mr-2">
                 <a href="group_edit.php?group=<?php echo $group; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
@@ -76,7 +76,7 @@
             </td>
           </tr>
          <?php 
-          unset($group_owned_directories_array);
+          unset($group_list_array);
           } 
 
           ?>

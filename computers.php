@@ -36,6 +36,7 @@
       <thead>
         <tr>
           <th>Computer</th>
+          <th>Operating System</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -43,9 +44,11 @@
         <?php 	  
         foreach($computers_array as $computer){
           $computer = rtrim($computer,"$");
+          $os = exec("samba-tool computer show $computer | grep operatingSystem: | awk -F: '{print $2}'");
         ?>
           <tr>
             <td><span class="mr-2" data-feather="monitor"></span><?php echo $computer; ?></td>
+            <td><?php echo $os; ?></td>
             <td>
               <div class="btn-group mr-2">
               <a href="computer_edit.php?username=<?php echo $computer; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>

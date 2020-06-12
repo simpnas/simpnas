@@ -4,11 +4,10 @@
     include("header.php");
     include("side_nav.php");
     
-    $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
-    if(empty($ad_enabled)){
+    if(empty($config_ad_enabled)){
       exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);  
     }else{
-      exec("getent passwd | awk -F: '$3 > 3000000 {print $1}' | grep -v krbtgt | grep -v guest", $username_array);
+      exec("samba-tool user list | grep -v krbtgt | grep -v Guest", $username_array);
     }
 
 ?>
