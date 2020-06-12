@@ -53,6 +53,10 @@ cp /simpnas/conf/smb.conf /etc/samba/
 touch /etc/samba/shares.conf
 mkdir /etc/samba/shares
 echo "=================================================================================="
+echo "Creating Volumes Directory for Volume mounts"
+echo "=================================================================================="
+mkdir /volumes
+echo "=================================================================================="
 echo "Installing and Enabling SimpNAS Service during Startup..."
 echo "=================================================================================="
 cp /simpnas/conf/simpnas.service /etc/systemd/system/

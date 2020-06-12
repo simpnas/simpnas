@@ -1772,7 +1772,7 @@ if(isset($_POST['setup_final'])){
 
   $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
-  $config_mount_target = "mnt";
+  $config_mount_target = "volumes";
   $config_home_dir = "users";
 
   $network_int_file = exec("ls /etc/systemd/network");
