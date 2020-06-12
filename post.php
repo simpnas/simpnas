@@ -226,8 +226,8 @@ if(isset($_POST['general_edit'])){
   
   exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
-  $new_hostname = exec("hostname");
-  header("Location: http://$new_hostname:81/general.php");
+  
+  header("Location: http://$primary_ip:81/general.php");
 }
 
 if(isset($_POST['datetime_update'])){

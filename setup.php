@@ -70,7 +70,7 @@
 
 	  <div class="form-group">
 	    <label>Server Name</label>
-	    <input type="text" class="form-control" name="hostname" required>
+	    <input type="text" class="form-control" name="hostname" required autofocus>
 	  </div>
 
 	  <div class="form-group">
