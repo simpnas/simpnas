@@ -1729,6 +1729,8 @@ if(isset($_POST['setup_network'])){
   $gateway = $_POST['gateway'];
   $dns = $_POST['dns'];
 
+  $current_hostname = exec("hostname");
+
   exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
   exec("hostnamectl set-hostname $hostname");
   $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
@@ -1789,7 +1791,7 @@ if(isset($_POST['setup_volume'])){
 }
 
 if(isset($_POST['setup_final'])){
-  $volume_name = exec("ls /volumes")
+  $volume_name = exec("ls /volumes");
   $password = $_POST['password'];
   $server_type = $_POST['server_type'];
   $ad_domain = $_POST['ad_domain'];
@@ -1881,11 +1883,14 @@ if(isset($_POST['setup_final'])){
     exec("deluser --remove-home $existing_username");
   }
   
+  exec ("mkdir /volumes/$volume_name/users/administrator");
+  exec ("chmod -R 700 /volumes/$volume_name/users/administrator");
   if($server_type == 'AD'){
     exec ("chgrp '$ad_netbios_domain\domain users' /volumes/$volume_name/share");
     //Create the new user AD Style
     //exec ("samba-tool user create $username $password --home-drive=H --unix-home=/$config_mount_target/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username' --login-shell=/bin/bash");
     //exec("usermod -aG sudo '$ad_netbios_domain\\$username'");
+    exec ("chown -R '$ad_netbios_domain\administrator' /volumes/$volume_name/users/administrator");
   }else{
     exec ("chgrp users /volumes/$volume_name/share");
     //Create the new user UNIX way
@@ -1893,11 +1898,8 @@ if(isset($_POST['setup_final'])){
     exec ("usermod -a -G admins administrator");
     exec ("usermod -a -G sudo administrator");
     exec ("echo '$password\n$password' | smbpasswd -a administrator");
+    exec ("chown -R administrator /volumes/$volume_name/users/administrator");
   }
-  
-  exec ("mkdir /volumes/$volume_name/users/administrator");
-  exec ("chmod -R 700 /volumes/$volume_name/users/administrator");
-  exec ("chown -R administrator /volumes/$volume_name/users/administrator");
 
   exec("echo 'To manage SimpNAS point your browser to the following URL' >> /etc/issue");
   exec("echo 'http://$primary_ip:81' >> /etc/issue");
