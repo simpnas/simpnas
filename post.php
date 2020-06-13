@@ -226,7 +226,7 @@ if(isset($_POST['general_edit'])){
   
   exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
-  
+
   header("Location: http://$primary_ip:81/general.php");
 }
 
@@ -932,9 +932,9 @@ if(isset($_POST['install_nextcloud'])){
   mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/appdata");
   mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/data");
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud");
+  mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud_mariadb");
 
-  exec("docker run -d --name mariadb_nextcloud --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud:/config linuxserver/mariadb");
+  exec("docker run -d --name nextcloud_mariadb --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
 
   exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data linuxserver/nextcloud");
 
@@ -945,7 +945,7 @@ if(isset($_POST['install_nextcloud'])){
     exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton");
     exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton/Shared-Folders");
   }
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='mariadb_nextcloud' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='admin' --admin-pass='$password'");
+  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='nextcloud_mariadb' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='admin' --admin-pass='$password'");
 
   //Add Trusted Hosts
   $current_hostname = gethostname();
@@ -1026,11 +1026,11 @@ if(isset($_GET['update_nextcloud'])){
   exec("docker stop nextcloud");
   exec("docker rm nextcloud");
 
-  exec("docker pull linuxserver/mariadb_nextcloud");
-  exec("docker stop mariadb_nextcloud");
-  exec("docker rm mariadb_nextcloud");
+  exec("docker pull linuxserver/nextcloud_mariadb");
+  exec("docker stop nextcloud_mariadb");
+  exec("docker rm nextcloud_mariadb");
 
-  exec("docker run -d --name mariadb_nextcloud --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud:/config linuxserver/mariadb");
+  exec("docker run -d --name nextcloud_mariadb --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
 
   exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data linuxserver/nextcloud");
 
@@ -1044,12 +1044,12 @@ if(isset($_GET['uninstall_nextcloud'])){
   //stop and delete docker container
   exec("docker stop nextcloud");
   exec("docker rm nextcloud");
-  exec("docker stop mariadb_nextcloud");
-  exec("docker rm mariadb_nextcloud");
+  exec("docker stop nextcloud_mariadb");
+  exec("docker rm nextcloud_mariadb");
 
   //delete docker config
   exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/nextcloud");
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb_nextcloud");
+  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/nextcloud_mariadb");
   
   //delete images
   exec("docker image prune");
@@ -1273,14 +1273,14 @@ if(isset($_GET['install_syncthing'])){
   header("Location: apps.php");
 }
 
-if(isset($_GET['install_home-assistant'])){
+if(isset($_GET['install_homeassistant'])){
   mkdir("/$config_mount_target/$config_docker_volume/docker/homeassistant");
 
   exec("docker run -d --name homeassistant --net=host --net=my-network --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
   header("Location: apps.php");
 }
 
-if(isset($_GET['update_home-assistant'])){
+if(isset($_GET['update_homeassistant'])){
 
   exec("docker pull homeassistant/home-assistant:stable");
   exec("docker stop home-assistant");
@@ -1294,7 +1294,7 @@ if(isset($_GET['update_home-assistant'])){
 
 }
 
-if(isset($_GET['uninstall_home-assistant'])){
+if(isset($_GET['uninstall_homeassistant'])){
   //stop and delete docker container
   exec("docker stop homeassistant");
   exec("docker rm homeassistant");
@@ -1712,6 +1712,14 @@ if(isset($_GET['uninstall_openvpn'])){
   header("Location: apps.php");
 }
 
+if(isset($_POST['setup_timezone'])){
+  $timezone = $_POST['timezone'];
+  //Set TimeZone
+  exec("timedatectl set-timezone '$timezone'");
+
+  header("Location: setup_network.php");
+}
+
 if(isset($_POST['setup_network'])){
   
   $hostname = $_POST['hostname'];
@@ -1756,13 +1764,33 @@ if(isset($_POST['setup_network'])){
   //header("Location: reboot.php");
 }
 
-if(isset($_POST['setup_final'])){
-  $timezone = $_POST['timezone'];
+if(isset($_POST['setup_volume'])){
   $volume_name = $_POST['volume_name'];
   $hdd = $_POST['disk'];
   $hdd_part = $hdd."1";
-  $password = $_POST['password'];
 
+  $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
+
+  exec ("wipefs -a $hdd");
+  exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
+  exec ("mkdir /volumes/$volume_name");
+  exec ("mkfs.ext4 $hdd_part");
+  exec ("e2label $hdd_part $volume_name");
+  exec ("mount $hdd_part /volumes/$volume_name"); 
+
+  $uuid = exec("blkid -o value --match-tag UUID $hdd_part");
+  $myFile = "/etc/fstab";
+  $fh = fopen($myFile, 'a') or die("can't open file");
+  $stringData = "UUID=$uuid    /volumes/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
+  fwrite($fh, $stringData);
+  fclose($fh);
+
+  header("Location: setup_final.php");
+}
+
+if(isset($_POST['setup_final'])){
+  $volume_name = exec("ls /volumes")
+  $password = $_POST['password'];
   $server_type = $_POST['server_type'];
   $ad_domain = $_POST['ad_domain'];
   $ad_netbios_domain = strtoupper(strtok($ad_domain, '.'));
@@ -1772,31 +1800,17 @@ if(isset($_POST['setup_final'])){
 
   $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
-  $config_mount_target = "volumes";
-  $config_home_dir = "users";
-
   $network_int_file = exec("ls /etc/systemd/network");
   $network_int = exec("ls /etc/systemd/network | awk -F'.' '{print $1}'");
-
-  //Set TimeZone
-  exec("timedatectl set-timezone '$timezone'");
 
   //Create config.php file
   
   $file = fopen("config.php", "w");
 
-  $data = "<?php\nreturn array(\n'mount_target' => '$config_mount_target',\n'docker_volume' => '$volume_name',\n'home_volume' => '$volume_name',\n'home_dir' => '$config_home_dir',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'enable_beta' => '0'\n);\n?>";
+  $data = "<?php\nreturn array(\n'mount_target' => 'volumes',\n'docker_volume' => '$volume_name',\n'home_volume' => '$volume_name',\n'home_dir' => 'users',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'enable_beta' => '0'\n);\n?>";
 
   fwrite($file, $data);
-
   fclose($file);
-
-  exec ("wipefs -a $hdd");
-  exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
-  exec ("mkdir /$config_mount_target/$volume_name");
-  exec ("mkfs.ext4 $hdd_part");
-  exec ("e2label $hdd_part $volume_name");
-  exec ("mount $hdd_part /$config_mount_target/$volume_name"); 
 
   if($server_type == 'AD'){
     exec("echo '127.0.0.1      localhost' > /etc/hosts");
@@ -1826,26 +1840,26 @@ if(isset($_POST['setup_final'])){
     exec("cp /simpnas/conf/nsswitch.conf /etc");
     $myFile = "/etc/samba/shares/share";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[share]\n   comment = Shared files\n   path = /$config_mount_target/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @\"$ad_netbios_domain\domain users\"\n   force group = \"$ad_netbios_domain\domain users\"\n   create mask = 0660\n   directory mask = 0770";
+    $stringData = "[share]\n   comment = Shared files\n   path = /volumes/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @\"$ad_netbios_domain\domain users\"\n   force group = \"$ad_netbios_domain\domain users\"\n   create mask = 0660\n   directory mask = 0770";
     fwrite($fh, $stringData);
     fclose($fh);
   }else{    
     $myFile = "/etc/samba/shares/share";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[share]\n   comment = Shared files\n   path = /$config_mount_target/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @users\n   force group = users\n   create mask = 0660\n   directory mask = 0770";
+    $stringData = "[share]\n   comment = Shared files\n   path = /volumes/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @users\n   force group = users\n   create mask = 0660\n   directory mask = 0770";
     fwrite($fh, $stringData);
     fclose($fh);
   }
 
-  exec ("mkdir /$config_mount_target/$volume_name/docker");
-  exec ("mkdir /$config_mount_target/$volume_name/users");
-  exec ("mkdir /$config_mount_target/$volume_name/share");
-  exec ("chmod 770 /$config_mount_target/$volume_name/share");
+  exec ("mkdir /volumes/$volume_name/docker");
+  exec ("mkdir /volumes/$volume_name/users");
+  exec ("mkdir /volumes/$volume_name/share");
+  exec ("chmod 770 /volumes/$volume_name/share");
   
 
   $myFile = "/etc/samba/shares/users";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[users]\n   comment = Users Home Folders\n   path = /$config_mount_target/$volume_name/users\n   read only = no\n   create mask = 0600\n   directory mask = 0700\n";
+  $stringData = "[users]\n   comment = Users Home Folders\n   path = /volumes/$volume_name/users\n   read only = no\n   create mask = 0600\n   directory mask = 0700\n";
   fwrite($fh, $stringData);
   fclose($fh);
 
@@ -1868,43 +1882,35 @@ if(isset($_POST['setup_final'])){
   }
   
   if($server_type == 'AD'){
-    exec ("chgrp '$ad_netbios_domain\domain users' /$config_mount_target/$volume_name/share");
+    exec ("chgrp '$ad_netbios_domain\domain users' /volumes/$volume_name/share");
     //Create the new user AD Style
     //exec ("samba-tool user create $username $password --home-drive=H --unix-home=/$config_mount_target/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username' --login-shell=/bin/bash");
     //exec("usermod -aG sudo '$ad_netbios_domain\\$username'");
   }else{
-    exec ("chgrp users /$config_mount_target/$volume_name/share");
+    exec ("chgrp users /volumes/$volume_name/share");
     //Create the new user UNIX way
-    exec ("useradd -g users -d /$config_mount_target/$volume_name/$config_home_dir/administrator administrator -p $password");
+    exec ("useradd -g users -d /volumes/$volume_name/users/administrator administrator -p $password");
     exec ("usermod -a -G admins administrator");
     exec ("usermod -a -G sudo administrator");
     exec ("echo '$password\n$password' | smbpasswd -a administrator");
   }
   
-  exec ("mkdir /$config_mount_target/$volume_name/$config_home_dir/administrator");
-  exec ("chmod -R 700 /$config_mount_target/$volume_name/$config_home_dir/administrator");
-  exec ("chown -R administrator /$config_mount_target/$volume_name/$config_home_dir/administrator");
+  exec ("mkdir /volumes/$volume_name/users/administrator");
+  exec ("chmod -R 700 /volumes/$volume_name/users/administrator");
+  exec ("chown -R administrator /volumes/$volume_name/users/administrator");
 
   exec("echo 'To manage SimpNAS point your browser to the following URL' >> /etc/issue");
   exec("echo 'http://$primary_ip:81' >> /etc/issue");
-
-  $uuid = exec("blkid -o value --match-tag UUID $hdd_part");
-  $myFile = "/etc/fstab";
-  $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "UUID=$uuid    /$config_mount_target/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
-  fwrite($fh, $stringData);
-  fclose($fh);
 
   exec("apt install docker-ce docker-ce-cli containerd.io -y");
   exec("apt install docker.io -y");
   exec("docker network create my-network");
 
-  if($collect == 1){
+  if($collect = 1){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
   }
 
   header("Location: reboot.php");
 }
-
 
 ?>
