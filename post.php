@@ -1714,7 +1714,7 @@ if(isset($_GET['uninstall_openvpn'])){
 
 if(isset($_POST['setup_timezone'])){
   $timezone = $_POST['timezone'];
-  //Set TimeZone
+  
   exec("timedatectl set-timezone '$timezone'");
 
   header("Location: setup_network.php");
@@ -1745,7 +1745,7 @@ if(isset($_POST['setup_network'])){
     exec("echo '127.0.0.1      localhost' > /etc/hosts");
     exec("echo '127.0.0.2     $hostname' >> /etc/hosts");
     exec("systemctl restart systemd-networkd > /dev/null &");
-    echo "<script>window.location = 'http://$primary_ip:81/setup2.php'</script>";
+    echo "<script>window.location = 'http://$primary_ip:81/setup_volume.php'</script>";
   }
   
   if($method == 'Static'){
@@ -1758,7 +1758,7 @@ if(isset($_POST['setup_network'])){
     exec("echo '127.0.0.1      localhost' > /etc/hosts");
     exec("echo '$new_ip     $hostname' >> /etc/hosts");
     exec("systemctl restart systemd-networkd > /dev/null &");
-    echo "<script>window.location = 'http://$new_ip:81/setup2.php'</script>";
+    echo "<script>window.location = 'http://$new_ip:81/setup_volume.php'</script>";
   }
 
   //header("Location: reboot.php");
