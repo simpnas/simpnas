@@ -76,7 +76,7 @@
 		  	<small class="form-text text-muted">Required if your current dns server isn't accessable outside its own network (If you have Comcast then user a public DNS) Common DNS Servers 8.8.8.8 (Google) 1.1.1.1 (Cloudflare) 9.9.9.9 (Quad9)</small>
 		  </div>
 	   </div>
- 	<button type="submit" name="install_transmission" class="btn btn-primary" onclick="$('#cover-spin').show(0)">Submit</button>
+ 	<button type="submit" name="install_transmission" class="btn btn-primary">Submit</button>
 	 
 	</form>
 </main>

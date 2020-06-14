@@ -24,7 +24,7 @@
 	    <label>Group:</label>
 	    <input type="text" class="form-control" name="group" value="<?php echo $group; ?>" required pattern="[a-zA-Z0-9-]{1,25}">
 	  </div>
-	  <button type="submit" name="group_edit" class="btn btn-primary" onclick="$('#cover-spin').show(0)">Submit</button>
+	  <button type="submit" name="group_edit" class="btn btn-primary">Submit</button>
 	</form>
 </main>
 

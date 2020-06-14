@@ -51,7 +51,7 @@
 
 	  <?php } ?>
 
-	  <button type="submit" name="user_add" class="btn btn-primary" onclick="$('#cover-spin').show(0)">Submit</button>
+	  <button type="submit" name="user_add" class="btn btn-primary">Submit</button>
 	</form>
 
 </main>

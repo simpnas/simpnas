@@ -1,13 +1,23 @@
 			</div>
 		</div>
+		
 		<script src="js/jquery.min.js"></script>
 		<script src="js/bootstrap.bundle.min.js"></script>
 		<script src="plugins/Inputmask/dist/jquery.inputmask.min.js"></script>
 		<script src="plugins/Inputmask/dist/bindings/inputmask.binding.js"></script>
+		<script src="plugins/jquery.pwstrength.bootstrap/dist/pwstrength-bootstrap.min.js"></script>
 		<script src="js/datatables.min.js"></script>
 		<script src="js/feather.min.js"></script>
+    <script>
+      feather.replace()
+    </script>
+		
+
 		<script>
-			feather.replace()
+			$( "form" ).submit(function( event ) {
+			  $('#cover-spin').show(0);
+			});
+
 		</script>
 		
 		<script>
@@ -38,6 +48,8 @@
 
 		<script>
 
+		$(':password').pwstrength();
+		
 		jQuery("#checkAll").click(function() {
 
 		  jQuery(':checkbox').each(function() {

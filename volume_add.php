@@ -67,7 +67,7 @@ if(count($not_in_use_disks_array) > 0){
 	    <input type="text" class="form-control" name="name" required pattern="[a-zA-Z0-9-]{1,15}">
 	  </div>
 	 
-	  <button type="submit" name="volume_add" class="btn btn-primary" onclick="$('#cover-spin').show(0)">Submit</button>
+	  <button type="submit" name="volume_add" class="btn btn-primary">Submit</button>
 	</form>
 
 <?php

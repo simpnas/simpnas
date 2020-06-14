@@ -79,7 +79,7 @@
 		  </div>
 	  </div>
 	  
-	  <button type="submit" name="setup_network" class="btn btn-primary" onclick="$('#cover-spin').show(0)">Next <span data-feather="arrow-right"></span></button>
+	  <button type="submit" name="setup_network" class="btn btn-primary">Next <span data-feather="arrow-right"></span></button>
 	</form>
 </main>
 

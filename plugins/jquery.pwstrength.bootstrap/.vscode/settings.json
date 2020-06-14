@@ -1,0 +1,14 @@
+{
+    "files.trimTrailingWhitespace": true,
+    "typescript.validate.enable": false,
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "prettier.eslintIntegration": true,
+}

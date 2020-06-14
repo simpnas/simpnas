@@ -69,7 +69,7 @@
 			</div>
 	  </div>
 	  
-	  <button type="submit" name="setup_final" class="btn btn-primary" onclick="$('#cover-spin').show(0)">Complete <span data-feather="arrow-right"></span></button>
+	  <button type="submit" name="setup_final" class="btn btn-primary">Complete <span data-feather="arrow-right"></span></button>
 	</form>
 </main>
 
