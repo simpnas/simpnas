@@ -5,20 +5,36 @@
   include("side_nav.php");
 
   if(isset($_GET['daemon'])){
-    $log = shell_exec("cat /var/log/daemon.log");
+    $log = shell_exec("tac /var/log/daemon.log");
   }elseif(isset($_GET['auth'])){
-    $log = shell_exec("cat /var/log/auth.log");
+    $log = shell_exec("tac /var/log/auth.log");
   }elseif(isset($_GET['messages'])){
-    $log = shell_exec("cat /var/log/messages");
+    $log = shell_exec("tac /var/log/messages");
   }elseif(isset($_GET['kernel'])){
-    $log = shell_exec("cat /var/log/kern.log");
+    $log = shell_exec("tac /var/log/kern.log");
   }
 
 ?>
 
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
   <h2>Logs</h2>
-  <?php include("nav_logs.php"); ?>
+  <div class="bg-light p-2 mb-3">
+    <ul class="nav nav-pills justify-content-center">
+      <li class="nav-item">
+        <a class="nav-link <?php if(isset($_GET['daemon'])){ echo "active"; } ?>" href="?daemon" onclick="$('#cover-spin').show(0)">Daemon</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <?php if(isset($_GET['auth'])){ echo "active"; } ?>" href="?auth" onclick="$('#cover-spin').show(0)">Auth</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <?php if(isset($_GET['messages'])){ echo "active"; } ?>" href="?messages" onclick="$('#cover-spin').show(0)">Messages</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <?php if(isset($_GET['kernel'])){ echo "active"; } ?>" href="?kernel" onclick="$('#cover-spin').show(0)">Kernel</a>
+      </li>
+    </ul>
+  </div>
+  <hr>
 
   <?php
   echo "<pre>$log</pre>";
