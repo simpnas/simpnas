@@ -5,8 +5,6 @@
   $config = include("config.php");
   include("simple_vars.php");
   include("functions.php");
-  $config_ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
-  $config_netbios_domain = exec("samba-tool domain info 127.0.0.1 | grep Netbios | awk '{print $4}'");
 
 if(isset($_GET['upgrade_simpnas'])){
   exec("cd /simpnas");
@@ -1771,8 +1769,6 @@ if(isset($_POST['setup_volume'])){
   $hdd = $_POST['disk'];
   $hdd_part = $hdd."1";
 
-  $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
-
   exec ("wipefs -a $hdd");
   exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
   exec ("mkdir /volumes/$volume_name");
@@ -1800,8 +1796,6 @@ if(isset($_POST['setup_final'])){
   $hostname = exec("hostname");
   $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
 
-  $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
-
   $network_int_file = exec("ls /etc/systemd/network");
   $network_int = exec("ls /etc/systemd/network | awk -F'.' '{print $1}'");
 
@@ -1809,7 +1803,7 @@ if(isset($_POST['setup_final'])){
   
   $file = fopen("config.php", "w");
 
-  $data = "<?php\nreturn array(\n'docker_volume' => '$volume_name',\n'home_volume' => '$volume_name',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'enable_beta' => '0'\n);\n?>";
+  $data = "<?php\nreturn array(\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'enable_beta' => '0'\n);\n?>";
 
   fwrite($file, $data);
   fclose($file);
