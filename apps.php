@@ -160,7 +160,7 @@
             <br>
             <?php echo $app['title']; ?>
             <br>
-            <?php if(file_exists("/$config_mount_target/$config_docker_volume/docker/".$app['container_name']."")) { ?>
+            <?php if(file_exists("/volumes/$config_docker_volume/docker/".$app['container_name']."")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
             <?php } ?>
           </td>
@@ -173,7 +173,7 @@
           <td>
             <div class="btn-group mr-2">
               <?php 
-                if(file_exists("/$config_mount_target/$config_docker_volume/docker/".$app['container_name']."")) {
+                if(file_exists("/volumes/$config_docker_volume/docker/".$app['container_name']."")) {
               ?>
                 <a href="<?php echo $app['protocol']; ?><?php echo $primary_ip; ?>:<?php echo $app['local_port']; ?>" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
                 <a href="post.php?uninstall_<?php echo $app['container_name']; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>

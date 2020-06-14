@@ -3,9 +3,9 @@
   	include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
-    exec("ls /$config_mount_target", $volume_array);
+    exec("ls /volumes", $volume_array);
     foreach($volume_array as $volume){
-    	exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume | cut -c -8", $has_volume_disk);
+    	exec("findmnt -n -o SOURCE --target /volumes/$volume | cut -c -8", $has_volume_disk);
     	exec("findmnt -n -o SOURCE --target / | cut -c -8", $has_volume_disk); //adds OS Drive to the array
     }
     exec("smartctl --scan | awk '{print $1}'", $drive_list);

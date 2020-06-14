@@ -3,7 +3,7 @@
     include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
-    exec("ls /$config_mount_target", $volume_array);
+    exec("ls /volumes", $volume_array);
 ?>
 
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -53,12 +53,12 @@
             $disk = basename(exec("cat /etc/fstab | grep $volume | awk '{print $1}'"));
             $share_list = "-";
           }else{
-            $disk = basename(exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume"));
-            $total_space = exec("df -h | grep -w /$config_mount_target/$volume | awk '{print $2}'");
-            $used_space = exec("df -h | grep -w /$config_mount_target/$volume | awk '{print $3}'");
-            $free_space = exec("df -h | grep -w /$config_mount_target/$volume | awk '{print $4}'");
-            $used_space_percent = exec("df | grep -w /$config_mount_target/$volume | awk '{print $5}'");
-            exec("ls /$config_mount_target/$volume | grep -v docker | grep -v lost+found", $share_list_array);
+            $disk = basename(exec("findmnt -n -o SOURCE --target /volumes/$volume"));
+            $total_space = exec("df -h | grep -w /volumes/$volume | awk '{print $2}'");
+            $used_space = exec("df -h | grep -w /volumes/$volume | awk '{print $3}'");
+            $free_space = exec("df -h | grep -w /volumes/$volume | awk '{print $4}'");
+            $used_space_percent = exec("df | grep -w /volumes/$volume | awk '{print $5}'");
+            exec("ls /volumes/$volume | grep -v docker | grep -v lost+found", $share_list_array);
             $share_list = implode(", ",$share_list_array);
           }
           

@@ -41,20 +41,20 @@ if(isset($_POST['user_add'])){
     $_SESSION['alert_message'] = "Can not add user $username because the user is a system user!";
   }else{
 
-    if(!file_exists("/$config_mount_target/$config_home_volume/$config_home_dir/")){
-      mkdir("/$config_mount_target/$config_home_volume/$config_home_dir/");
+    if(!file_exists("/volumes/$config_home_volume/$config_home_dir/")){
+      mkdir("/volumes/$config_home_volume/$config_home_dir/");
     }
-    exec ("mkdir /$config_mount_target/$config_home_volume/$config_home_dir/$username");
-    exec ("chmod -R 700 /$config_mount_target/$config_home_volume/$config_home_dir/$username");  
+    exec ("mkdir /volumes/$config_home_volume/$config_home_dir/$username");
+    exec ("chmod -R 700 /volumes/$config_home_volume/$config_home_dir/$username");  
     
     if(empty($config_ad_enabled)){
-      exec ("useradd -g users -d /$config_mount_target/$config_home_volume/$config_home_dir/$username $username -s /bin/false -p $password");
+      exec ("useradd -g users -d /volumes/$config_home_volume/$config_home_dir/$username $username -s /bin/false -p $password");
       exec ("echo '$password\n$password' | smbpasswd -a $username");
     }else{
       $hostname = exec("hostname");
-      exec ("samba-tool user create $username $password --home-drive=H --unix-home=/$config_mount_target/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username'");
+      exec ("samba-tool user create $username $password --home-drive=H --unix-home=/volumes/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username'");
     }
-    exec ("chown -R $username /$config_mount_target/$config_home_volume/$config_home_dir/$username");
+    exec ("chown -R $username /volumes/$config_home_volume/$config_home_dir/$username");
     
     if(isset($_POST['group'])){
     	$group_array = $_POST['group'];
@@ -154,7 +154,7 @@ if(isset($_POST['group_edit'])){
   //check if group exists
   exec("awk -F: '$3 > 999 {print $1}' /etc/group", $groups_array);
   exec("awk -F: '$3 < 999 {print $1}' /etc/group", $system_groups_array);
-  exec("find /$config_mount_target/*/* -maxdepth 0 -type d -group $group -printf '%f\n'",$group_owned_directories_array);
+  exec("find /volumes/*/* -maxdepth 0 -type d -group $group -printf '%f\n'",$group_owned_directories_array);
   $docker_groups_array = array("media", "downloads", "video-surveillance", "docker");
 
   if(in_array($group, $groups_array)){
@@ -191,7 +191,7 @@ if(isset($_POST['group_edit'])){
 if(isset($_GET['group_delete'])){
   $group = $_GET['group_delete'];
 
-  exec("find /$config_mount_target/*/* -maxdepth 0 -type d -group $group -printf '%f\n'",$group_owned_directories_array);
+  exec("find /volumes/*/* -maxdepth 0 -type d -group $group -printf '%f\n'",$group_owned_directories_array);
   if(!empty($group_owned_directories_array)){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not delete group $group as its currently being used by a file share, to delete this group, delete the file share or change the group on the share to another group and try again!";
@@ -239,7 +239,7 @@ if(isset($_POST['datetime_update'])){
 
 if(isset($_GET['unmount_volume'])){
   $volume = $_GET['unmount_volume'];
-  exec ("umount /$config_mount_target/$volume");
+  exec ("umount /volumes/$volume");
   
   
   $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
@@ -255,7 +255,7 @@ if(isset($_GET['unmount_volume'])){
 
 if(isset($_GET['mount_volume'])){
   $volume = $_GET['mount_volume'];
-  exec ("mount /$config_mount_target/$volume");
+  exec ("mount /volumes/$volume");
   
   $ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");
   if(empty($ad_enabled)){
@@ -273,7 +273,7 @@ if(isset($_POST['volume_add'])){
   $hdd = $_POST['disk'];
   $hdd_part = $hdd."1";
   
-  exec ("ls /$config_mount_target/",$volumes_array);
+  exec ("ls /volumes/",$volumes_array);
 
   if(in_array($name, $volumes_array)){
     $_SESSION['alert_type'] = "warning";
@@ -282,23 +282,23 @@ if(isset($_POST['volume_add'])){
     exec ("wipefs -a $hdd");
     exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
     exec ("e2label $hdd_part $name");
-    exec ("mkdir /$config_mount_target/$name");
+    exec ("mkdir /volumes/$name");
     
     if(!empty($_POST['encrypt'])){
       $password = $_POST['password'];
       exec ("echo -e '$password' | cryptsetup -q luksFormat $hdd_part");
       exec ("echo -e '$password' | cryptsetup open $hdd_part crypt$name");
       exec ("mkfs.ext4 /dev/mapper/crypt$name");    
-      exec ("mount /dev/mapper/crypt$name /$config_mount_target/$name");
+      exec ("mount /dev/mapper/crypt$name /volumes/$name");
     }else{
       exec ("mkfs.ext4 $hdd_part");
-      exec ("mount $hdd_part /$config_mount_target/$name");  
+      exec ("mount $hdd_part /volumes/$name");  
       
       $uuid = exec("blkid -o value --match-tag UUID $hdd_part");
 
       $myFile = "/etc/fstab";
       $fh = fopen($myFile, 'a') or die("can't open file");
-      $stringData = "UUID=$uuid    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
+      $stringData = "UUID=$uuid    /volumes/$name      ext4    rw,relatime,data=ordered 0 2\n";
       fwrite($fh, $stringData);
       fclose($fh);
     }
@@ -311,16 +311,16 @@ if(isset($_GET['volume_delete'])){
   //check to make sure no shares are linked to the volume
   //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
   //the code to do that here
-  $hdd = exec("findmnt -n -o SOURCE --target /$config_mount_target/$name");
+  $hdd = exec("findmnt -n -o SOURCE --target /volumes/$name");
   $uuid = exec("blkid -o value --match-tag UUID $hdd");
   
-  exec("ls /$config_mount_target/$name | grep -v lost+found", $directory_list_array);
+  exec("ls /volumes/$name | grep -v lost+found", $directory_list_array);
   if(!empty($directory_list_array)){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not delete volume $name as there are files shares, please delete the file shares accociated to volume $name and try again!";
   }else{
-    exec ("umount -l /$config_mount_target/$name");
-    exec ("rm -rf /$config_mount_target/$name");
+    exec ("umount -l /volumes/$name");
+    exec ("rm -rf /volumes/$name");
     exec ("wipefs -a $hdd");
   
     deleteLineInFile("/etc/fstab","$uuid");
@@ -333,14 +333,14 @@ if(isset($_GET['volume_delete'])){
 if(isset($_POST['volume_add_raid'])){
   $disks = $_POST['disks'];
   foreach($_POST['disks'] as $disk){     
-    $disk = basename(exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume"));
+    $disk = basename(exec("findmnt -n -o SOURCE --target /volumes/$volume"));
 
 
     $name = trim($_POST['name']);
     $hdd = $_POST['disk'];
     $hdd_part = $hdd."1";
     
-    exec ("ls /$config_mount_target/",$volumes_array);
+    exec ("ls /volumes/",$volumes_array);
   }
 
   if(in_array($name, $volumes_array)){
@@ -350,21 +350,21 @@ if(isset($_POST['volume_add_raid'])){
     exec ("wipefs -a $hdd");
     exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
     exec ("e2label $hdd_part $name");
-    exec ("mkdir /$config_mount_target/$name");
+    exec ("mkdir /volumes/$name");
     
     if(!empty($_POST['encrypt'])){
       $password = $_POST['password'];
       exec ("echo -e '$password' | cryptsetup -q luksFormat $hdd_part");
       exec ("echo -e '$password' | cryptsetup open $hdd_part crypt$name");
       exec ("mkfs.ext4 /dev/mapper/crypt$name");    
-      exec ("mount /dev/mapper/crypt$name /$config_mount_target/$name");
+      exec ("mount /dev/mapper/crypt$name /volumes/$name");
     }else{
       exec ("mkfs.ext4 $hdd_part");
-      exec ("mount $hdd_part /$config_mount_target/$name");  
+      exec ("mount $hdd_part /volumes/$name");  
       
       $myFile = "/etc/fstab";
       $fh = fopen($myFile, 'a') or die("can't open file");
-      $stringData = "$hdd_part    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
+      $stringData = "$hdd_part    /volumes/$name      ext4    rw,relatime,data=ordered 0 2\n";
       fwrite($fh, $stringData);
       fclose($fh);
     }
@@ -378,7 +378,7 @@ if(isset($_POST['volume_add_backup'])){
   $hdd = $_POST['disk'];
   $hdd_part = $hdd."1";
   
-  exec ("ls /$config_mount_target/",$volumes_array);
+  exec ("ls /volumes/",$volumes_array);
 
   if(in_array($name, $volumes_array)){
     $_SESSION['alert_type'] = "warning";
@@ -387,15 +387,15 @@ if(isset($_POST['volume_add_backup'])){
     exec ("wipefs -a $hdd");
     exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
     exec ("e2label $hdd_part $name");
-    exec ("mkdir /$config_mount_target/$name");
+    exec ("mkdir /volumes/$name");
 
     exec ("mkfs.ext4 $hdd_part");
-    exec ("mount $hdd_part /$config_mount_target/$name");  
+    exec ("mount $hdd_part /volumes/$name");  
     
     $uuid = exec("blkid -o value --match-tag UUID /dev/$hdd_part");
     $myFile = "/etc/fstab";
     $fh = fopen($myFile, 'a') or die("can't open file");
-    $stringData = "$uuid    /$config_mount_target/$name      ext4    rw,relatime,data=ordered 0 2\n";
+    $stringData = "$uuid    /volumes/$name      ext4    rw,relatime,data=ordered 0 2\n";
     fwrite($fh, $stringData);
     fclose($fh);    
   }
@@ -406,12 +406,12 @@ if(isset($_POST['share_add'])){
   $volume = $_POST['volume'];
   $name = $_POST['name'];
   $description = $_POST['description'];
-  $share_path = "/$config_mount_target/$volume/$name";
+  $share_path = "/volumes/$volume/$name";
   $group = $_POST['group'];
   
   //Checks
   exec("ls /etc/samba/shares",$existing_shares_array);
-  exec("find /$config_mount_target/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
+  exec("find /volumes/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
   $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "users");
   $mounted = exec("df | grep $volume");
   
@@ -457,19 +457,19 @@ if(isset($_POST['share_edit'])){
   $volume = $_POST['volume'];
   $name = $_POST['name'];
   $description = $_POST['description'];
-  $share_path = "/$config_mount_target/$volume/$name";
+  $share_path = "/volumes/$volume/$name";
   $group = $_POST['group'];
   $current_volume = $_POST['current_volume'];
   $current_name = $_POST['current_name'];
   $current_description = $_POST['current_description'];
-  $current_share_path = "/$config_mount_target/$current_volume/$current_name";
+  $current_share_path = "/volumes/$current_volume/$current_name";
   $current_group = $_POST['current_group'];
 
   if($name <> $current_name){
 
     //Name Checks
     exec("ls /etc/samba/shares",$existing_shares_array);
-    exec("find /$config_mount_target/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
+    exec("find /volumes/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
     $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "users");
     
     if(in_array($name, $existing_shares_array)){
@@ -496,7 +496,7 @@ if(isset($_POST['share_edit'])){
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "changed group $current_group to $group on share $name successfully!";
   }elseif($volume != $current_volume){
-    exec("mv /$config_mount_target/$current_volume/$current_name /$config_mount_target/$volume");
+    exec("mv /volumes/$current_volume/$current_name /volumes/$volume");
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "Moved share $name from $current_volume to $volume successfully!";
   }
@@ -528,7 +528,7 @@ if(isset($_GET['share_delete'])){
     $_SESSION['alert_message'] = "Can not delete the share $name as it shares the same share name as an app thats using it. The followng share names are forbiddon to delete media, downloads, video-surveillance. These can be deleted by deleting the app that is associated with it.";
   }else{
 
-    $path = exec("find /$config_mount_target/*/$name -name $name");
+    $path = exec("find /volumes/*/$name -name $name");
 
     exec ("rm -rf $path");
     exec ("rm -f /etc/samba/shares/$name");
@@ -593,11 +593,11 @@ if(isset($_POST['backup_add'])){
 
   echo $myFile;
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "rsync --verbose --log-file=/var/log/rsync.log --archive /$config_mount_target/$source/ /$config_mount_target/$destination/";
+  $stringData = "rsync --verbose --log-file=/var/log/rsync.log --archive /volumes/$source/ /volumes/$destination/";
   fwrite($fh, $stringData);
   fclose($fh);
 
-  //exec("rsync --verbose --log-file=/var/log/rsync.log --archive /$config_mount_target/$source/ /$config_mount_target/$destination/");
+  //exec("rsync --verbose --log-file=/var/log/rsync.log --archive /volumes/$source/ /volumes/$destination/");
   
   header("Location: backups.php");
 
@@ -616,11 +616,11 @@ if(isset($_POST['backup_edit'])){
 
   echo $myFile;
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "rsync --verbose --log-file=/var/log/rsync.log --archive /$config_mount_target/$source/ /$config_mount_target/$destination/ --delete";
+  $stringData = "rsync --verbose --log-file=/var/log/rsync.log --archive /volumes/$source/ /volumes/$destination/ --delete";
   fwrite($fh, $stringData);
   fclose($fh);
 
-  //exec("rsync --verbose --log-file=/var/log/rsync.log --archive /$config_mount_target/$source/ /$config_mount_target/$destination/");
+  //exec("rsync --verbose --log-file=/var/log/rsync.log --archive /volumes/$source/ /volumes/$destination/");
   
   header("Location: backups.php");
 
@@ -697,37 +697,37 @@ if(isset($_POST['mail_edit'])){
 if(isset($_POST['install_jellyfin'])){
   $volume = $_POST['volume'];
   
-  if(!file_exists("/$config_mount_target/$config_docker_volume/jellyfin")) {
+  if(!file_exists("/volumes/$config_docker_volume/jellyfin")) {
     exec ("addgroup media");
     $group_id = exec("getent group media | cut -d: -f3");
 
-    mkdir("/$config_mount_target/$volume/media");
-    mkdir("/$config_mount_target/$volume/media/tvshows");
-    mkdir("/$config_mount_target/$volume/media/movies");
-    mkdir("/$config_mount_target/$volume/media/music");
-    mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin");
-    mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin/config");
-    mkdir("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache");
+    mkdir("/volumes/$volume/media");
+    mkdir("/volumes/$volume/media/tvshows");
+    mkdir("/volumes/$volume/media/movies");
+    mkdir("/volumes/$volume/media/music");
+    mkdir("/volumes/$config_docker_volume/docker/jellyfin");
+    mkdir("/volumes/$config_docker_volume/docker/jellyfin/config");
+    mkdir("/volumes/$config_docker_volume/docker/jellyfin/cache");
 
-    chgrp("/$config_mount_target/$volume/media","media");
-    chgrp("/$config_mount_target/$volume/media/tvshows","media");
-    chgrp("/$config_mount_target/$volume/media/movies","media");
-    chgrp("/$config_mount_target/$volume/media/music","media");
-    chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin","media");
-    chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin/config","media");
-    chgrp("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache","media");
+    chgrp("/volumes/$volume/media","media");
+    chgrp("/volumes/$volume/media/tvshows","media");
+    chgrp("/volumes/$volume/media/movies","media");
+    chgrp("/volumes/$volume/media/music","media");
+    chgrp("/volumes/$config_docker_volume/docker/jellyfin","media");
+    chgrp("/volumes/$config_docker_volume/docker/jellyfin/config","media");
+    chgrp("/volumes/$config_docker_volume/docker/jellyfin/cache","media");
     
-    chmod("/$config_mount_target/$volume/media",0770);
-    chmod("/$config_mount_target/$volume/media/tvshows",0770);
-    chmod("/$config_mount_target/$volume/media/movies",0770);
-    chmod("/$config_mount_target/$volume/media/music",0770);
-    chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin",0770);
-    chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin/config",0770);
-    chmod("/$config_mount_target/$config_docker_volume/docker/jellyfin/cache",0770);
+    chmod("/volumes/$volume/media",0770);
+    chmod("/volumes/$volume/media/tvshows",0770);
+    chmod("/volumes/$volume/media/movies",0770);
+    chmod("/volumes/$volume/media/music",0770);
+    chmod("/volumes/$config_docker_volume/docker/jellyfin",0770);
+    chmod("/volumes/$config_docker_volume/docker/jellyfin/config",0770);
+    chmod("/volumes/$config_docker_volume/docker/jellyfin/cache",0770);
     
     $myFile = "/etc/samba/shares/media";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[media]\n   comment = Media files used by Jellyfin\n   path = /$config_mount_target/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
+    $stringData = "[media]\n   comment = Media files used by Jellyfin\n   path = /volumes/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
     fwrite($fh, $stringData);
     fclose($fh);
 
@@ -745,7 +745,7 @@ if(isset($_POST['install_jellyfin'])){
 
   }
 
-  exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin:/config -v /$config_mount_target/$volume/media/tvshows:/tvshows -v /$config_mount_target/$volume/media/movies:/movies -v /$config_mount_target/$volume/media/music:/music linuxserver/jellyfin");
+  exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/jellyfin:/config -v /volumes/$volume/media/tvshows:/tvshows -v /volumes/$volume/media/movies:/movies -v /volumes/$volume/media/music:/music linuxserver/jellyfin");
   
   header("Location: apps.php");
 }
@@ -753,13 +753,13 @@ if(isset($_POST['install_jellyfin'])){
 if(isset($_GET['update_jellyfin'])){
 
   $group_id = exec("getent group media | cut -d: -f3");
-  $volume_path = exec("find /$config_mount_target/*/media -name 'media'");
+  $volume_path = exec("find /volumes/*/media -name 'media'");
 
   exec("docker pull linuxserver/jellyfin");
   exec("docker stop jellyfin");
   exec("docker rm jellyfin");
   
-  exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/jellyfin:/config -v /$config_mount_target/$volume/media/tvshows:/tvshows -v /$config_mount_target/$volume/media/movies:/movies -v /$config_mount_target/$volume/media/music:/music linuxserver/jellyfin");
+  exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/jellyfin:/config -v /volumes/$volume/media/tvshows:/tvshows -v /volumes/$volume/media/movies:/movies -v /volumes/$volume/media/music:/music linuxserver/jellyfin");
 
   exec("docker image prune");
   
@@ -773,11 +773,11 @@ if(isset($_GET['uninstall_jellyfin'])){
   //delete media group
   exec ("delgroup media");
   //get path to media directory
-  $path = exec("find /$config_mount_target/*/media -name media");
+  $path = exec("find /volumes/*/media -name media");
   //delete media directory
   exec ("rm -rf $path"); //Delete
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/jellyfin");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/jellyfin");
   //Remove unused docker images
   exec("docker image prune");
   //delete samba share
@@ -796,7 +796,7 @@ if(isset($_GET['uninstall_jellyfin'])){
 if(isset($_POST['install_airsonic'])){
   $volume = $_POST['volume'];
   
-  if(!file_exists("/$config_mount_target/$config_docker_volume/docker/airsonic")) {
+  if(!file_exists("/volumes/$config_docker_volume/docker/airsonic")) {
     
     $group_media_exists = exec("cat /etc/group | grep media");
     if(empty($group_media_exists)){
@@ -805,17 +805,17 @@ if(isset($_POST['install_airsonic'])){
 
     $group_id = exec("getent group media | cut -d: -f3");
 
-    if(!file_exists("/$config_mount_target/$config_docker_volume/media")) {
-      mkdir("/$config_mount_target/$volume/media");
-      mkdir("/$config_mount_target/$volume/media/music");
-      chgrp("/$config_mount_target/$volume/media","media");
-      chgrp("/$config_mount_target/$volume/media/music","media");
-      chmod("/$config_mount_target/$volume/media",0770);
-      chmod("/$config_mount_target/$volume/media/music",0770);
+    if(!file_exists("/volumes/$config_docker_volume/media")) {
+      mkdir("/volumes/$volume/media");
+      mkdir("/volumes/$volume/media/music");
+      chgrp("/volumes/$volume/media","media");
+      chgrp("/volumes/$volume/media/music","media");
+      chmod("/volumes/$volume/media",0770);
+      chmod("/volumes/$volume/media/music",0770);
 
       $myFile = "/etc/samba/shares/media";
       $fh = fopen($myFile, 'w') or die("not able to write to file");
-      $stringData = "[media]\n   comment = Media files used by Airsonic\n   path = /$config_mount_target/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
+      $stringData = "[media]\n   comment = Media files used by Airsonic\n   path = /volumes/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
       fwrite($fh, $stringData);
       fclose($fh);
 
@@ -833,13 +833,13 @@ if(isset($_POST['install_airsonic'])){
 
     }
     
-    mkdir("/$config_mount_target/$config_docker_volume/docker/airsonic");
-    chgrp("/$config_mount_target/$config_docker_volume/docker/airsonic","media");
-    chmod("/$config_mount_target/$config_docker_volume/docker/airsonic",0770);
+    mkdir("/volumes/$config_docker_volume/docker/airsonic");
+    chgrp("/volumes/$config_docker_volume/docker/airsonic","media");
+    chmod("/volumes/$config_docker_volume/docker/airsonic",0770);
     
   }
 
-  exec("docker run -d --name airsonic --restart=unless-stopped -p 4040:4040 -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/airsonic:/config -v /$config_mount_target/$volume/media/music:/music linuxserver/airsonic");
+  exec("docker run -d --name airsonic --restart=unless-stopped -p 4040:4040 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/airsonic:/config -v /volumes/$volume/media/music:/music linuxserver/airsonic");
   
   header("Location: apps.php");
 }
@@ -850,16 +850,16 @@ if(isset($_POST['install_lychee'])){
   exec ("addgroup photos");
   $group_id = exec("getent group photos | cut -d: -f3");
 
-  mkdir("/$config_mount_target/$volume/photos");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/lychee");
+  mkdir("/volumes/$volume/photos");
+  mkdir("/volumes/$config_docker_volume/docker/lychee");
 
-  chgrp("/$config_mount_target/$volume/photos","photos");
+  chgrp("/volumes/$volume/photos","photos");
   
-  chmod("/$config_mount_target/$volume/photos",0770);
+  chmod("/volumes/$volume/photos",0770);
      
   $myFile = "/etc/samba/shares/photos";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[photos]\n   comment = Photos for Lychee\n   path = /$config_mount_target/$volume/photos\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @photos\n   force group = photos\n   create mask = 0660\n   directory mask = 0770";
+  $stringData = "[photos]\n   comment = Photos for Lychee\n   path = /volumes/$volume/photos\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @photos\n   force group = photos\n   create mask = 0660\n   directory mask = 0770";
   fwrite($fh, $stringData);
   fclose($fh);
 
@@ -875,7 +875,7 @@ if(isset($_POST['install_lychee'])){
     exec("systemctl restart nmbd");
   }     
 
-  exec("docker run -d --name lychee --net=my-network -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee:/config -v /$config_mount_target/$volume/photos:/pictures linuxserver/lychee");
+  exec("docker run -d --name lychee --net=my-network -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/lychee:/config -v /volumes/$volume/photos:/pictures linuxserver/lychee");
   
   header("Location: apps.php");
 }
@@ -883,13 +883,13 @@ if(isset($_POST['install_lychee'])){
 if(isset($_GET['update_lychee'])){
 
   $group_id = exec("getent group photos | cut -d: -f3");
-  $volume_path = exec("find /$config_mount_target/*/photos -name 'photos'");
+  $volume_path = exec("find /volumes/*/photos -name 'photos'");
 
   exec("docker pull linuxserver/lychee");
   exec("docker stop lychee");
   exec("docker rm lychee");
 
-  exec("docker run -d --name lychee -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/lychee/config:/config -v $volume_path:/pictures linuxserver/lychee");
+  exec("docker run -d --name lychee -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/lychee/config:/config -v $volume_path:/pictures linuxserver/lychee");
 
   exec("docker image prune");
   
@@ -903,11 +903,11 @@ if(isset($_GET['uninstall_lychee'])){
   //delete media group
   exec ("delgroup photos");
   //get path to media directory
-  $path = exec("find /$config_mount_target/*/photos -name photos");
+  $path = exec("find /volumes/*/photos -name photos");
   //delete media directory
   exec ("rm -rf $path"); //Delete
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/lychee");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/lychee");
   //delete samba share
   exec ("rm -f /etc/samba/shares/photos");
   deleteLineInFile("/etc/samba/shares.conf","photos");
@@ -928,15 +928,15 @@ if(isset($_POST['install_nextcloud'])){
   $enable_samba_mount = $_POST['enable_samba_mount'];
   $install_apps = $_POST['install_apps'];
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/appdata");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud/data");
+  mkdir("/volumes/$config_docker_volume/docker/nextcloud");
+  mkdir("/volumes/$config_docker_volume/docker/nextcloud/appdata");
+  mkdir("/volumes/$config_docker_volume/docker/nextcloud/data");
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/nextcloud_mariadb");
+  mkdir("/volumes/$config_docker_volume/docker/nextcloud_mariadb");
 
-  exec("docker run -d --name nextcloud_mariadb --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
+  exec("docker run -d --name nextcloud_mariadb --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
 
-  exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data linuxserver/nextcloud");
+  exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/appdata:/config -v /volumes/$config_docker_volume/docker/nextcloud/data:/data linuxserver/nextcloud");
 
   exec("sleep 40");
   
@@ -974,8 +974,8 @@ if(isset($_POST['install_nextcloud'])){
     exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install contacts");
     exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable contacts");
     //Install Talk
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install spreed");
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable spreed");
+    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install spreed");
+    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable spreed");
     //Install Community Document Server
     //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install documentserver_community");
     //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable documentserver_community");
@@ -983,11 +983,11 @@ if(isset($_POST['install_nextcloud'])){
     //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install onlyoffice");
     //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable onlyoffice");
     //Install Draw.IO
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install drawio");
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable drawio");
+    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install drawio");
+    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable drawio");
     //Install Mail
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install mail");
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable mail");
+    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install mail");
+    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable mail");
   }
 
   //Set Auth Backend to SAMBA - Install External User Auth Support (For SAMBA Auth)
@@ -1030,9 +1030,9 @@ if(isset($_GET['update_nextcloud'])){
   exec("docker stop nextcloud_mariadb");
   exec("docker rm nextcloud_mariadb");
 
-  exec("docker run -d --name nextcloud_mariadb --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
+  exec("docker run -d --name nextcloud_mariadb --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
 
-  exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/nextcloud/appdata:/config -v /$config_mount_target/$config_docker_volume/docker/nextcloud/data:/data linuxserver/nextcloud");
+  exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/appdata:/config -v /volumes/$config_docker_volume/docker/nextcloud/data:/data linuxserver/nextcloud");
 
   exec("docker image prune");
   
@@ -1048,8 +1048,8 @@ if(isset($_GET['uninstall_nextcloud'])){
   exec("docker rm nextcloud_mariadb");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/nextcloud");
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/nextcloud_mariadb");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/nextcloud");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/nextcloud_mariadb");
   
   //delete images
   exec("docker image prune");
@@ -1089,31 +1089,31 @@ if(isset($_POST['configure_remote_access'])){
   exec("docker image prune");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/letsencrypt");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/letsencrypt");
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/letsencrypt");
+  mkdir("/volumes/$config_docker_volume/docker/letsencrypt");
 
-  exec("docker run -d --name letsencrypt --net=my-network --cap-add=NET_ADMIN -p 443:443 -p 80:80 --restart=unless-stopped -e URL='$domain' -e SUBDOMAINS='$sub_domains' -e VALIDATION=http -v /$config_mount_target/$config_docker_volume/docker/letsencrypt:/config linuxserver/letsencrypt");
+  exec("docker run -d --name letsencrypt --net=my-network --cap-add=NET_ADMIN -p 443:443 -p 80:80 --restart=unless-stopped -e URL='$domain' -e SUBDOMAINS='$sub_domains' -e VALIDATION=http -v /volumes/$config_docker_volume/docker/letsencrypt:/config linuxserver/letsencrypt");
 
   exec("sleep 1");
 
   foreach($apps_array as $app){
-    exec("cp /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+    exec("cp /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
 
     if($app == 'nextcloud'){
-      exec("sed -i 's/server_name $app./server_name cloud./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+      exec("sed -i 's/server_name $app./server_name cloud./g' /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
       exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 4 --value=cloud.$domain");
     }elseif($app == 'bitwarden'){
-      exec("sed -i 's/server_name $app./server_name vault./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+      exec("sed -i 's/server_name $app./server_name vault./g' /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
     }elseif($app == 'dokuwiki'){
-      exec("sed -i 's/server_name $app./server_name wiki./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+      exec("sed -i 's/server_name $app./server_name wiki./g' /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
     }elseif($app == 'gitea'){
-      exec("sed -i 's/server_name $app./server_name git./g' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+      exec("sed -i 's/server_name $app./server_name git./g' /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
     }
   }
 
   //Tell Bots to not index our pages
-  exec("sed -i '/all ssl related config/ i add_header X-Robots-Tag \\\"noindex, nofollow, nosnippet, noarchive\\\";' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/site-confs/default");
+  exec("sed -i '/all ssl related config/ i add_header X-Robots-Tag \\\"noindex, nofollow, nosnippet, noarchive\\\";' /volumes/$config_docker_volume/docker/letsencrypt/nginx/site-confs/default");
 
   header("Location: configure_remote_access.php");
 }
@@ -1124,7 +1124,7 @@ if(isset($_GET['uninstall_letsencrypt'])){
   exec("docker rm letsencrypt");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/letsencrypt");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/letsencrypt");
 
   //delete images
   exec("docker image prune");
@@ -1135,9 +1135,9 @@ if(isset($_GET['uninstall_letsencrypt'])){
 
 if(isset($_GET['install_dokuwiki'])){
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/dokuwiki/");
+  mkdir("/volumes/$config_docker_volume/docker/dokuwiki/");
 
-  exec("docker run -d --name dokuwiki --net=my-network -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki:/config linuxserver/dokuwiki");
+  exec("docker run -d --name dokuwiki --net=my-network -p 85:80 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/dokuwiki:/config linuxserver/dokuwiki");
   
   header("Location: apps.php");
 }
@@ -1148,7 +1148,7 @@ if(isset($_GET['update_dokuwiki'])){
   exec("docker stop dokuwiki");
   exec("docker rm dokuwiki");
 
-  exec("docker run -d --name dokuwiki --net=my-network -p 85:80 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/dokuwiki/config:/config linuxserver/dokuwiki");
+  exec("docker run -d --name dokuwiki --net=my-network -p 85:80 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/dokuwiki/config:/config linuxserver/dokuwiki");
 
   exec("docker image prune");
   
@@ -1162,7 +1162,7 @@ if(isset($_GET['uninstall_dokuwiki'])){
   exec("docker rm dokuwiki");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/dokuwiki");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/dokuwiki");
 
   //delete images
   exec("docker image prune");
@@ -1173,14 +1173,14 @@ if(isset($_GET['uninstall_dokuwiki'])){
 
 if(isset($_GET['install_bookstack'])){
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/bookstack/");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/mariadb_bookstack");
+  mkdir("/volumes/$config_docker_volume/docker/bookstack/");
+  mkdir("/volumes/$config_docker_volume/docker/mariadb_bookstack");
 
-  exec("docker run -d --name mariadb_bookstack --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=bookstack -e MYSQL_USER=bookstack -e MYSQL_PASSWORD=password --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_bookstack:/config linuxserver/mariadb");
+  exec("docker run -d --name mariadb_bookstack --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=bookstack -e MYSQL_USER=bookstack -e MYSQL_PASSWORD=password --restart=unless-stopped -v /volumes/$config_docker_volume/docker/mariadb_bookstack:/config linuxserver/mariadb");
 
   //$mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_bookstack");  
 
-  exec("docker run -d --name bookstack --net=my-network -p 84:80 --restart=unless-stopped -e DB_HOST=mariadb_bookstack -e DB_USER=bookstack -e DB_PASS=password -e DB_DATABASE=bookstack -v /$config_mount_target/$config_docker_volume/docker/bookstack:/config linuxserver/bookstack");
+  exec("docker run -d --name bookstack --net=my-network -p 84:80 --restart=unless-stopped -e DB_HOST=mariadb_bookstack -e DB_USER=bookstack -e DB_PASS=password -e DB_DATABASE=bookstack -v /volumes/$config_docker_volume/docker/bookstack:/config linuxserver/bookstack");
   
   header("Location: apps.php");
 }
@@ -1193,8 +1193,8 @@ if(isset($_GET['uninstall_bookstack'])){
   exec("docker rm mariadb_bookstack");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/bookstack");
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb_bookstack");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/bookstack");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/mariadb_bookstack");
 
   //delete images
   exec("docker image prune");
@@ -1205,9 +1205,9 @@ if(isset($_GET['uninstall_bookstack'])){
 
 if(isset($_GET['install_bitwarden'])){
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/bitwarden/");
+  mkdir("/volumes/$config_docker_volume/docker/bitwarden/");
 
-  exec("docker run -d --name bitwarden --net=my-network -v /$config_mount_target/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
+  exec("docker run -d --name bitwarden --net=my-network -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
   
   header("Location: apps.php");
 }
@@ -1218,7 +1218,7 @@ if(isset($_GET['update_bitwarden'])){
   exec("docker stop bitwarden");
   exec("docker rm bitwarden");
 
-  exec("docker run -d --name bitwarden -v /$config_mount_target/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
+  exec("docker run -d --name bitwarden -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
 
   exec("docker image prune");
   
@@ -1232,7 +1232,7 @@ if(isset($_GET['uninstall_bitwarden'])){
   exec("docker rm bitwarden");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/bitwarden");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/bitwarden");
 
   //delete images
   exec("docker image prune");
@@ -1243,9 +1243,9 @@ if(isset($_GET['uninstall_bitwarden'])){
 
 if(isset($_GET['install_gitea'])){
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/gitea");
+  mkdir("/volumes/$config_docker_volume/docker/gitea");
 
-  exec("docker run -d --name gitea --net=my-network -v /$config_mount_target/$config_docker_volume/docker/gitea:/data -p 3000:3000 -p 222:22 --restart=unless-stopped gitea/gitea:latest");
+  exec("docker run -d --name gitea --net=my-network -v /volumes/$config_docker_volume/docker/gitea:/data -p 3000:3000 -p 222:22 --restart=unless-stopped gitea/gitea:latest");
   
   header("Location: apps.php");
 }
@@ -1256,7 +1256,7 @@ if(isset($_GET['uninstall_gitea'])){
   exec("docker rm gitea");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/gitea");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/gitea");
 
   //delete images
   exec("docker image prune");
@@ -1266,17 +1266,17 @@ if(isset($_GET['uninstall_gitea'])){
 }
 
 if(isset($_GET['install_syncthing'])){
-  mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/syncthing/config");
+  mkdir("/volumes/$config_docker_volume/docker/syncthing/");
+  mkdir("/volumes/$config_docker_volume/docker/syncthing/config");
 
-  exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/syncthing/config:/config -v /$config_mount_target/$config_docker_volume/$config_home_dir/johnny:/$config_mount_target/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
+  exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=unless-stopped -v /volumes/$config_docker_volume/docker/syncthing/config:/config -v /volumes/$config_docker_volume/$config_home_dir/johnny:/volumes/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
   header("Location: apps.php");
 }
 
 if(isset($_GET['install_homeassistant'])){
-  mkdir("/$config_mount_target/$config_docker_volume/docker/homeassistant");
+  mkdir("/volumes/$config_docker_volume/docker/homeassistant");
 
-  exec("docker run -d --name homeassistant --net=host --net=my-network --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
+  exec("docker run -d --name homeassistant --net=host --net=my-network --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
   header("Location: apps.php");
 }
 
@@ -1286,7 +1286,7 @@ if(isset($_GET['update_homeassistant'])){
   exec("docker stop home-assistant");
   exec("docker rm home-assistant");
 
-  exec("docker run -d --name homeassistant --net=host --restart=unless-stopped -p 8123:8123 -v /$config_mount_target/$config_docker_volume/docker/home-assistant:/config homeassistant/home-assistant:stable");
+  exec("docker run -d --name homeassistant --net=host --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/home-assistant:/config homeassistant/home-assistant:stable");
 
   exec("docker image prune");
   
@@ -1300,7 +1300,7 @@ if(isset($_GET['uninstall_homeassistant'])){
   exec("docker rm homeassistant");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/homeassistant");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/homeassistant");
 
   //delete images
   exec("docker image prune");
@@ -1310,9 +1310,9 @@ if(isset($_GET['uninstall_homeassistant'])){
 }
 
 if(isset($_GET['install_unifi-controller'])){
-  mkdir("/$config_mount_target/$config_docker_volume/docker/unifi-controller/");
+  mkdir("/volumes/$config_docker_volume/docker/unifi-controller/");
 
-  exec("docker run -d --name unifi-controller --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi-controller:/config linuxserver/unifi-controller");
+  exec("docker run -d --name unifi-controller --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/unifi-controller:/config linuxserver/unifi-controller");
   header("Location: apps.php");
 }
 
@@ -1322,7 +1322,7 @@ if(isset($_GET['update_unifi-controller'])){
   exec("docker stop unifi");
   exec("docker rm unifi");
 
-  exec("docker run -d --name unifi --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/unifi:/config linuxserver/unifi-controller");
+  exec("docker run -d --name unifi --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/unifi:/config linuxserver/unifi-controller");
 
   exec("docker image prune");
   
@@ -1336,7 +1336,7 @@ if(isset($_GET['uninstall_unifi-controller'])){
   exec("docker rm unifi-controller");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi-controller");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/unifi-controller");
 
   //delete images
   exec("docker image prune");
@@ -1348,22 +1348,22 @@ if(isset($_GET['uninstall_unifi-controller'])){
 if(isset($_POST['install_unifi-video'])){
   $volume = $_POST['volume'];
   
-  if(!file_exists("/$config_mount_target/$config_docker_volume/unifi-video")) {
+  if(!file_exists("/volumes/$config_docker_volume/unifi-video")) {
     exec ("addgroup video-surveillance");
     $group_id = exec("getent group video-surveillance | cut -d: -f3");
 
-    mkdir("/$config_mount_target/$volume/video-surveillance");
-    mkdir("/$config_mount_target/$config_docker_volume/docker/unifi-video");
+    mkdir("/volumes/$volume/video-surveillance");
+    mkdir("/volumes/$config_docker_volume/docker/unifi-video");
 
-    chgrp("/$config_mount_target/$volume/video-surveillance","video-surveillance");
-    chgrp("/$config_mount_target/$config_docker_volume/docker/unifi-video","video-surveillance");
+    chgrp("/volumes/$volume/video-surveillance","video-surveillance");
+    chgrp("/volumes/$config_docker_volume/docker/unifi-video","video-surveillance");
     
-    chmod("/$config_mount_target/$volume/video-surveillance",0770);
-    chmod("/$config_mount_target/$config_docker_volume/docker/unifi-video",0770);
+    chmod("/volumes/$volume/video-surveillance",0770);
+    chmod("/volumes/$config_docker_volume/docker/unifi-video",0770);
     
     $myFile = "/etc/samba/shares/video-surveillance";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[video-surveillance]\n   comment = Surveillance Videos for Unifi Video\n   path = /$config_mount_target/$volume/video-surveillance\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @video-surveillance\n   force group = video-surveillance\n   create mask = 0660\n   directory mask = 0770";
+    $stringData = "[video-surveillance]\n   comment = Surveillance Videos for Unifi Video\n   path = /volumes/$volume/video-surveillance\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @video-surveillance\n   force group = video-surveillance\n   create mask = 0660\n   directory mask = 0770";
     fwrite($fh, $stringData);
     fclose($fh);
 
@@ -1381,7 +1381,7 @@ if(isset($_POST['install_unifi-video'])){
 
   }
   
-  exec("docker run -d --name unifi-video --net=my-network --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -e DEBUG=1 -v /$config_mount_target/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /$config_mount_target/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
+  exec("docker run -d --name unifi-video --net=my-network --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -e DEBUG=1 -v /volumes/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /volumes/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
   
   header("Location: apps.php");
 
@@ -1390,13 +1390,13 @@ if(isset($_POST['install_unifi-video'])){
 if(isset($_GET['update_unifi-video'])){
 
   $group_id = exec("getent group video-surveillance | cut -d: -f3");
-  $volume_path = exec("find /$config_mount_target/*/video-surveillance -name 'video-surveillance'");
+  $volume_path = exec("find /volumes/*/video-surveillance -name 'video-surveillance'");
 
   exec("docker pull pducharme/unifi-video-controller");
   exec("docker stop unifi-video");
   exec("docker rm unifi-video");
 
-  exec("docker run -d --name unifi-video --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -e DEBUG=1 -v /$config_mount_target/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /$config_mount_target/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
+  exec("docker run -d --name unifi-video --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -e DEBUG=1 -v /volumes/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /volumes/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
 
   exec("docker image prune");
   
@@ -1414,11 +1414,11 @@ if(isset($_GET['uninstall_unifi-video'])){
   //delete media group
   exec ("delgroup video-surveillance");
   //get path to media directory
-  $path = exec("find /$config_mount_target/*/video-surveillance -name video-surveillance");
+  $path = exec("find /volumes/*/video-surveillance -name video-surveillance");
   //delete media directory
   exec ("rm -rf $path"); //Delete
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/unifi-video");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/unifi-video");
   //delete samba share
   exec ("rm -f /etc/samba/shares/video-surveillance");
   deleteLineInFile("/etc/samba/shares.conf","video-surveillance");
@@ -1456,28 +1456,28 @@ if(isset($_POST['install_transmission'])){
   exec ("addgroup download");
   $group_id = exec("getent group download | cut -d: -f3");
 
-  mkdir("/$config_mount_target/$volume/downloads");
-  mkdir("/$config_mount_target/$volume/downloads/completed");
-  mkdir("/$config_mount_target/$volume/downloads/incomplete");
-  mkdir("/$config_mount_target/$volume/downloads/watch");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/transmission");
+  mkdir("/volumes/$volume/downloads");
+  mkdir("/volumes/$volume/downloads/completed");
+  mkdir("/volumes/$volume/downloads/incomplete");
+  mkdir("/volumes/$volume/downloads/watch");
+  mkdir("/volumes/$config_docker_volume/docker/transmission");
 
-  chgrp("/$config_mount_target/$volume/downloads","download");
-  chgrp("/$config_mount_target/$volume/downloads/watch","download");
-  chgrp("/$config_mount_target/$volume/downloads/completed","download");
-  chgrp("/$config_mount_target/$volume/downloads/incomplete","download");
-  chgrp("/$config_mount_target/$volume/downloads/watch","download");
-  chgrp("/$config_mount_target/$config_docker_volume/docker/transmission","download");
+  chgrp("/volumes/$volume/downloads","download");
+  chgrp("/volumes/$volume/downloads/watch","download");
+  chgrp("/volumes/$volume/downloads/completed","download");
+  chgrp("/volumes/$volume/downloads/incomplete","download");
+  chgrp("/volumes/$volume/downloads/watch","download");
+  chgrp("/volumes/$config_docker_volume/docker/transmission","download");
 
-  chmod("/$config_mount_target/$volume/downloads",0770);
-  chmod("/$config_mount_target/$volume/downloads/completed",0770);
-  chmod("/$config_mount_target/$volume/downloads/incomplete",0770);
-  chmod("/$config_mount_target/$volume/downloads/watch",0770);
-  chmod("/$config_mount_target/$config_docker_volume/docker/transmission",0770);
+  chmod("/volumes/$volume/downloads",0770);
+  chmod("/volumes/$volume/downloads/completed",0770);
+  chmod("/volumes/$volume/downloads/incomplete",0770);
+  chmod("/volumes/$volume/downloads/watch",0770);
+  chmod("/volumes/$config_docker_volume/docker/transmission",0770);
   
   $myFile = "/etc/samba/shares/downloads";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /$config_mount_target/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
+  $stringData = "[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /volumes/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
   fwrite($fh, $stringData);
   fclose($fh);
 
@@ -1494,10 +1494,10 @@ if(isset($_POST['install_transmission'])){
   }
 
   if($enable_vpn == 1){
-    exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG='$vpn_server' -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /$config_mount_target/$config_docker_volume/docker/transmission:/data/transmission-home -v /$config_mount_target/$volume/downloads/completed:/data/completed -v /$config_mount_target/$volume/downloads/incomplete:/data/incomplete -v /$config_mount_target/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn:latest$cpu_arch");
+    exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG='$vpn_server' -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /volumes/$config_docker_volume/docker/transmission:/data/transmission-home -v /volumes/$volume/downloads/completed:/data/completed -v /volumes/$volume/downloads/incomplete:/data/incomplete -v /volumes/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn:latest$cpu_arch");
     echo "VPN Docker installed";
   }else{
-    exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission:/config -v /$config_mount_target/$volume/downloads/watch:/watch -v /$config_mount_target/$volume/downloads:/downloads -v /$config_mount_target/$volume/downloads/completed:/downloads/complete -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
+    exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/transmission:/config -v /volumes/$volume/downloads/watch:/watch -v /volumes/$volume/downloads:/downloads -v /volumes/$volume/downloads/completed:/downloads/complete -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
   }
   
   header("Location: apps.php");
@@ -1506,7 +1506,7 @@ if(isset($_POST['install_transmission'])){
 if(isset($_POST['transmission_update'])){
 
   $group_id = exec("getent group download | cut -d: -f3");
-  $volume_path = exec("find /$config_mount_target/*/downloads -name 'downloads'");
+  $volume_path = exec("find /volumes/*/downloads -name 'downloads'");
   $enable_vpn = $_POST['enable_vpn'];
   if($enable_vpn == 1){
     $vpn_provider = $_POST['vpn_provider'];
@@ -1532,10 +1532,10 @@ if(isset($_POST['transmission_update'])){
   exec("docker image prune");
 
   if($enable_vpn == 1){
-    exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG='$vpn_server' -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /$config_mount_target/$config_docker_volume/docker/transmission:/data/transmission-home -v $volume_path/completed:/data/completed -v $volume_path/incomplete:/data/incomplete -v $volume_path/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn:latest$cpu_arch");
+    exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG='$vpn_server' -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /volumes/$config_docker_volume/docker/transmission:/data/transmission-home -v $volume_path/completed:/data/completed -v $volume_path/incomplete:/data/incomplete -v $volume_path/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn:latest$cpu_arch");
     echo "VPN Docker installed";
   }else{
-    exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/transmission:/config -v $volume_path/watch:/watch -v $volume_path:/downloads -v $volume_path/completed:/downloads/complete -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
+    exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/transmission:/config -v $volume_path/watch:/watch -v $volume_path:/downloads -v $volume_path/completed:/downloads/complete -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
   }
 
   exec("docker image prune");
@@ -1551,11 +1551,11 @@ if(isset($_GET['uninstall_transmission'])){
   //delete group
   exec ("delgroup download");
   //get path to media directory
-  $path = exec("find /$config_mount_target/*/downloads -name downloads");
+  $path = exec("find /volumes/*/downloads -name downloads");
   //delete directory
   exec ("rm -rf $path"); //Delete
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/transmission");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/transmission");
   //delete samba share
   exec ("rm -f /etc/samba/shares/downloads");
   deleteLineInFile("/etc/samba/shares.conf","downloads");
@@ -1575,9 +1575,9 @@ if(isset($_GET['uninstall_transmission'])){
 
 if(isset($_GET['install_doublecommander'])){
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/doublecommander");
+  mkdir("/volumes/$config_docker_volume/docker/doublecommander");
 
-  exec("docker run --name doublecommander --restart=unless-stopped -e PGID=0 -e PUID=0 -v /$config_mount_target/$config_docker_volume/docker/doublecommander:/config -v /mnt/backupvol/bighunk:/data linuxserver/doublecommander");
+  exec("docker run --name doublecommander --restart=unless-stopped -e PGID=0 -e PUID=0 -v /volumes/$config_docker_volume/docker/doublecommander:/config -v /mnt/backupvol/bighunk:/data linuxserver/doublecommander");
   header("Location: apps.php");
 }
 
@@ -1587,21 +1587,21 @@ if(isset($_GET['uninstall_doublecommander'])){
   exec("docker rm doublecommander");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/doublecommander");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/doublecommander");
   //redirect back to packages
   header("Location: apps.php");
 }
 
 if(isset($_GET['install_snipeit'])){
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/snipeit/");
-  mkdir("/$config_mount_target/$config_docker_volume/docker/mariadb_snipeit");
+  mkdir("/volumes/$config_docker_volume/docker/snipeit/");
+  mkdir("/volumes/$config_docker_volume/docker/mariadb_snipeit");
 
-  exec("docker run -d --name mariadb_snipeit -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=snipeit -e MYSQL_USER=snipeit -e MYSQL_PASSWORD=password --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/mariadb_snipeit:/config linuxserver/mariadb");
+  exec("docker run -d --name mariadb_snipeit -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=snipeit -e MYSQL_USER=snipeit -e MYSQL_PASSWORD=password --restart=unless-stopped -v /volumes/$config_docker_volume/docker/mariadb_snipeit:/config linuxserver/mariadb");
 
   //$mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_snipeit");  
 
-  exec("docker run -d --name snipeit --net=my-network -p 83:80 --restart=unless-stopped -e DB_HOST=mariadb_snipeit -e MYSQL_USER=snipeit -e MYSQL_PASSWORK=password -e MYSQL_DATABASE=snipeit -v /$config_mount_target/$config_docker_volume/docker/snipeit:/config linuxserver/snipe-it");
+  exec("docker run -d --name snipeit --net=my-network -p 83:80 --restart=unless-stopped -e DB_HOST=mariadb_snipeit -e MYSQL_USER=snipeit -e MYSQL_PASSWORK=password -e MYSQL_DATABASE=snipeit -v /volumes/$config_docker_volume/docker/snipeit:/config linuxserver/snipe-it");
   
   header("Location: apps.php");
 }
@@ -1614,8 +1614,8 @@ if(isset($_GET['uninstall_snipeit'])){
   exec("docker rm mariadb_snipeit");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/snipeit");
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/mariadb_snipeit");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/snipeit");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/mariadb_snipeit");
 
   //delete images
   exec("docker image prune");
@@ -1626,9 +1626,9 @@ if(isset($_GET['uninstall_snipeit'])){
 
 if(isset($_GET['install_wireguard'])){
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/wireguard");
+  mkdir("/volumes/$config_docker_volume/docker/wireguard");
 
-  exec("docker run -d --name wireguard --net=my-network --cap-add=NET_ADMIN --cap-add=SYS_MODULE --restart=unless-stopped -e PEERS=1 -v /$config_mount_target/$config_docker_volume/docker/wireguard:/config -v /lib/modules:/lib/modules -p 51820:51820/udp --sysctl='net.ipv4.conf.all.src_valid_mark=1' linuxserver/wireguard");
+  exec("docker run -d --name wireguard --net=my-network --cap-add=NET_ADMIN --cap-add=SYS_MODULE --restart=unless-stopped -e PEERS=1 -v /volumes/$config_docker_volume/docker/wireguard:/config -v /lib/modules:/lib/modules -p 51820:51820/udp --sysctl='net.ipv4.conf.all.src_valid_mark=1' linuxserver/wireguard");
   header("Location: apps.php");
 }
 
@@ -1636,7 +1636,7 @@ if(isset($_GET['wireguard_qr'])){
   $peer = $_GET['peer'];
 
   // open the file in a binary mode
-  $name = "/$config_mount_target/$config_docker_volume/docker/wireguard/$peer/$peer.png";
+  $name = "/volumes/$config_docker_volume/docker/wireguard/$peer/$peer.png";
   $fp = fopen($name, 'rb');
 
   // send the right headers
@@ -1657,7 +1657,7 @@ if(isset($_GET['wireguard_config'])){
   $peer = $_GET['peer'];
 
   // open the file in a binary mode
-  $name = "/$config_mount_target/$config_docker_volume/docker/wireguard/$peer/$peer.conf";
+  $name = "/volumes/$config_docker_volume/docker/wireguard/$peer/$peer.conf";
   $fp = fopen($name, 'rb');
 
   // send the right headers
@@ -1680,7 +1680,7 @@ if(isset($_GET['uninstall_wireguard'])){
   exec("docker rm wireguard");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/wireguard");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/wireguard");
 
   //delete images
   exec("docker image prune");
@@ -1691,9 +1691,9 @@ if(isset($_GET['uninstall_wireguard'])){
 
 if(isset($_GET['install_openvpn'])){
 
-  mkdir("/$config_mount_target/$config_docker_volume/docker/openvpn");
+  mkdir("/volumes/$config_docker_volume/docker/openvpn");
 
-  exec("docker run -d --name openvpn --net=my-network --restart=unless-stopped -v /$config_mount_target/$config_docker_volume/docker/openvpn:/config -p 943:943 -p 9443:9443 -p 1194:1194/udp linuxserver/openvpn-as");
+  exec("docker run -d --name openvpn --net=my-network --restart=unless-stopped -v /volumes/$config_docker_volume/docker/openvpn:/config -p 943:943 -p 9443:9443 -p 1194:1194/udp linuxserver/openvpn-as");
   header("Location: apps.php");
 }
 
@@ -1703,7 +1703,7 @@ if(isset($_GET['uninstall_openvpn'])){
   exec("docker rm openvpn");
 
   //delete docker config
-  exec ("rm -rf /$config_mount_target/$config_docker_volume/docker/openvpn");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/openvpn");
 
   //delete images
   exec("docker image prune");
@@ -1809,7 +1809,7 @@ if(isset($_POST['setup_final'])){
   
   $file = fopen("config.php", "w");
 
-  $data = "<?php\nreturn array(\n'mount_target' => 'volumes',\n'docker_volume' => '$volume_name',\n'home_volume' => '$volume_name',\n'home_dir' => 'users',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'enable_beta' => '0'\n);\n?>";
+  $data = "<?php\nreturn array(\n'docker_volume' => '$volume_name',\n'home_volume' => '$volume_name',\n'home_dir' => 'users',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'enable_beta' => '0'\n);\n?>";
 
   fwrite($file, $data);
   fclose($file);
@@ -1888,7 +1888,7 @@ if(isset($_POST['setup_final'])){
   if($server_type == 'AD'){
     exec ("chgrp '$ad_netbios_domain\domain users' /volumes/$volume_name/share");
     //Create the new user AD Style
-    //exec ("samba-tool user create $username $password --home-drive=H --unix-home=/$config_mount_target/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username' --login-shell=/bin/bash");
+    //exec ("samba-tool user create $username $password --home-drive=H --unix-home=/volumes/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username' --login-shell=/bin/bash");
     //exec("usermod -aG sudo '$ad_netbios_domain\\$username'");
     exec ("chown -R '$ad_netbios_domain\administrator' /volumes/$volume_name/users/administrator");
   }else{

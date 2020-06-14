@@ -4,7 +4,7 @@
 //Get list of hard drives and store into an array
 exec("smartctl --scan | awk '{ print $1 '}", $drive_list);
 //Get list of volumes that were created into an array
-exec("ls /$config_mount_target", $volume_list);
+exec("ls /volumes", $volume_list);
 //get list of shares into an array
 exec("ls /etc/samba/shares", $share_list);
 

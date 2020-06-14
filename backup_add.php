@@ -22,7 +22,7 @@
 	    <select class="form-control" name="source" required>
 	  		<option value=''>--Select A Source--</option>
 		  	<?php
-				exec("ls /$config_mount_target | grep -v backup-", $volume_list);
+				exec("ls /volumes | grep -v backup-", $volume_list);
 				foreach ($volume_list as $volume) {
 				$mounted = exec("df | grep $volume");
 				if(!empty($mounted)){

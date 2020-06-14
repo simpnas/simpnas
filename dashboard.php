@@ -10,7 +10,7 @@
 
   exec("smartctl --scan | awk '{print $1}'", $drive_list);
 
-  exec("ls /$config_mount_target", $volume_array);
+  exec("ls /volumes", $volume_array);
 
   $free_memory = exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
   $free_memory = floor($free_memory);
@@ -113,7 +113,7 @@
         //check to see if mounted
         $mounted = exec("df | grep -w $volume");
         if(!empty($mounted)){
-          $hdd = exec("findmnt -n -o SOURCE --target /$config_mount_target/$volume | cut -c -8");
+          $hdd = exec("findmnt -n -o SOURCE --target /volumes/$volume | cut -c -8");
           $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family:' | awk '{print $3,$4,$5}'");
           if(empty($hdd_vendor)){
             $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3,$4,$5}'");
@@ -149,13 +149,13 @@
     $mounted = exec("df | grep $volume");
     if(!empty($mounted)){
 
-      $total_space = exec("df | grep -w /$config_mount_target/$volume | awk '{print $2}'");
-      $total_space_formatted = exec("df -h | grep -w /$config_mount_target/$volume | awk '{print $2}'");
-      $used_space = exec("df | grep -w /$config_mount_target/$volume | awk '{print $3}'");
-      $used_space_formatted = exec("df -h | grep -w /$config_mount_target/$volume | awk '{print $3}'");
-      $free_space = exec("df | grep -w /$config_mount_target/$volume | awk '{print $4}'");
-      $free_space_formatted = exec("df -h | grep -w /$config_mount_target/$volume | awk '{print $4}'");
-      $used_space_percent = exec("df | grep -w /$config_mount_target/$volume | awk '{print $5}'");
+      $total_space = exec("df | grep -w /volumes/$volume | awk '{print $2}'");
+      $total_space_formatted = exec("df -h | grep -w /volumes/$volume | awk '{print $2}'");
+      $used_space = exec("df | grep -w /volumes/$volume | awk '{print $3}'");
+      $used_space_formatted = exec("df -h | grep -w /volumes/$volume | awk '{print $3}'");
+      $free_space = exec("df | grep -w /volumes/$volume | awk '{print $4}'");
+      $free_space_formatted = exec("df -h | grep -w /volumes/$volume | awk '{print $4}'");
+      $used_space_percent = exec("df | grep -w /volumes/$volume | awk '{print $5}'");
 
   ?>
 

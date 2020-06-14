@@ -50,7 +50,7 @@
         <?php 	  
         foreach($username_array as $username){
           $groups = str_replace(' ',", ",exec("groups $username | sed 's/\($username\| : \)//g'")); //replace space with a , and a space makes it look neater
-          $home_dir_usage = exec("du -sh /$config_mount_target/$config_home_volume/$config_home_dir/$username | awk '{print $1}'");
+          $home_dir_usage = exec("du -sh /volumes/$config_home_volume/$config_home_dir/$username | awk '{print $1}'");
         ?>
           <tr>
             <td><span class="mr-2" data-feather="user"></span><?php echo $username; ?></td>

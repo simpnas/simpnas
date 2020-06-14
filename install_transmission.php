@@ -29,7 +29,7 @@
 	    <label>Volume to create downloads share <strong class="text-danger">*</strong></label></label>
 	    <select class="form-control" name="volume">
 	  	<?php
-			exec("ls /$config_mount_target", $volume_list);
+			exec("ls /volumes", $volume_list);
 			foreach ($volume_list as $volume) {
 				$mounted = exec("df | grep $volume");
 				if(!empty($mounted)){

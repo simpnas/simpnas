@@ -6,6 +6,7 @@
 		<script src="plugins/Inputmask/dist/jquery.inputmask.min.js"></script>
 		<script src="plugins/Inputmask/dist/bindings/inputmask.binding.js"></script>
 		<script src="plugins/jquery.pwstrength.bootstrap/dist/pwstrength-bootstrap.min.js"></script>
+		<script src="plugins/bootstrap-select/js/bootstrap-select.min.js"></script>
 		<script src="js/datatables.min.js"></script>
 		<script src="js/feather.min.js"></script>
     <script>
@@ -123,6 +124,7 @@
 				});
 			});
 		</script>
+
 
 
 	</body>

@@ -26,7 +26,8 @@ session_start();
     <!-- Custom styles for this template -->
     <link href="css/dashboard.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/loader.css">
-    <link rel="stylesheet" type="text/css" href="css/datatables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="plugins/bootstrap-select/css/bootstrap-select.min.css">
     
   </head>
 

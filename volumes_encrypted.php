@@ -3,7 +3,7 @@
     include("simple_vars.php");
     include("header.php");
     include("side_nav.php");
-    exec("ls /$config_mount_target", $volume_array);
+    exec("ls /volumes", $volume_array);
     exec("ls /dev/mapper/crypt*", $encrypted_volume_array);
 ?>
 

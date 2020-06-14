@@ -32,7 +32,7 @@
 	    <select class="form-control" name="source" required>
 	  		<option value=''>--Select A Source--</option>
 		  	<?php
-			exec("ls /$config_mount_target", $volume_list);
+			exec("ls /volumes", $volume_list);
 			foreach ($volume_list as $volume) {
 				$mounted = exec("df | grep $volume");
 				if(!empty($mounted)){	
@@ -53,7 +53,7 @@
 	    <select class="form-control" name="destination" required>
 	  		<option value=''>--Select A Destination--</option>
   			<?php
-			exec("ls /$config_mount_target", $volume_list);
+			exec("ls /volumes", $volume_list);
 			foreach ($volume_list as $volume) {
 				$mounted = exec("df | grep $volume");
 				if(!empty($mounted)){	

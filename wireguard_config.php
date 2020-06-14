@@ -49,8 +49,8 @@
       <tbody>
         <?php 	  
         foreach($vpn_peers_array as $vpn_peer){
-          $peer_pub_key = exec("cat /$config_mount_target/$config_docker_volume/docker/wireguard/$vpn_peer/publickey-$peer.conf");
-          $peer_ip = exec("cat /$config_mount_target/$config_docker_volume/docker/wireguard/$vpn_peer/$vpn_peer.conf | grep Address | awk '{print $3}'");
+          $peer_pub_key = exec("cat /volumes/$config_docker_volume/docker/wireguard/$vpn_peer/publickey-$peer.conf");
+          $peer_ip = exec("cat /volumes/$config_docker_volume/docker/wireguard/$vpn_peer/$vpn_peer.conf | grep Address | awk '{print $3}'");
           $end_point_ip = exec("docker exec -i wireguard wg | grep endpoint | awk '{print $2}'");
           $connection_time = exec("docker exec -i wireguard wg | grep 'latest handshake' | awk '{print $3, $4, $5, $6}'");
           $transfer_recieved = exec("docker exec -i wireguard wg | grep transfer | awk '{print $2, $3}'");

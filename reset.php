@@ -65,13 +65,13 @@
     }
 
     //Remove all Volumes and remove from fstab.conf to prevent automounting on boot
-    exec("ls /$config_mount_target", $volume_array);
+    exec("ls /volumes", $volume_array);
     foreach ($volume_array as $volume) {
-        exec("rm -rf /$config_mount_target/$volume/*");
-        exec ("umount /$config_mount_target/$volume");
+        exec("rm -rf /volumes/$volume/*");
+        exec ("umount /volumes/$volume");
         deleteLineInFile("/etc/fstab","$volume");
     }
-    exec("rm -rf /$config_mount_target/*");
+    exec("rm -rf /volumes/*");
 
     //Wipe Each Disk
     exec("findmnt -n -o SOURCE --target / | cut -c -8", $os_disk); //adds OS Drive to the array
