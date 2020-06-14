@@ -41,20 +41,20 @@ if(isset($_POST['user_add'])){
     $_SESSION['alert_message'] = "Can not add user $username because the user is a system user!";
   }else{
 
-    if(!file_exists("/volumes/$config_home_volume/$config_home_dir/")){
-      mkdir("/volumes/$config_home_volume/$config_home_dir/");
+    if(!file_exists("/volumes/$config_home_volume/users/")){
+      mkdir("/volumes/$config_home_volume/users/");
     }
-    exec ("mkdir /volumes/$config_home_volume/$config_home_dir/$username");
-    exec ("chmod -R 700 /volumes/$config_home_volume/$config_home_dir/$username");  
+    exec ("mkdir /volumes/$config_home_volume/users/$username");
+    exec ("chmod -R 700 /volumes/$config_home_volume/users/$username");  
     
     if(empty($config_ad_enabled)){
-      exec ("useradd -g users -d /volumes/$config_home_volume/$config_home_dir/$username $username -s /bin/false -p $password");
+      exec ("useradd -g users -d /volumes/$config_home_volume/users/$username $username -s /bin/false -p $password");
       exec ("echo '$password\n$password' | smbpasswd -a $username");
     }else{
       $hostname = exec("hostname");
       exec ("samba-tool user create $username $password --home-drive=H --unix-home=/volumes/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username'");
     }
-    exec ("chown -R $username /volumes/$config_home_volume/$config_home_dir/$username");
+    exec ("chown -R $username /volumes/$config_home_volume/users/$username");
     
     if(isset($_POST['group'])){
     	$group_array = $_POST['group'];
@@ -1269,7 +1269,7 @@ if(isset($_GET['install_syncthing'])){
   mkdir("/volumes/$config_docker_volume/docker/syncthing/");
   mkdir("/volumes/$config_docker_volume/docker/syncthing/config");
 
-  exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=unless-stopped -v /volumes/$config_docker_volume/docker/syncthing/config:/config -v /volumes/$config_docker_volume/$config_home_dir/johnny:/volumes/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
+  exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=unless-stopped -v /volumes/$config_docker_volume/docker/syncthing/config:/config -v /volumes/$config_docker_volume/users/johnny:/volumes/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
   header("Location: apps.php");
 }
 
@@ -1809,7 +1809,7 @@ if(isset($_POST['setup_final'])){
   
   $file = fopen("config.php", "w");
 
-  $data = "<?php\nreturn array(\n'docker_volume' => '$volume_name',\n'home_volume' => '$volume_name',\n'home_dir' => 'users',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'enable_beta' => '0'\n);\n?>";
+  $data = "<?php\nreturn array(\n'docker_volume' => '$volume_name',\n'home_volume' => '$volume_name',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'enable_beta' => '0'\n);\n?>";
 
   fwrite($file, $data);
   fclose($file);
