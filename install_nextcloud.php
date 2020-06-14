@@ -42,7 +42,7 @@
 	    <label class="form-check-label ml-1">Install Groupware Apps (Talk, Calendar, Contacts, Mail)</label>
 	  </div>
 
-		<button type="submit" name="install_nextcloud" class="btn btn-primary">Submit</button>
+		<button type="submit" name="install_nextcloud" class="btn btn-primary" onclick="$('#cover-spin').show(0)">Submit</button>
 	 
 	</form>
 </main>

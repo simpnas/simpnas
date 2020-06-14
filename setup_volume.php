@@ -75,7 +75,7 @@
 	  	<small class="form-text text-muted">This volume will home for your app configuration and Users</small>
 	  </div>
 	  
-	  <button type="submit" name="setup_volume" class="btn btn-primary">Next <span data-feather="arrow-right"></span></button>
+	  <button type="submit" name="setup_volume" class="btn btn-primary" onclick="$('#cover-spin').show(0)">Next <span data-feather="arrow-right"></span></button>
 	</form>
 </main>
 

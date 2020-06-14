@@ -3,7 +3,6 @@
   include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
-  exec("apt update");
 
   if(isset($_GET['check'])){
     exec("apt update");
@@ -21,15 +20,15 @@
 
    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
     <h2>Updates</h2>
-    <a href="?check" class="btn btn-outline-primary">Check For OS Updates</a>
+    <a href="?check" class="btn btn-outline-primary" onclick="$('#cover-spin').show(0)">Check For OS Updates</a>
     <?php
     if(!empty($packages_array)){
     ?>  
-      <a href="?upgrade" class="btn btn-outline-secondary">Upgrade OS Packages</a>
+      <a href="?upgrade" class="btn btn-outline-secondary" onclick="$('#cover-spin').show(0)">Upgrade OS Packages</a>
     <?php
     }
     ?>
-    <a href="post.php?upgrade_simpnas_overwrite_local_changes" class="btn btn-outline-secondary">Upgrade SimpNAS</a>
+    <a href="post.php?upgrade_simpnas_overwrite_local_changes" class="btn btn-outline-secondary" onclick="$('#cover-spin').show(0)">Upgrade SimpNAS</a>
   </div>
   <?php
   if(!empty($packages_array)){

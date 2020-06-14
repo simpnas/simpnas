@@ -180,7 +180,7 @@
               <?php
               }else{
               ?>
-              <a href="<?php echo $app['install']; ?>" class="btn btn-outline-success">Install</a>
+              <a href="<?php echo $app['install']; ?>" class="btn btn-outline-success" onclick="$('#cover-spin').show(0)">Install</a>
               <?php  
               }
               ?>

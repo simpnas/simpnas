@@ -25,6 +25,7 @@ session_start();
 
     <!-- Custom styles for this template -->
     <link href="css/dashboard.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/loader.css">
     <link rel="stylesheet" type="text/css" href="css/datatables.min.css"/>
   </head>
 
@@ -40,3 +41,4 @@ session_start();
 
     <div class="container-fluid">
       <div class="row">
+        <div id="cover-spin"></div>

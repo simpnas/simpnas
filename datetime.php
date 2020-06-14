@@ -54,7 +54,7 @@
 	    <label>Local Time:</label>
 	    <input type="time" class="form-control" name="time" value="<?php echo $current_local_time; ?>" disabled>
 	  </div>
-	  <button type="submit" name="datetime_update" class="btn btn-primary">Submit</button>
+	  <button type="submit" name="datetime_update" class="btn btn-primary" onclick="$('#cover-spin').show(0)">Submit</button>
 	</form>
 </main>
 

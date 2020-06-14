@@ -54,7 +54,7 @@
         <label>Send Notification Email to</label>
         <input type="text" class="form-control" name="mail_to" value="<?php echo $config['mail_to']; ?>">
     </div>
-	  <button type="submit" name="mail_edit" class="btn btn-primary">Submit</button>
+	  <button type="submit" name="mail_edit" class="btn btn-primary" onclick="$('#cover-spin').show(0)">Submit</button>
 	</form>
 </main>
 

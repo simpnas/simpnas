@@ -1,6 +1,5 @@
 			</div>
 		</div>
-
 		<script src="js/jquery.min.js"></script>
 		<script src="js/bootstrap.bundle.min.js"></script>
 		<script src="plugins/Inputmask/dist/jquery.inputmask.min.js"></script>
@@ -10,6 +9,7 @@
 		<script>
 			feather.replace()
 		</script>
+		
 		<script>
 		$(document).ready(function() {
 		    $('#dt').DataTable();

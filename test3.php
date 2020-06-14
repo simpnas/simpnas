@@ -1,9 +1,7 @@
 <?php
+$config = include("config.php");
+$var = var_export($config, true);
 
-$ad_domain = "pittsburgh.company.int";
-
-$ad_netbios_domain = strtoupper(strtok($ad_domain, '.'));
-
-echo $ad_netbios_domain;
+echo $var;
 
 ?>

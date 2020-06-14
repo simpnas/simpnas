@@ -59,7 +59,7 @@ $dhcp = $networkConfigArray['DHCP'];
 		  </div>
 	   </div>
 
-	  <button type="submit" name="network_add" class="btn btn-primary">Submit</button>
+	  <button type="submit" name="network_add" class="btn btn-primary" onclick="$('#cover-spin').show(0)">Submit</button>
 	</form>
 </main>
 

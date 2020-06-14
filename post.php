@@ -1059,7 +1059,7 @@ if(isset($_GET['uninstall_nextcloud'])){
 
 }
 
-if(isset($_POST['configure_external_access'])){
+if(isset($_POST['configure_remote_access'])){
 
   $domain = $_POST['domain'];
   $apps_array = $_POST['app'];
@@ -1115,7 +1115,7 @@ if(isset($_POST['configure_external_access'])){
   //Tell Bots to not index our pages
   exec("sed -i '/all ssl related config/ i add_header X-Robots-Tag \\\"noindex, nofollow, nosnippet, noarchive\\\";' /$config_mount_target/$config_docker_volume/docker/letsencrypt/nginx/site-confs/default");
 
-  header("Location: configure_external_access.php");
+  header("Location: configure_remote_access.php");
 }
 
 if(isset($_GET['uninstall_letsencrypt'])){

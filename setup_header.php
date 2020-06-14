@@ -20,6 +20,7 @@
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/loader.css">
 
     <!-- Custom styles for this template -->
     <link href="css/dashboard.css" rel="stylesheet">
@@ -32,3 +33,4 @@
 
     <div class="container-fluid">
       <div class="row">
+        <div id="cover-spin"></div>

@@ -29,12 +29,11 @@
   <nav>
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-    <li class="breadcrumb-item"><a href="apps.php">Apps</a></li>
-    <li class="breadcrumb-item active">Configure External Access</li>
+    <li class="breadcrumb-item active">Configure Remote Access</li>
   </ol>
 </nav>
 
-  <h2>External Access to your Apps</h2>
+  <h2>Configure Remote Access</h2>
   <ul>
   	<li>This will enable external access to the following apps and assign a valid SSL Cert using LetsEncrypt Service</li>
   	<li>Make sure the following A or CNAME DNS records exist for your domain and that they are pointing to your public IP</li>
