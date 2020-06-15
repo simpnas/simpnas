@@ -99,7 +99,7 @@
 
       <li class="nav-item">
         <a class="nav-link" href="configure_remote_access.php">
-          <span data-feather="globe"></span>
+          <span data-feather="cloud"></span>
           Remote Access
         </a>
       </li>
