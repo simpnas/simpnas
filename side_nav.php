@@ -24,7 +24,7 @@
       </li>
       
       <li class="nav-item">
-        <a class="nav-link" href="volumes.php">
+        <a class="nav-link" href="volumes.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="database"></span>
           Volumes
         </a>
@@ -39,14 +39,14 @@
     <ul class="nav flex-column mb-2">
       
       <li class="nav-item">
-        <a class="nav-link" href="users.php">
+        <a class="nav-link" href="users.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="user"></span>
           Users
         </a>
       </li>
       
       <li class="nav-item">
-        <a class="nav-link" href="groups.php">
+        <a class="nav-link" href="groups.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="users"></span>
           Groups
         </a>
@@ -54,7 +54,7 @@
       
       <?php if(!empty($config_ad_enabled)){ ?>
       <li class="nav-item">
-        <a class="nav-link" href="computers.php">
+        <a class="nav-link" href="computers.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="monitor"></span>
           Computers
         </a>
@@ -62,16 +62,9 @@
       <?php } ?>
       
       <li class="nav-item">
-        <a class="nav-link" href="shares.php">
+        <a class="nav-link" href="shares.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="folder"></span>
           Shares
-        </a>
-      </li>
-      
-      <li class="nav-item">
-        <a class="nav-link" href="apps.php">
-          <span data-feather="package"></span>
-          Apps
         </a>
       </li>
     
@@ -84,39 +77,41 @@
     <ul class="nav flex-column mb-2">
       
       <li class="nav-item">
-        <a class="nav-link" href="general.php">
+        <a class="nav-link" href="general.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="settings"></span>
           General
         </a>
       </li>
       
       <li class="nav-item">
-        <a class="nav-link" href="network.php">
+        <a class="nav-link" href="datetime.php" onclick="$('#cover-spin').show(0)">
+          <span data-feather="clock"></span>
+          Date & Time
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="network.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="globe"></span>
           Network
         </a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="configure_remote_access.php">
+        <a class="nav-link" href="configure_remote_access.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="cloud"></span>
           Remote Access
         </a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="mail_settings.php">
+        <a class="nav-link" href="mail_settings.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="mail"></span>
-          Mail (SMTP)
+          Notifications
         </a>
       </li>
       
-      <li class="nav-item">
-        <a class="nav-link" href="datetime.php">
-          <span data-feather="clock"></span>
-          Date & Time
-        </a>
-      </li>
+      
     
     </ul>
 
@@ -127,21 +122,28 @@
     <ul class="nav flex-column mb-2">
       
       <li class="nav-item">
-        <a class="nav-link" href="updates.php">
+        <a class="nav-link" href="updates.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="download"></span>
           Updates
         </a>
       </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="apps.php" onclick="$('#cover-spin').show(0)">
+          <span data-feather="package"></span>
+          Apps
+        </a>
+      </li>
       
       <li class="nav-item">
-        <a class="nav-link" href="logs.php">
+        <a class="nav-link" href="logs.php?daemon" onclick="$('#cover-spin').show(0)">
           <span data-feather="book"></span>
           Logs
         </a>
       </li>
       
       <li class="nav-item">
-        <a class="nav-link" href="power.php">
+        <a class="nav-link" href="power.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="power"></span>
           Power
         </a>

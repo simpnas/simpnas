@@ -70,8 +70,7 @@
   <div class="row">
     <div class="col-md-6">
       <div class="alert alert-success">
-        <h4>Healthy!</h4>
-        System is healthy.
+        <span data-feather="check"></span> System is Healthy
       </div>
       <table class="table table-borderless mb-5">
         

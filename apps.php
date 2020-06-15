@@ -175,7 +175,7 @@
               <?php 
                 if(file_exists("/volumes/$config_docker_volume/docker/".$app['container_name']."")) {
               ?>
-                <a href="<?php echo $app['protocol']; ?><?php echo $primary_ip; ?>:<?php echo $app['local_port']; ?>" target="_blank" class="btn btn-outline-primary"><span data-feather="eye"></span></a>
+                <a href="<?php echo $app['protocol']; ?><?php echo $primary_ip; ?>:<?php echo $app['local_port']; ?>" target="_blank" class="btn btn-outline-primary"><span data-feather="external-link"></span></a>
                 <a href="post.php?uninstall_<?php echo $app['container_name']; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
               }else{
