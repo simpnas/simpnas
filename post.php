@@ -210,10 +210,9 @@ if(isset($_GET['group_delete'])){
   header("Location: groups.php");
 }
 
-if(isset($_POST['general_edit'])){
+if(isset($_POST['settings_hostname'])){
   $hostname = $_POST['hostname'];
   $current_hostname = exec("hostname");
-  $config['enable_beta'] = $_POST['enable_beta'];
 
   file_put_contents('config.php', '<?php return ' . var_export($config, true) . ';');
   
@@ -225,7 +224,10 @@ if(isset($_POST['general_edit'])){
   exec("systemctl restart smbd");
   exec("systemctl restart nmbd");
 
-  header("Location: http://$primary_ip:81/general.php");
+  $_SESSION['alert_type'] = "info";
+  $_SESSION['alert_message'] = "Updated hostname successfully!";
+
+  header("Location: http://$primary_ip:81/network.php");
 }
 
 if(isset($_POST['datetime_update'])){

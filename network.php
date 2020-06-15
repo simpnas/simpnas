@@ -8,7 +8,7 @@
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 
    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
-    <h2>Network</h2>
+    <h2>Network Settings</h2>
     <a href="network_add.php" class="btn btn-outline-primary">Create Network</a>
   </div>
 
@@ -28,6 +28,25 @@
     }
 
   ?>
+
+  <form method="post" action="post.php" autocomplete="off">
+    
+    <div id="target" class="spinner-border" style="width: 3rem; height: 3rem; display: none"></div>
+
+    <div class="form-group">
+        <label>Hostname</label>
+        <input type="text" class="form-control" name="hostname" value="<?php echo gethostname(); ?>" required>
+    </div>
+    <div class="form-group">
+        <label>DNS Servers</label>
+        <input type="text" class="form-control" name="dns">
+    </div>
+    <button type="submit" name="settings_hostname" class="btn btn-primary">Submit</button>
+  </form>
+
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2 mt-3">
+    <h2>Network Interfaces</h2>
+  </div>
 
   <div class="table-responsive">
     <table class="table table-striped">

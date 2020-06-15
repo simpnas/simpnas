@@ -77,13 +77,6 @@
     <ul class="nav flex-column mb-2">
       
       <li class="nav-item">
-        <a class="nav-link" href="general.php" onclick="$('#cover-spin').show(0)">
-          <span data-feather="settings"></span>
-          General
-        </a>
-      </li>
-      
-      <li class="nav-item">
         <a class="nav-link" href="datetime.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="clock"></span>
           Date & Time
