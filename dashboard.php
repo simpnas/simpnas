@@ -15,7 +15,12 @@
   $free_memory = exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
   $free_memory = floor($free_memory);
   //$cpu_usage = exec("top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\([0-9.]*\)%* id.*/\1/' | awk '{print 100 - $1'%'}'");
+  $free_swap = exec("free | grep Swap | awk '{print $3/$2 * 100.0}'");
+  $free_swap = floor($free_swap);
+
   $load = exec("cat /proc/loadavg | awk '{print $1}'");
+
+
 
   //$load_avg = exec("uptime | awk -F 'average: ' '{ print $2}'");
   $uptime = exec("uptime -p | cut -c 4-");
@@ -25,6 +30,7 @@
   $cpu_cores = exec("lscpu | grep 'CPU(s):' | awk '{print $3}'");
   $cpu_speed = round(exec("lscpu | grep 'CPU max MHz:' | awk '{print $4}'"));
   $memory_installed = formatSize(exec("free -b | grep 'Mem:' | awk '{print $2}'"));
+  $swap_total = formatSize(exec("free -b | grep 'Swap:' | awk '{print $2}'"));
   $OS = exec("hostnamectl | grep 'Operating System:' | awk '{print $3, $4, $5, $6}'");
   $kernel = exec("hostnamectl | grep 'Kernel:' | awk '{print $3}'");
   
@@ -90,6 +96,18 @@
                 </div>
             </div>
             (<?php echo $free_memory; ?>% Used)
+          </td>
+        </tr>
+
+        <tr>
+          <td>Swap</td>
+          <td>
+            Total: <?php echo $swap_total; ?>
+            <div class="progress">
+                <div class="progress-bar <?php if($free_swap > 70){ echo "bg-warning"; } ?> <?php if($free_swap > 90){ echo "bg-danger"; } ?>" style="width: <?php echo $free_swap; ?>%">
+                </div>
+            </div>
+            (<?php echo $free_swap; ?>% Used)
           </td>
         </tr>
         
