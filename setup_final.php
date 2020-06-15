@@ -6,6 +6,8 @@
 
 	include("setup_header.php");
 	$os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
+	$network_int_file = exec("ls /etc/systemd/network");
+	$dhcp_set = exec("cat /etc/systemd/network/$network_int_file | grep DHCP");
 
 ?>
 
@@ -50,7 +52,13 @@
 			<label>Server Type</label>
 			<select class="form-control" name="server_type" id="serverType">
 				<option id="standAlone" value="standalone">File Server</option>
+				<?php
+				if(empty($dhcp_set)){
+				?>
 				<option id="activeDirectory" value="AD">Directory / File Server</option>
+				<?php
+				}
+				?>
 			</select>
 	  </div>
 
