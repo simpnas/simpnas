@@ -17,9 +17,10 @@
 ?>
 
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-  <h2>Logs</h2>
-  <div class="bg-light p-2 mb-3">
-    <ul class="nav nav-pills justify-content-center">
+
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
+    <h2>Logs</h2>
+    <ul class="nav nav-pills">
       <li class="nav-item">
         <a class="nav-link <?php if(isset($_GET['daemon'])){ echo "active"; } ?>" href="?daemon" onclick="$('#cover-spin').show(0)">Daemon</a>
       </li>

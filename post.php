@@ -1744,7 +1744,7 @@ if(isset($_POST['setup_network'])){
     fclose($fh);
     exec("echo '127.0.0.1      localhost' > /etc/hosts");
     exec("echo '127.0.0.2     $hostname' >> /etc/hosts");
-    exec("systemctl restart systemd-networkd > /dev/null &");
+    //exec("systemctl restart systemd-networkd > /dev/null &");
     echo "<script>window.location = 'http://$primary_ip:81/setup_volume.php'</script>";
   }
   
