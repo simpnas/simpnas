@@ -59,7 +59,7 @@
 	    <input type="text" class="form-control" name="domain" placeholder="example.com" value="<?php echo $domain; ?>" required>
 	  </div>
 	  
-	  <legend>Select apps you would like to configure External Access for</legend>
+	  <legend>Select apps you would like to configure remote access for</legend>
 	  <?php 
 	  	foreach($apps_array as $app){
 	  ?>
@@ -72,7 +72,7 @@
 	  }
 	  ?>
 
- 	  <button type="submit" name="configure_external_access" class="btn btn-primary">Submit</button>
+ 	  <button type="submit" name="configure_remote_access" class="btn btn-primary">Submit</button>
 	 
 	</form>
 </main>
