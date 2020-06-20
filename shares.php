@@ -69,10 +69,35 @@
           <td>
           	<div class="btn-group mr-2">
         		<a href="share_edit.php?share=<?php echo $share; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
-        		<a href="post.php?share_delete=<?php echo $share; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+        		<button class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteShare<?php echo $share; ?>"><span data-feather="trash"></span></a>
       		</div>
       	  </td>
         </tr>
+        
+        <div class="modal fade" id="deleteShare<?php echo $share; ?>" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Delete <?php echo $share; ?></h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <center>
+                  <h4>Are you sure you want to delete <strong><?php echo $share; ?></strong>?</h4>
+                  <h5 class="text-secondary">This will delete all content as well!</h5>
+                </center>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                <a href="post.php?share_delete=<?php echo $share; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span> Delete</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
         <?php } ?>
       </tbody>
     </table>

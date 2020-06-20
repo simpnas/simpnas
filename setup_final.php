@@ -45,7 +45,7 @@
 
 	  <div class="form-group">
 	    <label>Administrator Password</label>
-	    <input type="password" class="form-control" name="password" required autocomplete="new-password" autofocus>
+	    <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password" autofocus>
 	  </div>
 
 	  <div class="form-group">

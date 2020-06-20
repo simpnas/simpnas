@@ -24,7 +24,7 @@
   	<form method="post" action="post.php" autocomplete="off">
   		<div class="form-group">
 		    <label>Nextcloud Admin Password</label>
-		    <input type="password" class="form-control" name="password" required autocomplete="new-password">
+		    <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password">
 		</div>
 		
 		<div class="form-group form-check">
