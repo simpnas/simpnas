@@ -20,8 +20,6 @@
 
   $load = exec("cat /proc/loadavg | awk '{print $1}'");
 
-
-
   //$load_avg = exec("uptime | awk -F 'average: ' '{ print $2}'");
   $uptime = exec("uptime -p | cut -c 4-");
   $system_time = exec("date");
@@ -34,6 +32,7 @@
   $OS = exec("hostnamectl | grep 'Operating System:' | awk '{print $3, $4, $5, $6}'");
   $kernel = exec("hostnamectl | grep 'Kernel:' | awk '{print $3}'");
   
+  //Stats
   $num_of_users = count($username_array);
   $num_of_groups = count($group_array);
   $num_of_volumes = count($volume_array);
@@ -44,6 +43,8 @@
   $num_of_network_devices = count($network_list);
   exec("find /etc/cron.*/ -type f -name backup-* -printf '%f\n'", $backup_jobs_array);
   $num_of_backup_jobs = count($backup_jobs_array);
+  
+  //Service Status
   $status_service_smbd = exec("systemctl status smbd | grep running");
   $status_service_nmbd = exec("systemctl status nmbd | grep running");
   $status_service_docker = exec("systemctl status docker | grep running");
@@ -76,8 +77,13 @@
         
         <tr>
           <td>Server Name</td>
-          <th><?php echo gethostname(); ?></th>
+          <th><?php echo $config_hostname; ?></th>
         </tr>
+
+        <tr>
+          <td>LAN IP Address</td>
+          <td><?php echo $config_primary_ip; ?></td>
+        </tr>  
 
         <tr>
           <td>Processor</td>

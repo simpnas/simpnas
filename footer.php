@@ -7,27 +7,15 @@
 		<script src="plugins/Inputmask/dist/bindings/inputmask.binding.js"></script>
 		<script src="plugins/bootstrap-select/js/bootstrap-select.min.js"></script>
 		<script src="plugins/bootstrap-show-password/dist/bootstrap-show-password.esm.min.js"></script>
-		<script src="js/datatables.min.js"></script>
 		<script src="js/feather.min.js"></script>
+    
     <script>
       feather.replace()
-    </script>
-		
 
-		<script>
 			$( "form" ).submit(function( event ) {
 			  $('#cover-spin').show(0);
 			});
 
-		</script>
-		
-		<script>
-		$(document).ready(function() {
-		    $('#dt').DataTable();
-		} );
-		</script>
-
-		<script>
 			$(function(){
 				// Highlight the active nav link.
 				var url = window.location.pathname;
@@ -45,25 +33,18 @@
 				
 			});
 
-		</script>
+			jQuery("#checkAll").click(function() {
 
-		<script>
-		
-		jQuery("#checkAll").click(function() {
+			  jQuery(':checkbox').each(function() {
+			    if(this.checked == true) {
+			      this.checked = false;                        
+			    } else {
+			      this.checked = true;                        
+			    }      
+			  });
 
-		  jQuery(':checkbox').each(function() {
-		    if(this.checked == true) {
-		      this.checked = false;                        
-		    } else {
-		      this.checked = true;                        
-		    }      
-		  });
+			});
 
-		});
-
-		</script>
-
-		<script type="text/javascript">
 			$("#passwordbox").hide();
 			$(function(){
 				$("#encrypt").click(function(){
@@ -74,9 +55,7 @@
 				}
 				});
 			});
-		</script>
 
-		<script type="text/javascript">
 			if($("#static").is(":selected")){
 					$("#staticSettings").show();
 				}else{
@@ -91,9 +70,7 @@
 				}
 				});
 			});
-		</script>
 
-		<script type="text/javascript">
 			if($("#standAlone").is(":selected")){
 					$("#activeDirectorySettings").hide();
 				}else{
@@ -108,9 +85,7 @@
 				}
 				});
 			});
-		</script>
 
-		<script type="text/javascript">
 			$("#vpnSettings").hide();
 			$(function(){
 				$("#configVpn").click(function(){
@@ -121,9 +96,8 @@
 				}
 				});
 			});
+		
 		</script>
-
-
 
 	</body>
 </html>

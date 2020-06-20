@@ -18,7 +18,7 @@ session_start();
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title></title>
+    <title>SimpNAS</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -26,8 +26,6 @@ session_start();
     <!-- Custom styles for this template -->
     <link href="css/dashboard.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/loader.css">
-    <link rel="stylesheet" type="text/css" href="css/datatables.min.css">
-    <link rel="stylesheet" type="text/css" href="plugins/bootstrap-select/css/bootstrap-select.min.css">
     <link rel="stylesheet" type="text/css" href="plugins/fontawesome-free/css/all.min.css">
     
   </head>

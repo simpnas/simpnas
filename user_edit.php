@@ -3,6 +3,7 @@
 	include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
+  
   if(isset($_GET['username'])){
 		$username = $_GET['username'];
 	}
@@ -19,7 +20,6 @@
   	$group_member_array = explode(' ',exec("groups $username"));
   }
 
-  
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -32,6 +32,9 @@
 	</nav>
 
   <h2>Edit User</h2>
+  
+  <?php include("alert_message.php"); ?>
+
   <form method="post" action="post.php" autocomplete="off">
 	  
 	  <div class="form-group">
@@ -58,7 +61,9 @@
 		<?php } ?>
 
 	  <button type="submit" name="user_edit" class="btn btn-primary">Submit</button>
+   
    </form>
+
 </main>
 
 <?php include("footer.php"); ?>

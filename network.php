@@ -1,47 +1,35 @@
 <?php 
+  
   $config = include("config.php");
   include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
+
 ?>
 
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 
-   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
     <h2>Network Settings</h2>
     <a href="network_add.php" class="btn btn-outline-primary">Create Network</a>
   </div>
 
-  <?php
-    //Alert Feedback
-    if(!empty($_SESSION['alert_message'])){
-      ?>
-        <div class="alert alert-success alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
-          <?php echo $_SESSION['alert_message']; ?>
-          <button class='close' data-dismiss='alert'>&times;</button>
-        </div>
-      <?php
-      
-      $_SESSION['alert_type'] = '';
-      $_SESSION['alert_message'] = '';
-
-    }
-
-  ?>
+  <?php include("alert_message.php"); ?>
 
   <form method="post" action="post.php" autocomplete="off">
-    
-    <div id="target" class="spinner-border" style="width: 3rem; height: 3rem; display: none"></div>
 
     <div class="form-group">
-        <label>Hostname</label>
-        <input type="text" class="form-control" name="hostname" value="<?php echo gethostname(); ?>" required>
+      <label>Hostname</label>
+      <input type="text" class="form-control" name="hostname" value="<?php echo $config_hostname; ?>" required>
     </div>
+    
     <div class="form-group">
-        <label>DNS Servers</label>
-        <input type="text" class="form-control" name="dns">
+      <label>DNS Servers</label>
+      <input type="text" class="form-control" name="dns">
     </div>
+    
     <button type="submit" name="settings_hostname" class="btn btn-primary">Submit</button>
+  
   </form>
 
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2 mt-3">
@@ -79,7 +67,7 @@
             }
         ?>                
         <tr>
-          <td><span class="mr-2" data-feather="globe"></span><?php echo $name; ?></td>
+          <td><i class="mr-2 fas fa-ethernet text-secondary"></i><?php echo $name; ?></td>
           <td>Ethernet</td>
           <td><?php echo $address; ?></td>
           <td><?php echo $gateway; ?></td>

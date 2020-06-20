@@ -1,4 +1,5 @@
 <?php 
+  
   $config = include("config.php");
   include("simple_vars.php");
   include("header.php");
@@ -35,6 +36,7 @@
       </li>
     </ul>
   </div>
+  
   <hr>
 
   <?php

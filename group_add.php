@@ -1,8 +1,10 @@
 <?php 
-    $config = include("config.php");
-    include("simple_vars.php");
-    include("header.php");
-    include("side_nav.php");
+    
+  $config = include("config.php");
+  include("simple_vars.php");
+  include("header.php");
+  include("side_nav.php");
+
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -15,6 +17,9 @@
 </nav>
 
   <h2>Add Group</h2>
+
+  <?php include("alert_message.php"); ?>
+
   <form method="post" action="post.php" autocomplete="off">
     <div class="form-group">
 	    <label>Group:</label>
@@ -22,6 +27,7 @@
 	  </div>
 	  <button type="submit" name="group_add" class="btn btn-primary">Submit</button>
 	</form>
+
 </main>
 
 <?php include("footer.php"); ?>

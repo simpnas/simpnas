@@ -1,6 +1,7 @@
 <?php
 	
-	$primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
+	$config_primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
+	$config_hostname = exec("hostname");
 	$config_docker_volume = exec("find /volumes/*/docker -name docker | awk -F/ '{print $3}'");
 	$config_home_volume = exec("find /volumes/*/users -name users | awk -F/ '{print $3}'");
 	$config_ad_enabled = exec("cat /etc/samba/smb.conf | grep 'active directory domain controller'");

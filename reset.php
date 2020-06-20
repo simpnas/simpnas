@@ -1,99 +1,98 @@
 <?php 
-    $config = include("config.php");
-    include("simple_vars.php");
-    include("header.php");
+  
+  $config = include("config.php");
+  include("simple_vars.php");
+  include("header.php");
+
 ?>
 
- <main class="col-md-12 pt-5">
+<main class="col-md-12 pt-5">
 
-<center>
-	<h1 class="text-danger">Deleting all Data, Configuration and Resetting SimpNAS back to Factory Defaults!</h1>
-	<h3>Redirecting to setup page in <span id="countdown">45</span> seconds</h3>
-</center>
+  <center>
+  	<h1 class="text-danger">Deleting all Data, Configuration and Resetting SimpNAS back to Factory Defaults!</h1>
+  	<h3>Redirecting to setup page in <span id="countdown">45</span> seconds</h3>
+  </center>
 
 </main>
 
-<?php ?>
-
-<!-- JavaScript part -->
-<script type="text/javascript">
+<script>
     
-    // Total seconds to wait
-    var seconds = 45;
-    
-    function countdown() {
-        seconds = seconds - 1;
-        if (seconds < 0) {
-            // Chnage your redirection link here
-            window.location = "index.php";
-        } else {
-            // Update remaining seconds
-            document.getElementById("countdown").innerHTML = seconds;
-            // Count down using javascript
-            window.setTimeout("countdown()", 1000);
-        }
+  // Total seconds to wait
+  var seconds = 45;
+  
+  function countdown() {
+    seconds = seconds - 1;
+    if (seconds < 0) {
+        // Chnage your redirection link here
+        window.location = "index.php";
+    } else {
+        // Update remaining seconds
+        document.getElementById("countdown").innerHTML = seconds;
+        // Count down using javascript
+        window.setTimeout("countdown()", 1000);
     }
+  }
 
-    // Run countdown function
-    countdown();
+  // Run countdown function
+  countdown();
 
 </script>
 
 <?php include("footer.php"); ?>
 
 <?php
-//Stop Samba
-    exec("systemctl stop smbd");
-    exec("systemctl stop nmbd");
+  //Stop Samba
+  exec("systemctl stop smbd");
+  exec("systemctl stop nmbd");
 
-    //Remove and stop all Dockers and docker images
-    exec ("docker stop $(docker ps -aq)");
-    exec ("docker rm $(docker ps -aq)");
-    exec ("docker rmi $(docker images -q)");
+  //Remove and stop all Dockers and docker images
+  exec ("docker stop $(docker ps -aq)");
+  exec ("docker rm $(docker ps -aq)");
+  exec ("docker rmi $(docker images -q)");
 
-    //Remove all created groups
-    exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup | grep -v admins", $group_array);
-    foreach ($group_array as $group) {
-        exec("delgroup $group");
-    }
+  //Remove all created groups
+  exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup | grep -v admins", $group_array);
+  foreach ($group_array as $group) {
+    exec("delgroup $group");
+  }
 
-    //Remove all created users
-    exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody | grep -v admins", $username_array);
-    foreach ($username_array as $username) {
-        exec("smbpasswd -x $username");
-        exec("deluser --remove-home $username");
-    }
+  //Remove all created users
+  exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody | grep -v admins", $username_array);
+  foreach ($username_array as $username) {
+    exec("smbpasswd -x $username");
+    exec("deluser --remove-home $username");
+  }
 
-    //Remove all Volumes and remove from fstab.conf to prevent automounting on boot
-    exec("ls /volumes", $volume_array);
-    foreach ($volume_array as $volume) {
-        exec("rm -rf /volumes/$volume/*");
-        exec ("umount /volumes/$volume");
-        deleteLineInFile("/etc/fstab","$volume");
-    }
-    exec("rm -rf /volumes/*");
+  //Remove all Volumes and remove from fstab.conf to prevent automounting on boot
+  exec("ls /volumes", $volume_array);
+  foreach ($volume_array as $volume) {
+    exec("rm -rf /volumes/$volume/*");
+    exec ("umount /volumes/$volume");
+    deleteLineInFile("/etc/fstab","$volume");
+  }
+  exec("rm -rf /volumes/*");
 
-    //Wipe Each Disk
-    exec("findmnt -n -o SOURCE --target / | cut -c -8", $os_disk); //adds OS Drive to the array
-    exec("smartctl --scan | awk '{print $1}'", $drive_list);
-    $not_in_use_disks_array = array_diff($drive_list, $os_disk);
+  //Wipe Each Disk
+  exec("smartctl --scan | awk '{print $1}'", $drive_list);
+  $not_in_use_disks_array = array_diff($drive_list, $config_os_disk);
 
-    foreach($not_in_use_disks_array as $disk){
-        $output = exec("wipefs -a $disk");
-        echo "Wiping disk $disk...<br>";
-        echo "$output<br><br>";
-    }
+  foreach($not_in_use_disks_array as $disk){
+    $output = exec("wipefs -a $disk");
+    echo "Wiping disk $disk...<br>";
+    echo "$output<br><br>";
+  }
 
-    //Remove any backup cron scripts
-    exec ("rm -f /etc/cron.*/backup*");
+  //Remove any backup cron scripts
+  exec ("rm -f /etc/cron.*/backup*");
 
-    //Remove Samba conf and replace it with the default
-    exec ("rm -f /etc/samba/smb.conf");
-    exec ("rm -f /etc/samba/shares.conf");
-    exec ("rm -f /etc/samba/shares/*");
-    exec ("cp /simpnas/conf/smb.conf /etc/samba/");
-    exec ("touch /etc/samba/shares.conf");
-    exec ("rm -f /simpnas/config.php");
+  //Remove Samba conf and replace it with the default
+  exec ("rm -f /etc/samba/smb.conf");
+  exec ("rm -f /etc/samba/shares.conf");
+  exec ("rm -f /etc/samba/shares/*");
+  exec ("cp /simpnas/conf/smb.conf /etc/samba/");
+  exec ("touch /etc/samba/shares.conf");
+  exec ("rm -f /simpnas/config.php");
 
-    exec("sleep 1 && reboot > /dev/null &");
+  exec("sleep 1 && reboot > /dev/null &");
+
 ?>

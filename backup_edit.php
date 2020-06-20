@@ -1,13 +1,14 @@
 <?php 
-    $config = include("config.php");
-  	include("simple_vars.php");
-    include("header.php");
-    include("side_nav.php");
-    if(isset($_GET['backup'])){
+  
+  $config = include("config.php");
+	include("simple_vars.php");
+  include("header.php");
+  include("side_nav.php");
+  if(isset($_GET['backup'])){
 	  $backup = $_GET['backup'];
 	  $occurance = $_GET['occurance'];
 	  $source = explode("--",$backup)[1];
-      $destination = explode("--",$backup)[2];
+	  $destination = explode("--",$backup)[2];
 	}
 
 ?>

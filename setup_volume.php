@@ -1,6 +1,7 @@
 <?php
 
 	include("setup_header.php");
+	
 	$os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
 ?>
@@ -14,26 +15,12 @@
 	    <li class="breadcrumb-item active">Volume</li>
 	  </ol>
 	</nav>
-
-	<?php
-    //Alert Feedback
-    if(!empty($_SESSION['alert_message'])){
-      ?>
-        <div class="alert alert-success alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
-          <?php echo $_SESSION['alert_message']; ?>
-          <button class='close' data-dismiss='alert'>&times;</button>
-        </div>
-      <?php
-      
-      $_SESSION['alert_type'] = '';
-      $_SESSION['alert_message'] = '';
-
-    }
-
-  ?>
   
   <h2>Volume Creation</h2>
   <hr>
+
+  <?php include("alert_message.php"); ?>
+
   <form method="post" action="post.php" autocomplete="off">
 
 	  <div class="form-group">
@@ -44,32 +31,32 @@
 	  <div class="form-group">
 	    <label>Select Disk</label>
 	    <select class="form-control" name="disk" required>
-	  	<?php
-			exec("smartctl --scan | awk '{print $1}'", $drive_list);
-			foreach ($drive_list as $hdd) {
-				if( $hdd == "$os_disk" )continue;
-				$hdd_short_name = basename($hdd);
-                $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family:' | awk '{print $3,$4,$5}'");
-			    if(empty($hdd_vendor)){
-			      $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3,$4,$5}'");
-			    }
-			    if(empty($hdd_vendor)){
-			      $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor:' | awk '{print $2,$3,$4}'");
-			    }
-			    if(empty($hdd_vendor)){
-			      $hdd_vendor = "-";
-			    }
-			    $hdd_serial = exec("smartctl -i $hdd | grep 'Serial Number:' | awk '{print $3}'");
-			    if(empty($hdd_serial)){
-			      $hdd_serial = "-";
-			    }
-			    $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity:' | cut -d '[' -f2 | cut -d ']' -f1");
-			?>
-			<option value="<?php echo $hdd; ?>"><?php echo "$hdd_short_name - $hdd_vendor ($hdd_label_size)"; ?></option>
+		  	<?php
+				exec("smartctl --scan | awk '{print $1}'", $drive_list);
+				foreach ($drive_list as $hdd) {
+					if( $hdd == "$os_disk" )continue;
+					$hdd_short_name = basename($hdd);
+	                $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family:' | awk '{print $3,$4,$5}'");
+				    if(empty($hdd_vendor)){
+				      $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3,$4,$5}'");
+				    }
+				    if(empty($hdd_vendor)){
+				      $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor:' | awk '{print $2,$3,$4}'");
+				    }
+				    if(empty($hdd_vendor)){
+				      $hdd_vendor = "-";
+				    }
+				    $hdd_serial = exec("smartctl -i $hdd | grep 'Serial Number:' | awk '{print $3}'");
+				    if(empty($hdd_serial)){
+				      $hdd_serial = "-";
+				    }
+				    $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity:' | cut -d '[' -f2 | cut -d ']' -f1");
+				?>
+				<option value="<?php echo $hdd; ?>"><?php echo "$hdd_short_name - $hdd_vendor ($hdd_label_size)"; ?></option>
 
-			<?php
-			}
-			?>
+				<?php
+				}
+				?>
 
 	  	</select>
 	  	<small class="form-text text-muted">This volume will home for your app configuration and Users</small>

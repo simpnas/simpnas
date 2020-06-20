@@ -1,11 +1,14 @@
 <?php 
-    $config = include("config.php");
-    include("simple_vars.php");
-    include("header.php");
-    include("side_nav.php");
-    if(isset($_GET['group'])){
-      $group = $_GET['group'];
-    }
+    
+  $config = include("config.php");
+  include("simple_vars.php");
+  include("header.php");
+  include("side_nav.php");
+  
+  if(isset($_GET['group'])){
+    $group = $_GET['group'];
+  }
+
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -18,6 +21,9 @@
 </nav>
 
   <h2>Edit Group</h2>
+
+  <?php include("alert_message.php"); ?>
+
   <form method="post" action="post.php" autocomplete="off">
 	  <input type="hidden" name="old_group" value="<?php echo $group; ?>">
     <div class="form-group">
@@ -26,6 +32,7 @@
 	  </div>
 	  <button type="submit" name="group_edit" class="btn btn-primary">Submit</button>
 	</form>
+
 </main>
 
 <?php include("footer.php"); ?>

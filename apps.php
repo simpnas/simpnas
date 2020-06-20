@@ -1,13 +1,12 @@
 <?php 
+  
   $config = include("config.php");
   include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
 
-  $current_hostname = gethostname();
-  $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
-
   $image_size = 48;
+  
   $apps_array = array(
     array(
       "title" => "Nextcloud",
@@ -123,28 +122,13 @@
 
 ?>
 
- <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+<main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 
-   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
     <h2>Apps</h2>
   </div>
 
-  <?php
-    //Alert Feedback
-    if(!empty($_SESSION['alert_message'])){
-      ?>
-        <div class="alert alert-success alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
-          <?php echo $_SESSION['alert_message']; ?>
-          <button class='close' data-dismiss='alert'>&times;</button>
-        </div>
-      <?php
-      
-      $_SESSION['alert_type'] = '';
-      $_SESSION['alert_message'] = '';
-
-    }
-
-  ?>
+  <?php include("alert_message.php"); ?>
 
   <div class="table-responsive">
     <table class="table">
@@ -175,7 +159,7 @@
               <?php 
                 if(file_exists("/volumes/$config_docker_volume/docker/".$app['container_name']."")) {
               ?>
-                <a href="<?php echo $app['protocol']; ?><?php echo $primary_ip; ?>:<?php echo $app['local_port']; ?>" target="_blank" class="btn btn-outline-primary"><span data-feather="external-link"></span></a>
+                <a href="<?php echo $app['protocol']; ?><?php echo $config_primary_ip; ?>:<?php echo $app['local_port']; ?>" target="_blank" class="btn btn-outline-primary"><span data-feather="external-link"></span></a>
                 <a href="post.php?uninstall_<?php echo $app['container_name']; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
               <?php
               }else{

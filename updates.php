@@ -1,4 +1,5 @@
 <?php 
+  
   $config = include("config.php");
   include("simple_vars.php");
   include("header.php");
@@ -18,7 +19,7 @@
 
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 
-   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
     <h2>Updates</h2>
     <a href="?check" class="btn btn-outline-primary" onclick="$('#cover-spin').show(0)">Check For OS Updates</a>
     <?php

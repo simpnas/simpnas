@@ -19,23 +19,29 @@
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
   <nav>
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-    <li class="breadcrumb-item"><a href="users.php">Users</a></li>
-    <li class="breadcrumb-item active">Add User</li>
-  </ol>
-</nav>
+	  <ol class="breadcrumb">
+	    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+	    <li class="breadcrumb-item"><a href="users.php">Users</a></li>
+	    <li class="breadcrumb-item active">Add User</li>
+	  </ol>
+	</nav>
 
   <h2>Add User</h2>
+
+  <?php include("alert_message.php"); ?>
+  
   <form method="post" action="post.php" autocomplete="off">
+	  
 	  <div class="form-group">
 	    <label>Username</label>
 	    <input type="text" class="form-control" name="username" required pattern="[a-zA-Z0-9]{1,20}">
 	  </div>
+	  
 	  <div class="form-group">
 	    <label>Password:</label>
 	    <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password">
 	  </div>
+	  
 	  <legend>Groups</legend>
 
 	  <div class="form-group form-check">
@@ -52,9 +58,9 @@
 	  <?php } ?>
 
 	  <button type="submit" name="user_add" class="btn btn-primary">Submit</button>
+	
 	</form>
 
 </main>
-
 
 <?php include("footer.php"); ?>

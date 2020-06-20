@@ -1,25 +1,28 @@
 <?php 
-    $config = include("config.php");
-  	include("simple_vars.php");
-    include("header.php");
-    include("side_nav.php");
-    exec("ls /volumes", $volume_array);
-    foreach($volume_array as $volume){
-    	exec("findmnt -n -o SOURCE --target /volumes/$volume | cut -c -8", $has_volume_disk);
-    	exec("findmnt -n -o SOURCE --target / | cut -c -8", $has_volume_disk); //adds OS Drive to the array
-    }
-    exec("smartctl --scan | awk '{print $1}'", $drive_list);
-    $not_in_use_disks_array = array_diff($drive_list, $has_volume_disk);
+  
+  $config = include("config.php");
+	include("simple_vars.php");
+  include("header.php");
+  include("side_nav.php");
+  
+  exec("ls /volumes", $volume_array);
+  foreach($volume_array as $volume){
+  	exec("findmnt -n -o SOURCE --target /volumes/$volume | cut -c -8", $has_volume_disk);
+  	exec("findmnt -n -o SOURCE --target / | cut -c -8", $has_volume_disk); //adds OS Drive to the array
+  }
+  exec("smartctl --scan | awk '{print $1}'", $drive_list);
+  $not_in_use_disks_array = array_diff($drive_list, $has_volume_disk);
+
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-<nav>
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-    <li class="breadcrumb-item"><a href="volumes.php">Volumes</a></li>
-    <li class="breadcrumb-item active">Add RAID Volume</li>
-  </ol>
-</nav>
+	<nav>
+	  <ol class="breadcrumb">
+	    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+	    <li class="breadcrumb-item"><a href="volumes.php">Volumes</a></li>
+	    <li class="breadcrumb-item active">Add RAID Volume</li>
+	  </ol>
+	</nav>
 
   <h2>Add RAID Volume</h2>
 
@@ -56,9 +59,9 @@
 	    <label>RAID Type</label>
 	    <select class="form-control" name="disk" required>
 	  		<option value=''>--Select A RAID--</option>
-			<option>RAID 0 ()</option>
-			<option>RAID 1 (Mirror)</option>
-			<option>RAID 5 (1 Drive Failure)</option>
+				<option>RAID 0 ()</option>
+				<option>RAID 1 (Mirror)</option>
+				<option>RAID 5 (1 Drive Failure)</option>
 	  	</select>
 	  </div>
 	  

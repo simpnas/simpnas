@@ -1,37 +1,21 @@
 <?php 
-    $config = include("config.php");
-    include("simple_vars.php");
-    include("header.php");
-    include("side_nav.php");
+    
+  $config = include("config.php");
+  include("simple_vars.php");
+  include("header.php");
+  include("side_nav.php");
+
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
   <h2>General Settings</h2>
   
-  <?php
-    //Alert Feedback
-    if(!empty($_SESSION['alert_message'])){
-      ?>
-        <div class="alert alert-success alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
-          <?php echo $_SESSION['alert_message']; ?>
-          <button class='close' data-dismiss='alert'>&times;</button>
-        </div>
-      <?php
-      
-      $_SESSION['alert_type'] = '';
-      $_SESSION['alert_message'] = '';
-
-    }
-
-  ?>
+  <?php include("alert_message.php"); ?>
 
   <form method="post" action="post.php" autocomplete="off">
-	  
-    <div id="target" class="spinner-border" style="width: 3rem; height: 3rem; display: none"></div>
-
     <div class="form-group">
 	  		<label>Hostname</label>
-	  		<input type="text" class="form-control" name="hostname" value="<?php echo gethostname(); ?>" required>
+	  		<input type="text" class="form-control" name="hostname" value="<?php echo $config_hostname; ?>" required>
 	  </div>
     <div class="form-group form-check">
       <input type="checkbox" class="form-check-input" name="enable_beta" value="1" <?php if($config['enable_beta'] == 1){ echo "checked"; } ?> >

@@ -1,43 +1,29 @@
 <?php 
-    $config = include("config.php");
-    include("simple_vars.php");
-    include("header.php");
-    include("side_nav.php");
-    
-    if(empty($config_ad_enabled)){
-      exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);  
-    }else{
-      exec("samba-tool user list | grep -v krbtgt | grep -v Guest", $username_array);
-    }
+  
+  $config = include("config.php");
+  include("simple_vars.php");
+  include("header.php");
+  include("side_nav.php");
+  
+  if(empty($config_ad_enabled)){
+    exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);  
+  }else{
+    exec("samba-tool user list | grep -v krbtgt | grep -v Guest", $username_array);
+  }
 
 ?>
 
  <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 
-   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
     <h2>Users</h2>
     <a href="user_add.php" class="btn btn-outline-primary">Add User</a>
   </div>
 
-  <?php
-    //Alert Feedback
-    if(!empty($_SESSION['alert_message'])){
-      ?>
-        <div class="alert alert-success alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
-          <?php echo $_SESSION['alert_message']; ?>
-          <button class='close' data-dismiss='alert'>&times;</button>
-        </div>
-      <?php
-      
-      $_SESSION['alert_type'] = '';
-      $_SESSION['alert_message'] = '';
-
-    }
-
-  ?>
+  <?php include("alert_message.php"); ?>
 
   <div class="table-responsive">
-    <table class="table table-striped" id="dt">
+    <table class="table table-striped">
       <thead>
         <tr>
           <th>User</th>
@@ -58,9 +44,9 @@
             <td><?php echo $home_dir_usage; ?></td>
             <td>
               <div class="btn-group mr-2">
-              <a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
-              <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
-            </div>
+                <a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
+                <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              </div>
             </td>
           </tr>
         <?php 
