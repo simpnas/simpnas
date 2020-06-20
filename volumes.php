@@ -24,7 +24,6 @@
         <tr>
           <th>Name</th>
           <th>Disk(s)</th>
-          <th>Share Reference</th>
           <th>Usage</th>
           <th>Action</th>
         </tr>
@@ -44,8 +43,6 @@
             $used_space = exec("df -h | grep -w /volumes/$volume | awk '{print $3}'");
             $free_space = exec("df -h | grep -w /volumes/$volume | awk '{print $4}'");
             $used_space_percent = exec("df | grep -w /volumes/$volume | awk '{print $5}'");
-            exec("ls /volumes/$volume | grep -v docker | grep -v lost+found", $share_list_array);
-            $share_list = implode(", ",$share_list_array);
           }
           
         ?>
@@ -53,7 +50,6 @@
         <tr>
           <td><span class="mr-2" data-feather="database"></span><?php echo $volume; ?></td>
           <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?></td>
-          <td><span class="mr-2" data-feather="folder"></span><?php echo $share_list ?></td>
           <td>
             <?php if(empty($mounted)){ ?>
             <div class="text-danger">Not Mounted</div>
@@ -71,7 +67,6 @@
           </td>
         </tr>
         <?php 
-        unset($share_list_array);
         } 
         ?>
       </tbody>
