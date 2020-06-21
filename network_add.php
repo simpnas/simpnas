@@ -47,18 +47,25 @@
 	  <div id="staticSettings">
 		  
 		  <div class="form-group">
-		    <label>Address/CIDR</label>
-		    <input type="text" class="form-control" name="address" placeholder="ex 192.168.1.5/24">
+		    <label>Address</label>
+		    <input type="text" class="form-control" name="address" placeholder="ex 192.168.1.5">
+		  </div>
+
+		  <div class="form-group">
+		  	<label>Netmask</label>
+				<select class="form-control" name="netmask">
+					<option value="/24">255.255.255.0</option>
+				</select>
 		  </div>
 		  
 		  <div class="form-group">
 		    <label>Gateway</label>
-		    <input type="text" class="form-control" name="gateway" data-inputmask="'alias': 'ip'">
+		    <input type="text" class="form-control" name="gateway" placeholder="ex 192.168.1.1">
 		  </div>
 		  
 		  <div class="form-group">
 		    <label>DNS Server(s)</label>
-		    <input type="text" class="form-control" name="dns">
+		    <input type="text" class="form-control" name="dns" placeholder="ex 192.168.1.1">
 		  </div>
 	  
 	  </div>
