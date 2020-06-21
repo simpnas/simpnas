@@ -12,9 +12,7 @@
 	}
 
 	$networkConfigArray = parse_ini_file("/etc/systemd/network/$name.network");
-	$addressCidr = $networkConfigArray['Address'];
-	$address = substr($addressCidr, 0, strpos($addressCidr, "/"));
-	$cidr = $new_ip = substr($addressCidr, 1, strpos($addressCidr, "/"));
+	$address = $networkConfigArray['Address'];
 	$gateway = $networkConfigArray['Gateway'];
 	$dns = $networkConfigArray['DNS'];
 	$dhcp = $networkConfigArray['DHCP'];
@@ -29,7 +27,7 @@
 	    <li class="breadcrumb-item active">Edit Network</li>
 	  </ol>
 	</nav>
-
+	
   <h2>Edit Network</h2>
   
   <?php include("alert_message.php"); ?>

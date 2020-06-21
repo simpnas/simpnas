@@ -23,11 +23,6 @@
       <input type="text" class="form-control" name="hostname" value="<?php echo $config_hostname; ?>" required>
     </div>
     
-    <div class="form-group">
-      <label>DNS Servers</label>
-      <input type="text" class="form-control" name="dns">
-    </div>
-    
     <button type="submit" name="settings_hostname" class="btn btn-primary">Submit</button>
   
   </form>

@@ -549,7 +549,7 @@ if(isset($_POST['network_add'])){
     fwrite($fh, $stringData);
     fclose($fh);
     exec("systemctl restart systemd-networkd");
-    echo "<script>window.location = 'http://$config_primary_ip:81/network.php'</script>";
+    echo "<script>window.location = 'http://$config_hostname:81/network.php'</script>";
   }
   if($method == 'Static'){
     $myFile = "/etc/systemd/network/$interface.network";
