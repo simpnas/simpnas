@@ -2,7 +2,7 @@
   
   $config = include("config.php");
   include("simple_vars.php");
-  include("setup_header.php");
+  include("header.php");
 
 ?>
 
