@@ -1704,6 +1704,7 @@ if(isset($_POST['setup_network'])){
   $interface = $_POST['interface'];
   $method = $_POST['method'];
   $address = $_POST['address'];
+  $netmask = $_POST['netmask'];
   $gateway = $_POST['gateway'];
   $dns = $_POST['dns'];
 
@@ -1731,7 +1732,7 @@ if(isset($_POST['setup_network'])){
   if($method == 'Static'){
     $myFile = "/etc/systemd/network/$interface.network";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[Match]\nName=$interface\n\n[Network]\nAddress=$address\nGateway=$gateway\nDNS=$dns\n";
+    $stringData = "[Match]\nName=$interface\n\n[Network]\nAddress=$address$netmask\nGateway=$gateway\nDNS=$dns\n";
     fwrite($fh, $stringData);
     fclose($fh);
     $new_ip = substr($address, 0, strpos($address, "/"));
