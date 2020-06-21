@@ -1735,11 +1735,10 @@ if(isset($_POST['setup_network'])){
     $stringData = "[Match]\nName=$interface\n\n[Network]\nAddress=$address$netmask\nGateway=$gateway\nDNS=$dns\n";
     fwrite($fh, $stringData);
     fclose($fh);
-    $new_ip = substr($address, 0, strpos($address, "/"));
     exec("echo '127.0.0.1      localhost' > /etc/hosts");
-    exec("echo '$new_ip     $hostname' >> /etc/hosts");
+    exec("echo '$address     $hostname' >> /etc/hosts");
     exec("systemctl restart systemd-networkd > /dev/null &");
-    echo "<script>window.location = 'http://$new_ip:81/setup_volume.php'</script>";
+    echo "<script>window.location = 'http://$address:81/setup_volume.php'</script>";
   }
 
   //header("Location: reboot.php");
