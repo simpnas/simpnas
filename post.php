@@ -46,7 +46,8 @@ if(isset($_POST['user_add'])){
     exec ("chmod -R 700 /volumes/$config_home_volume/users/$username");  
     
     if(empty($config_ad_enabled)){
-      exec ("useradd -g users -d /volumes/$config_home_volume/users/$username $username -s /bin/false -p $password");
+      exec ("useradd -g users -d /volumes/$config_home_volume/users/$username $username -s /bin/false");
+      exec ("echo '$password\n$password' | passwd $username");
       exec ("echo '$password\n$password' | smbpasswd -a $username");
     }else{
       exec ("samba-tool user create $username $password --home-drive=H --unix-home=/volumes/$volume_name/users/$username --home-directory='\\\\$config_hostname\users\\$username'");
@@ -1868,7 +1869,8 @@ if(isset($_POST['setup_final'])){
   }else{
     exec ("chgrp users /volumes/$volume_name/share");
     //Create the new user UNIX way
-    exec ("useradd -g users -d /volumes/$volume_name/users/administrator administrator -p $password");
+    exec ("useradd -g users -d /volumes/$volume_name/users/administrator administrator");
+    exec ("echo '$password\n$password' | passwd administrator");
     exec ("usermod -a -G admins administrator");
     exec ("usermod -a -G sudo administrator");
     exec ("echo '$password\n$password' | smbpasswd -a administrator");

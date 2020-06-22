@@ -44,7 +44,7 @@
 	  
 	  <div class="form-group">
 	    <label>Password</label>
-	    <input type="password" class="form-control" name="password" placeholder="Leave blank for no change" autocomplete="new-password">
+	    <input type="password" class="form-control" name="password" placeholder="Leave blank for no change" data-toggle="password" autocomplete="new-password">
 	  </div>
 	  
 	  <legend>Groups</legend>
