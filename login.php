@@ -3,7 +3,6 @@
 $config = include("config.php");
 include("simple_vars.php");
 
-
 session_start();
 
 if(isset($_POST['login'])){
