@@ -36,7 +36,7 @@ if(isset($_POST['login'])){
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SimpNAS | Login</title>
+    <title><?php echo gethostname(); ?> | Login</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -47,7 +47,7 @@ if(isset($_POST['login'])){
 
   <body class="text-center">
     <form class="form-signin" method="post">
-      <h2>SimpNAS</h2>
+      <h2><?php echo gethostname(); ?></h2>
       <?php 
       if(!empty($response)){
         echo $response;
@@ -55,7 +55,7 @@ if(isset($_POST['login'])){
       ?>
       <input type="text" id="inputUsername" name="username" class="form-control" placeholder="Username" required autofocus>
       <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" required>
-      <button type="submit" class="btn btn-secondary p-2 btn-block" name="login">Sign In</button>
+      <button type="submit" class="btn btn-primary p-2 btn-block" name="login">Sign In</button>
     </form>
   </body>
 </html>

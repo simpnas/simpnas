@@ -25,7 +25,7 @@ $session_username = $_SESSION['username'];
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SimpNAS</title>
+    <title><?php echo gethostname(); ?></title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
