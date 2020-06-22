@@ -2,7 +2,7 @@
   
   $config = include("config.php");
   include("simple_vars.php");
-  include("header.php");
+  include("header_nologin.php");
 
 ?>
 

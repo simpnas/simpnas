@@ -1886,8 +1886,8 @@ if(isset($_POST['setup_final'])){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
   }
 
-  exec("reboot");
-  //header("Location: reboot.php");
+  header("Location: reboot.php");
+
 }
 
 ?>
