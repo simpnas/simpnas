@@ -36,7 +36,7 @@ if(isset($_POST['login'])){
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title><?php echo gethostname(); ?> | Login</title>
+    <title><?php echo gethostname(); ?> login</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -48,14 +48,16 @@ if(isset($_POST['login'])){
   <body class="text-center">
     <form class="form-signin" method="post">
       <h2><?php echo gethostname(); ?></h2>
-      <?php 
-      if(!empty($response)){
-        echo $response;
-      }
-      ?>
+      <div id ="alert">
+        <?php 
+        if(!empty($response)){
+          echo $response;
+        }
+        ?>
+      </div>
       <input type="text" id="inputUsername" name="username" class="form-control" placeholder="Username" required autofocus>
       <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" required>
       <button type="submit" class="btn btn-primary p-2 btn-block" name="login">Sign In</button>
     </form>
-  </body>
-</html>
+  
+<?php include("footer.php"); ?>

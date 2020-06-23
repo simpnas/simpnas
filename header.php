@@ -42,7 +42,7 @@ $session_username = $_SESSION['username'];
       <div class="navbar-brand col-sm-3 col-md-2 mr-0"><span data-feather="box"></span> SimpNAS <small>(<?php echo gethostname(); ?>)</small></div>
       <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
-          <a class="nav-link" href="logout.php">Logged in as, <?php echo $session_username; ?> <span data-feather="log-out"></span></a>
+          <a class="nav-link" href="logout.php">Logged in as, <strong><?php echo $session_username; ?></strong> <span data-feather="log-out"></span></a>
         </li>
       </ul>
     </nav>
