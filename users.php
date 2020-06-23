@@ -6,10 +6,11 @@
   include("side_nav.php");
   
   if(empty($config_ad_enabled)){
-    exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);  
+    exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);
   }else{
     exec("samba-tool user list | grep -v krbtgt | grep -v Guest", $username_array);
   }
+  asort($username_array);
 
 ?>
 

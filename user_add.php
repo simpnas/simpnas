@@ -57,6 +57,41 @@
 
 	  <?php } ?>
 
+	  <?php
+	  if(!empty($config_ad_enabled)){
+	  ?>
+	  
+	  <legend>Optional</legend>
+
+	  <div class="form-group">
+	    <label>First Name</label>
+	    <input type="text" class="form-control" name="first_name" pattern="[a-zA-Z0-9]{1,20}">
+	  </div>
+
+	  <div class="form-group">
+	    <label>Last Name</label>
+	    <input type="text" class="form-control" name="last_name" pattern="[a-zA-Z0-9]{1,20}">
+	  </div>
+
+	  <div class="form-group">
+	    <label>Description</label>
+	    <input type="text" class="form-control" name="description">
+	  </div>
+
+	  <div class="form-group">
+	    <label>Email</label>
+	    <input type="email" class="form-control" name="email">
+	  </div>
+
+	  <div class="form-group">
+	    <label>Phone</label>
+	    <input type="text" class="form-control" name="phone">
+	  </div>
+
+	  <?php
+		}
+		?>
+
 	  <button type="submit" name="user_add" class="btn btn-primary">Submit</button>
 	
 	</form>

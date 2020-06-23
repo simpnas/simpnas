@@ -26,6 +26,27 @@ if(isset($_GET['upgrade_simpnas_overwrite_local_changes'])){
 if(isset($_POST['user_add'])){
   $username = $_POST['username'];
   $password = $_POST['password'];
+  $first_name = $_POST['first_name'];
+  $last_name = $_POST['last_name'];
+  $description = $_POST['description'];
+  $email = $_POST['email'];
+  $phone = $_POST['phone'];
+
+  if(!empty($first_name)){
+    $first_name = "--given-name='$first_name'";
+  }
+  if(!empty($last_name)){
+    $last_name = "--surname='$last_name'";
+  }
+  if(!empty($description)){
+    $description = "--description='$description'";
+  }
+  if(!empty($email)){
+    $email = "--mail-address='$email'";
+  }
+  if(!empty($phone)){
+    $phone = "--telephone-number='$phone'";
+  }
 
   //Check if user exists
   exec("awk -F: '$3 > 999 {print $1}' /etc/passwd", $users_array);
@@ -50,7 +71,7 @@ if(isset($_POST['user_add'])){
       exec ("echo '$password\n$password' | passwd $username");
       exec ("echo '$password\n$password' | smbpasswd -a $username");
     }else{
-      exec ("samba-tool user create $username $password --home-drive=H --unix-home=/volumes/$volume_name/users/$username --home-directory='\\\\$config_hostname\users\\$username'");
+      exec ("samba-tool user create $username $password --home-drive=H --unix-home=/volumes/$config_home_volume/users/$username --home-directory='\\\\$config_hostname\users\\$username\' $email $phone $first_name $last_name $description");
     }
     exec ("chown -R $username /volumes/$config_home_volume/users/$username");
     
@@ -1803,6 +1824,10 @@ if(isset($_POST['setup_final'])){
     deleteLineInFile("/etc/systemd/network/$network_int_file","DNS=");
     exec("echo 'DNS=127.0.0.1' >> /etc/systemd/network/$network_int_file");
     exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
+    exec("sed -i '/netlogon/ i template shell = /bin/bash' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind use default domain = true' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind offline logon = false' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind nss info = rfc2307' /etc/samba/smb.conf");
     exec("sed -i '/netlogon/ i winbind enum users = yes' /etc/samba/smb.conf");
     exec("sed -i '/netlogon/ i winbind enum groups = yes' /etc/samba/smb.conf");
     exec("sed -i '/netlogon/ i bind interfaces only = yes' /etc/samba/smb.conf");
