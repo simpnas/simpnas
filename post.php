@@ -99,8 +99,12 @@ if(isset($_POST['user_edit'])){
   //$group_count = count($group);
   if(!empty($_POST['password'])){
     $password = $_POST['password'];
-    exec ("echo '$password\n$password' | passwd $username");
-    exec ("echo '$password\n$password' | smbpasswd $username"); //May not be needed
+    if(empty($config_ad_enabled)){
+      exec ("echo '$password\n$password' | passwd $username");
+      exec ("echo '$password\n$password' | smbpasswd $username"); //May not be needed
+    }else{
+      
+    }
   }
   if(!empty($group_array)){
     exec ("usermod -G $group_array $username");
@@ -1099,7 +1103,7 @@ if(isset($_POST['configure_remote_access'])){
 
   exec("docker run -d --name letsencrypt --net=my-network --cap-add=NET_ADMIN -p 443:443 -p 80:80 --restart=unless-stopped -e URL='$domain' -e SUBDOMAINS='$sub_domains' -e VALIDATION=http -v /volumes/$config_docker_volume/docker/letsencrypt:/config linuxserver/letsencrypt");
 
-  exec("sleep 1");
+  exec("sleep 10");
 
   foreach($apps_array as $app){
     exec("cp /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
