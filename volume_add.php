@@ -8,11 +8,11 @@
   exec("ls /volumes", $volume_array);
   
   foreach($volume_array as $volume){
-  	exec("lsblk -o pkname,mountpoint | grep -w volumes | awk '{print $1}'", $has_volume_disk_array);
+  	exec("lsblk -n -o pkname,mountpoint | grep -w volumes | awk '{print $1}'", $has_volume_disk_array);
   	exec("lsblk -n -o pkname,mountpoint | grep -w / | awk '{print $1}'", $has_volume_disk_array); //adds OS Drive to the array
   }
   
-  exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
+  exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | awk '{print $1}'", $disk_list_array);
   
   $not_in_use_disks_array = array_diff($disk_list_array, $has_volume_disk_array);
 
