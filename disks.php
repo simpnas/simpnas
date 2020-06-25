@@ -4,8 +4,6 @@
   include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
-  
-  exec("smartctl --scan | awk '{print $1}'", $drive_list);
 
 ?>
 
@@ -26,62 +24,46 @@
           <th>Vendor</th>
           <th>Serial</th>
           <th>Capacity</th>
-          <th>Disk Type</th>
+          <th>Type</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
         <?php
-        foreach ($drive_list as $hdd) {
-          $hdd_short_name = basename($hdd);
-          $hdd_smart = exec("smartctl -i $hdd | grep 'SMART support is' | cut -d' ' -f 8-");
+        exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | awk '{print $1}'", $disk_list_array);
+        foreach ($disk_list_array as $disk) {
+          $hdd_smart = exec("smartctl -i /dev/$disk | grep 'SMART support is' | cut -d' ' -f 8-");
 
-          $hdd_make = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3}'");
-          if($hdd_make == 'WDC'){
-            $hdd_make = 'Western Digital';
-          }else{
-            $hdd_make = '';
+          $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Family:' | awk '{print $3,$4,$5}'");
+          if(empty($disk_vendor)){
+            $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Device Model:' | awk '{print $3,$4,$5}'");
           }
-
-          $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family:' | awk '{print $3,$4,$5}'");
-          if(empty($hdd_vendor)){
-            $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3,$4,$5}'");
+          if(empty($disk_vendor)){
+            $disk_vendor = exec("lsblk -n -o kname,type,vendor /dev/$disk | grep disk  | awk '{print $3}'");
           }
-          if(empty($hdd_vendor)){
-            $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor:' | awk '{print $2,$3,$4}'");
-          }
-          if(empty($hdd_vendor)){
-            $hdd_vendor = "-";
-          }
-
-          $hdd_serial = exec("smartctl -i $hdd | grep 'Serial Number:' | awk '{print $3}'");
-          if(empty($hdd_serial)){
-            $hdd_serial = "-";
-          }
+          $disk_model = exec("lsblk -n -o kname,type,model /dev/$disk | grep disk  | awk '{print $3}'");
+          $disk_serial = exec("lsblk -n -o kname,type,serial /dev/$disk | grep disk  | awk '{print $3}'");
+          $disk_size = exec("lsblk -n -o kname,type,size /dev/$disk | grep disk | awk '{print $3}'");
           
-          $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity:' | cut -d '[' -f2 | cut -d ']' -f1");
-          
-          $hdd_type = exec("smartctl -i $hdd | grep 'Rotation Rate:' | awk '{print $3,$4,$5}'");
-          if($hdd_type == '7200 rpm'){
-            $hdd_type = "HDD";
-          }elseif($hdd_type == '5400 rpm'){
-            $hdd_type = "HDD";
-          }elseif($hdd_type == 'Solid State Device'){
-            $hdd_type = "SSD";
+          $disk_type = exec("lsblk -n -o kname,type,rota /dev/$disk | grep disk | awk '{print $3}'");
+          if($disk_type == 1){
+            $disk_type = "HDD";
           }else{
-            $hdd_type = "-";
+            $disk_type = "SSD";
           }
 
           ?>
         <tr>
-          <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $hdd_short_name; ?></td>
-          <td><?php echo $hdd_vendor; ?></td>
-          <td><?php echo $hdd_serial; ?></td>
-          <td><?php echo $hdd_label_size; ?></td>
-          <td><?php echo $hdd_type; ?></td>
+          <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?></td>
+          <td><?php echo $disk_vendor; ?></td>
+          <td><?php echo $disk_serial; ?></td>
+          <td><?php echo $disk_size; ?></td>
+          <td><?php echo $disk_type; ?></td>
           <td>
             <div class="btn-group mr-2">
-              <a href="hdd_info.php?hdd=<?php echo $hdd_short_name; ?>" class="btn btn-outline-secondary btn-sm">Health Info</a>
+              <?php if(empty($hdd_smart)){ ?>
+              <a href="hdd_info.php?hdd=<?php echo $disk; ?>" class="btn btn-outline-secondary btn-sm">Health Info</a>
+              <?php } ?>
             </div>
           </td>
         </tr>
