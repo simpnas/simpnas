@@ -33,6 +33,7 @@
 	  <div class="form-group">
 	    <label>Select Disk</label>
 	    <select class="form-control" name="disk" required>
+		  	<option value=''>--Select A Disk--</option>
 		  	<?php
 				exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
 				foreach ($disk_list_array as $disk) {

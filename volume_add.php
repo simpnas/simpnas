@@ -46,7 +46,7 @@ if(count($not_in_use_disks_array) > 0){
 	  <div class="form-group">
 	    <label>Disk</label>
 	    <select class="form-control" name="disk" required>
-	  		<option value=''>--Select A Drive--</option>
+	  		<option value=''>--Select A Disk--</option>
 			  	<?php
 					foreach($not_in_use_disks_array as $disk){
 		        $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Family:' | awk '{print $3,$4,$5}'");

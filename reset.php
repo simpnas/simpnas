@@ -63,7 +63,7 @@
     exec("deluser --remove-home $username");
   }
 
-  //Remove all Volumes and remove from fstab.conf to prevent automounting on boot
+  //Remove all Volumes and remove from fstab.conf to prevent automounting on boot  
   exec("ls /volumes", $volume_array);
   foreach ($volume_array as $volume) {
     exec("rm -rf /volumes/$volume/*");
@@ -73,13 +73,10 @@
   exec("rm -rf /volumes/*");
 
   //Wipe Each Disk
-  exec("smartctl --scan | awk '{print $1}'", $drive_list);
-  $not_in_use_disks_array = array_diff($drive_list, $config_os_disk);
-
-  foreach($not_in_use_disks_array as $disk){
-    $output = exec("wipefs -a $disk");
-    echo "Wiping disk $disk...<br>";
-    echo "$output<br><br>";
+  $os_disk = exec("lsblk -n -o pkname,MOUNTPOINT | grep -w / | awk '{print $1}'");
+  exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
+  foreach ($disk_list_array as $disk) {
+    exec("wipefs -a /dev/$disk");
   }
 
   //Remove any backup cron scripts
