@@ -41,15 +41,22 @@
           if(empty($disk_vendor)){
             $disk_vendor = exec("lsblk -n -o kname,type,vendor /dev/$disk | grep disk  | awk '{print $3}'");
           }
+          if(empty($disk_vendor)){
+            $disk_vendor = "";
+          }
           $disk_model = exec("lsblk -n -o kname,type,model /dev/$disk | grep disk  | awk '{print $3}'");
           $disk_serial = exec("lsblk -n -o kname,type,serial /dev/$disk | grep disk  | awk '{print $3}'");
           $disk_size = exec("lsblk -n -o kname,type,size /dev/$disk | grep disk | awk '{print $3}'");
           
-          $disk_type = exec("lsblk -n -o kname,type,rota /dev/$disk | grep disk | awk '{print $3}'");
-          if($disk_type == 1){
+          $disk_type = exec("smartctl -i /dev/$disk | grep 'Rotation Rate:' | awk '{print $3,$4,$5}'");
+          if($disk_type == '7200 rpm'){
             $disk_type = "HDD";
-          }else{
+          }elseif($disk_type == '5400 rpm'){
+            $disk_type = "HDD";
+          }elseif($disk_type == 'Solid State Device'){
             $disk_type = "SSD";
+          }else{
+            $disk_type = "-";
           }
 
           ?>
@@ -61,9 +68,7 @@
           <td><?php echo $disk_type; ?></td>
           <td>
             <div class="btn-group mr-2">
-              <?php if(empty($hdd_smart)){ ?>
               <a href="hdd_info.php?hdd=<?php echo $disk; ?>" class="btn btn-outline-secondary btn-sm">Health Info</a>
-              <?php } ?>
             </div>
           </td>
         </tr>
