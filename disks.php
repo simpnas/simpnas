@@ -42,7 +42,7 @@
             $disk_vendor = exec("lsblk -n -o kname,type,vendor /dev/$disk | grep disk  | awk '{print $3}'");
           }
           if(empty($disk_vendor)){
-            $disk_vendor = "";
+            $disk_vendor = "-";
           }
           $disk_model = exec("lsblk -n -o kname,type,model /dev/$disk | grep disk  | awk '{print $3}'");
           $disk_serial = exec("lsblk -n -o kname,type,serial /dev/$disk | grep disk  | awk '{print $3}'");
