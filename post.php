@@ -948,7 +948,7 @@ if(isset($_POST['install_nextcloud'])){
 
   exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/appdata:/config -v /volumes/$config_docker_volume/docker/nextcloud/data:/data linuxserver/nextcloud");
 
-  exec("sleep 40");
+  exec("sleep 80");
   
   exec("docker exec nextcloud rm -rf /config/www/nextcloud/core/skeleton");
   if($enable_samba_mount == 1){
