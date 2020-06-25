@@ -8,12 +8,13 @@
   exec("ls /volumes", $volume_array);
   
   foreach($volume_array as $volume){
-  	exec("findmnt -n -o SOURCE --target /volumes/$volume | cut -c -8", $has_volume_disk);
-  	exec("findmnt -n -o SOURCE --target / | cut -c -8", $has_volume_disk); //adds OS Drive to the array
+  	exec("lsblk -o pkname,mountpoint | grep -w volumes | awk '{print $1}'", $has_volume_disk_array);
+  	exec("lsblk -n -o pkname,mountpoint | grep -w / | awk '{print $1}'", $has_volume_disk_array); //adds OS Drive to the array
   }
   
-  exec("smartctl --scan | awk '{print $1}'", $drive_list);
-  $not_in_use_disks_array = array_diff($drive_list, $has_volume_disk);
+  exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
+  
+  $not_in_use_disks_array = array_diff($disk_list_array, $has_volume_disk_array);
 
 ?>
 
@@ -47,26 +48,19 @@ if(count($not_in_use_disks_array) > 0){
 	    <select class="form-control" name="disk" required>
 	  		<option value=''>--Select A Drive--</option>
 			  	<?php
-					foreach($not_in_use_disks_array as $hdd){
-						$hdd_short_name = basename($hdd);
-		                $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family:' | awk '{print $3,$4,$5}'");
-					    if(empty($hdd_vendor)){
-					      $hdd_vendor = exec("smartctl -i $hdd | grep 'Device Model:' | awk '{print $3,$4,$5}'");
-					    }
-					    if(empty($hdd_vendor)){
-					      $hdd_vendor = exec("smartctl -i $hdd | grep 'Vendor:' | awk '{print $2,$3,$4}'");
-					    }
-					    if(empty($hdd_vendor)){
-					      $hdd_vendor = "-";
-					    }
-					    $hdd_serial = exec("smartctl -i $hdd | grep 'Serial Number:' | awk '{print $3}'");
-					    if(empty($hdd_serial)){
-					      $hdd_serial = "-";
-					    }
-					    $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity:' | cut -d '[' -f2 | cut -d ']' -f1");
-
-					?>
-					<option value="<?php echo $hdd; ?>"><?php echo "$hdd_short_name - $hdd_vendor ($hdd_label_size)"; ?></option>	
+					foreach($not_in_use_disks_array as $disk){
+		        $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Family:' | awk '{print $3,$4,$5}'");
+				  if(empty($disk_vendor)){
+				    $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Device Model:' | awk '{print $3,$4,$5}'");
+				  }
+				  if(empty($disk_vendor)){
+				    $disk_vendor = exec("lsblk -n -o kname,type,vendor /dev/$disk | grep disk  | awk '{print $3}'");
+				  }
+			    $disk_model = exec("lsblk -n -o kname,type,model /dev/$disk | grep disk  | awk '{print $3}'");
+			    $disk_serial = exec("lsblk -n -o kname,type,serial /dev/$disk | grep disk  | awk '{print $3}'");
+			    $disk_size = exec("lsblk -n -o kname,type,size /dev/$disk | grep disk | awk '{print $3}'");
+				?>
+				<option value="<?php echo $disk; ?>"><?php echo "$disk - $disk_vendor ($disk_size)"; ?></option>
 
 				<?php
 				}

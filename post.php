@@ -290,8 +290,7 @@ if(isset($_GET['mount_volume'])){
 
 if(isset($_POST['volume_add'])){
   $name = trim($_POST['name']);
-  $hdd = $_POST['disk'];
-  $hdd_part = $hdd."1";
+  $disk = $_POST['disk'];
   
   exec ("ls /volumes/",$volumes_array);
 
@@ -299,22 +298,23 @@ if(isset($_POST['volume_add'])){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not add volume $name as it already exists!";
   }else{
-    exec ("wipefs -a $hdd");
-    exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
-    exec ("e2label $hdd_part $name");
+    exec ("wipefs -a /dev/$disk");
+    exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+    $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
+    exec ("e2label /dev/$diskpart $name");
     exec ("mkdir /volumes/$name");
     
     if(!empty($_POST['encrypt'])){
       $password = $_POST['password'];
-      exec ("echo -e '$password' | cryptsetup -q luksFormat $hdd_part");
-      exec ("echo -e '$password' | cryptsetup open $hdd_part crypt$name");
+      exec ("echo -e '$password' | cryptsetup -q luksFormat /dev/$diskpart");
+      exec ("echo -e '$password' | cryptsetup open /dev/$diskpart crypt$name");
       exec ("mkfs.ext4 /dev/mapper/crypt$name");    
       exec ("mount /dev/mapper/crypt$name /volumes/$name");
     }else{
-      exec ("mkfs.ext4 $hdd_part");
-      exec ("mount $hdd_part /volumes/$name");  
+      exec ("mkfs.ext4 /dev/$diskpart");
+      exec ("mount /dev/$diskpart /volumes/$name");  
       
-      $uuid = exec("blkid -o value --match-tag UUID $hdd_part");
+      $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
 
       $myFile = "/etc/fstab";
       $fh = fopen($myFile, 'a') or die("can't open file");
@@ -331,8 +331,9 @@ if(isset($_GET['volume_delete'])){
   //check to make sure no shares are linked to the volume
   //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
   //the code to do that here
-  $hdd = exec("findmnt -n -o SOURCE --target /volumes/$name");
-  $uuid = exec("blkid -o value --match-tag UUID $hdd");
+  $diskpart = exec("findmnt -n -o SOURCE --target /volumes/$name");
+  $disk = exec("lsblk -n -o pkname $diskpart");
+  $uuid = exec("blkid -o value --match-tag UUID $diskpart");
   
   exec("ls /volumes/$name | grep -v lost+found", $directory_list_array);
   if(!empty($directory_list_array)){
@@ -341,7 +342,7 @@ if(isset($_GET['volume_delete'])){
   }else{
     exec ("umount -l /volumes/$name");
     exec ("rm -rf /volumes/$name");
-    exec ("wipefs -a $hdd");
+    exec ("wipefs -a /dev/$disk");
   
     deleteLineInFile("/etc/fstab","$uuid");
 
@@ -1651,17 +1652,17 @@ if(isset($_POST['setup_network'])){
 
 if(isset($_POST['setup_volume'])){
   $volume_name = $_POST['volume_name'];
-  $hdd = $_POST['disk'];
-  $hdd_part = $hdd."1";
+  $disk = $_POST['disk'];
 
-  exec ("wipefs -a $hdd");
-  exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
+  exec ("wipefs -a /dev/$disk");
+  exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+  $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
   exec ("mkdir /volumes/$volume_name");
-  exec ("mkfs.ext4 $hdd_part");
-  exec ("e2label $hdd_part $volume_name");
-  exec ("mount $hdd_part /volumes/$volume_name"); 
+  exec ("mkfs.ext4 /dev/$diskpart");
+  exec ("e2label /dev/$diskpart $volume_name");
+  exec ("mount /dev/$diskpart /volumes/$volume_name"); 
 
-  $uuid = exec("blkid -o value --match-tag UUID $hdd_part");
+  $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");
   $stringData = "UUID=$uuid    /volumes/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
