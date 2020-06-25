@@ -539,12 +539,35 @@ if(isset($_POST['share_edit'])){
 if(isset($_GET['share_delete'])){
   $name = $_GET['share_delete'];
 
-  $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "users");
+  $docker_shares_array = array();
+
+  if(file_exists("/volumes/$config_docker_volume/docker/jellyfin")){
+    array_push($docker_shares_array, "media");
+  }
+
+  if(file_exists("/volumes/$config_docker_volume/docker/daapd")){
+    array_push($docker_shares_array, "media");
+  }
+
+  if(file_exists("/volumes/$config_docker_volume/docker/transmission")){
+    array_push($docker_shares_array, "downloads");
+  }
+
+  if(file_exists("/volumes/$config_docker_volume/docker/unifi-video")){
+    array_push($docker_shares_array, "video-surveillance");
+  }
+
+  $system_shares_array = array();
+
+  array_push($system_shares_array, "users", "docker");
+
   if(in_array($name, $docker_shares_array)){
     $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not delete the share $name as it shares the same share name as an app thats using it. The followng share names are forbiddon to delete media, downloads, video-surveillance. These can be deleted by deleting the app that is associated with it.";
+    $_SESSION['alert_message'] = "Can not delete the share $name as it shares the same share name as an app thats using it, try deleting the app then deleting the share";
+  }elseif(in_array($name, $system_shares_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not delete the share $name as it is a system share!";
   }else{
-
     $path = exec("find /volumes/*/$name -name $name");
 
     exec ("rm -rf $path");
@@ -711,38 +734,39 @@ if(isset($_POST['mail_edit'])){
 
 if(isset($_POST['install_jellyfin'])){
   $volume = $_POST['volume'];
+
+  $media_volume_path = exec("find /volumes/*/media -name media");
   
-  if(!file_exists("/volumes/$config_docker_volume/jellyfin")) {
+  $group_id = exec("getent group media | cut -d: -f3");
+
+  if(empty($group_id)){
     exec ("addgroup media");
     $group_id = exec("getent group media | cut -d: -f3");
+  }
+
+  if(!file_exists("$media_volume_path")) {
 
     mkdir("/volumes/$volume/media");
     mkdir("/volumes/$volume/media/tvshows");
     mkdir("/volumes/$volume/media/movies");
     mkdir("/volumes/$volume/media/music");
-    mkdir("/volumes/$config_docker_volume/docker/jellyfin");
-    mkdir("/volumes/$config_docker_volume/docker/jellyfin/config");
-    mkdir("/volumes/$config_docker_volume/docker/jellyfin/cache");
+    
 
     chgrp("/volumes/$volume/media","media");
     chgrp("/volumes/$volume/media/tvshows","media");
     chgrp("/volumes/$volume/media/movies","media");
     chgrp("/volumes/$volume/media/music","media");
-    chgrp("/volumes/$config_docker_volume/docker/jellyfin","media");
-    chgrp("/volumes/$config_docker_volume/docker/jellyfin/config","media");
-    chgrp("/volumes/$config_docker_volume/docker/jellyfin/cache","media");
+    
     
     chmod("/volumes/$volume/media",0770);
     chmod("/volumes/$volume/media/tvshows",0770);
     chmod("/volumes/$volume/media/movies",0770);
     chmod("/volumes/$volume/media/music",0770);
-    chmod("/volumes/$config_docker_volume/docker/jellyfin",0770);
-    chmod("/volumes/$config_docker_volume/docker/jellyfin/config",0770);
-    chmod("/volumes/$config_docker_volume/docker/jellyfin/cache",0770);
+    
     
     $myFile = "/etc/samba/shares/media";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[media]\n   comment = Media files used by Jellyfin\n   path = /volumes/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
+    $stringData = "[media]\n   comment = Video and Audio Media\n   path = /volumes/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
     fwrite($fh, $stringData);
     fclose($fh);
 
@@ -758,6 +782,20 @@ if(isset($_POST['install_jellyfin'])){
     }
 
   }
+
+  mkdir("/volumes/$config_docker_volume/docker/jellyfin");
+  mkdir("/volumes/$config_docker_volume/docker/jellyfin/config");
+  mkdir("/volumes/$config_docker_volume/docker/jellyfin/cache");
+
+  chgrp("/volumes/$config_docker_volume/docker/jellyfin","media");
+  chgrp("/volumes/$config_docker_volume/docker/jellyfin/config","media");
+  chgrp("/volumes/$config_docker_volume/docker/jellyfin/cache","media");
+
+  chmod("/volumes/$config_docker_volume/docker/jellyfin",0770);
+  chmod("/volumes/$config_docker_volume/docker/jellyfin/config",0770);
+  chmod("/volumes/$config_docker_volume/docker/jellyfin/cache",0770);
+
+
 
   exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/jellyfin:/config -v /volumes/$volume/media/tvshows:/tvshows -v /volumes/$volume/media/movies:/movies -v /volumes/$volume/media/music:/music linuxserver/jellyfin");
   
@@ -784,149 +822,82 @@ if(isset($_GET['uninstall_jellyfin'])){
   //stop and delete docker container
   exec("docker stop jellyfin");
   exec("docker rm jellyfin");
-  //delete media group
-  exec ("delgroup media");
-  //get path to media directory
-  $path = exec("find /volumes/*/media -name media");
-  //delete media directory
-  exec ("rm -rf $path"); //Delete
   //delete docker config
   exec ("rm -rf /volumes/$config_docker_volume/docker/jellyfin");
   //Remove unused docker images
   exec("docker image prune");
-  //delete samba share
-  exec ("rm -f /etc/samba/shares/media");
-  deleteLineInFile("/etc/samba/shares.conf","media");
-  //restart samba
-  if(empty($config_ad_enabled)){
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
-  }
   //redirect back to packages
   header("Location: apps.php");
 }
 
-if(isset($_POST['install_airsonic'])){
+if(isset($_POST['install_daapd'])){
   $volume = $_POST['volume'];
   
-  if(!file_exists("/volumes/$config_docker_volume/docker/airsonic")) {
-    
-    $group_media_exists = exec("cat /etc/group | grep media");
-    if(empty($group_media_exists)){
-      exec ("addgroup media");
-    }
+  $media_volume_path = exec("find /volumes/*/media -name media");
+  
+  $group_id = exec("getent group media | cut -d: -f3");
 
+  if(empty($group_id)){
+    exec ("addgroup media");
     $group_id = exec("getent group media | cut -d: -f3");
+  }
 
-    if(!file_exists("/volumes/$config_docker_volume/media")) {
-      mkdir("/volumes/$volume/media");
-      mkdir("/volumes/$volume/media/music");
-      chgrp("/volumes/$volume/media","media");
-      chgrp("/volumes/$volume/media/music","media");
-      chmod("/volumes/$volume/media",0770);
-      chmod("/volumes/$volume/media/music",0770);
+  if(!file_exists("$media_volume_path")) {
 
-      $myFile = "/etc/samba/shares/media";
-      $fh = fopen($myFile, 'w') or die("not able to write to file");
-      $stringData = "[media]\n   comment = Media files used by Airsonic\n   path = /volumes/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
-      fwrite($fh, $stringData);
-      fclose($fh);
+    mkdir("/volumes/$volume/media");
+    mkdir("/volumes/$volume/media/tvshows");
+    mkdir("/volumes/$volume/media/movies");
+    mkdir("/volumes/$volume/media/music");
+    
 
-      $myFile = "/etc/samba/shares.conf";
-      $fh = fopen($myFile, 'a') or die("not able to write to file");
-      $stringData = "\ninclude = /etc/samba/shares/media";
-      fwrite($fh, $stringData);
-      fclose($fh);
-      
-      if(empty($config_ad_enabled)){
-        exec("systemctl restart smbd");
-        exec("systemctl restart nmbd");
-      }
+    chgrp("/volumes/$volume/media","media");
+    chgrp("/volumes/$volume/media/tvshows","media");
+    chgrp("/volumes/$volume/media/movies","media");
+    chgrp("/volumes/$volume/media/music","media");
+    
+    
+    chmod("/volumes/$volume/media",0770);
+    chmod("/volumes/$volume/media/tvshows",0770);
+    chmod("/volumes/$volume/media/movies",0770);
+    chmod("/volumes/$volume/media/music",0770);
+    
+    
+    $myFile = "/etc/samba/shares/media";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[media]\n   comment = Video and Audio Media\n   path = /volumes/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
+    fwrite($fh, $stringData);
+    fclose($fh);
 
+    $myFile = "/etc/samba/shares.conf";
+    $fh = fopen($myFile, 'a') or die("not able to write to file");
+    $stringData = "\ninclude = /etc/samba/shares/media";
+    fwrite($fh, $stringData);
+    fclose($fh);
+    
+    if(empty($config_ad_enabled)){
+      exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
     }
-    
-    mkdir("/volumes/$config_docker_volume/docker/airsonic");
-    chgrp("/volumes/$config_docker_volume/docker/airsonic","media");
-    chmod("/volumes/$config_docker_volume/docker/airsonic",0770);
-    
+
   }
 
-  exec("docker run -d --name airsonic --restart=unless-stopped -p 4040:4040 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/airsonic:/config -v /volumes/$volume/media/music:/music linuxserver/airsonic");
+  mkdir("/volumes/$config_docker_volume/docker/daapd");
+  chgrp("/volumes/$config_docker_volume/docker/daapd","media");
+  chmod("/volumes/$config_docker_volume/docker/daapd",0770);
+
+  exec("docker run -d --name daapd --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/daapd:/config -v /volumes/$volume/media/music:/music linuxserver/daapd");
   
   header("Location: apps.php");
 }
 
-if(isset($_POST['install_lychee'])){
-  $volume = $_POST['volume'];
-  
-  exec ("addgroup photos");
-  $group_id = exec("getent group photos | cut -d: -f3");
-
-  mkdir("/volumes/$volume/photos");
-  mkdir("/volumes/$config_docker_volume/docker/lychee");
-
-  chgrp("/volumes/$volume/photos","photos");
-  
-  chmod("/volumes/$volume/photos",0770);
-     
-  $myFile = "/etc/samba/shares/photos";
-  $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[photos]\n   comment = Photos for Lychee\n   path = /volumes/$volume/photos\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @photos\n   force group = photos\n   create mask = 0660\n   directory mask = 0770";
-  fwrite($fh, $stringData);
-  fclose($fh);
-
-  $myFile = "/etc/samba/shares.conf";
-  $fh = fopen($myFile, 'a') or die("not able to write to file");
-  $stringData = "\ninclude = /etc/samba/shares/photos";
-  fwrite($fh, $stringData);
-  fclose($fh);
-    
-  if(empty($config_ad_enabled)){
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
-  }     
-
-  exec("docker run -d --name lychee --net=my-network -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/lychee:/config -v /volumes/$volume/photos:/pictures linuxserver/lychee");
-  
-  header("Location: apps.php");
-}
-
-if(isset($_GET['update_lychee'])){
-
-  $group_id = exec("getent group photos | cut -d: -f3");
-  $volume_path = exec("find /volumes/*/photos -name 'photos'");
-
-  exec("docker pull linuxserver/lychee");
-  exec("docker stop lychee");
-  exec("docker rm lychee");
-
-  exec("docker run -d --name lychee -p 4560:80 --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/lychee/config:/config -v $volume_path:/pictures linuxserver/lychee");
-
-  exec("docker image prune");
-  
-  header("Location: apps.php");
-}
-
-if(isset($_GET['uninstall_lychee'])){
+if(isset($_GET['uninstall_daapd'])){
   //stop and delete docker container
-  exec("docker stop lychee");
-  exec("docker rm lychee");
-  //delete media group
-  exec ("delgroup photos");
-  //get path to media directory
-  $path = exec("find /volumes/*/photos -name photos");
-  //delete media directory
-  exec ("rm -rf $path"); //Delete
+  exec("docker stop daapd");
+  exec("docker rm daapd");
   //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/lychee");
-  //delete samba share
-  exec ("rm -f /etc/samba/shares/photos");
-  deleteLineInFile("/etc/samba/shares.conf","photos");
-  //restart samba
-  if(empty($config_ad_enabled)){
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
-  }
+  exec ("rm -rf /volumes/$config_docker_volume/docker/daapd");
+  //Remove unused docker images
+  exec("docker image prune");
   //redirect back to packages
   header("Location: apps.php");
 }
@@ -971,7 +942,6 @@ if(isset($_POST['install_nextcloud'])){
   exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/support");
   exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/survey_client");
   exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/firstrunwizard");
-
 
   if($install_apps == 1){
     //Install Apps
@@ -1179,38 +1149,6 @@ if(isset($_GET['uninstall_dokuwiki'])){
   header("Location: apps.php");
 }
 
-if(isset($_GET['install_bookstack'])){
-
-  mkdir("/volumes/$config_docker_volume/docker/bookstack/");
-  mkdir("/volumes/$config_docker_volume/docker/mariadb_bookstack");
-
-  exec("docker run -d --name mariadb_bookstack --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=bookstack -e MYSQL_USER=bookstack -e MYSQL_PASSWORD=password --restart=unless-stopped -v /volumes/$config_docker_volume/docker/mariadb_bookstack:/config linuxserver/mariadb");
-
-  //$mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_bookstack");  
-
-  exec("docker run -d --name bookstack --net=my-network -p 84:80 --restart=unless-stopped -e DB_HOST=mariadb_bookstack -e DB_USER=bookstack -e DB_PASS=password -e DB_DATABASE=bookstack -v /volumes/$config_docker_volume/docker/bookstack:/config linuxserver/bookstack");
-  
-  header("Location: apps.php");
-}
-
-if(isset($_GET['uninstall_bookstack'])){
-  //stop and delete docker container
-  exec("docker stop bookstack");
-  exec("docker rm bookstack");
-  exec("docker stop mariadb_bookstack");
-  exec("docker rm mariadb_bookstack");
-
-  //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/bookstack");
-  exec ("rm -rf /volumes/$config_docker_volume/docker/mariadb_bookstack");
-
-  //delete images
-  exec("docker image prune");
-
-  //redirect back to packages
-  header("Location: apps.php");
-}
-
 if(isset($_GET['install_bitwarden'])){
 
   mkdir("/volumes/$config_docker_volume/docker/bitwarden/");
@@ -1270,14 +1208,6 @@ if(isset($_GET['uninstall_gitea'])){
   exec("docker image prune");
 
   //redirect back to packages
-  header("Location: apps.php");
-}
-
-if(isset($_GET['install_syncthing'])){
-  mkdir("/volumes/$config_docker_volume/docker/syncthing/");
-  mkdir("/volumes/$config_docker_volume/docker/syncthing/config");
-
-  exec("docker run -d --name syncthing -p 8384:8384 -p 22000:22000 -p 21027:21027/udp --restart=unless-stopped -v /volumes/$config_docker_volume/docker/syncthing/config:/config -v /volumes/$config_docker_volume/users/johnny:/volumes/johnny -e PGID=100 -e PUID=1000 linuxserver/syncthing");
   header("Location: apps.php");
 }
 
@@ -1569,57 +1499,6 @@ if(isset($_GET['uninstall_transmission'])){
     exec("systemctl restart smbd");
     exec("systemctl restart nmbd");
   }
-
-  //delete images
-  exec("docker image prune");
-
-  //redirect back to packages
-  header("Location: apps.php");
-}
-
-if(isset($_GET['install_doublecommander'])){
-
-  mkdir("/volumes/$config_docker_volume/docker/doublecommander");
-
-  exec("docker run --name doublecommander --restart=unless-stopped -e PGID=0 -e PUID=0 -v /volumes/$config_docker_volume/docker/doublecommander:/config -v /mnt/backupvol/bighunk:/data linuxserver/doublecommander");
-  header("Location: apps.php");
-}
-
-if(isset($_GET['uninstall_doublecommander'])){
-  //stop and delete docker container
-  exec("docker stop doublecommander");
-  exec("docker rm doublecommander");
-
-  //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/doublecommander");
-  //redirect back to packages
-  header("Location: apps.php");
-}
-
-if(isset($_GET['install_snipeit'])){
-
-  mkdir("/volumes/$config_docker_volume/docker/snipeit/");
-  mkdir("/volumes/$config_docker_volume/docker/mariadb_snipeit");
-
-  exec("docker run -d --name mariadb_snipeit -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=snipeit -e MYSQL_USER=snipeit -e MYSQL_PASSWORD=password --restart=unless-stopped -v /volumes/$config_docker_volume/docker/mariadb_snipeit:/config linuxserver/mariadb");
-
-  //$mariadb_ip = exec("docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb_snipeit");  
-
-  exec("docker run -d --name snipeit --net=my-network -p 83:80 --restart=unless-stopped -e DB_HOST=mariadb_snipeit -e MYSQL_USER=snipeit -e MYSQL_PASSWORK=password -e MYSQL_DATABASE=snipeit -v /volumes/$config_docker_volume/docker/snipeit:/config linuxserver/snipe-it");
-  
-  header("Location: apps.php");
-}
-
-if(isset($_GET['uninstall_snipeit'])){
-  //stop and delete docker container
-  exec("docker stop snipeit");
-  exec("docker rm snipeit");
-  exec("docker stop mariadb_snipeit");
-  exec("docker rm mariadb_snipeit");
-
-  //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/snipeit");
-  exec ("rm -rf /volumes/$config_docker_volume/docker/mariadb_snipeit");
 
   //delete images
   exec("docker image prune");
