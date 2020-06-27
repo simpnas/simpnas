@@ -41,6 +41,7 @@
             $volume = basename(dirname($path));
             $comment = $sambaConfigArray['comment'];
             $group = $sambaConfigArray['force group'];
+            $read_only = $sambaConfigArray['read only'];
             $used_space = exec("du -sh $path | awk '{print $1}'");
 
         ?>
@@ -48,11 +49,14 @@
         <tr>
           <td>
             <span class="mr-2" data-feather="folder"></span><strong><?php echo $share; ?></strong>
+            <?php if($read_only == 1){ echo "<small class='text-danger'>Read Only</small>"; } ?>
             <br>
             <div class="ml-4 text-secondary"><?php echo $volume; ?></div>
           </td>
           <td><?php echo $comment; ?></td>
-          <td><?php echo $group; ?></td>
+          <td>
+            <?php echo $group; ?>
+          </td>
           <td><?php echo $used_space; ?></td>
           <td>
           	<div class="btn-group mr-2">
