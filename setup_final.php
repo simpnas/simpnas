@@ -29,6 +29,7 @@
 	  <div class="form-group">
 	    <label>Administrator Password</label>
 	    <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password" autofocus>
+	    <small class="form-text text-muted">We will create a username called administrator you will be able to login with this user via web UI.</small>
 	  </div>
 
 	  <div class="form-group">
