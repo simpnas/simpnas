@@ -1781,7 +1781,6 @@ if(isset($_POST['setup_final'])){
     exec ("useradd -g users -d /volumes/$volume_name/users/administrator administrator");
     exec ("echo '$password\n$password' | passwd administrator");
     exec ("usermod -a -G admins administrator");
-    exec ("usermod -a -G sudo administrator");
     exec ("echo '$password\n$password' | smbpasswd -a administrator");
     exec ("chown -R administrator /volumes/$volume_name/users/administrator");
   }

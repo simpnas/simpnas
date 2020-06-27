@@ -33,9 +33,10 @@ apt update
 #echo "=================================================================================="
 #docker network create my-network
 echo "=================================================================================="
-echo "Adding group admins"
+echo "Adding group admins and adding the group to the sudoers allow list                "
 echo "=================================================================================="
 groupadd admins
+echo '%admins   ALL=(ALL:ALL) ALL' > /etc/sudoers.d/admins
 echo "=================================================================================="
 echo "Allowing SSH Root Login..."
 echo "=================================================================================="
