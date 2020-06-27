@@ -14,6 +14,7 @@
   $mounted_volume = basename(dirname($path));
   $comment = $shareConfigArray['comment'];
   $share_group = $shareConfigArray['force group'];
+  $read_only = $shareConfigArray['read only'];
 
 ?>
 
@@ -66,6 +67,11 @@
 	    <label>Description</label>
 	    <textarea class="form-control" name="description" rows=3><?php echo $comment; ?></textarea>
 	  </div>
+
+	  <div class="form-group form-check">
+	    <input type="checkbox" class="form-check-input" name="read_only" value=1 <?php if($read_only == 1){ echo "checked"; } ?>>
+	    <label class="form-check-label ml-1">Read Only</label>
+		</div>
 	  
 	  <div class="form-group">
 			<label>Group Access</label>

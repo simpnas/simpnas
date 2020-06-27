@@ -51,9 +51,14 @@
 	    <label>Description</label>
 	    <textarea class="form-control" name="description" rows=3></textarea>
 	  </div>
+
+	  <div class="form-group form-check">
+	    <input type="checkbox" class="form-check-input" name="read_only" value=1>
+	    <label class="form-check-label ml-1">Read Only</label>
+		</div>
 	  
 	  <div class="form-group">
-			<label>Group Access:</label>
+			<label>Group Access</label>
 			<select class="form-control" name="group" required>
 		  	<option>users</option>
 		  	<?php

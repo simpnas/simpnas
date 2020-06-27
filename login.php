@@ -9,7 +9,7 @@ if(isset($_POST['login'])){
   
   $username = $_POST['username'];
   $password = $_POST['password'];
-  
+
   $logged_in = exec("bash /simpnas/verify.sh $username $password");
 
   if($logged_in == 1){

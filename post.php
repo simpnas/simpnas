@@ -427,7 +427,14 @@ if(isset($_POST['share_add'])){
   $name = $_POST['name'];
   $description = $_POST['description'];
   $share_path = "/volumes/$volume/$name";
+  $read_only = intval($_POST['read_only']);
   $group = $_POST['group'];
+  
+  if($read_only == 1){
+    $read_only_value = "yes";
+  }else{
+    $read_only_value = "no";
+  }
   
   //Checks
   exec("ls /etc/samba/shares",$existing_shares_array);
@@ -454,7 +461,7 @@ if(isset($_POST['share_add'])){
 
     $myFile = "/etc/samba/shares/$name";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
+    $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = $read_only_value\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
     fwrite($fh, $stringData);
     fclose($fh);
 
@@ -483,6 +490,13 @@ if(isset($_POST['share_edit'])){
   $current_description = $_POST['current_description'];
   $current_share_path = "/volumes/$current_volume/$current_name";
   $current_group = $_POST['current_group'];
+  $read_only = intval($_POST['read_only']);
+
+  if($read_only == 1){
+    $read_only_value = "yes";
+  }else{
+    $read_only_value = "no";
+  }
 
   if($name <> $current_name){
 
@@ -525,7 +539,7 @@ if(isset($_POST['share_edit'])){
 
   $myFile = "/etc/samba/shares/$name";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
+  $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = $read_only_value\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
   fwrite($fh, $stringData);
   fclose($fh);
 

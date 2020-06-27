@@ -61,9 +61,13 @@
             <?php } ?>  
           </td>
           <td>
+            <?php if($config_home_volume != $volume){ ?>
             <div class="btn-group mr-2">
               <a href="post.php?volume_delete=<?php echo $volume; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
             </div>
+            <?php }else{ ?>
+            <div class="p-3">
+            <?php } ?>
           </td>
         </tr>
         <?php 
