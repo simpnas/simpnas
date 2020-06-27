@@ -46,7 +46,9 @@
             <td>
               <div class="btn-group mr-2">
                 <a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
-                <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+                <?php if($username !== "administrator"){ ?>
+                  <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+                <?php } ?>
               </div>
             </td>
           </tr>

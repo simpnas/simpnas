@@ -48,7 +48,7 @@ if(count($not_in_use_disks_array) > 0){
 	    <select class="form-control" name="disk" required>
 	  		<option value=''>--Select A Disk--</option>
 			  	<?php
-					foreach($not_in_use_disks_array as $disk){
+				foreach($not_in_use_disks_array as $disk){
 		        $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Family:' | awk '{print $3,$4,$5}'");
 				  if(empty($disk_vendor)){
 				    $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Device Model:' | awk '{print $3,$4,$5}'");
@@ -56,7 +56,9 @@ if(count($not_in_use_disks_array) > 0){
 				  if(empty($disk_vendor)){
 				    $disk_vendor = exec("lsblk -n -o kname,type,vendor /dev/$disk | grep disk  | awk '{print $3}'");
 				  }
-			    $disk_model = exec("lsblk -n -o kname,type,model /dev/$disk | grep disk  | awk '{print $3}'");
+				  if(empty($disk_vendor)){
+				    $disk_vendor = exec("lsblk -n -o kname,type,model /dev/$disk | grep disk  | awk '{print $3}'");
+				  }
 			    $disk_serial = exec("lsblk -n -o kname,type,serial /dev/$disk | grep disk  | awk '{print $3}'");
 			    $disk_size = exec("lsblk -n -o kname,type,size /dev/$disk | grep disk | awk '{print $3}'");
 				?>
