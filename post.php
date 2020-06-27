@@ -158,6 +158,7 @@ if(isset($_POST['group_add'])){
   }else{
     if(empty($config_ad_enabled)){
       exec("addgroup $group");
+      exec ("usermod -a -G $group administrator");
     }else{
       exec("samba-tool group add $group");
     }
@@ -757,6 +758,7 @@ if(isset($_POST['install_jellyfin'])){
   if(empty($group_id)){
     exec ("addgroup media");
     $group_id = exec("getent group media | cut -d: -f3");
+    exec ("usermod -a -G media administrator");
   }
 
   if(!file_exists("$media_volume_path")) {
@@ -855,6 +857,7 @@ if(isset($_POST['install_daapd'])){
   if(empty($group_id)){
     exec ("addgroup media");
     $group_id = exec("getent group media | cut -d: -f3");
+    exec ("usermod -a -G media administrator");
   }
 
   if(!file_exists("$media_volume_path")) {
@@ -1304,6 +1307,7 @@ if(isset($_POST['install_unifi-video'])){
   if(!file_exists("/volumes/$config_docker_volume/unifi-video")) {
     exec ("addgroup video-surveillance");
     $group_id = exec("getent group video-surveillance | cut -d: -f3");
+    exec ("usermod -a -G video-surveillance administrator");
 
     mkdir("/volumes/$volume/video-surveillance");
     mkdir("/volumes/$config_docker_volume/docker/unifi-video");
@@ -1406,6 +1410,7 @@ if(isset($_POST['install_transmission'])){
     
   exec ("addgroup download");
   $group_id = exec("getent group download | cut -d: -f3");
+  exec ("usermod -a -G download administrator");
 
   mkdir("/volumes/$volume/downloads");
   mkdir("/volumes/$volume/downloads/completed");
