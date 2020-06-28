@@ -50,12 +50,12 @@
                 <?php if($username !== "administrator"){ ?>
                   <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
                   <?php if(empty($user_disabled)){ ?>
-                  <a href="post.php?disable_user=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="user-x"></span></a>
+                  <a href="post.php?disable_user=<?php echo $username; ?>" class="btn btn-outline-warning"><span data-feather="user-x"></span></a>
                   <?php }else{ ?>
-                    <a href="post.php?enable_user=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="user-check"></span></a>
+                  <a href="post.php?enable_user=<?php echo $username; ?>" class="btn btn-outline-success"><span data-feather="user-check"></span></a>
                   <?php } ?>
                 <?php } ?>
-                   
+
               </div>
             </td>
           </tr>

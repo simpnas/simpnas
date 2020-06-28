@@ -151,7 +151,7 @@ if(isset($_GET['disable_user'])){
   //exec("systemctl restart smbd");
   //exec("systemctl restart nmbd");
 
-  $_SESSION['alert_type'] = "danger";
+  $_SESSION['alert_type'] = "warning";
   $_SESSION['alert_message'] = "User $username Disabled!";
   
   header("Location: users.php");
@@ -170,8 +170,8 @@ if(isset($_GET['enable_user'])){
   //exec("systemctl restart smbd");
   //exec("systemctl restart nmbd");
 
-  $_SESSION['alert_type'] = "danger";
-  $_SESSION['alert_message'] = "User $username Disabled!";
+  $_SESSION['alert_type'] = "info";
+  $_SESSION['alert_message'] = "User $username Enabled!";
   
   header("Location: users.php");
 }
