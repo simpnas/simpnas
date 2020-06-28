@@ -138,6 +138,44 @@ if(isset($_GET['user_delete'])){
   header("Location: users.php");
 }
 
+if(isset($_GET['disable_user'])){
+  $username = $_GET['disable_user'];
+
+  if(empty($config_ad_enabled)){
+    exec("usermod -L $username");
+    exec("smbpasswd -d $username");
+  }else{
+    exec ("samba-tool user disable $username");
+  }
+  
+  //exec("systemctl restart smbd");
+  //exec("systemctl restart nmbd");
+
+  $_SESSION['alert_type'] = "danger";
+  $_SESSION['alert_message'] = "User $username Disabled!";
+  
+  header("Location: users.php");
+}
+
+if(isset($_GET['enable_user'])){
+  $username = $_GET['enable_user'];
+
+  if(empty($config_ad_enabled)){
+    exec("usermod -U $username");
+    exec("smbpasswd -e $username");
+  }else{
+    exec ("samba-tool user enable $username");
+  }
+  
+  //exec("systemctl restart smbd");
+  //exec("systemctl restart nmbd");
+
+  $_SESSION['alert_type'] = "danger";
+  $_SESSION['alert_message'] = "User $username Disabled!";
+  
+  header("Location: users.php");
+}
+
 if(isset($_POST['group_add'])){
   $group = $_POST['group'];
 

@@ -38,6 +38,7 @@
         foreach($username_array as $username){
           $groups = str_replace(' ',", ",exec("groups $username | sed 's/\($username\| : \)//g'")); //replace space with a , and a space makes it look neater
           $home_dir_usage = exec("du -sh /volumes/$config_home_volume/users/$username | awk '{print $1}'");
+          $user_disabled = exec("cat /etc/shadow | grep $username | grep '!'");
         ?>
           <tr>
             <td><span class="mr-2" data-feather="user"></span><?php echo $username; ?></td>
@@ -48,7 +49,13 @@
                 <a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
                 <?php if($username !== "administrator"){ ?>
                   <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+                  <?php if(empty($user_disabled)){ ?>
+                  <a href="post.php?disable_user=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="user-x"></span></a>
+                  <?php }else{ ?>
+                    <a href="post.php?enable_user=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="user-check"></span></a>
+                  <?php } ?>
                 <?php } ?>
+                   
               </div>
             </td>
           </tr>
