@@ -135,6 +135,9 @@
       foreach($volume_array as $volume){
         //check to see if mounted
         $mounted = exec("df | grep -w $volume");
+        if($volume == "sys-vol"){
+          $mounted = 1;
+        }
         if(!empty($mounted)){
           $hdd = exec("findmnt -n -o SOURCE --target /volumes/$volume | cut -c -8");
           $hdd_vendor = exec("smartctl -i $hdd | grep 'Model Family:' | awk '{print $3,$4,$5}'");
@@ -166,7 +169,36 @@
 
         <!-- Graphs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
-<script>
+<script>  
+
+  <?php
+  if(file_exists('/volumes/sys-vol')){
+    $total_space = exec("df | grep -w / | awk '{print $2}'");
+    $total_space_formatted = exec("df -h | grep -w / | awk '{print $2}'");
+    $used_space = exec("df | grep -w / | awk '{print $3}'");
+    $used_space_formatted = exec("df -h | grep -w / | awk '{print $3}'");
+    $free_space = exec("df | grep -w /volumes/$volume | awk '{print $4}'");
+    $free_space_formatted = exec("df -h | grep -w / | awk '{print $4}'");
+    $used_space_percent = exec("df | grep -w / | awk '{print $5}'");
+  ?>
+
+    new Chart(document.getElementById("doughnutChartsys-vol"), {
+      type: 'doughnut',
+      data: {
+        labels: ["<?php echo $used_space_formatted; ?> Used", "<?php echo $free_space_formatted; ?> Available"],
+        datasets: [
+          {
+            backgroundColor: ["<?php if($used_space_percent > 85){ echo '#d9534f'; }else{ echo '#007bff'; } ?>", "#99999"],
+            data: [<?php echo $used_space; ?>,<?php echo $free_space; ?>]    
+          }
+        ]
+      }
+    });
+  
+  <?php
+  }
+  ?>
+
   <?php 
   foreach($volume_array as $volume){
     $mounted = exec("df | grep $volume");

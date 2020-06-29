@@ -480,6 +480,9 @@ if(isset($_POST['share_add'])){
   exec("find /volumes/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
   $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "users");
   $mounted = exec("df | grep $volume");
+  if($volume == "sys-vol"){
+    $mounted = 1;
+  }
   
   if(in_array($name, $existing_shares_array)){
     $_SESSION['alert_type'] = "warning";
@@ -1730,7 +1733,7 @@ if(isset($_POST['setup_volume'])){
 }
 
 if(isset($_POST['setup_use_system_volume'])){
-  exec ("mkdir /volumes/system_volume");
+  exec ("mkdir /volumes/sys-vol");
   header("Location: setup_final.php");
 }
 
