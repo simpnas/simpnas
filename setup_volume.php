@@ -18,7 +18,11 @@
 	  </ol>
 	</nav>
   
-  <h2>Volume Creation</h2>
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+    <h2>Volume Creation</h2>
+    <a href="setup_volume.php" class="btn btn-outline-secondary">Rescan for new Disks</a>
+  </div>
+
   <hr>
 
   <?php include("alert_message.php"); ?>
@@ -59,8 +63,8 @@
 	  	</select>
 	  	<small class="form-text text-muted">This volume will house your docker configs and user home Directories</small>
 	  </div>
-	  
 	  <button type="submit" name="setup_volume" class="btn btn-primary">Next <span data-feather="arrow-right"></span></button>
+	  <button type="submit" name="setup_use_system_volume" class="btn btn-link float-right">Skip - Use System Volume</button>
 	</form>
 </main>
 

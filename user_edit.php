@@ -19,11 +19,11 @@
   	$group_array = array_diff($all_groups_array,$ad_builtin_groups_array);
   	$group_member_array = explode(' ',exec("groups $username"));
 
-  	$first_name = exec("samba-tool user show $username | grep givenName: | cut -d\  -f2-");
-	  $last_name = exec("samba-tool user show $username | grep sn: | cut -d\  -f2-");
-	  $description = exec("samba-tool user show $username | grep description: | cut -d\  -f2-");
-	  $email = exec("samba-tool user show $username | grep mail: | cut -d\  -f2-");
-	  $phone = exec("samba-tool user show $username | grep telephoneNumber: | cut -d\  -f2-");
+  	$first_name = exec("samba-tool user show $username --attributes=givenName | grep given | cut -d\  -f2-");
+	  $last_name = exec("samba-tool user show $username --attributes=sn | grep sn | cut -d\  -f2-");
+	  $description = exec("samba-tool user show $username --attributes=description | grep description | cut -d\  -f2-");
+	  $email = exec("samba-tool user show $username --attributes=mail | grep mail | cut -d\  -f2-");
+	  $phone = exec("samba-tool user show $username --attributes=telephoneNumber | grep telephoneNumber | cut -d\  -f2-");
   }
 
 ?>

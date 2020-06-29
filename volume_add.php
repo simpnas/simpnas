@@ -32,7 +32,10 @@
 if(count($not_in_use_disks_array) > 0){ 
 ?>
 
-  <h2>Create Volume</h2>
+	<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+    <h2>Create Volume</h2>
+    <a href="volume_add.php" class="btn btn-outline-secondary">Rescan for new Disks</a>
+  </div>
 
   <?php include("alert_message.php"); ?>
 

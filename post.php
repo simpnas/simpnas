@@ -1729,6 +1729,11 @@ if(isset($_POST['setup_volume'])){
   header("Location: setup_final.php");
 }
 
+if(isset($_POST['setup_use_system_volume'])){
+  exec ("mkdir /volumes/system_volume");
+  header("Location: setup_final.php");
+}
+
 if(isset($_POST['setup_final'])){
   $volume_name = exec("ls /volumes");
   $password = $_POST['password'];

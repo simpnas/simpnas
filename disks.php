@@ -11,7 +11,7 @@
 
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
     <h2>Disks</h2>
-    <a href="disks.php" class="btn btn-outline-secondary">Refresh</a>
+    <a href="disks.php" class="btn btn-outline-secondary">Rescan</a>
   </div>
 
   <?php include("alert_message.php"); ?>

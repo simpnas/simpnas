@@ -6,12 +6,15 @@
   include("side_nav.php");
   
   exec("ls /volumes", $volume_array);
+  
   foreach($volume_array as $volume){
-  	exec("findmnt -n -o SOURCE --target /volumes/$volume | cut -c -8", $has_volume_disk);
-  	exec("findmnt -n -o SOURCE --target / | cut -c -8", $has_volume_disk); //adds OS Drive to the array
+  	exec("lsblk -n -o pkname,mountpoint | grep -w volumes | awk '{print $1}'", $has_volume_disk_array);
+  	exec("lsblk -n -o pkname,mountpoint | grep -w / | awk '{print $1}'", $has_volume_disk_array); //adds OS Drive to the array
   }
-  exec("smartctl --scan | awk '{print $1}'", $drive_list);
-  $not_in_use_disks_array = array_diff($drive_list, $has_volume_disk);
+  
+  exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | awk '{print $1}'", $disk_list_array);
+  
+  $not_in_use_disks_array = array_diff($disk_list_array, $has_volume_disk_array);
 
 ?>
 
