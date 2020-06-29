@@ -1,8 +1,8 @@
 <?php
 
-	//if(file_exists('config.php')){
-	  //header("Location: login.php");
-	//}
+	if(file_exists('config.php')){
+	  header("Location: login.php");
+	}
 
 	include("functions.php");
 
