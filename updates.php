@@ -6,14 +6,18 @@
   include("side_nav.php");
 
   if(isset($_GET['check'])){
+    //fetch the latest code changes but don't apply them
+    exec("git fetch");
     $latest_version = exec("gitrev-parse origin/master");
     $current_version = exec("git rev-parse HEAD");
 
     if($current_version == $latest_version){
-      $simpnas_update = "No Updates for SimpNAS";
+      $simpnas_update = "No Updates for SimpNAS!";
     }else{
-      $simpnas_update = "New SimpNAS update Avalable [$latest_version]";
+      $simpnas_update = "New SimpNAS update Available [$latest_version]";
     }
+
+    $git_log = shell_exec("git log master..origin/master --pretty=format:'<tr><td>%h</td><td>%an</td><td>%ar</td><td>%s</td></tr>'");
 
     exec("apt update");
   }
@@ -40,6 +44,23 @@
     ?>
     <a href="post.php?upgrade_simpnas_overwrite_local_changes" class="btn btn-outline-secondary" onclick="$('#cover-spin').show(0)">Upgrade SimpNAS</a>
   </div>
+  
+  <table class="table ">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>By</th>
+        <th>When</th>
+        <th>Changes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php 
+      echo $git_log;
+      ?>
+    </tbody>
+  </table>
+
   <?php
   if(!empty($packages_array)){
   ?>
