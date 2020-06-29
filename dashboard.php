@@ -12,6 +12,8 @@
 
   exec("ls /volumes", $volume_array);
 
+  $simpnas_version = exec("git rev-parse --short HEAD");
+
   $free_memory = exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
   $free_memory = floor($free_memory);
   //$cpu_usage = exec("top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\([0-9.]*\)%* id.*/\1/' | awk '{print 100 - $1'%'}'");
@@ -78,6 +80,11 @@
         <tr>
           <td>Server Name</td>
           <th><?php echo $config_hostname; ?></th>
+        </tr>
+
+        <tr>
+          <td>SimpNAS Vesion</td>
+          <td><?php echo $simpnas_version; ?></td>
         </tr>
 
         <tr>

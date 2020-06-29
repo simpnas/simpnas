@@ -1732,7 +1732,7 @@ if(isset($_POST['setup_volume'])){
   header("Location: setup_final.php");
 }
 
-if(isset($_POST['setup_use_system_volume'])){
+if(isset($_GET['setup_use_system_volume'])){
   exec ("mkdir /volumes/sys-vol");
   header("Location: setup_final.php");
 }
@@ -1861,7 +1861,9 @@ if(isset($_POST['setup_final'])){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
   }
 
-  header("Location: reboot.php");
+  //header("Location: reboot.php");
+
+  header("Location: login.php");
 
 }
 

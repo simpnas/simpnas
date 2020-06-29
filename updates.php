@@ -6,6 +6,15 @@
   include("side_nav.php");
 
   if(isset($_GET['check'])){
+    $latest_version = exec("gitrev-parse origin/master");
+    $current_version = exec("git rev-parse HEAD");
+
+    if($current_version == $latest_version){
+      $simpnas_update = "No Updates for SimpNAS";
+    }else{
+      $simpnas_update = "New SimpNAS update Avalable [$latest_version]";
+    }
+
     exec("apt update");
   }
 
@@ -21,11 +30,11 @@
 
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
     <h2>Updates</h2>
-    <a href="?check" class="btn btn-outline-primary" onclick="$('#cover-spin').show(0)">Check For OS Updates</a>
+    <a href="?check" class="btn btn-outline-primary" onclick="$('#cover-spin').show(0)">Check For Updates</a>
     <?php
     if(!empty($packages_array)){
     ?>  
-      <a href="?upgrade" class="btn btn-outline-secondary" onclick="$('#cover-spin').show(0)">Upgrade OS Packages</a>
+      <a href="?upgrade" class="btn btn-outline-secondary" onclick="$('#cover-spin').show(0)">Upgrade All Packages</a>
     <?php
     }
     ?>
