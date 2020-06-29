@@ -17,7 +17,7 @@
       $simpnas_update = "New SimpNAS update Available [$latest_version]";
     }
 
-    $git_log = shell_exec("git log master..origin/master --pretty=format:'<tr><td>%h</td><td>%an</td><td>%ar</td><td>%s</td></tr>'");
+    $git_log = shell_exec("git log master..origin/master --pretty=format:'<tr><td>%h</td><td>%ar</td><td>%s</td></tr>'");
 
     exec("apt update");
   }
@@ -48,8 +48,7 @@
   <table class="table ">
     <thead>
       <tr>
-        <th>ID</th>
-        <th>By</th>
+        <th>Commit</th>
         <th>When</th>
         <th>Changes</th>
       </tr>
