@@ -17,15 +17,24 @@ echo "==========================================================================
 DEBIAN_FRONTEND=noninteractive \apt dist-upgrade -y
 echo "=================================================================================="
 echo "Installing Additional Required Packages..."
-echo "Samba, PHP, SMARTmonTools, Rsync, mdadm (RAID) etc"
+echo "Samba, PHP, Rsync, mdadm (RAID) etc"
 echo "=================================================================================="
-DEBIAN_FRONTEND=noninteractive \apt install samba smartmontools rsync php-cgi cryptsetup git mdadm apt-transport-https curl gnupg-agent software-properties-common quota dnsutils -y
+DEBIAN_FRONTEND=noninteractive \apt install samba rsync php-cgi cryptsetup git mdadm apt-transport-https curl gnupg-agent software-properties-common quota dnsutils -y
 echo "================================================================================="
 echo "Install Docker Repo"
 echo "================================================================================="
 curl -fsSL https://download.docker.com/linux/$(lsb_release -s -i | tr '[:upper:]' '[:lower:]')/gpg | apt-key add -
 add-apt-repository "deb [arch=$(dpkg --print-architecture)] https://download.docker.com/linux/$(lsb_release -s -i | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable"
+#Check to see if its a standard Debian install or Armbian if its Debian then add the backports REPO as this repo is already added on Armbian by default.
+if [ ! -f /etc/armbian-release ]; then
+  add-apt-repository "deb http://deb.debian.org/debian buster-backports main contrib non-free"
+fi
 apt update
+echo "=================================================================================="
+echo "Installing Backport version of SMARTmonTools"
+echo "=================================================================================="
+DEBIAN_FRONTEND=noninteractive \apt -t buster-backports install smartmontools -y
+echo "================================================================================="
 #apt install docker-ce docker-ce-cli containerd.io -y
 #apt install docker.io -y
 #echo "=================================================================================="
