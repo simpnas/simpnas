@@ -38,13 +38,21 @@
     <?php
     if(!empty($packages_array)){
     ?>  
-      <a href="?upgrade" class="btn btn-outline-secondary" onclick="$('#cover-spin').show(0)">Upgrade All Packages</a>
+      <a href="?upgrade" class="btn btn-outline-secondary" onclick="$('#cover-spin').show(0)">Upgrade OS Packages</a>
     <?php
     }
     ?>
+    <?php
+    if(!empty($git_log)){
+    ?>
     <a href="post.php?upgrade_simpnas_overwrite_local_changes" class="btn btn-outline-secondary" onclick="$('#cover-spin').show(0)">Upgrade SimpNAS</a>
+    <?php
+    }
+    ?>
   </div>
-  
+  <?php
+  if(!empty($packages_array)){
+  ?>  
   <table class="table ">
     <thead>
       <tr>
@@ -59,6 +67,9 @@
       ?>
     </tbody>
   </table>
+  <?php
+  }
+  ?>
 
   <?php
   if(!empty($packages_array)){
