@@ -41,7 +41,7 @@
           $user_disabled = exec("cat /etc/shadow | grep $username | grep '!'");
         ?>
           <tr>
-            <td><span class="mr-2" data-feather="user"></span><div class="<?php if(empty($user_disabled)){ echo "text-danger"; } ?>"><?php echo $username; ?></div></td>
+            <td><span class="mr-2" data-feather="user"></span><?php echo $username; ?></td>
             <td><?php echo $groups; ?></td>
             <td><?php echo $home_dir_usage; ?></td>
             <td>
