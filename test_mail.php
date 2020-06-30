@@ -9,12 +9,9 @@
   // These must be at the top of your script, not inside a function
   use PHPMailer\PHPMailer\PHPMailer;
   use PHPMailer\PHPMailer\SMTP;
-  use PHPMailer\PHPMailer\Exception;
 
-  require 'plugins/PHPMailer/src/Exception.php';
-  require 'plugins/PHPMailer/src/PHPMailer.php';
-  require 'plugins/PHPMailer/src/SMTP.php';
-
+  require 'plugins/PHPMailer/PHPMailer.php';
+  require 'plugins/PHPMailer/SMTP.php';
 
   ?>
 

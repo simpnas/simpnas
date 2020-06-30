@@ -1,13 +1,12 @@
 			</div>
 		</div>
 		
-		<script src="js/jquery.min.js"></script>
-		<script src="js/bootstrap.bundle.min.js"></script>
-		<script src="plugins/Inputmask/dist/jquery.inputmask.min.js"></script>
-		<script src="plugins/Inputmask/dist/bindings/inputmask.binding.js"></script>
-		<script src="plugins/bootstrap-select/js/bootstrap-select.min.js"></script>
-		<script src="plugins/bootstrap-show-password/dist/bootstrap-show-password.esm.min.js"></script>
-		<script src="js/feather.min.js"></script>
+		<script src="plugins/jQuery/jquery.min.js"></script>
+		<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<script src="plugins/Inputmask/jquery.inputmask.min.js"></script>
+		<script src="plugins/Inputmask/inputmask.binding.js"></script>
+		<script src="plugins/bootstrap-show-password/bootstrap-show-password.esm.min.js"></script>
+		<script src="plugins/feather-icons/feather.min.js"></script>
     
     <script>
       feather.replace()
