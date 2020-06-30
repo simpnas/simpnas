@@ -51,7 +51,7 @@
     ?>
   </div>
   <?php
-  if(!empty($packages_array)){
+  if(!empty($git_log)){
   ?>  
   <table class="table ">
     <thead>
