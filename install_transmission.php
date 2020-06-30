@@ -34,7 +34,7 @@
 				exec("ls /volumes", $volume_list);
 				foreach ($volume_list as $volume) {
 					$mounted = exec("df | grep $volume");
-					if(!empty($mounted)){
+					if(!empty($mounted) OR file_exists('/volumes/sys-vol')){
 				?>
 					<option><?php echo "$volume"; ?></option>	
 					<?php 
