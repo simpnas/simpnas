@@ -58,7 +58,7 @@
     ),
     array(
       "title" => "Bitwarden RS",
-      "description" => "Password Manager",
+      "description" => "Password Manager -- Note: Bitwarden will not work properly unless remote access is enabled because Bitwarden requires HTTPS.",
       "website" => "https://bitwarden.org",
       "image" => "bitwarden.png",
       "container_name" => "bitwarden",
