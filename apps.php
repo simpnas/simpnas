@@ -202,7 +202,7 @@
                 if(file_exists("/volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app[container_name].subdomain.conf")){ ?>
                   <a href="https://<?php echo "$app[external_hostname].$domain"; ?>" target="_blank" class="btn btn-outline-dark"><span data-feather="cloud"></span></a>
                 <?php
-                }elseif(!empty($app[external_hostname])){
+                }elseif(!empty($app[external_hostname]) AND !empty($domain)){
                 ?>
                   <a href="https://post.php?enable_remote_access=<?php echo "$app[container_name]"; ?>" class="btn btn-outline-primary">En Remote</a>
                 <?php
