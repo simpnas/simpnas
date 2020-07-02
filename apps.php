@@ -6,6 +6,10 @@
   include("side_nav.php");
 
   $image_size = 48;
+
+  if(file_exists("/volumes/$config_docker_volume/docker/letsencrypt/")){ 
+    $domain = exec("cat /volumes/$config_docker_volume/docker/letsencrypt/donoteditthisfile.conf | awk -F\\\" '{print $2}'");
+  }
   
   $apps_array = array(
     array(
@@ -87,7 +91,7 @@
     ),
     array(
       "title" => "Gitea",
-      "description" => "GIT Repo Manager.",
+      "description" => "GIT Repo Manager. Incompatible with ARM",
       "website" => "https://gitea.io",
       "image" => "gitea.png",
       "container_name" => "gitea",
@@ -162,34 +166,56 @@
         
         <tr>
           <td class="text-center text-muted">
-            <img src="img/apps/<?php echo $app['image']; ?>" height="<?php echo $image_size; ?>" width="<?php echo $image_size; ?>" class="img-fluid rounded">
+            <img src="img/apps/<?php echo $app[image]; ?>" height="<?php echo $image_size; ?>" width="<?php echo $image_size; ?>" class="img-fluid rounded">
             <br>
             <?php echo $app['title']; ?>
             <br>
-            <?php if(file_exists("/volumes/$config_docker_volume/docker/".$app['container_name']."")) { ?>
+            <?php if(file_exists("/volumes/$config_docker_volume/docker/$app[container_name]")) { ?>
             <small class="text-success"><span data-feather="check"></span>Installed</small>
             <?php } ?>
           </td>
           <td>
-            <?php echo $app['description']; ?>
+            <?php echo $app[description]; ?>
             <?php if($app['title'] == 'Transmission'){ ?> 
-               <p class="text-secondary">VPN IP: <strong><?php $vpn_ip = exec("docker exec -i transmission curl ifconfig.co"); echo $vpn_ip; ?></strong></p>
+              <p class="text-secondary">VPN IP: <strong><?php $vpn_ip = exec("docker exec -i transmission curl ifconfig.co"); echo $vpn_ip; ?></strong></p>
             <?php } ?>
+            <?php 
+              if(file_exists("/volumes/$config_docker_volume/docker/$app[container_name]")) {
+            ?>
+            <br><br><small class="text-secondary"><?php echo exec("docker inspect -f '{{ index .Config.Labels \"build_version\" }}' $app[container_name]"); ?></small>
+
+            <?php
+            }
+            ?>    
+
           </td>
           <td>
             <div class="btn-group mr-2">
               <?php 
-                if(file_exists("/volumes/$config_docker_volume/docker/".$app['container_name']."")) {
+              if(file_exists("/volumes/$config_docker_volume/docker/$app[container_name]")) {
               ?>
-                <a href="<?php echo $app['protocol']; ?><?php echo $config_primary_ip; ?>:<?php echo $app['local_port']; ?>" target="_blank" class="btn btn-outline-primary"><span data-feather="external-link"></span></a>
-                <a href="post.php?uninstall_<?php echo $app['container_name']; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+                <a href="<?php echo $app[protocol]; ?><?php echo $config_primary_ip; ?>:<?php echo $app[local_port]; ?>" target="_blank" class="btn btn-outline-primary"><span data-feather="external-link"></span></a>
+                <a href="post.php?uninstall_<?php echo $app[container_name]; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+                <a href="docker_logs.php?docker_app=<?php echo $app[container_name]; ?>" class="btn btn-outline-secondary"><span data-feather="clock"></span></a>
+
+                <?php 
+                if(file_exists("/volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app[container_name].subdomain.conf")){ ?>
+                  <a href="https://<?php echo "$app[external_hostname].$domain"; ?>" target="_blank" class="btn btn-outline-dark"><span data-feather="cloud"></span></a>
+                <?php
+                }elseif(!empty($app[external_hostname])){
+                ?>
+                  <a href="https://post.php?enable_remote_access=<?php echo "$app[container_name]"; ?>" class="btn btn-outline-primary">En Remote</a>
+                <?php
+                }
+                ?>
               <?php
               }else{
               ?>
-              <a href="<?php echo $app['install']; ?>" class="btn btn-outline-success" onclick="$('#cover-spin').show(0)">Install</a>
+              <a href="<?php echo $app[install]; ?>" class="btn btn-outline-success" onclick="$('#cover-spin').show(0)">Install</a>
               <?php  
               }
               ?>
+
             </div>
           </td>
         </tr>
