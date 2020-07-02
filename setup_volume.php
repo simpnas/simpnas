@@ -64,7 +64,7 @@
 	  	<small class="form-text text-muted">This volume will house your docker configs and user home Directories</small>
 	  </div>
 	  <button type="submit" name="setup_volume" class="btn btn-primary">Next <span data-feather="arrow-right"></span></button>
-	  <a href="post.php?setup_use_system_volume" class="float-right">Skip - Use System Volume</a>
+	  <a href="post.php?setup_use_system_volume" class="float-right text-muted">Skip - Use System Volume (NOT RECOMMENDED)</a>
 	</form>
 </main>
 
