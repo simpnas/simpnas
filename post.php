@@ -1210,9 +1210,18 @@ if(isset($_GET['uninstall_dokuwiki'])){
 
 if(isset($_GET['install_bitwarden'])){
 
+  $cpu_arch = exec("dpkg --print-architecture");
+  if($cpu_arch == "amd64"){
+    $tag = "latest";
+  }elseif($cpu_arch == "armhf"){
+    $tag = "armv6";
+  }else{
+    $tag = "aarch64";
+  }
+
   mkdir("/volumes/$config_docker_volume/docker/bitwarden/");
 
-  exec("docker run -d --name bitwarden --net=my-network -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
+  exec("docker run -d --name bitwarden --net=my-network -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:$tag");
   
   header("Location: apps.php");
 }
