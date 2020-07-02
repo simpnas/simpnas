@@ -115,7 +115,7 @@
       "title" => "Unifi Video",
       "description" => "NVR",
       "website" => "https://ui.com",
-      "image" => "unifi-video2.png",
+      "image" => "unifi-video.png",
       "container_name" => "unifi-video",
       "external_hostname" => "unifi-video",
       "local_port" => 7443,
