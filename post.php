@@ -1743,9 +1743,9 @@ if(isset($_POST['setup_volume'])){
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");
   if($filesystem == "ext4"){
-    $stringData = "UUID=$uuid    /volumes/$name      $filesystem    rw,relatime,data=ordered 0 2\n";
+    $stringData = "UUID=$uuid    /volumes/$volume_name      $filesystem    rw,relatime,data=ordered 0 2\n";
   }else{
-    $stringData = "UUID=$uuid    /volumes/$name      $filesystem    defaults 0 0\n";
+    $stringData = "UUID=$uuid    /volumes/$volume_name      $filesystem    defaults 0 0\n";
   }
   fwrite($fh, $stringData);
   fclose($fh);
