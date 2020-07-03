@@ -9,6 +9,7 @@ include("functions.php");
 if(isset($_GET['upgrade_simpnas'])){
   exec("cd /simpnas");
   exec("git pull origin master");
+  include("post_upgrade.php");
   header("Location: index.php");
 }
 

@@ -1,6 +1,8 @@
 <?php
 
+//Post Upgrade Tasks
+
 //Install BTRFS to enable support for the filesystem
-exec("apt install btrfs-progs");
+exec("apt install btrfs-progs -y");
 
 ?>
