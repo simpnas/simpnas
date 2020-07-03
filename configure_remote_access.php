@@ -5,7 +5,7 @@
   include("header.php");
   include("side_nav.php");
 
-  exec("ls /volumes/$config_docker_volume/docker | grep -v mariadb | grep -v letsencrypt | grep -v transmission", $apps_array);
+  exec("ls /volumes/$config_docker_volume/docker | grep -v mariadb | grep -v letsencrypt | grep -v transmission | grep -v daapd", $apps_array);
   foreach($apps_array as $app){
   	if($app == 'nextcloud'){
   		$sub_domains_array[] = 'cloud';
