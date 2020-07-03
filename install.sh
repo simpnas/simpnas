@@ -17,9 +17,9 @@ echo "==========================================================================
 DEBIAN_FRONTEND=noninteractive \apt dist-upgrade -y
 echo "=================================================================================="
 echo "Installing Additional Required Packages..."
-echo "Samba, PHP, Rsync, mdadm (RAID) etc"
+echo "Samba, PHP, Rsync, mdadm (RAID), BTRFS etc"
 echo "=================================================================================="
-DEBIAN_FRONTEND=noninteractive \apt install samba rsync php-cgi cryptsetup git mdadm apt-transport-https curl gnupg-agent software-properties-common quota dnsutils -y
+DEBIAN_FRONTEND=noninteractive \apt install samba rsync php-cgi cryptsetup git mdadm apt-transport-https curl gnupg-agent software-properties-common quota dnsutils btrfs-progs -y
 echo "================================================================================="
 echo "Install Docker Repo"
 echo "================================================================================="

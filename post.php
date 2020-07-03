@@ -330,6 +330,7 @@ if(isset($_GET['mount_volume'])){
 if(isset($_POST['volume_add'])){
   $name = trim($_POST['name']);
   $disk = $_POST['disk'];
+  $filesystem = $_POST['filesystem'];
   
   exec ("ls /volumes/",$volumes_array);
 
@@ -347,17 +348,17 @@ if(isset($_POST['volume_add'])){
       $password = $_POST['password'];
       exec ("echo -e '$password' | cryptsetup -q luksFormat /dev/$diskpart");
       exec ("echo -e '$password' | cryptsetup open /dev/$diskpart crypt$name");
-      exec ("mkfs.ext4 /dev/mapper/crypt$name");    
+      exec ("mkfs.$filesystem /dev/mapper/crypt$name");    
       exec ("mount /dev/mapper/crypt$name /volumes/$name");
     }else{
-      exec ("mkfs.ext4 /dev/$diskpart");
+      exec ("mkfs.$filesystem /dev/$diskpart");
       exec ("mount /dev/$diskpart /volumes/$name");  
       
       $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
 
       $myFile = "/etc/fstab";
       $fh = fopen($myFile, 'a') or die("can't open file");
-      $stringData = "UUID=$uuid    /volumes/$name      ext4    rw,relatime,data=ordered 0 2\n";
+      $stringData = "UUID=$uuid    /volumes/$name      $filesystem    rw,relatime,data=ordered 0 2\n";
       fwrite($fh, $stringData);
       fclose($fh);
     }

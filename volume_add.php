@@ -73,6 +73,14 @@ if(count($not_in_use_disks_array) > 0){
 
 	  	</select>
 	  </div>
+
+	  <div class="form-group">
+	    <label>File System</label>
+	    <select class="form-control" name="filesystem" required>
+	  		<option value='ext4'>EXT4</option>
+	  		<option value='btrfs'>BTRFS</option>
+	  	</select>
+	  </div>
 	 
 	  <button type="submit" name="volume_add" class="btn btn-primary">Submit</button>
 	
