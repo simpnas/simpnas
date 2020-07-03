@@ -1152,6 +1152,8 @@ if(isset($_POST['configure_remote_access'])){
   //Tell Bots to not index our pages
   exec("sed -i '/all ssl related config/ i add_header X-Robots-Tag \\\"noindex, nofollow, nosnippet, noarchive\\\";' /volumes/$config_docker_volume/docker/letsencrypt/nginx/site-confs/default");
 
+  exec("echo 'Nothing!' > /volumes/$config_docker_volume/docker/letsencrypt/www/index.html");
+
   header("Location: configure_remote_access.php");
 }
 

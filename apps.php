@@ -14,7 +14,7 @@
   $apps_array = array(
     array(
       "title" => "Nextcloud",
-      "description" => "Access and share your files anywhere over the Internet",
+      "description" => "Groupware, file sharing platform",
       "website" => "https://nextcloud.com",
       "image" => "nextcloud.png",
       "container_name" => "nextcloud",
@@ -47,7 +47,7 @@
     ),
     array(
       "title" => "Transmission",
-      "description" => "BitTorrent Download Client",
+      "description" => "Web based BitTorrent Download Client",
       "website" => "https://transmission.org",
       "image" => "transmission.png",
       "container_name" => "transmission",
@@ -69,7 +69,7 @@
     ),
     array(
       "title" => "Home Assistant",
-      "description" => "Home Automation (Control Lights, switches, smart devices)",
+      "description" => "Home Automation (Control Lights, switches, smart devices etc)",
       "website" => "https://homeassistant.com",
       "image" => "homeassistant.png",
       "container_name" => "homeassistant",
@@ -80,7 +80,7 @@
     ),
     array(
       "title" => "Dokuwiki",
-      "description" => "Make some notes.",
+      "description" => "Documentation portal and group collaboration.",
       "website" => "https://dokuwiki.com",
       "image" => "dokuwiki.png",
       "container_name" => "dokuwiki",
@@ -91,7 +91,7 @@
     ),
     array(
       "title" => "Gitea",
-      "description" => "GIT Repo Manager. Incompatible with ARM",
+      "description" => "GIT Repo Manager. -- Note: Incompatible with ARM based CPUs.",
       "website" => "https://gitea.io",
       "image" => "gitea.png",
       "container_name" => "gitea",
@@ -102,7 +102,7 @@
     ),
     array(
       "title" => "Unifi Controller",
-      "description" => "Manage Unifi network devices.",
+      "description" => "Manage Ubiquiti network devices.",
       "website" => "https://dokuwiki.com",
       "image" => "unifi.png",
       "container_name" => "unifi-controller",
@@ -113,7 +113,7 @@
     ),
     array(
       "title" => "Unifi Video",
-      "description" => "NVR",
+      "description" => "Unifi's Camera NVR platform only compatible with ubiquiti cameras. -- Note: Inompatible with ARM CPUs",
       "website" => "https://ui.com",
       "image" => "unifi-video.png",
       "container_name" => "unifi-video",
@@ -201,10 +201,6 @@
                 <?php 
                 if(file_exists("/volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app[container_name].subdomain.conf")){ ?>
                   <a href="https://<?php echo "$app[external_hostname].$domain"; ?>" target="_blank" class="btn btn-outline-dark"><span data-feather="cloud"></span></a>
-                <?php
-                }elseif(!empty($app[external_hostname]) AND !empty($domain)){
-                ?>
-                  <a href="https://post.php?enable_remote_access=<?php echo "$app[container_name]"; ?>" class="btn btn-outline-primary">En Remote</a>
                 <?php
                 }
                 ?>
