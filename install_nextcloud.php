@@ -28,6 +28,26 @@
 		  <label>Nextcloud Admin Password</label>
 		  <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password">
 		</div>
+
+		<div class="form-group">
+	    <label>Choose a volume for your Nextcloud Data</label>
+	    <select class="form-control" name="data_volume" required>
+  	  	<?php
+        exec("ls /volumes", $volume_list);
+        foreach ($volume_list as $volume) {
+          $mounted = exec("df | grep $volume");
+          if(!empty($mounted) OR file_exists('/volumes/sys-vol')){
+        ?>
+          <option><?php echo "$volume"; ?></option> 
+          <?php 
+          } 
+          ?>
+        <?php
+        }
+        ?>
+
+	    </select>
+	  </div>
 		
 		<div class="form-group form-check">
 	    <input type="checkbox" class="form-check-input" name="enable_samba_auth" value="1" id="sambaAuth">

@@ -75,20 +75,32 @@
       <div class="alert alert-success">
         <span data-feather="check"></span> System is Healthy
       </div>
-      <table class="table table-borderless mb-5">
+      <legend>Overview</legend>
+
+      <table class="table mb-5">
         
         <tr>
-          <td>Server Name</td>
+          <td>Hostname</td>
           <th><?php echo $config_hostname; ?></th>
         </tr>
 
+         <tr>
+          <td>OS</td>
+          <td><?php echo $OS; ?></td>
+        </tr>
+
         <tr>
-          <td>SimpNAS Vesion</td>
+          <td>Kernel</td>
+          <td><?php echo $kernel; ?></td>
+        </tr>
+
+        <tr>
+          <td>Vesion</td>
           <td><?php echo $simpnas_version; ?></td>
         </tr>
 
         <tr>
-          <td>LAN IP Address</td>
+          <td>IP</td>
           <td><?php echo $config_primary_ip; ?></td>
         </tr>  
 
@@ -135,9 +147,109 @@
       
       </table>
 
+      <div class="row">
+          <div class="col-md-12">
+            <legend>Stats</legend>
+            <hr>
+          </div>
+          
+          <div class="col-md-4 mb-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Users</h5>
+                <p class="card-text"><?php echo $num_of_users; ?></p>
+              </div>
+            </div>
+          </div>
+    
+          <div class="col-md-4 mb-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Groups</h5>
+                <p class="card-text"><?php echo $num_of_groups; ?></p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Apps</h5>
+                <p class="card-text"><?php echo $num_of_apps; ?></p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card text-center border-t-danger">
+              <div class="card-body">
+                <h5 class="card-title">Disks</h5>
+                <p class="card-text"><?php echo $num_of_disks; ?></p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Volumes</h5>
+                <p class="card-text"><?php echo $num_of_volumes; ?></p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Shares</h5>
+                <p class="card-text"><?php echo $num_of_shares; ?></p>
+              </div>
+            </div>
+          </div>
+      
+      </div> <!-- nested /row -->
+
+      <div class="row">
+          <div class="col-md-12">
+            <legend>Services</legend>
+            <hr>
+          </div>
+          
+          <div class="col-md-4 mb-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Samba (File Share)</h5>
+                <p class="card-text"><?php echo $status_service_smbd; ?></p>
+              </div>
+            </div>
+          </div>
+    
+          <div class="col-md-4 mb-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">SSH (Remote Terminal Shell)</h5>
+                <p class="card-text"><?php echo $status_service_ssh; ?></p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Docker (Apps)</h5>
+                <p class="card-text"><?php echo $status_service_docker; ?></p>
+              </div>
+            </div>
+          </div>
+      
+      </div> <!-- nested /row -->
+
+
     </div> <!-- /col-6 -->
+
+
+
+
     
     <div class="col-md-6">
+
+      <legend class="text-center mb-3">Volumes</legend>
+      
       <?php
       foreach($volume_array as $volume){
         //check to see if mounted

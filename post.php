@@ -973,16 +973,19 @@ if(isset($_POST['install_nextcloud'])){
   $enable_samba_auth = $_POST['enable_samba_auth'];
   $enable_samba_mount = $_POST['enable_samba_mount'];
   $install_apps = $_POST['install_apps'];
+  $data_volume = $_POST['data_volume'];
 
   mkdir("/volumes/$config_docker_volume/docker/nextcloud");
-  mkdir("/volumes/$config_docker_volume/docker/nextcloud/appdata");
   mkdir("/volumes/$config_docker_volume/docker/nextcloud/data");
+  mkdir("/volumes/$data_volume/nextcloud_data");
+  mkdir("/volumes/$data_volume/nextcloud_data/appdata");
+  
 
   mkdir("/volumes/$config_docker_volume/docker/nextcloud_mariadb");
 
   exec("docker run -d --name nextcloud_mariadb --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
 
-  exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/appdata:/config -v /volumes/$config_docker_volume/docker/nextcloud/data:/data linuxserver/nextcloud");
+  exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/data:/data -v /volumes/$data_volume/nextcloud_data/appdata:/config linuxserver/nextcloud");
 
   exec("sleep 80");
   
@@ -1090,9 +1093,12 @@ if(isset($_GET['uninstall_nextcloud'])){
   exec("docker stop nextcloud_mariadb");
   exec("docker rm nextcloud_mariadb");
 
+  $nextcloud_data_volume_path = exec("find /volumes/*/nextcloud_data -name nextcloud_data");
+
   //delete docker config
   exec ("rm -rf /volumes/$config_docker_volume/docker/nextcloud");
   exec ("rm -rf /volumes/$config_docker_volume/docker/nextcloud_mariadb");
+  exec ("rm -rf $nextcloud_data_volume_path");
   
   //delete images
   exec("docker image prune");
