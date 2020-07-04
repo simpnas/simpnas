@@ -905,62 +905,70 @@ if(isset($_GET['uninstall_jellyfin'])){
 }
 
 if(isset($_POST['install_daapd'])){
-  $volume = $_POST['volume'];
-  
-  $media_volume_path = exec("find /volumes/*/media -name media");
-  
-  $group_id = exec("getent group media | cut -d: -f3");
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
+  }else{
 
-  if(empty($group_id)){
-    exec ("addgroup media");
+    $volume = $_POST['volume'];
+    
+    $media_volume_path = exec("find /volumes/*/media -name media");
+    
     $group_id = exec("getent group media | cut -d: -f3");
-    exec ("usermod -a -G media administrator");
-  }
 
-  if(!file_exists("$media_volume_path")) {
-
-    mkdir("/volumes/$volume/media");
-    mkdir("/volumes/$volume/media/tvshows");
-    mkdir("/volumes/$volume/media/movies");
-    mkdir("/volumes/$volume/media/music");
-    
-
-    chgrp("/volumes/$volume/media","media");
-    chgrp("/volumes/$volume/media/tvshows","media");
-    chgrp("/volumes/$volume/media/movies","media");
-    chgrp("/volumes/$volume/media/music","media");
-    
-    
-    chmod("/volumes/$volume/media",0770);
-    chmod("/volumes/$volume/media/tvshows",0770);
-    chmod("/volumes/$volume/media/movies",0770);
-    chmod("/volumes/$volume/media/music",0770);
-    
-    
-    $myFile = "/etc/samba/shares/media";
-    $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[media]\n   comment = Video and Audio Media\n   path = /volumes/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
-    fwrite($fh, $stringData);
-    fclose($fh);
-
-    $myFile = "/etc/samba/shares.conf";
-    $fh = fopen($myFile, 'a') or die("not able to write to file");
-    $stringData = "\ninclude = /etc/samba/shares/media";
-    fwrite($fh, $stringData);
-    fclose($fh);
-    
-    if(empty($config_ad_enabled)){
-      exec("systemctl restart smbd");
-      exec("systemctl restart nmbd");
+    if(empty($group_id)){
+      exec ("addgroup media");
+      $group_id = exec("getent group media | cut -d: -f3");
+      exec ("usermod -a -G media administrator");
     }
 
+    if(!file_exists("$media_volume_path")) {
+
+      mkdir("/volumes/$volume/media");
+      mkdir("/volumes/$volume/media/tvshows");
+      mkdir("/volumes/$volume/media/movies");
+      mkdir("/volumes/$volume/media/music");
+      
+
+      chgrp("/volumes/$volume/media","media");
+      chgrp("/volumes/$volume/media/tvshows","media");
+      chgrp("/volumes/$volume/media/movies","media");
+      chgrp("/volumes/$volume/media/music","media");
+      
+      
+      chmod("/volumes/$volume/media",0770);
+      chmod("/volumes/$volume/media/tvshows",0770);
+      chmod("/volumes/$volume/media/movies",0770);
+      chmod("/volumes/$volume/media/music",0770);
+      
+      
+      $myFile = "/etc/samba/shares/media";
+      $fh = fopen($myFile, 'w') or die("not able to write to file");
+      $stringData = "[media]\n   comment = Video and Audio Media\n   path = /volumes/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
+      fwrite($fh, $stringData);
+      fclose($fh);
+
+      $myFile = "/etc/samba/shares.conf";
+      $fh = fopen($myFile, 'a') or die("not able to write to file");
+      $stringData = "\ninclude = /etc/samba/shares/media";
+      fwrite($fh, $stringData);
+      fclose($fh);
+      
+      if(empty($config_ad_enabled)){
+        exec("systemctl restart smbd");
+        exec("systemctl restart nmbd");
+      }
+
+    }
+
+    mkdir("/volumes/$config_docker_volume/docker/daapd");
+    chgrp("/volumes/$config_docker_volume/docker/daapd","media");
+    chmod("/volumes/$config_docker_volume/docker/daapd",0770);
+
+    exec("docker run -d --name daapd --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/daapd:/config -v /volumes/$volume/media/music:/music linuxserver/daapd");
   }
-
-  mkdir("/volumes/$config_docker_volume/docker/daapd");
-  chgrp("/volumes/$config_docker_volume/docker/daapd","media");
-  chmod("/volumes/$config_docker_volume/docker/daapd",0770);
-
-  exec("docker run -d --name daapd --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/daapd:/config -v /volumes/$volume/media/music:/music linuxserver/daapd");
   
   header("Location: apps.php");
 }
@@ -979,99 +987,107 @@ if(isset($_GET['uninstall_daapd'])){
 
 if(isset($_POST['install_nextcloud'])){
 
-  $password = $_POST['password'];
-  $enable_samba_auth = $_POST['enable_samba_auth'];
-  $enable_samba_mount = $_POST['enable_samba_mount'];
-  $install_apps = $_POST['install_apps'];
-  $data_volume = $_POST['data_volume'];
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
+  }else{
 
-  mkdir("/volumes/$config_docker_volume/docker/nextcloud");
-  mkdir("/volumes/$config_docker_volume/docker/nextcloud/data");
-  mkdir("/volumes/$data_volume/nextcloud_data");
-  mkdir("/volumes/$data_volume/nextcloud_data/appdata");
-  
+    $password = $_POST['password'];
+    $enable_samba_auth = $_POST['enable_samba_auth'];
+    $enable_samba_mount = $_POST['enable_samba_mount'];
+    $install_apps = $_POST['install_apps'];
+    $data_volume = $_POST['data_volume'];
 
-  mkdir("/volumes/$config_docker_volume/docker/nextcloud_mariadb");
+    mkdir("/volumes/$config_docker_volume/docker/nextcloud");
+    mkdir("/volumes/$config_docker_volume/docker/nextcloud/data");
+    mkdir("/volumes/$data_volume/nextcloud_data");
+    mkdir("/volumes/$data_volume/nextcloud_data/appdata");
+    
 
-  exec("docker run -d --name nextcloud_mariadb --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
+    mkdir("/volumes/$config_docker_volume/docker/nextcloud_mariadb");
 
-  exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/data:/data -v /volumes/$data_volume/nextcloud_data/appdata:/config linuxserver/nextcloud");
+    exec("docker run -d --name nextcloud_mariadb --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
 
-  exec("sleep 80");
-  
-  exec("docker exec nextcloud rm -rf /config/www/nextcloud/core/skeleton");
-  if($enable_samba_mount == 1){
-    exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton");
-    exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton/Shared-Folders");
-  }
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='nextcloud_mariadb' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='admin' --admin-pass='$password'");
+    exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/data:/data -v /volumes/$data_volume/nextcloud_data/appdata:/config linuxserver/nextcloud");
 
-  //Add Trusted Hosts
-  $docker_gateway = exec("docker network inspect my-network | grep Gateway | awk '{print $2}' | sed 's/\\\"//g'");
-
-  //Add Hostname and Primary IP to trusted_domains list
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 2 --value=$config_hostname");
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 3 --value=$config_primary_ip");
-
-  //Disable Support, usage survey and first run wizard
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable support");
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable survey_client");
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable firstrunwizard");
-  exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/support");
-  exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/survey_client");
-  exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/firstrunwizard");
-
-  if($install_apps == 1){
-    //Install Apps
-    //Install Calendar
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install calendar");
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable calendar");
-    //Install Contacts
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install contacts");
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable contacts");
-    //Install Talk
-    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install spreed");
-    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable spreed");
-    //Install Community Document Server
-    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install documentserver_community");
-    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable documentserver_community");
-    //Install OnlyOffice
-    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install onlyoffice");
-    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable onlyoffice");
-    //Install Draw.IO
-    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install drawio");
-    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable drawio");
-    //Install Mail
-    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install mail");
-    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable mail");
-  }
-
-  //Set Auth Backend to SAMBA - Install External User Auth Support (For SAMBA Auth)
-  if($enable_samba_auth == 1){
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install user_external");
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable user_external");
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 arguments 0 --value=$docker_gateway");
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 class --value=OC_User_SMB");
-  }
-  
-  //Fix Setup DB Errors This may be able to removed in the future
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:add-missing-indices");
-  exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:convert-filecache-bigint");
-
-  if($enable_samba_mount == 1){
-    //Enable External Files Support for Samba mounts
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable files_external");
-    //Add Network Shares
-    //Add Users Home folder
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create Home 'smb' password::logincredentials -c host=$docker_gateway -c share='users/\$user' -c domain=WORKGROUP");
-    //Enable Nextcloud Sharing on Users Home 
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:option 1 enable_sharing true");
-    //Add All Other Shares
-    exec("ls /etc/samba/shares", $share_list);
-    foreach ($share_list as $share) {
-      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create /Shared-Folders/$share 'smb' password::logincredentials -c host=$docker_gateway -c share='$share' -c domain=WORKGROUP");
+    exec("sleep 80");
+    
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/core/skeleton");
+    if($enable_samba_mount == 1){
+      exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton");
+      exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton/Shared-Folders");
     }
-  }
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='nextcloud_mariadb' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='admin' --admin-pass='$password'");
+
+    //Add Trusted Hosts
+    $docker_gateway = exec("docker network inspect my-network | grep Gateway | awk '{print $2}' | sed 's/\\\"//g'");
+
+    //Add Hostname and Primary IP to trusted_domains list
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 2 --value=$config_hostname");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 3 --value=$config_primary_ip");
+
+    //Disable Support, usage survey and first run wizard
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable support");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable survey_client");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable firstrunwizard");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/support");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/survey_client");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/firstrunwizard");
+
+    if($install_apps == 1){
+      //Install Apps
+      //Install Calendar
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install calendar");
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable calendar");
+      //Install Contacts
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install contacts");
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable contacts");
+      //Install Talk
+      //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install spreed");
+      //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable spreed");
+      //Install Community Document Server
+      //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install documentserver_community");
+      //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable documentserver_community");
+      //Install OnlyOffice
+      //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install onlyoffice");
+      //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable onlyoffice");
+      //Install Draw.IO
+      //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install drawio");
+      //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable drawio");
+      //Install Mail
+      //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install mail");
+      //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable mail");
+    }
+
+    //Set Auth Backend to SAMBA - Install External User Auth Support (For SAMBA Auth)
+    if($enable_samba_auth == 1){
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:install user_external");
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable user_external");
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 arguments 0 --value=$docker_gateway");
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set user_backends 0 class --value=OC_User_SMB");
+    }
+    
+    //Fix Setup DB Errors This may be able to removed in the future
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:add-missing-indices");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:convert-filecache-bigint");
+
+    if($enable_samba_mount == 1){
+      //Enable External Files Support for Samba mounts
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:enable files_external");
+      //Add Network Shares
+      //Add Users Home folder
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create Home 'smb' password::logincredentials -c host=$docker_gateway -c share='users/\$user' -c domain=WORKGROUP");
+      //Enable Nextcloud Sharing on Users Home 
+      exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:option 1 enable_sharing true");
+      //Add All Other Shares
+      exec("ls /etc/samba/shares", $share_list);
+      foreach ($share_list as $share) {
+        exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ files_external:create /Shared-Folders/$share 'smb' password::logincredentials -c host=$docker_gateway -c share='$share' -c domain=WORKGROUP");
+      }
+    }
+  } //End Docker Check
 
   header("Location: apps.php");
 }
@@ -1196,10 +1212,19 @@ if(isset($_GET['uninstall_letsencrypt'])){
 
 if(isset($_GET['install_dokuwiki'])){
 
-  mkdir("/volumes/$config_docker_volume/docker/dokuwiki/");
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
+  }else{
 
-  exec("docker run -d --name dokuwiki --net=my-network -p 85:80 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/dokuwiki:/config linuxserver/dokuwiki");
+    mkdir("/volumes/$config_docker_volume/docker/dokuwiki/");
+
+    exec("docker run -d --name dokuwiki --net=my-network -p 85:80 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/dokuwiki:/config linuxserver/dokuwiki");
   
+  }
+
   header("Location: apps.php");
 }
 
@@ -1234,19 +1259,28 @@ if(isset($_GET['uninstall_dokuwiki'])){
 
 if(isset($_GET['install_bitwarden'])){
 
-  $cpu_arch = exec("dpkg --print-architecture");
-  if($cpu_arch == "amd64"){
-    $tag = "latest";
-  }elseif($cpu_arch == "armhf"){
-    $tag = "armv6";
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
-    $tag = "aarch64";
+
+
+    $cpu_arch = exec("dpkg --print-architecture");
+    if($cpu_arch == "amd64"){
+      $tag = "latest";
+    }elseif($cpu_arch == "armhf"){
+      $tag = "armv6";
+    }else{
+      $tag = "aarch64";
+    }
+
+    mkdir("/volumes/$config_docker_volume/docker/bitwarden/");
+
+    exec("docker run -d --name bitwarden --net=my-network -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:$tag");
   }
 
-  mkdir("/volumes/$config_docker_volume/docker/bitwarden/");
-
-  exec("docker run -d --name bitwarden --net=my-network -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:$tag");
-  
   header("Location: apps.php");
 }
 
@@ -1281,9 +1315,17 @@ if(isset($_GET['uninstall_bitwarden'])){
 
 if(isset($_GET['install_gitea'])){
 
-  mkdir("/volumes/$config_docker_volume/docker/gitea");
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
+  }else{
 
-  exec("docker run -d --name gitea --net=my-network -v /volumes/$config_docker_volume/docker/gitea:/data -p 3000:3000 -p 222:22 --restart=unless-stopped gitea/gitea:latest");
+    mkdir("/volumes/$config_docker_volume/docker/gitea");
+
+    exec("docker run -d --name gitea --net=my-network -v /volumes/$config_docker_volume/docker/gitea:/data -p 3000:3000 -p 222:22 --restart=unless-stopped gitea/gitea:latest");
+  }
   
   header("Location: apps.php");
 }
@@ -1304,9 +1346,18 @@ if(isset($_GET['uninstall_gitea'])){
 }
 
 if(isset($_GET['install_homeassistant'])){
-  mkdir("/volumes/$config_docker_volume/docker/homeassistant");
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
+  }else{
 
-  exec("docker run -d --name homeassistant --net=host --net=my-network --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
+    mkdir("/volumes/$config_docker_volume/docker/homeassistant");
+
+    exec("docker run -d --name homeassistant --net=host --net=my-network --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
+  }
+
   header("Location: apps.php");
 }
 
@@ -1340,9 +1391,17 @@ if(isset($_GET['uninstall_homeassistant'])){
 }
 
 if(isset($_GET['install_unifi-controller'])){
-  mkdir("/volumes/$config_docker_volume/docker/unifi-controller/");
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
+  }else{
 
-  exec("docker run -d --name unifi-controller --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/unifi-controller:/config linuxserver/unifi-controller");
+    mkdir("/volumes/$config_docker_volume/docker/unifi-controller/");
+
+    exec("docker run -d --name unifi-controller --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/unifi-controller:/config linuxserver/unifi-controller");
+  }
   header("Location: apps.php");
 }
 
@@ -1376,43 +1435,52 @@ if(isset($_GET['uninstall_unifi-controller'])){
 }
 
 if(isset($_POST['install_unifi-video'])){
-  $volume = $_POST['volume'];
-  
-  if(!file_exists("/volumes/$config_docker_volume/unifi-video")) {
-    exec ("addgroup video-surveillance");
-    $group_id = exec("getent group video-surveillance | cut -d: -f3");
-    exec ("usermod -a -G video-surveillance administrator");
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
+  }else{
 
-    mkdir("/volumes/$volume/video-surveillance");
-    mkdir("/volumes/$config_docker_volume/docker/unifi-video");
+    $volume = $_POST['volume'];
+    
+    if(!file_exists("/volumes/$config_docker_volume/unifi-video")) {
+      exec ("addgroup video-surveillance");
+      $group_id = exec("getent group video-surveillance | cut -d: -f3");
+      exec ("usermod -a -G video-surveillance administrator");
 
-    chgrp("/volumes/$volume/video-surveillance","video-surveillance");
-    chgrp("/volumes/$config_docker_volume/docker/unifi-video","video-surveillance");
-    
-    chmod("/volumes/$volume/video-surveillance",0770);
-    chmod("/volumes/$config_docker_volume/docker/unifi-video",0770);
-    
-    $myFile = "/etc/samba/shares/video-surveillance";
-    $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[video-surveillance]\n   comment = Surveillance Videos for Unifi Video\n   path = /volumes/$volume/video-surveillance\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @video-surveillance\n   force group = video-surveillance\n   create mask = 0660\n   directory mask = 0770";
-    fwrite($fh, $stringData);
-    fclose($fh);
+      mkdir("/volumes/$volume/video-surveillance");
+      mkdir("/volumes/$config_docker_volume/docker/unifi-video");
 
-    $myFile = "/etc/samba/shares.conf";
-    $fh = fopen($myFile, 'a') or die("not able to write to file");
-    $stringData = "\ninclude = /etc/samba/shares/video-surveillance";
-    fwrite($fh, $stringData);
-    fclose($fh);
-    
-    if(empty($config_ad_enabled)){
-      exec("systemctl restart smbd");
-      exec("systemctl restart nmbd");
+      chgrp("/volumes/$volume/video-surveillance","video-surveillance");
+      chgrp("/volumes/$config_docker_volume/docker/unifi-video","video-surveillance");
+      
+      chmod("/volumes/$volume/video-surveillance",0770);
+      chmod("/volumes/$config_docker_volume/docker/unifi-video",0770);
+      
+      $myFile = "/etc/samba/shares/video-surveillance";
+      $fh = fopen($myFile, 'w') or die("not able to write to file");
+      $stringData = "[video-surveillance]\n   comment = Surveillance Videos for Unifi Video\n   path = /volumes/$volume/video-surveillance\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @video-surveillance\n   force group = video-surveillance\n   create mask = 0660\n   directory mask = 0770";
+      fwrite($fh, $stringData);
+      fclose($fh);
+
+      $myFile = "/etc/samba/shares.conf";
+      $fh = fopen($myFile, 'a') or die("not able to write to file");
+      $stringData = "\ninclude = /etc/samba/shares/video-surveillance";
+      fwrite($fh, $stringData);
+      fclose($fh);
+      
+      if(empty($config_ad_enabled)){
+        exec("systemctl restart smbd");
+        exec("systemctl restart nmbd");
+      }
+
     }
+    
+    exec("docker run -d --name unifi-video --net=my-network --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -e DEBUG=1 -v /volumes/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /volumes/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
+  
+  } //End Docker Check
 
-  }
-  
-  exec("docker run -d --name unifi-video --net=my-network --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -e DEBUG=1 -v /volumes/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /volumes/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
-  
   header("Location: apps.php");
 
 }
@@ -1461,73 +1529,81 @@ if(isset($_GET['uninstall_unifi-video'])){
   header("Location: apps.php");
 }
 
-if(isset($_POST['install_transmission'])){
-  $volume = $_POST['volume'];
-  $enable_vpn = $_POST['enable_vpn'];
-  if($enable_vpn == 1){
-    $vpn_provider = $_POST['vpn_provider'];
-    $vpn_server = $_POST['vpn_server'];
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $dns = $_POST['dns'];
-    if(!empty($dns)){
-      $dns = "--dns $dns";
+if(isset($_POST['install_transmission'])){ 
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
+  }else{
+
+    $volume = $_POST['volume'];
+    $enable_vpn = $_POST['enable_vpn'];
+    if($enable_vpn == 1){
+      $vpn_provider = $_POST['vpn_provider'];
+      $vpn_server = $_POST['vpn_server'];
+      $username = $_POST['username'];
+      $password = $_POST['password'];
+      $dns = $_POST['dns'];
+      if(!empty($dns)){
+        $dns = "--dns $dns";
+      }
     }
-  }
 
-  $cpu_arch = exec("dpkg --print-architecture");
-  if($cpu_arch == "amd64"){
-    $cpu_arch = "";
-  }else{
-    $cpu_arch = "-$cpu_arch";
-  }
+    $cpu_arch = exec("dpkg --print-architecture");
+    if($cpu_arch == "amd64"){
+      $cpu_arch = "";
+    }else{
+      $cpu_arch = "-$cpu_arch";
+    }
+      
+    exec ("addgroup download");
+    $group_id = exec("getent group download | cut -d: -f3");
+    exec ("usermod -a -G download administrator");
+
+    mkdir("/volumes/$volume/downloads");
+    mkdir("/volumes/$volume/downloads/completed");
+    mkdir("/volumes/$volume/downloads/incomplete");
+    mkdir("/volumes/$volume/downloads/watch");
+    mkdir("/volumes/$config_docker_volume/docker/transmission");
+
+    chgrp("/volumes/$volume/downloads","download");
+    chgrp("/volumes/$volume/downloads/watch","download");
+    chgrp("/volumes/$volume/downloads/completed","download");
+    chgrp("/volumes/$volume/downloads/incomplete","download");
+    chgrp("/volumes/$volume/downloads/watch","download");
+    chgrp("/volumes/$config_docker_volume/docker/transmission","download");
+
+    chmod("/volumes/$volume/downloads",0770);
+    chmod("/volumes/$volume/downloads/completed",0770);
+    chmod("/volumes/$volume/downloads/incomplete",0770);
+    chmod("/volumes/$volume/downloads/watch",0770);
+    chmod("/volumes/$config_docker_volume/docker/transmission",0770);
     
-  exec ("addgroup download");
-  $group_id = exec("getent group download | cut -d: -f3");
-  exec ("usermod -a -G download administrator");
+    $myFile = "/etc/samba/shares/downloads";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /volumes/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
+    fwrite($fh, $stringData);
+    fclose($fh);
 
-  mkdir("/volumes/$volume/downloads");
-  mkdir("/volumes/$volume/downloads/completed");
-  mkdir("/volumes/$volume/downloads/incomplete");
-  mkdir("/volumes/$volume/downloads/watch");
-  mkdir("/volumes/$config_docker_volume/docker/transmission");
+    $myFile = "/etc/samba/shares.conf";
+    $fh = fopen($myFile, 'a') or die("not able to write to file");
+    $stringData = "\ninclude = /etc/samba/shares/downloads";
+    fwrite($fh, $stringData);
+    fclose($fh);
+      
+    if(empty($config_ad_enabled)){
+      exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
+    }
 
-  chgrp("/volumes/$volume/downloads","download");
-  chgrp("/volumes/$volume/downloads/watch","download");
-  chgrp("/volumes/$volume/downloads/completed","download");
-  chgrp("/volumes/$volume/downloads/incomplete","download");
-  chgrp("/volumes/$volume/downloads/watch","download");
-  chgrp("/volumes/$config_docker_volume/docker/transmission","download");
-
-  chmod("/volumes/$volume/downloads",0770);
-  chmod("/volumes/$volume/downloads/completed",0770);
-  chmod("/volumes/$volume/downloads/incomplete",0770);
-  chmod("/volumes/$volume/downloads/watch",0770);
-  chmod("/volumes/$config_docker_volume/docker/transmission",0770);
-  
-  $myFile = "/etc/samba/shares/downloads";
-  $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /volumes/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
-  fwrite($fh, $stringData);
-  fclose($fh);
-
-  $myFile = "/etc/samba/shares.conf";
-  $fh = fopen($myFile, 'a') or die("not able to write to file");
-  $stringData = "\ninclude = /etc/samba/shares/downloads";
-  fwrite($fh, $stringData);
-  fclose($fh);
-    
-  if(empty($config_ad_enabled)){
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
-  }
-
-  if($enable_vpn == 1){
-    exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG='$vpn_server' -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /volumes/$config_docker_volume/docker/transmission:/data/transmission-home -v /volumes/$volume/downloads/completed:/data/completed -v /volumes/$volume/downloads/incomplete:/data/incomplete -v /volumes/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn:latest$cpu_arch");
-    echo "VPN Docker installed";
-  }else{
-    exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/transmission:/config -v /volumes/$volume/downloads/watch:/watch -v /volumes/$volume/downloads:/downloads -v /volumes/$volume/downloads/completed:/downloads/complete -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
-  }
+    if($enable_vpn == 1){
+      exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG='$vpn_server' -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /volumes/$config_docker_volume/docker/transmission:/data/transmission-home -v /volumes/$volume/downloads/completed:/data/completed -v /volumes/$volume/downloads/incomplete:/data/incomplete -v /volumes/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn:latest$cpu_arch");
+      echo "VPN Docker installed";
+    }else{
+      exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/transmission:/config -v /volumes/$volume/downloads/watch:/watch -v /volumes/$volume/downloads:/downloads -v /volumes/$volume/downloads/completed:/downloads/complete -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
+    }
+  } //End Docker Check
   
   header("Location: apps.php");
 }
