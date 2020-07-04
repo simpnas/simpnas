@@ -52,19 +52,19 @@
   $status_service_docker = exec("systemctl status docker | grep running");
   $status_service_ssh = exec("systemctl status ssh | grep running");
   if(empty($status_service_smbd)){
-    $status_service_smbd = "<div class='text-danger'>Not Running</div>";
+    $status_service_smbd = "<i class='fa fa-circle text-danger'></i>";
   }else{
-    $status_service_smbd = "<div class='text-success'>Running</div>";
+    $status_service_smbd = "<i class='fa fa-circle text-success'></i>";
   }
   if(empty($status_service_docker)){
-    $status_service_docker = "<div class='text-danger'>Not Running</div>";
+    $status_service_docker = "<i class='fa fa-circle text-danger'></i>";
   }else{
-    $status_service_docker = "<div class='text-success'>Running</div>";
+    $status_service_docker = "<i class='fa fa-circle text-success'></i>";
   }
   if(empty($status_service_ssh)){
-    $status_service_ssh = "<div class='text-danger'>Not Running</div>";
+    $status_service_ssh = "<i class='fa fa-circle text-danger'></i>";
   }else{
-    $status_service_ssh = "<div class='text-success'>Running</div>";
+    $status_service_ssh = "<i class='fa fa-circle text-success'></i>";
   }
 
 ?>
@@ -73,7 +73,7 @@
   <div class="row">
     <div class="col-md-6">
       <div class="alert alert-success">
-        <span data-feather="check"></span> System is Healthy
+        <i class="fa fa-2x fa-check"></i> System is Healthy
       </div>
       <legend>Overview</legend>
 
@@ -156,7 +156,7 @@
           <div class="col-md-4 mb-4">
             <div class="card text-center">
               <div class="card-body">
-                <h5 class="card-title">Users</h5>
+                <h5 class="card-title"><i class="fa fa-user text-secondary"></i> Users</h5>
                 <p class="card-text"><?php echo $num_of_users; ?></p>
               </div>
             </div>
@@ -165,7 +165,7 @@
           <div class="col-md-4 mb-4">
             <div class="card text-center">
               <div class="card-body">
-                <h5 class="card-title">Groups</h5>
+                <h5 class="card-title"><i class="fa fa-users text-secondary"></i> Groups</h5>
                 <p class="card-text"><?php echo $num_of_groups; ?></p>
               </div>
             </div>
@@ -173,7 +173,7 @@
           <div class="col-md-4 mb-4">
             <div class="card text-center">
               <div class="card-body">
-                <h5 class="card-title">Apps</h5>
+                <h5 class="card-title"><i class="fa fa-cube text-secondary"></i> Apps</h5>
                 <p class="card-text"><?php echo $num_of_apps; ?></p>
               </div>
             </div>
@@ -181,7 +181,7 @@
           <div class="col-md-4 mb-4">
             <div class="card text-center border-t-danger">
               <div class="card-body">
-                <h5 class="card-title">Disks</h5>
+                <h5 class="card-title"><i class="fa fa-hdd text-secondary"></i> Disks</h5>
                 <p class="card-text"><?php echo $num_of_disks; ?></p>
               </div>
             </div>
@@ -189,7 +189,7 @@
           <div class="col-md-4 mb-4">
             <div class="card text-center">
               <div class="card-body">
-                <h5 class="card-title">Volumes</h5>
+                <h5 class="card-title"><i class="fa fa-database text-secondary"></i> Volumes</h5>
                 <p class="card-text"><?php echo $num_of_volumes; ?></p>
               </div>
             </div>
@@ -197,7 +197,7 @@
           <div class="col-md-4 mb-4">
             <div class="card text-center">
               <div class="card-body">
-                <h5 class="card-title">Shares</h5>
+                <h5 class="card-title"><i class="fa fa-folder text-secondary"></i> Shares</h5>
                 <p class="card-text"><?php echo $num_of_shares; ?></p>
               </div>
             </div>
@@ -214,7 +214,7 @@
           <div class="col-md-4 mb-4">
             <div class="card text-center">
               <div class="card-body">
-                <h5 class="card-title">Samba (File Share)</h5>
+                <h5 class="card-title"><i class="fa fa-server"></i> Samba</h5>
                 <p class="card-text"><?php echo $status_service_smbd; ?></p>
               </div>
             </div>
@@ -223,7 +223,7 @@
           <div class="col-md-4 mb-4">
             <div class="card text-center">
               <div class="card-body">
-                <h5 class="card-title">SSH (Remote Terminal Shell)</h5>
+                <h5 class="card-title"><i class="fa fa-terminal"></i> SSH</h5>
                 <p class="card-text"><?php echo $status_service_ssh; ?></p>
               </div>
             </div>
@@ -231,7 +231,7 @@
           <div class="col-md-4 mb-4">
             <div class="card text-center">
               <div class="card-body">
-                <h5 class="card-title">Docker (Apps)</h5>
+                <h5 class="card-title"><i class="fab fa-docker"></i> Docker</h5>
                 <p class="card-text"><?php echo $status_service_docker; ?></p>
               </div>
             </div>
@@ -249,7 +249,7 @@
     <div class="col-md-6">
 
       <legend class="text-center mb-3">Volumes</legend>
-      
+
       <?php
       foreach($volume_array as $volume){
         //check to see if mounted
