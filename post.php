@@ -796,72 +796,82 @@ if(isset($_POST['mail_edit'])){
 //APP SECTION
 
 if(isset($_POST['install_jellyfin'])){
-  $volume = $_POST['volume'];
-
-  $media_volume_path = exec("find /volumes/*/media -name media");
   
-  $group_id = exec("getent group media | cut -d: -f3");
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
+  }else{
 
-  if(empty($group_id)){
-    exec ("addgroup media");
+    $volume = $_POST['volume'];
+
+    $media_volume_path = exec("find /volumes/*/media -name media");
+    
     $group_id = exec("getent group media | cut -d: -f3");
-    exec ("usermod -a -G media administrator");
-  }
 
-  if(!file_exists("$media_volume_path")) {
-
-    mkdir("/volumes/$volume/media");
-    mkdir("/volumes/$volume/media/tvshows");
-    mkdir("/volumes/$volume/media/movies");
-    mkdir("/volumes/$volume/media/music");
-    
-
-    chgrp("/volumes/$volume/media","media");
-    chgrp("/volumes/$volume/media/tvshows","media");
-    chgrp("/volumes/$volume/media/movies","media");
-    chgrp("/volumes/$volume/media/music","media");
-    
-    
-    chmod("/volumes/$volume/media",0770);
-    chmod("/volumes/$volume/media/tvshows",0770);
-    chmod("/volumes/$volume/media/movies",0770);
-    chmod("/volumes/$volume/media/music",0770);
-    
-    
-    $myFile = "/etc/samba/shares/media";
-    $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[media]\n   comment = Video and Audio Media\n   path = /volumes/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
-    fwrite($fh, $stringData);
-    fclose($fh);
-
-    $myFile = "/etc/samba/shares.conf";
-    $fh = fopen($myFile, 'a') or die("not able to write to file");
-    $stringData = "\ninclude = /etc/samba/shares/media";
-    fwrite($fh, $stringData);
-    fclose($fh);
-    
-    if(empty($config_ad_enabled)){
-      exec("systemctl restart smbd");
-      exec("systemctl restart nmbd");
+    if(empty($group_id)){
+      exec ("addgroup media");
+      $group_id = exec("getent group media | cut -d: -f3");
+      exec ("usermod -a -G media administrator");
     }
 
+    if(!file_exists("$media_volume_path")) {
+
+      mkdir("/volumes/$volume/media");
+      mkdir("/volumes/$volume/media/tvshows");
+      mkdir("/volumes/$volume/media/movies");
+      mkdir("/volumes/$volume/media/music");
+      
+
+      chgrp("/volumes/$volume/media","media");
+      chgrp("/volumes/$volume/media/tvshows","media");
+      chgrp("/volumes/$volume/media/movies","media");
+      chgrp("/volumes/$volume/media/music","media");
+      
+      
+      chmod("/volumes/$volume/media",0770);
+      chmod("/volumes/$volume/media/tvshows",0770);
+      chmod("/volumes/$volume/media/movies",0770);
+      chmod("/volumes/$volume/media/music",0770);
+      
+      
+      $myFile = "/etc/samba/shares/media";
+      $fh = fopen($myFile, 'w') or die("not able to write to file");
+      $stringData = "[media]\n   comment = Video and Audio Media\n   path = /volumes/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
+      fwrite($fh, $stringData);
+      fclose($fh);
+
+      $myFile = "/etc/samba/shares.conf";
+      $fh = fopen($myFile, 'a') or die("not able to write to file");
+      $stringData = "\ninclude = /etc/samba/shares/media";
+      fwrite($fh, $stringData);
+      fclose($fh);
+      
+      if(empty($config_ad_enabled)){
+        exec("systemctl restart smbd");
+        exec("systemctl restart nmbd");
+      }
+
+    }
+
+    mkdir("/volumes/$config_docker_volume/docker/jellyfin");
+    mkdir("/volumes/$config_docker_volume/docker/jellyfin/config");
+    mkdir("/volumes/$config_docker_volume/docker/jellyfin/cache");
+
+    chgrp("/volumes/$config_docker_volume/docker/jellyfin","media");
+    chgrp("/volumes/$config_docker_volume/docker/jellyfin/config","media");
+    chgrp("/volumes/$config_docker_volume/docker/jellyfin/cache","media");
+
+    chmod("/volumes/$config_docker_volume/docker/jellyfin",0770);
+    chmod("/volumes/$config_docker_volume/docker/jellyfin/config",0770);
+    chmod("/volumes/$config_docker_volume/docker/jellyfin/cache",0770);
+
+
+
+    exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/jellyfin:/config -v /volumes/$volume/media/tvshows:/tvshows -v /volumes/$volume/media/movies:/movies -v /volumes/$volume/media/music:/music linuxserver/jellyfin");
+
   }
-
-  mkdir("/volumes/$config_docker_volume/docker/jellyfin");
-  mkdir("/volumes/$config_docker_volume/docker/jellyfin/config");
-  mkdir("/volumes/$config_docker_volume/docker/jellyfin/cache");
-
-  chgrp("/volumes/$config_docker_volume/docker/jellyfin","media");
-  chgrp("/volumes/$config_docker_volume/docker/jellyfin/config","media");
-  chgrp("/volumes/$config_docker_volume/docker/jellyfin/cache","media");
-
-  chmod("/volumes/$config_docker_volume/docker/jellyfin",0770);
-  chmod("/volumes/$config_docker_volume/docker/jellyfin/config",0770);
-  chmod("/volumes/$config_docker_volume/docker/jellyfin/cache",0770);
-
-
-
-  exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/jellyfin:/config -v /volumes/$volume/media/tvshows:/tvshows -v /volumes/$volume/media/movies:/movies -v /volumes/$volume/media/music:/music linuxserver/jellyfin");
   
   header("Location: apps.php");
 }

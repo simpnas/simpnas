@@ -10,6 +10,13 @@
   if(file_exists("/volumes/$config_docker_volume/docker/letsencrypt/")){ 
     $domain = exec("cat /volumes/$config_docker_volume/docker/letsencrypt/donoteditthisfile.conf | awk -F\\\" '{print $2}'");
   }
+
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $status_service_docker = "<i class='fa fa-circle text-danger'></i>";
+  }else{
+    $status_service_docker = "<i class='fa fa-circle text-success'></i>";
+  }
   
   $apps_array = array(
     array(
