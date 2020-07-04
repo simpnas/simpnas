@@ -352,7 +352,7 @@ if(isset($_POST['volume_add'])){
       exec ("mkfs.$filesystem /dev/mapper/crypt$name");    
       exec ("mount /dev/mapper/crypt$name /volumes/$name");
     }else{
-      exec ("mkfs.$filesystem /dev/$diskpart");
+      exec ("mkfs.$filesystem -f /dev/$diskpart");
       exec ("mount /dev/$diskpart /volumes/$name");  
       
       $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
@@ -1736,7 +1736,7 @@ if(isset($_POST['setup_volume'])){
   exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
   $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
   exec ("mkdir /volumes/$volume_name");
-  exec ("mkfs.$filesystem /dev/$diskpart");
+  exec ("mkfs.$filesystem -f /dev/$diskpart");
   exec ("e2label /dev/$diskpart $volume_name");
   exec ("mount /dev/$diskpart /volumes/$volume_name"); 
 
