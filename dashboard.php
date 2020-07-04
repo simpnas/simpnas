@@ -95,7 +95,7 @@
         </tr>
 
         <tr>
-          <td>Vesion</td>
+          <td>Version</td>
           <td><?php echo $simpnas_version; ?></td>
         </tr>
 
@@ -148,60 +148,44 @@
       </table>
 
       <div class="row">
-          <div class="col-md-12">
-            <legend>Stats</legend>
-            <hr>
-          </div>
-          
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title"><i class="fa fa-user text-secondary"></i> Users</h5>
-                <p class="card-text"><?php echo $num_of_users; ?></p>
-              </div>
+        <div class="col-md-12">
+          <legend>Stats</legend>
+          <hr>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fa fa-user text-secondary"></i> Users</h5>
+              <p class="card-text"><?php echo $num_of_users; ?></p>
             </div>
           </div>
-    
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title"><i class="fa fa-users text-secondary"></i> Groups</h5>
-                <p class="card-text"><?php echo $num_of_groups; ?></p>
-              </div>
+        </div>
+  
+        <div class="col-md-3 mb-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fa fa-users text-secondary"></i> Groups</h5>
+              <p class="card-text"><?php echo $num_of_groups; ?></p>
             </div>
           </div>
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title"><i class="fa fa-cube text-secondary"></i> Apps</h5>
-                <p class="card-text"><?php echo $num_of_apps; ?></p>
-              </div>
+        </div>
+        <div class="col-md-3 mb-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fa fa-folder text-secondary"></i> Shares</h5>
+              <p class="card-text"><?php echo $num_of_shares; ?></p>
             </div>
           </div>
-          <div class="col-md-4 mb-4">
-            <div class="card text-center border-t-danger">
-              <div class="card-body">
-                <h5 class="card-title"><i class="fa fa-hdd text-secondary"></i> Disks</h5>
-                <p class="card-text"><?php echo $num_of_disks; ?></p>
-              </div>
+        </div>
+        <div class="col-md-3 mb-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fa fa-cube text-secondary"></i> Apps</h5>
+              <p class="card-text"><?php echo $num_of_apps; ?></p>
             </div>
           </div>
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title"><i class="fa fa-database text-secondary"></i> Volumes</h5>
-                <p class="card-text"><?php echo $num_of_volumes; ?></p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-4">
-            <div class="card text-center">
-              <div class="card-body">
-                <h5 class="card-title"><i class="fa fa-folder text-secondary"></i> Shares</h5>
-                <p class="card-text"><?php echo $num_of_shares; ?></p>
-              </div>
-            </div>
-          </div>
+        </div>    
       
       </div> <!-- nested /row -->
 
@@ -211,7 +195,7 @@
             <hr>
           </div>
           
-          <div class="col-md-4 mb-4">
+          <div class="col-md-3 mb-4">
             <div class="card text-center">
               <div class="card-body">
                 <h5 class="card-title"><i class="fa fa-server"></i> Samba</h5>
@@ -220,7 +204,7 @@
             </div>
           </div>
     
-          <div class="col-md-4 mb-4">
+          <div class="col-md-3 mb-4">
             <div class="card text-center">
               <div class="card-body">
                 <h5 class="card-title"><i class="fa fa-terminal"></i> SSH</h5>
@@ -228,7 +212,7 @@
               </div>
             </div>
           </div>
-          <div class="col-md-4 mb-4">
+          <div class="col-md-3 mb-4">
             <div class="card text-center">
               <div class="card-body">
                 <h5 class="card-title"><i class="fab fa-docker"></i> Docker</h5>
