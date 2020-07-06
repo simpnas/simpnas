@@ -1266,7 +1266,6 @@ if(isset($_GET['install_bitwarden'])){
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
 
-
     $cpu_arch = exec("dpkg --print-architecture");
     if($cpu_arch == "amd64"){
       $tag = "latest";
@@ -1352,10 +1351,18 @@ if(isset($_GET['install_homeassistant'])){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
+    $cpu_arch = exec("dpkg --print-architecture");
+    if($cpu_arch == "amd64"){
+      $tag = "amd64";
+    }elseif($cpu_arch == "armhf"){
+      $tag = "armhf";
+    }else{
+      $tag = "armv7";
+    }
 
     mkdir("/volumes/$config_docker_volume/docker/homeassistant");
 
-    exec("docker run -d --name homeassistant --net=host --net=my-network --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
+    exec("docker run -d --name homeassistant --net=host --net=my-network --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/homeassistant:/config homeassistant/$tag-home-assistant:stable");
   }
 
   header("Location: apps.php");
@@ -1367,7 +1374,7 @@ if(isset($_GET['update_homeassistant'])){
   exec("docker stop home-assistant");
   exec("docker rm home-assistant");
 
-  exec("docker run -d --name homeassistant --net=host --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/home-assistant:/config homeassistant/home-assistant:stable");
+  exec("docker run -d --name homeassistant --net=host --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/home-assistant:/config homeassistant/home-assistant:st");
 
   exec("docker image prune");
   
