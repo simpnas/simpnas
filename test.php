@@ -1,9 +1,7 @@
 <?php
 
-$var = "Pooo<br>";
+exec("ls /volumes",$volumes);
 
-$var .= "Shit";
-
-echo $var;
+print_r($volumes);
 
 ?>

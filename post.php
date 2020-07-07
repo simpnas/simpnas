@@ -352,7 +352,7 @@ if(isset($_POST['volume_add'])){
       exec ("mkfs.$filesystem /dev/mapper/crypt$name");    
       exec ("mount /dev/mapper/crypt$name /volumes/$name");
     }else{
-      exec ("mkfs.$filesystem -f /dev/$diskpart");
+      exec ("mkfs.$filesystem -F /dev/$diskpart");
       exec ("mount /dev/$diskpart /volumes/$name");  
       
       $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
@@ -439,31 +439,18 @@ if(isset($_POST['volume_add_raid'])){
 
 if(isset($_POST['volume_add_backup'])){
   $name = trim($_POST['name']);
-  $name = "backup-$name";
-  $hdd = $_POST['disk'];
-  $hdd_part = $hdd."1";
+  $disk = $_POST['disk'];
   
-  exec ("ls /volumes/",$volumes_array);
+  exec ("wipefs -a /dev/$disk");
+  exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+  $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
+  exec ("e2label /dev/$diskpart $name");
+  exec ("mkfs.$filesystem -f /dev/$diskpart");
 
-  if(in_array($name, $volumes_array)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not add volume $name as it already exists!";
-  }else{
-    exec ("wipefs -a $hdd");
-    exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
-    exec ("e2label $hdd_part $name");
-    exec ("mkdir /volumes/$name");
+  $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
 
-    exec ("mkfs.ext4 $hdd_part");
-    exec ("mount $hdd_part /volumes/$name");  
-    
-    $uuid = exec("blkid -o value --match-tag UUID /dev/$hdd_part");
-    $myFile = "/etc/fstab";
-    $fh = fopen($myFile, 'a') or die("can't open file");
-    $stringData = "$uuid    /volumes/$name      ext4    rw,relatime,data=ordered 0 2\n";
-    fwrite($fh, $stringData);
-    fclose($fh);    
-  }
+  exec ("mkdir /mnt/backup--$name--$uuid");
+
   header("Location: volumes.php");
 }
 
@@ -694,7 +681,7 @@ if(isset($_POST['backup_add'])){
 
   echo $myFile;
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "rsync --verbose --log-file=/var/log/rsync.log --archive /volumes/$source/ /volumes/$destination/";
+  $stringData = "rsync --verbose --log-file=/var/log/rsync.log --archive /volumes/$source/ /mnt/$destination/";
   fwrite($fh, $stringData);
   fclose($fh);
 
@@ -1827,7 +1814,7 @@ if(isset($_POST['setup_volume'])){
   exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
   $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
   exec ("mkdir /volumes/$volume_name");
-  exec ("mkfs.$filesystem -f /dev/$diskpart");
+  exec ("mkfs.$filesystem -F /dev/$diskpart");
   exec ("e2label /dev/$diskpart $volume_name");
   exec ("mount /dev/$diskpart /volumes/$volume_name"); 
 

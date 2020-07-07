@@ -25,7 +25,7 @@
 	    <select class="form-control" name="source" required>
 	  		<option value=''>--Select A Source--</option>
 		  	<?php
-				exec("ls /volumes | grep -v backup-", $volume_list);
+				exec("ls /volumes", $volume_list);
 				foreach ($volume_list as $volume) {
 				$mounted = exec("df | grep $volume");
 				if(!empty($mounted)){
@@ -46,15 +46,16 @@
 	    <select class="form-control" name="destination" required>
 	  		<option value=''>--Select A Destination--</option>
   			<?php
-			exec("find /mnt -type d -name backup-* -printf '%f\n'", $backup_volume_array);
-			foreach ($backup_volume_array as $backup_volume) {
-				$mounted = exec("df | grep $backup_volume");
-				if(!empty($mounted)){
+			exec("ls /dev/disk/by-uuid",$connected_uuid_array);
+			exec("ls /mnt/backup--* | awk -f:-- '{print $2}'",$backup_volume_uuid_array);
+			foreach ($backup_volume_uuid_array as $backup_volume_uuid) {
+				if(in_array($backup_volume_uuid, $connected_uuid_array)){
+					$connection_status = "Connected";
+				}else{
+					$connection_status = "Disconnected";
+ 				}
 			?>
-					<option><?php echo "$backup_volume"; ?></option>	
-				<?php 
-				} 
-				?>
+					<option><?php echo "$backup_volume_uuid - $connection_status"; ?></option>
 			<?php
 			}
 			?>
