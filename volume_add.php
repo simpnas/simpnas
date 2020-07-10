@@ -42,11 +42,6 @@ if(count($not_in_use_disks_array) > 0){
   <form method="post" action="post.php" autocomplete="off">
 	  
 	  <div class="form-group">
-	    <label>Volume Name</label>
-	    <input type="text" class="form-control" name="name" required pattern="[a-zA-Z0-9-]{1,15}" autofocus>
-	  </div>
-
-	  <div class="form-group">
 	    <label>Disk</label>
 	    <select class="form-control" name="disk" required>
 	  		<option value=''>--Select A Disk--</option>
@@ -72,6 +67,11 @@ if(count($not_in_use_disks_array) > 0){
 				?>
 
 	  	</select>
+	  </div>
+
+	  <div class="form-group">
+	    <label>Volume Name</label>
+	    <input type="text" class="form-control" name="name" pattern="[a-zA-Z0-9-_]{1,15}" required>
 	  </div>
 
 	  <div class="form-group">

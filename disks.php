@@ -34,9 +34,9 @@
         foreach ($disk_list_array as $disk) {
           $hdd_smart = exec("smartctl -i /dev/$disk | grep 'SMART support is' | cut -d' ' -f 8-");
 
-          $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Family:' | awk '{print $3,$4,$5}'");
+          $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Family:' | awk '{print $3,$4,$5,$6}'");
           if(empty($disk_vendor)){
-            $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Device Model:' | awk '{print $3,$4,$5}'");
+            $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Device Model:' | awk '{print $3,$4,$5,$6}'");
           }
           if(empty($disk_vendor)){
             $disk_vendor = exec("lsblk -n -o kname,type,vendor /dev/$disk | grep disk  | awk '{print $3}'");
