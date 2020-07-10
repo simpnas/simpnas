@@ -331,7 +331,6 @@ if(isset($_GET['mount_volume'])){
 if(isset($_POST['volume_add'])){
   $name = trim($_POST['name']);
   $disk = $_POST['disk'];
-  $filesystem = $_POST['filesystem'];
   
   exec ("ls /volumes/",$volumes_array);
 
@@ -352,18 +351,14 @@ if(isset($_POST['volume_add'])){
       exec ("mkfs.$filesystem /dev/mapper/crypt$name");    
       exec ("mount /dev/mapper/crypt$name /volumes/$name");
     }else{
-      exec ("mkfs.$filesystem -F /dev/$diskpart");
+      exec ("mkfs.ext4 -F /dev/$diskpart");
       exec ("mount /dev/$diskpart /volumes/$name");  
       
       $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
 
       $myFile = "/etc/fstab";
       $fh = fopen($myFile, 'a') or die("can't open file");
-      if($filesystem == "ext4"){
-        $stringData = "UUID=$uuid    /volumes/$name      $filesystem    rw,relatime,data=ordered 0 2\n";
-      }else{
-        $stringData = "UUID=$uuid    /volumes/$name      $filesystem    defaults 0 0\n";
-      }
+      $stringData = "UUID=$uuid    /volumes/$name      ext4    rw,relatime,data=ordered 0 2\n";
       fwrite($fh, $stringData);
       fclose($fh);
     }
@@ -1808,24 +1803,19 @@ if(isset($_POST['setup_network'])){
 if(isset($_POST['setup_volume'])){
   $volume_name = $_POST['volume_name'];
   $disk = $_POST['disk'];
-  $filesystem = $_POST['filesystem'];
 
   exec ("wipefs -a /dev/$disk");
   exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
   $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
   exec ("mkdir /volumes/$volume_name");
-  exec ("mkfs.$filesystem -F /dev/$diskpart");
+  exec ("mkfs.ext4 -F /dev/$diskpart");
   exec ("e2label /dev/$diskpart $volume_name");
   exec ("mount /dev/$diskpart /volumes/$volume_name"); 
 
   $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");
-  if($filesystem == "ext4"){
-    $stringData = "UUID=$uuid    /volumes/$volume_name      $filesystem    rw,relatime,data=ordered 0 2\n";
-  }else{
-    $stringData = "UUID=$uuid    /volumes/$volume_name      $filesystem    defaults 0 0\n";
-  }
+  $stringData = "UUID=$uuid    /volumes/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
   fwrite($fh, $stringData);
   fclose($fh);
 

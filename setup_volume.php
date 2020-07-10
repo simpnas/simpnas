@@ -32,7 +32,7 @@
 	  <div class="form-group">
 	    <label>Select Disk</label>
 	    <select class="form-control" name="disk" required>
-		  	<option value=''>--Select A Disk--</option>
+		  	<option value=''>--Select Disk--</option>
 		  	<?php
 				exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
 				foreach ($disk_list_array as $disk) {
@@ -62,14 +62,6 @@
 	  <div class="form-group">
 	    <label>Volume Name</label>
 	    <input type="text" class="form-control" name="volume_name" pattern="[a-zA-Z0-9-_]{1,15}" required>
-	  </div>
-
-	  <div class="form-group">
-	    <label>File System</label>
-	    <select class="form-control" name="filesystem" required>
-	  		<option value='ext4'>EXT4</option>
-	  		<option value='btrfs'>BTRFS</option>
-	  	</select>
 	  </div>
 	  
 	  <button type="submit" name="setup_volume" class="btn btn-primary">Next <span data-feather="arrow-right"></span></button>
