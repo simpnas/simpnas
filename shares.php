@@ -57,7 +57,7 @@
           <td>
             <?php echo $group; ?>
           </td>
-          <td><?php echo $used_space; ?></td>
+          <td><?php echo $used_space; ?>B</td>
           <td>
           	<div class="btn-group mr-2">
         		<a href="share_edit.php?share=<?php echo $share; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>

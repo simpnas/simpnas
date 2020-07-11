@@ -288,7 +288,7 @@
     new Chart(document.getElementById("doughnutChartsys-vol"), {
       type: 'doughnut',
       data: {
-        labels: ["<?php echo $used_space_formatted; ?> Used", "<?php echo $free_space_formatted; ?> Available"],
+        labels: ["<?php echo $used_space_formatted; ?>B Used", "<?php echo $free_space_formatted; ?>B Available"],
         datasets: [
           {
             backgroundColor: ["<?php if($used_space_percent > 85){ echo '#d9534f'; }else{ echo '#007bff'; } ?>", "#99999"],
@@ -320,7 +320,7 @@
   new Chart(document.getElementById("doughnutChart<?php echo $volume; ?>"), {
     type: 'doughnut',
     data: {
-      labels: ["<?php echo $used_space_formatted; ?> Used", "<?php echo $free_space_formatted; ?> Available"],
+      labels: ["<?php echo $used_space_formatted; ?>B Used", "<?php echo $free_space_formatted; ?>B Available"],
       datasets: [
         {
           backgroundColor: ["<?php if($used_space_percent > 85){ echo '#d9534f'; }else{ echo '#007bff'; } ?>", "#99999"],

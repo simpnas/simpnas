@@ -48,7 +48,7 @@
               <div class="progress">
                 <div class="progress-bar" style="width: <?php echo $used_space_percent; ?>"></div>
               </div>
-              <small><?php echo $used_space; ?> used of <?php echo $total_space; ?></small>
+              <small><?php echo $used_space; ?>B used of <?php echo $total_space; ?>B</small>
             </td>
             <td><div class="p-3"></div></td>
           </tr>
@@ -83,7 +83,7 @@
             <div class="progress">
               <div class="progress-bar" style="width: <?php echo $used_space_percent; ?>"></div>
             </div>
-            <small><?php echo $used_space; ?> used of <?php echo $total_space; ?></small>
+            <small><?php echo $used_space; ?>B used of <?php echo $total_space; ?>B</small>
             <?php } ?>  
           </td>
           <td>

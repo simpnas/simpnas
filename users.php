@@ -43,7 +43,7 @@
           <tr>
             <td><span class="mr-2" data-feather="user"></span><?php echo $username; ?><?php if(!empty($user_disabled)){ echo "<small class='text-muted'> (Disabled)</small>"; } ?></td>
             <td><?php echo $groups; ?></td>
-            <td><?php echo $home_dir_usage; ?></td>
+            <td><?php echo $home_dir_usage; ?>B</td>
             <td>
               <div class="btn-group mr-2">
                 <a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>

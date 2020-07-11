@@ -66,7 +66,7 @@
           <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?></td>
           <td><?php echo $disk_vendor; ?></td>
           <td><?php echo $disk_serial; ?></td>
-          <td><?php echo $disk_size; ?></td>
+          <td><?php echo $disk_size; ?>B</td>
           <td><?php echo $disk_type; ?></td>
           <td>
             <div class="btn-group mr-2">
