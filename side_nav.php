@@ -98,7 +98,7 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="mail_settings.php" onclick="$('#cover-spin').show(0)">
+        <a class="nav-link" href="notifications.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="mail"></span>
           Notifications
         </a>

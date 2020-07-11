@@ -148,12 +148,12 @@
       </table>
 
       <div class="row">
-        <div class="col-md-12">
+        <div class="col-12">
           <legend>Stats</legend>
           <hr>
         </div>
         
-        <div class="col-md-6 col-lg-4 mb-4">
+        <div class="col-lg-6 col-xl-3 mb-4">
           <div class="card text-center">
             <div class="card-body">
               <h5 class="card-title"><i class="fa fa-user text-secondary"></i> Users</h5>
@@ -162,7 +162,7 @@
           </div>
         </div>
   
-        <div class="col-md-6 col-lg-4 mb-4">
+        <div class="col-lg-6 col-xl-3 mb-4">
           <div class="card text-center">
             <div class="card-body">
               <h5 class="card-title"><i class="fa fa-users text-secondary"></i> Groups</h5>
@@ -170,7 +170,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-4 mb-4">
+        <div class="col-lg-6 col-xl-3 mb-4">
           <div class="card text-center">
             <div class="card-body">
               <h5 class="card-title"><i class="fa fa-folder text-secondary"></i> Shares</h5>
@@ -178,7 +178,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-4 mb-4">
+        <div class="col-lg-6 col-xl-3 mb-4">
           <div class="card text-center">
             <div class="card-body">
               <h5 class="card-title"><i class="fa fa-cube text-secondary"></i> Apps</h5>
@@ -195,7 +195,7 @@
             <hr>
           </div>
           
-          <div class="col-md-6 col-lg-4 mb-4">
+          <div class="col-lg-6 col-xl-4 mb-4">
             <div class="card text-center">
               <div class="card-body">
                 <h5 class="card-title"><i class="fa fa-server"></i> Samba</h5>
@@ -204,7 +204,7 @@
             </div>
           </div>
     
-          <div class="col-md-6 col-lg-4 mb-4">
+          <div class="col-lg-6 col-xl-4 mb-4">
             <div class="card text-center">
               <div class="card-body">
                 <h5 class="card-title"><i class="fa fa-terminal"></i> SSH</h5>
@@ -212,7 +212,7 @@
               </div>
             </div>
           </div>
-          <div class="col-md-6 col-lg-4 mb-4">
+          <div class="col-lg-6 col-xl-4 mb-4">
             <div class="card text-center">
               <div class="card-body">
                 <h5 class="card-title"><i class="fab fa-docker"></i> Docker</h5>

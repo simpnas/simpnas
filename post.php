@@ -760,19 +760,26 @@ if(isset($_GET['kill_wipe'])){
   header("Location: disks.php");
 }
 
-if(isset($_POST['mail_edit'])){
+if(isset($_POST['settings_notifications'])){
   $config['smtp_server'] = $_POST['smtp_server'];
   $config['smtp_port'] = $_POST['smtp_port'];
   $config['smtp_username'] = $_POST['smtp_username'];
   $config['smtp_password'] = $_POST['smtp_password'];
   $config['mail_from'] = $_POST['mail_from'];
   $config['mail_to'] = $_POST['mail_to'];
+  $enable_system_report = $_POST['enable_system_report'];
+  if($enable_system_report == 1){
+    exec("echo 'php /simpnas/mail_system_report.php' > /etc/cron.daily/system-report");
+    exec("chmod 755 /etc/cron.daily/system-report");
+  }else{
+    exec("rm -f /etc/cron.daily/system-report");
+  }
 
   //file_put_contents('config.php', '<?php return ' . var_export($config, true) . ';');
   file_put_contents('config.php', '<?php return ' . var_export($config, true) . ';');
   sleep(3);
 
-  header("Location: mail_settings.php");
+  header("Location: notifications.php");
 }
 
 //APP SECTION
