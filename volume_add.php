@@ -60,7 +60,7 @@ if(count($not_in_use_disks_array) > 0){
 			    $disk_serial = exec("lsblk -n -o kname,type,serial /dev/$disk | grep disk  | awk '{print $3}'");
 			    $disk_size = exec("lsblk -n -o kname,type,size /dev/$disk | grep disk | awk '{print $3}'");
 				?>
-				<option value="<?php echo $disk; ?>"><?php echo "$disk - $disk_vendor ($disk_size)"; ?></option>
+				<option value="<?php echo $disk; ?>"><?php echo "$disk - $disk_vendor ($disk_size"."B)"; ?></option>
 
 				<?php
 				}
