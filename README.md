@@ -10,6 +10,7 @@ Manage your hard drives, volumes, network shares, users, groups through an excel
 
 ## Notes
 
+* It is mandatory to run the install as root.
 * When installing Debian for packages choose only SSH server and standard system utilities.
 * Active Directory requires that your network card is set statically.
 * This is meant to be installed behind a router not exposed to the internet directly.
