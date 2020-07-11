@@ -3,16 +3,19 @@
   $config = include("config.php");
   include("simple_vars.php");
 
+  $date = date("Y-m-d H:i");
+
   $load_30min = exec("cat /proc/loadavg | awk '{print $3}'");
   $mem_usage_percent = floor(exec("free | grep Mem | awk '{print $3/$2 * 100.0}'"));
   $swap_usage_percent = floor(exec("free | grep Swap | awk '{print $3/$2 * 100.0}'"));
+  $uptime = exec("uptime");
 
   //bad hdd check
   exec("smartctl --scan | awk '{print $1}'", $hdd_array);
 
   $mail_body = "========================================================<br><b>$config_hostname Report</b><br>========================================================<br>";
   
-  $mail_body .= "========================================================<br>Hard Drive Report<br>========================================================<br>";
+  $mail_body .= "========================================================<br>Disk Health Report<br>========================================================<br>";
 
   foreach($hdd_array as $hdd){
   	$hdd_short_name = basename($hdd);
@@ -66,8 +69,8 @@
       $used_space_percent = exec("df | grep -w /volumes/$volume | awk '{print $5}'");
     	
     	if($used_space_percent > 80){
-    		$mail_body .= "Volume $volume is runnung out of space currently $used_space_percent of space is being used<br>";
-    	}
+    		$mail_body .= "Volume $volume is running out of space current usage is $used_space_percent.<br>";
+      }
     }
   }
 
@@ -78,11 +81,11 @@
   }
 
   if($mem_usage_percent > 90){
-  	$mail_body .= "High Memory usage: $mem_usage_percent<br>";
+  	$mail_body .= "High Memory Usage: $mem_usage_percent<br>";
   }
 
   if($swap_usage_percent > 80){
-  	$mail_body .= "High Swap usage: $swap_usage_percent<br>";
+  	$mail_body .= "High Swap Usage: $swap_usage_percent<br>";
   }
 
   //Service Checks
@@ -109,6 +112,8 @@
   if(empty($status_service_ssh)){
   	$mail_body .= "Service Stopped: SSH<br>";
   }
+
+  $mail_body .= "<br><hr>Uptime: $uptime<br>";
 
   // Import PHPMailer classes into the global namespace
   // These must be at the top of your script, not inside a function
@@ -138,7 +143,7 @@
 
       // Content
       $mail->isHTML(true);                                  // Set email format to HTML
-      $mail->Subject = $config_hostname . ' - Alert';
+      $mail->Subject = $config_hostname . ' ' . $date . ' - System Report';
       $mail->Body    = $mail_body;
       $mail->AltBody = $mail_body;
 
