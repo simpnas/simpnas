@@ -21,6 +21,7 @@
   $apps_array = array(
     array(
       "title" => "Nextcloud",
+      "category" => "Groupware",
       "description" => "Groupware, file sharing platform",
       "website" => "https://nextcloud.com",
       "image" => "nextcloud.png",
@@ -32,6 +33,7 @@
     ),
     array(
       "title" => "Jellyfin",
+      "category" => "Media",
       "description" => "Turn your NAS into a media streaming platform for your Smart TVs, Smart devices (Roku, Amazon TV, Apple TV, Google TV), computers, phones etc",
       "website" => "https://jellyfin.com",
       "image" => "jellyfin.png",
@@ -43,6 +45,7 @@
     ),
     array(
       "title" => "DAAPD",
+      "category" => "Media",
       "description" => "iTunes Server Music Streaming App",
       "website" => "https://ejurgensen.github.io/forked-daapd/",
       "image" => "daapd.png",
@@ -54,6 +57,7 @@
     ),
     array(
       "title" => "Transmission",
+      "category" => "Downloads",
       "description" => "Web based BitTorrent Download Client",
       "website" => "https://transmission.org",
       "image" => "transmission.png",
@@ -65,6 +69,7 @@
     ),
     array(
       "title" => "Bitwarden RS",
+      "category" => "Password Manager",
       "description" => "Password Manager -- Note: Bitwarden will not work properly unless remote access is enabled because Bitwarden requires HTTPS.",
       "website" => "https://bitwarden.org",
       "image" => "bitwarden.png",
@@ -76,6 +81,7 @@
     ),
     array(
       "title" => "Home Assistant",
+      "category" => "Smart Home",
       "description" => "Home Automation (Control Lights, switches, smart devices etc)",
       "website" => "https://homeassistant.com",
       "image" => "homeassistant.png",
@@ -87,6 +93,7 @@
     ),
     array(
       "title" => "Dokuwiki",
+      "category" => "Groupware",
       "description" => "Documentation portal and group collaboration.",
       "website" => "https://dokuwiki.com",
       "image" => "dokuwiki.png",
@@ -98,6 +105,7 @@
     ),
     array(
       "title" => "Gitea",
+      "category" => "Coding",
       "description" => "GIT Repo Manager. -- Note: Incompatible with ARM based CPUs.",
       "website" => "https://gitea.io",
       "image" => "gitea.png",
@@ -109,6 +117,7 @@
     ),
     array(
       "title" => "Unifi Controller",
+      "category" => "Unifi Apps",
       "description" => "Manage Ubiquiti network devices.",
       "website" => "https://dokuwiki.com",
       "image" => "unifi.png",
@@ -120,6 +129,7 @@
     ),
     array(
       "title" => "Unifi Video",
+      "category" => "Unifi Apps",
       "description" => "Unifi's Camera NVR platform only compatible with ubiquiti cameras. -- Note: Inompatible with ARM CPUs",
       "website" => "https://ui.com",
       "image" => "unifi-video.png",
