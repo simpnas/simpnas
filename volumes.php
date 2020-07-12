@@ -70,13 +70,36 @@
             $used_space = exec("df -h | grep -w /volumes/$volume | awk '{print $3}'");
             $free_space = exec("df -h | grep -w /volumes/$volume | awk '{print $4}'");
             $used_space_percent = exec("df | grep -w /volumes/$volume | awk '{print $5}'");
+            $is_raid = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid");
+	          if(!empty($is_raid)){
+	          	$raid_type = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid | awk '{print $3}'");
+	          	if($raid_type == 'raid0'){
+	          		$raid_type = 'RAID 0 (Striping)';
+	          	}elseif($raid_type == 'raid1'){
+	          		$raid_type = 'RAID 1 (Mirroring)';
+	          	}elseif($raid_type == 'raid5'){
+	          		$raid_type = 'RAID 5 (Parity)';
+	          	}elseif($raid_type == 'raid6'){
+	          		$raid_type = 'RAID 6 (Double Parity)';
+	          	}elseif($raid_type == 'raid10'){
+	          		$raid_type = 'RAID 10 (Mirror/Stripe)';
+	          	}
+	          	exec("lsblk -o PKNAME,PATH,TYPE | grep /dev/$disk | awk '{print $1}'",$array_disk_part_array);
+	    				$disk_part_in_array  = implode(', ', $array_disk_part_array);
+
+	    				foreach($array_disk_part_array as $array_disk_part){
+					      $disk_in_array .= " " . exec("lsblk -n -o PKNAME,PATH | grep /dev/$array_disk_part | awk '{print $1}'");
+					    }
+	          }
           }
           
         ?>
         
         <tr>
           <td><span class="mr-2" data-feather="database"></span><?php echo $volume; ?></td>
-          <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?></td>
+          <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?>
+          	<?php if(isset($disk_part_in_array)){ echo "<br><small class='text-secondary'>$raid_type: $disk_in_array</small>"; } ?>
+        	</td>
           <td>
             <?php if(empty($mounted)){ ?>
             <div class="text-danger">Not Mounted</div>
@@ -90,6 +113,9 @@
           <td>
             <?php if($config_home_volume != $volume){ ?>
             <div class="btn-group mr-2">
+              <?php if(!empty($is_raid)){ ?>
+              	<a href="raid_configuration.php?raid=<?php echo $disk; ?>" class="btn btn-outline-secondary"><span data-feather="settings"></span></a>
+              <?php } ?>
               <a href="post.php?volume_delete=<?php echo $volume; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
             </div>
             <?php }else{ ?>
