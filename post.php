@@ -371,8 +371,6 @@ if(isset($_POST['volume_add_raid'])){
   $raid = $_POST['raid'];
   $disk_array = $_POST['disks'];
 
-  print_r($_POST['disks']);
-
   $num_of_disks = count($disk_array);
   
   exec ("ls /volumes/",$volumes_array);
@@ -394,6 +392,8 @@ if(isset($_POST['volume_add_raid'])){
     exec ("mkdir /volumes/$name");
 
     exec ("mkfs.ext4 -F /dev/md0");
+
+    //sleep(10);
     
     exec ("mount /dev/md0 /volumes/$name");  
       
@@ -427,11 +427,24 @@ if(isset($_GET['volume_delete'])){
   }else{
     exec ("umount -l /volumes/$name");
     exec ("rm -rf /volumes/$name");
-    exec ("wipefs -a /dev/$disk");
-
-    //RAID
+    
+    //RAID Remove
+    //Get Disks and Partition number in the array 
+    exec("lsblk -o PKNAME,PATH,TYPE | grep $diskpart | awk '{print \"/dev/\"$1}'",$array_disk_part_array);
+    $disk_part_in_array  = implode(' ', $array_disk_part_array);
+    
     exec("mdadm --stop $diskpart");
-    exec("mdadm --remove $diskpart");
+
+    exec("mdadm --zero-superblock $disk_part_in_array");
+
+    foreach($array_disk_part_array as $array_disk_part){
+      $disk_in_array = exec("lsblk -n -o PKNAME,PATH | grep $array_disk_part | awk '{print $1}'");
+      exec ("wipefs -a /dev/$disk_in_array");
+    }
+    
+    //END RAID Remove
+
+    exec ("wipefs -a /dev/$disk");
 
     deleteLineInFile("/etc/fstab","$uuid");
 

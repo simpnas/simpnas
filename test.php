@@ -1,9 +1,6 @@
 <?php
-
-$disk_array = array('/dev/sda','/dev/sdb');
-
-$disks = implode('1 ',$disk_array);
-
-echo "$disks"."1";
+exec("lsblk -o PKNAME,PATH,TYPE | grep /dev/md0 | awk '{print \"/dev/\"$1}'",$array_disk_part_array);
+    $disks  = implode(' ', $array_disk_part_array);
+    echo $disks;
 
 ?>
