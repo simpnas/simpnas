@@ -1,7 +1,9 @@
 <?php
 
-exec("ls /volumes",$volumes);
+$disk_array = array('/dev/sda','/dev/sdb');
 
-print_r($volumes);
+$disks = implode('1 ',$disk_array);
+
+echo "$disks"."1";
 
 ?>

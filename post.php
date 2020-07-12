@@ -366,6 +366,51 @@ if(isset($_POST['volume_add'])){
   header("Location: volumes.php");
 }
 
+if(isset($_POST['volume_add_raid'])){
+  $name = trim($_POST['name']);
+  $raid = $_POST['raid'];
+  $disk_array = $_POST['disks'];
+
+  print_r($_POST['disks']);
+
+  $num_of_disks = count($disk_array);
+  
+  exec ("ls /volumes/",$volumes_array);
+
+  if(in_array($name, $volumes_array)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Can not add volume $name as it already exists!";
+  }else{
+    foreach($disk_array as $disk){
+      exec ("wipefs -a /dev/$disk");
+      exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+      exec("lsblk -o PKNAME,KNAME,TYPE,PATH /dev/$disk | grep part | awk '{print $4}'",$diskpart_array);
+    }
+
+    $diskparts = implode(' ',$diskpart_array);
+
+    exec("yes | mdadm --create /dev/md0 --level=$raid --raid-devices=$num_of_disks $diskparts");
+
+    exec ("mkdir /volumes/$name");
+
+    exec ("mkfs.ext4 -F /dev/md0");
+    
+    exec ("mount /dev/md0 /volumes/$name");  
+      
+    $uuid = exec("blkid -o value --match-tag UUID /dev/md0");
+
+    $myFile = "/etc/fstab";
+    $fh = fopen($myFile, 'a') or die("can't open file");
+    $stringData = "UUID=$uuid /volumes/$name ext4 defaults 0 0\n";
+    fwrite($fh, $stringData);
+    fclose($fh);
+  
+  }
+
+  header("Location: volumes.php");
+
+}
+
 if(isset($_GET['volume_delete'])){
   $name = $_GET['volume_delete'];
   //check to make sure no shares are linked to the volume
@@ -383,52 +428,15 @@ if(isset($_GET['volume_delete'])){
     exec ("umount -l /volumes/$name");
     exec ("rm -rf /volumes/$name");
     exec ("wipefs -a /dev/$disk");
-  
+
+    //RAID
+    exec("mdadm --stop $diskpart");
+    exec("mdadm --remove $diskpart");
+
     deleteLineInFile("/etc/fstab","$uuid");
 
   }
   
-  header("Location: volumes.php");
-}
-
-if(isset($_POST['volume_add_raid'])){
-  $disks = $_POST['disks'];
-  foreach($_POST['disks'] as $disk){     
-    $disk = basename(exec("findmnt -n -o SOURCE --target /volumes/$volume"));
-
-    $name = trim($_POST['name']);
-    $hdd = $_POST['disk'];
-    $hdd_part = $hdd."1";
-    
-    exec ("ls /volumes/",$volumes_array);
-  }
-
-  if(in_array($name, $volumes_array)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not add volume $name as it already exists!";
-  }else{
-    exec ("wipefs -a $hdd");
-    exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk $hdd");
-    exec ("e2label $hdd_part $name");
-    exec ("mkdir /volumes/$name");
-    
-    if(!empty($_POST['encrypt'])){
-      $password = $_POST['password'];
-      exec ("echo -e '$password' | cryptsetup -q luksFormat $hdd_part");
-      exec ("echo -e '$password' | cryptsetup open $hdd_part crypt$name");
-      exec ("mkfs.ext4 /dev/mapper/crypt$name");    
-      exec ("mount /dev/mapper/crypt$name /volumes/$name");
-    }else{
-      exec ("mkfs.ext4 $hdd_part");
-      exec ("mount $hdd_part /volumes/$name");  
-      
-      $myFile = "/etc/fstab";
-      $fh = fopen($myFile, 'a') or die("can't open file");
-      $stringData = "$hdd_part    /volumes/$name      ext4    rw,relatime,data=ordered 0 2\n";
-      fwrite($fh, $stringData);
-      fclose($fh);
-    }
-  }
   header("Location: volumes.php");
 }
 
