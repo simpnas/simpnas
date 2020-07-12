@@ -358,7 +358,7 @@ if(isset($_POST['volume_add'])){
 
       $myFile = "/etc/fstab";
       $fh = fopen($myFile, 'a') or die("can't open file");
-      $stringData = "UUID=$uuid    /volumes/$name      ext4    rw,relatime,data=ordered 0 2\n";
+      $stringData = "UUID=$uuid /volumes/$name ext4 defaults 0 1\n";
       fwrite($fh, $stringData);
       fclose($fh);
     }
@@ -1822,7 +1822,7 @@ if(isset($_POST['setup_volume'])){
   $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
   $myFile = "/etc/fstab";
   $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "UUID=$uuid    /volumes/$volume_name      ext4    rw,relatime,data=ordered 0 2\n";
+  $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 1\n";
   fwrite($fh, $stringData);
   fclose($fh);
 
