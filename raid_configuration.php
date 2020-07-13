@@ -20,7 +20,8 @@
     </ol>
   </nav>
 
-  <h2>RAID <?php echo $raid; ?> Info</h2>
+  <h2>RAID Array Configuration</h2>
+  <hr>
   <?php
 
     $raid_configuration = shell_exec("mdadm -D /dev/$raid");
