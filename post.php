@@ -386,16 +386,24 @@ if(isset($_POST['volume_add_raid'])){
     }
 
     $diskparts = implode(' ',$diskpart_array);
+    
+    //Generate the next /dev/mdX Number
+    //get the last md#
+    $md = exec("ls /dev/md*");
+    //extract the numbers out of md
+    $md_num = preg_replace('/[^0-9]/', '', $md);
+    //add 1 to the num
+    $new_md_num = $md_num + 1;
 
-    exec("yes | mdadm --create /dev/md0 --level=$raid --raid-devices=$num_of_disks $diskparts");
+    exec("yes | mdadm --create /dev/md$new_md_num --level=$raid --raid-devices=$num_of_disks $diskparts");
 
     exec ("mkdir /volumes/$name");
 
-    exec ("mkfs.ext4 -F /dev/md0");
+    exec ("mkfs.ext4 -F /dev/md$new_md_num");
 
     //sleep(10);
     
-    exec ("mount /dev/md0 /volumes/$name");  
+    exec ("mount /dev/md$new_md_num /volumes/$name");  
       
     $uuid = exec("blkid -o value --match-tag UUID /dev/md0");
 
