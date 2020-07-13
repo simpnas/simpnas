@@ -29,7 +29,7 @@
 	  <ol class="breadcrumb">
 	    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
 	    <li class="breadcrumb-item"><a href="volumes.php">Volumes</a></li>
-	    <li class="breadcrumb-item active">Add Volume</li>
+	    <li class="breadcrumb-item active">Create RAID Volume</li>
 	  </ol>
 	</nav>
 

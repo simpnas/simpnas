@@ -13,8 +13,16 @@
   
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
     <h2>Volumes</h2>
-    <a class="btn btn-outline-primary" href="volume_add.php">Create Volume</a>
-    <a class="btn btn-outline-primary" href="volume_add_raid.php">Create RAID Volume</a>
+    <div class="dropdown">
+      <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+        Create
+      </button>
+      <div class="dropdown-menu dropdown-menu-right">
+        <a class="dropdown-item" href="volume_add.php">Simple</a>
+        <a class="dropdown-item" href="volume_add_raid.php">RAID</a>
+        <a class="dropdown-item" href="volume_add_backup.php">Backup</a>
+      </div>
+    </div>
   </div>
 
   <?php include("alert_message.php"); ?>
