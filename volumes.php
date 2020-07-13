@@ -59,7 +59,8 @@
         
         <?php
 
-        foreach ($volume_array as $volume){     
+        foreach ($volume_array as $volume){   
+
           $mounted = exec("df | grep $volume");
           if(empty($mounted)){
             $disk = basename(exec("cat /etc/fstab | grep $volume | awk '{print $1}'"));
@@ -124,6 +125,9 @@
           </td>
         </tr>
         <?php 
+        unset($disk_part_in_array);
+        unset($array_disk_part_array);
+        unset($disk_in_array);
         } 
         ?>
       </tbody>

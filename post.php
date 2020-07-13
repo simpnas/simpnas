@@ -348,7 +348,7 @@ if(isset($_POST['volume_add'])){
       $password = $_POST['password'];
       exec ("echo -e '$password' | cryptsetup -q luksFormat /dev/$diskpart");
       exec ("echo -e '$password' | cryptsetup open /dev/$diskpart crypt$name");
-      exec ("mkfs.$filesystem /dev/mapper/crypt$name");    
+      exec ("mkfs.ext4 /dev/mapper/crypt$name");    
       exec ("mount /dev/mapper/crypt$name /volumes/$name");
     }else{
       exec ("mkfs.ext4 -F /dev/$diskpart");

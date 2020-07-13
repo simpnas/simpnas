@@ -77,6 +77,18 @@ if(count($not_in_use_disks_array) > 0){
 	    <input type="text" class="form-control" name="name" pattern="[a-zA-Z0-9-_]{1,15}" required>
 	  </div>
 
+	  <div class="form-group">
+	  	<div class="custom-control custom-checkbox">
+			  <input type="checkbox" class="custom-control-input" name="encrypt" value="1" id="encrypt">
+			  <label class="custom-control-label" for="encrypt">Encrypt</label>
+			</div>
+	  </div>
+	  
+	  <div class="form-group" id="passwordbox">
+	    <label>Disk Password</label>
+	    <input type="password" class="form-control" name="password" data-toggle="password" autocomplete="new-password">
+	  </div>
+
 	  <button type="submit" name="volume_add" class="btn btn-primary">Submit</button>
 	
 	</form>
