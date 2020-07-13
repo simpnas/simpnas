@@ -6,6 +6,11 @@
   include("side_nav.php");
   
   exec("ls /volumes", $volume_array);
+
+  exec("lsblk -n -o PKNAME,TYPE | grep raid | awk '{print $1}'", $raids_array);
+  foreach($raids_array as $raid){
+  	exec("lsblk -n -o PKNAME,PATH | grep /dev/$raid | awk '{print $1}'", $has_volume_disk_array);
+  }
   
   foreach($volume_array as $volume){
   	exec("lsblk -n -o pkname,mountpoint | grep -w volumes | awk '{print $1}'", $has_volume_disk_array);
