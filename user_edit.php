@@ -11,6 +11,7 @@
   if(empty($config_ad_enabled)){
     exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
     $group_member_array = explode(' ',exec("groups $username"));
+    $comment = exec("cat /etc/passwd | grep $username | awk -F: '{print $5}'");
   }else{
   	$ad_builtin_groups_array = array("Performance Monitor Users", "Remote Desktop Users", "Read-only Domain Controllers", "IIS_IUSRS", "Denied RODC Password Replication Group", "DnsUpdateProxy", "Enterprise Admins", "Replicator", "Windows Authorization Access Group", "Domain Controllers", "Pre-Windows 2000 Compatible Access", "Certificate Service DCOM Access", "Domain Guests", "Enterprise Read-only Domain Controllers", "Schema Admins", "Distributed COM Users", "Domain Computers", "Performance Log Users", "Network Configuration Operators", "Account Operators", "Backup Operators", "Terminal Server License Servers", "DnsAdmins", "Guests", "Cert Publishers", "Incoming Forest Trust Builders", "Print Operators", "Administrators", "Server Operators", "RAS and IAS Servers", "Allowed RODC Password Replication Group", "Cryptographic Operators", "Group Policy Creator Owners", "Event Log Readers");
 
@@ -51,6 +52,11 @@
 	  <div class="form-group">
 	    <label>Password</label>
 	    <input type="password" class="form-control" name="password" placeholder="Leave blank for no change" data-toggle="password" autocomplete="new-password">
+	  </div>
+
+	  <div class="form-group">
+	    <label>Description</label>
+	    <input type="text" class="form-control" name="comment" value="<?php echo $comment; ?>">
 	  </div>
 	  
 	  <legend>Groups</legend>

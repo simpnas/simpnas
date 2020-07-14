@@ -29,6 +29,7 @@ if(isset($_POST['user_add'])){
   $password = $_POST['password'];
   $first_name = $_POST['first_name'];
   $last_name = $_POST['last_name'];
+  $comment = escapeshellarg($_POST['comment']);
   $description = $_POST['description'];
   $email = $_POST['email'];
   $phone = $_POST['phone'];
@@ -68,7 +69,7 @@ if(isset($_POST['user_add'])){
     exec ("chmod -R 700 /volumes/$config_home_volume/users/$username");  
     
     if(empty($config_ad_enabled)){
-      exec ("useradd -g users -d /volumes/$config_home_volume/users/$username $username -s /bin/false");
+      exec ("useradd -g users -d /volumes/$config_home_volume/users/$username $username -c $comment -s /bin/false");
       exec ("echo '$password\n$password' | passwd $username");
       exec ("echo '$password\n$password' | smbpasswd -a $username");
     }else{
@@ -95,7 +96,9 @@ if(isset($_POST['user_add'])){
 
 if(isset($_POST['user_edit'])){
   $username = $_POST['username'];
+  $comment = escapeshellarg($_POST['comment']);
   $group_array = implode(",", $_POST['group']);
+
   
   //$group_count = count($group);
   if(!empty($_POST['password'])){
@@ -112,6 +115,8 @@ if(isset($_POST['user_edit'])){
   }else{
     exec ("usermod -G users $username");
   }
+
+  exec("usermod -c $comment $username");
   
   //exec("systemctl restart smbd");
   //exec("systemctl restart nmbd");

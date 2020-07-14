@@ -41,6 +41,11 @@
 	    <label>Password:</label>
 	    <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password">
 	  </div>
+
+	  <div class="form-group">
+	    <label>Description</label>
+	    <input type="text" class="form-control" name="comment">
+	  </div>
 	  
 	  <legend>Groups</legend>
 

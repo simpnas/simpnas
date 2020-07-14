@@ -28,6 +28,7 @@
       <thead>
         <tr>
           <th>User</th>
+          <th>Description</th>
           <th>Groups</th>
           <th>Used Space</th>
           <th>Action</th>
@@ -38,10 +39,12 @@
         foreach($username_array as $username){
           $groups = str_replace(' ',", ",exec("groups $username | sed 's/\($username\| : \)//g'")); //replace space with a , and a space makes it look neater
           $home_dir_usage = exec("du -sh /volumes/$config_home_volume/users/$username | awk '{print $1}'");
+          $comment = exec("cat /etc/passwd | grep $username | awk -F: '{print $5}'");
           $user_disabled = exec("cat /etc/shadow | grep $username | grep '!'");
         ?>
           <tr>
             <td><span class="mr-2" data-feather="user"></span><?php echo $username; ?><?php if(!empty($user_disabled)){ echo "<small class='text-muted'> (Disabled)</small>"; } ?></td>
+            <td><?php echo $comment; ?></td>
             <td><?php echo $groups; ?></td>
             <td><?php echo $home_dir_usage; ?>B</td>
             <td>
