@@ -336,6 +336,7 @@ if(isset($_GET['mount_volume'])){
 if(isset($_POST['volume_add'])){
   $name = trim($_POST['name']);
   $disk = $_POST['disk'];
+  $password = $_POST['password'];
   
   exec ("ls /volumes/",$volumes_array);
 
@@ -351,10 +352,10 @@ if(isset($_POST['volume_add'])){
     
     if(!empty($_POST['encrypt'])){
       $password = $_POST['password'];
-      exec ("echo -e '$password' | cryptsetup -q luksFormat /dev/$diskpart");
-      exec ("echo -e '$password' | cryptsetup open /dev/$diskpart crypt$name");
-      exec ("mkfs.ext4 /dev/mapper/crypt$name");    
-      exec ("mount /dev/mapper/crypt$name /volumes/$name");
+      exec ("echo $password | cryptsetup -q luksFormat /dev/$diskpart");
+      exec ("echo $password | cryptsetup open /dev/$diskpart $name");
+      exec ("mkfs.ext4 /dev/mapper/$name");    
+      exec ("mount /dev/mapper/$name /volumes/$name");
     }else{
       exec ("mkfs.ext4 -F /dev/$diskpart");
       exec ("mount /dev/$diskpart /volumes/$name");  
