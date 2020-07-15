@@ -336,7 +336,6 @@ if(isset($_GET['mount_volume'])){
 if(isset($_POST['volume_add'])){
   $name = trim($_POST['name']);
   $disk = $_POST['disk'];
-  $password = $_POST['password'];
   
   exec ("ls /volumes/",$volumes_array);
 
