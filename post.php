@@ -410,7 +410,7 @@ if(isset($_POST['volume_add_raid'])){
     
     exec ("mount /dev/md$new_md_num /volumes/$name");  
       
-    $uuid = exec("blkid -o value --match-tag UUID /dev/md0");
+    $uuid = exec("blkid -o value --match-tag UUID /dev/md$new_md_num");
 
     $myFile = "/etc/fstab";
     $fh = fopen($myFile, 'a') or die("can't open file");
