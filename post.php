@@ -347,6 +347,17 @@ if(isset($_POST['unlock_volume'])){
   header("Location: volumes.php");
 }
 
+if(isset($_GET['lock_volume'])){
+  $volume = $_GET['lock_volume'];
+
+  exec("mount -l /dev/mapper/$volume");
+  exec("cryptsetup close $volume");
+    
+  $_SESSION['alert_type'] = "info";
+  $_SESSION['alert_message'] = "Volume $volume Encrypted successfully!";
+  header("Location: volumes.php");
+}
+
 if(isset($_POST['volume_add'])){
   $name = trim($_POST['name']);
   $disk = $_POST['disk'];

@@ -83,6 +83,7 @@
             $free_space = exec("df -h | grep -w /volumes/$volume | awk '{print $4}'");
             $used_space_percent = exec("df | grep -w /volumes/$volume | awk '{print $5}'");
             $is_raid = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid");
+            $is_crypt = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep crypt");
             if(!empty($is_raid)){
 	          	$raid_type = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid | awk '{print $3}'");
 	          	if($raid_type == 'raid0'){
@@ -133,6 +134,9 @@
               <?php   
                 }
               ?>
+              <?php if(!empty($is_crypt)){ ?>
+                <a href="post.php?lock_volume=<?php echo $volume; ?>" class="btn btn-outline-secondary"><span data-feather="lock"></span></a>
+              <?php } ?>
               <?php if(!empty($is_raid)){ ?>
               	<a href="raid_configuration.php?raid=<?php echo $disk; ?>" class="btn btn-outline-secondary"><span data-feather="settings"></span></a>
               <?php } ?>
@@ -147,7 +151,7 @@
         <div class="modal fade" id="mountCrypt<?php echo $disk; ?>" tabindex="-1">
           <div class="modal-dialog">
             <div class="modal-content">
-              <div class="modal-header bg-danger text-white">
+              <div class="modal-header">
                 <h5 class="modal-title">Unlock <?php echo $volume; ?></h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
