@@ -338,19 +338,20 @@ if(isset($_POST['unlock_volume'])){
   $volume = $_POST['volume'];
   $password = $_POST['password'];
 
-  exec("echo $password | cryptsetup luksOpen /dev/disk/by-partuuid/$disk $volume");
+  exec("echo $password | cryptsetup luksOpen /dev/disk/by-uuid/$disk $volume");
     
   exec ("mount /dev/mapper/$volume /volumes/$volume");
 
   $_SESSION['alert_type'] = "info";
   $_SESSION['alert_message'] = "Unlocked Encrypted volume $volume successfully!";
   header("Location: volumes.php");
+
 }
 
 if(isset($_GET['lock_volume'])){
   $volume = $_GET['lock_volume'];
 
-  exec("mount -l /dev/mapper/$volume");
+  exec("umount -l /dev/mapper/$volume");
   exec("cryptsetup close $volume");
     
   $_SESSION['alert_type'] = "info";

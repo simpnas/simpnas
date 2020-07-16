@@ -164,7 +164,7 @@
                  
                   <div class="form-group">
                     <label>Password</label>
-                    <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password">
+                    <input type="password" class="form-control" name="password"  required autocomplete="new-password">
                   </div>
                 </div>
                 <div class="modal-footer">
