@@ -71,8 +71,11 @@
 
           $mounted = exec("df | grep $volume");
           if(empty($mounted)){
-            $disk = basename(exec("cat /etc/fstab | grep $volume | awk '{print $1}'"));
-            $share_list = "-";
+            if(file_exists("/volumes/$volume/.uuid_map")){
+              $disk = exec("cat /volumes/$volume/.uuid_map");
+            }else{
+              $disk = basename(exec("cat /etc/fstab | grep $volume | awk '{print $1}'"));
+            }
           }else{
             $disk = basename(exec("findmnt -n -o SOURCE --target /volumes/$volume"));
             $total_space = exec("df -h | grep -w /volumes/$volume | awk '{print $2}'");
@@ -80,7 +83,7 @@
             $free_space = exec("df -h | grep -w /volumes/$volume | awk '{print $4}'");
             $used_space_percent = exec("df | grep -w /volumes/$volume | awk '{print $5}'");
             $is_raid = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid");
-	          if(!empty($is_raid)){
+            if(!empty($is_raid)){
 	          	$raid_type = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid | awk '{print $3}'");
 	          	if($raid_type == 'raid0'){
 	          		$raid_type = 'RAID 0 (Striping)';
@@ -122,6 +125,14 @@
           <td>
             <?php if($config_home_volume != $volume){ ?>
             <div class="btn-group mr-2">
+              <?php
+                if(file_exists("/volumes/$volume/.uuid_map")){
+              ?>    
+                <button class="btn btn-outline-danger" data-toggle="modal" data-target="#mountCrypt<?php echo $disk; ?>"><span data-feather="unlock"></span></button>
+                
+              <?php   
+                }
+              ?>
               <?php if(!empty($is_raid)){ ?>
               	<a href="raid_configuration.php?raid=<?php echo $disk; ?>" class="btn btn-outline-secondary"><span data-feather="settings"></span></a>
               <?php } ?>
@@ -132,6 +143,35 @@
             <?php } ?>
           </td>
         </tr>
+
+        <div class="modal fade" id="mountCrypt<?php echo $disk; ?>" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Unlock <?php echo $volume; ?></h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form method="post" action="post.php" autocomplete="off">
+                <input type="hidden" name="disk" value="<?php echo $disk; ?>">
+                <input type="hidden" name="volume" value="<?php echo $volume; ?>">
+                <div class="modal-body">
+                 
+                  <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" name="unlock_volume" class="btn btn-primary">Unlock</button>
+                  <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
         <?php 
         unset($disk_part_in_array);
         unset($array_disk_part_array);

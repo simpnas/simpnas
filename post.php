@@ -333,6 +333,20 @@ if(isset($_GET['mount_volume'])){
   header("Location: volumes.php");
 }
 
+if(isset($_POST['unlock_volume'])){
+  $disk = $_POST['disk'];
+  $volume = $_POST['volume'];
+  $password = $_POST['password'];
+
+  exec("echo $password | cryptsetup luksOpen /dev/disk/by-partuuid/$disk $volume")
+    
+  exec ("mount /dev/mapper/$volume /volumes/$volume");
+
+  $_SESSION['alert_type'] = "info";
+  $_SESSION['alert_message'] = "Unlocked Encrypted volume $volume successfully!";
+  header("Location: volumes.php");
+}
+
 if(isset($_POST['volume_add'])){
   $name = trim($_POST['name']);
   $disk = $_POST['disk'];
@@ -353,7 +367,9 @@ if(isset($_POST['volume_add'])){
       $password = $_POST['password'];
       exec ("echo $password | cryptsetup -q luksFormat /dev/$diskpart");
       exec ("echo $password | cryptsetup open /dev/$diskpart $name");
-      exec ("mkfs.ext4 /dev/mapper/$name");    
+      exec ("mkfs.ext4 -F /dev/mapper/$name");
+      $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
+      exec("echo $uuid > /volumes/$name/.uuid_map");    
       exec ("mount /dev/mapper/$name /volumes/$name");
     }else{
       exec ("mkfs.ext4 -F /dev/$diskpart");
