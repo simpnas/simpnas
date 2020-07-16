@@ -338,7 +338,7 @@ if(isset($_POST['unlock_volume'])){
   $volume = $_POST['volume'];
   $password = $_POST['password'];
 
-  exec("echo $password | cryptsetup luksOpen /dev/disk/by-partuuid/$disk $volume")
+  exec("echo $password | cryptsetup luksOpen /dev/disk/by-partuuid/$disk $volume");
     
   exec ("mount /dev/mapper/$volume /volumes/$volume");
 
