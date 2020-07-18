@@ -130,7 +130,7 @@
               <?php
                 if(file_exists("/volumes/$volume/.uuid_map")){
               ?>    
-                <button class="btn btn-outline-danger" data-toggle="modal" data-target="#mountCrypt<?php echo $disk; ?>"><span data-feather="unlock"></span></button>
+                <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#mountCrypt<?php echo $disk; ?>"><span data-feather="unlock"></span></button>
                 
               <?php   
                 }
@@ -162,10 +162,11 @@
                 <input type="hidden" name="disk" value="<?php echo $disk; ?>">
                 <input type="hidden" name="volume" value="<?php echo $volume; ?>">
                 <div class="modal-body">
+
+                  <center><i class="fa fa-8x fa-unlock text-secondary mb-3"></i></center>
                  
                   <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" class="form-control" name="password" required autofocus autocomplete="new-password">
+                    <input type="password" class="form-control" name="password" placeholder="Password" required autofocus autocomplete="new-password">
                   </div>
                 </div>
                 <div class="modal-footer">
