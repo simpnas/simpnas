@@ -457,8 +457,8 @@ if(isset($_GET['volume_delete'])){
   //check to make sure no shares are linked to the volume
   //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
   //the code to do that here
-  $diskpart = exec("findmnt -n -o SOURCE --target /volumes/$name");
-  $disk = exec("lsblk -n -o pkname $diskpart");
+  $diskpart = exec("findmnt -o SOURCE --target /volumes/$name");
+  $disk = exec("lsblk -o pkname $diskpart");
   $uuid = exec("blkid -o value --match-tag UUID $diskpart");
   
   exec("ls /volumes/$name | grep -v lost+found", $directory_list_array);
@@ -466,7 +466,15 @@ if(isset($_GET['volume_delete'])){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not delete volume $name as there are files shares, please delete the file shares accociated to volume $name and try again!";
   }else{
+    //UNMOUNTED CRYPT
+    //Check to see if its an unmounted crypt volume if so replace $disk with new $disk
+    if(file_exists("/volumes/$name/ -name .uuid_map")){
+      $disk_part_uuid = exec("cat /volumes/$name/.uuid_map");
+      $disk = exec("lsblk -o PKNAME,NAME,UUID | grep $disk_part_uuid | awk '{print $1}'");
+    }
+
     exec ("umount -l /volumes/$name");
+    exec("cryptsetup close $volume");
     exec ("rm -rf /volumes/$name");
     
     //RAID Remove
@@ -489,6 +497,11 @@ if(isset($_GET['volume_delete'])){
 
     deleteLineInFile("/etc/fstab","$uuid");
 
+  }
+
+  if(file_exists("/volumes/$name/ -name .uuid_map")){
+    $disk_part_uuid = exec("cat /volumes/$name/ -name .uuid_map");
+    $disk = exec("lsblk -o PKNAME,NAME,UUID | grep $disk_part_uuid | awk '{print $1}'");
   }
   
   header("Location: volumes.php");

@@ -20,6 +20,10 @@ print_r($unmounted_crypt_disk_array);
 
 //GET mounted Crypts
 
-exec("lsblk -o PKNAME,NAME,TYPE | grep crypt | awk '{print $1}'", $unmounted_crypt_disk_array);
+exec("lsblk -o PKNAME,NAME,TYPE | grep crypt | awk '{print $1}'", $mounted_crypt_diskparts_array);
+foreach($mounted_crypt_diskparts_array as $mounted_crypt_diskpart){
+	exec("lsblk -o PKNAME,NAME | grep $mounted_crypt_diskpart | awk '{print $1}'", $mounted_crypt_disk_array);
+}
+
 
 ?>
