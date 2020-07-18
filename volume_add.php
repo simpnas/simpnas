@@ -5,11 +5,31 @@
   include("header.php");
   include("side_nav.php");
   
+  //CRYPT UNMOUNTED
+	exec("ls -a /volumes/*/.uuid_map",$unmounted_crypt_ls_array);
+	foreach($unmounted_crypt_ls_array as $unmounted_crypt){
+		exec("cat $unmounted_crypt", $unmounted_crypt_uuid_array);
+	}
+
+	foreach($unmounted_crypt_uuid_array as $unmounted_crypt_uuid){
+		exec("lsblk -o PKNAME,NAME,UUID | grep $unmounted_crypt_uuid | awk '{print $1}'", $has_volume_disk_array);
+	}
+
+	//CRYPT MOUNTED
+	exec("lsblk -o PKNAME,NAME,TYPE | grep crypt | awk '{print $1}'", $mounted_crypt_diskparts_array);
+	foreach($mounted_crypt_diskparts_array as $mounted_crypt_diskpart){
+		exec("lsblk -o PKNAME,NAME | grep $mounted_crypt_diskpart | awk '{print $1}'", $has_volume_disk_array);
+	}
+
+	//RAID
   exec("ls /volumes", $volume_array);
   exec("lsblk -n -o PKNAME,TYPE | grep raid | awk '{print $1}'", $raids_array);
   foreach($raids_array as $raid){
   	exec("lsblk -n -o PKNAME,PATH | grep /dev/$raid | awk '{print $1}'", $has_volume_disk_array);
   }
+  
+  //SIMPLE VOLUMES
+
   foreach($volume_array as $volume){
   	exec("lsblk -n -o pkname,mountpoint | grep -w volumes | awk '{print $1}'", $has_volume_disk_array);
   	exec("lsblk -n -o pkname,mountpoint | grep -w / | awk '{print $1}'", $has_volume_disk_array); //adds OS Drive to the array
