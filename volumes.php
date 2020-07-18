@@ -112,7 +112,8 @@
           <td><span class="mr-2" data-feather="database"></span><?php echo $volume; ?></td>
           <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?>
           	<?php if(isset($disk_part_in_array)){ echo "<br><small class='text-secondary'>$raid_type: $disk_in_array</small>"; } ?>
-        	</td>
+            <?php if(!empty($is_crypt)){ echo "<br><small class='text-secondary'>Encrypted Volume</small>"; } ?>
+          </td>
           <td>
             <?php if(empty($mounted)){ ?>
             <div class="text-danger">Not Mounted</div>
@@ -164,7 +165,7 @@
                  
                   <div class="form-group">
                     <label>Password</label>
-                    <input type="password" class="form-control" name="password"  required autocomplete="new-password">
+                    <input type="password" class="form-control" name="password" required autofocus autocomplete="new-password">
                   </div>
                 </div>
                 <div class="modal-footer">
@@ -180,6 +181,7 @@
         unset($disk_part_in_array);
         unset($array_disk_part_array);
         unset($disk_in_array);
+        unset($is_crypt);
         } 
         ?>
       </tbody>
