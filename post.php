@@ -498,11 +498,6 @@ if(isset($_GET['volume_delete'])){
     deleteLineInFile("/etc/fstab","$uuid");
 
   }
-
-  if(file_exists("/volumes/$name/ -name .uuid_map")){
-    $disk_part_uuid = exec("cat /volumes/$name/ -name .uuid_map");
-    $disk = exec("lsblk -o PKNAME,NAME,UUID | grep $disk_part_uuid | awk '{print $1}'");
-  }
   
   header("Location: volumes.php");
 }
