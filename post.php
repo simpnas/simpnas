@@ -474,7 +474,7 @@ if(isset($_GET['volume_delete'])){
     }
 
     exec ("umount -l /volumes/$name");
-    exec("cryptsetup close $volume");
+    exec("cryptsetup close $name");
     exec ("rm -rf /volumes/$name");
     
     //RAID Remove
