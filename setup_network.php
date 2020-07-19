@@ -73,7 +73,7 @@
 	  </div>
 	  
 	  <button type="submit" name="setup_network" class="btn btn-primary">Next <span data-feather="arrow-right"></span></button>
-	  <a href="setup_volume.php" class="btn btn-secondary">Skip <span data-feather="arrow-right"></span></a>
+	  <a href="setup_volume.php" class="float-right text-muted">Skip</a>
 	</form>
 </main>
 
