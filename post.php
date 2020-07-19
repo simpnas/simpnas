@@ -1161,9 +1161,13 @@ if(isset($_GET['update_nextcloud'])){
   exec("docker stop nextcloud_mariadb");
   exec("docker rm nextcloud_mariadb");
 
-  exec("docker run -d --name nextcloud_mariadb --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
+  $nextcloud_mariadb_path = exec("find /volumes/*/docker/nextcloud_mariadb -name nextcloud_mariadb");
+  $nextcloud_data_path = exec("find /volumes/*/nextcloud_data/appdata -name appdata");
+  $nextcloud_app_data = exec("find /volumes/*/docker/nextcloud/data -name data");
 
-  exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/appdata:/config -v /volumes/$config_docker_volume/docker/nextcloud/data:/data linuxserver/nextcloud");
+  exec("docker run -d --name nextcloud_mariadb --net=my-network -p 3306:3306 --restart=unless-stopped -v $nextcloud_mariadb_path:/config linuxserver/mariadb");
+
+  exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v $nextcloud_data_path:/config -v $nextcloud_app_data:/data linuxserver/nextcloud");
 
   exec("docker image prune");
   
