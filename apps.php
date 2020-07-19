@@ -30,6 +30,8 @@
       "local_port" => 6443,
       "protocol" => "https://",
       "install" => "install_nextcloud.php",
+      "update" => "post.php?update_nextcloud",
+      "config" => "",
     ),
     array(
       "title" => "Jellyfin",
@@ -42,6 +44,8 @@
       "local_port" => 8096,
       "protocol" => "http://",
       "install" => "install_jellyfin.php",
+      "update" => "post.php?update_jellyfin",
+      "config" => "",
     ),
     array(
       "title" => "DAAPD",
@@ -54,6 +58,8 @@
       "local_port" => 3689,
       "protocol" => "http://",
       "install" => "install_daapd.php",
+      "update" => "post.php?update_daapd",
+      "config" => "",
     ),
     array(
       "title" => "Transmission",
@@ -66,6 +72,8 @@
       "local_port" => 9091,
       "protocol" => "http://",
       "install" => "install_transmission.php",
+      "update" => "",
+      "config" => "",
     ),
     array(
       "title" => "Bitwarden RS",
@@ -78,6 +86,8 @@
       "local_port" => 88,
       "protocol" => "http://",
       "install" => "post.php?install_bitwarden",
+      "update" => "post.php?update_bitwarden",
+      "config" => "",
     ),
     array(
       "title" => "Home Assistant",
@@ -90,6 +100,8 @@
       "local_port" => 8123,
       "protocol" => "http://",
       "install" => "post.php?install_homeassistant",
+      "update" => "post.php?update_homeassistant",
+      "config" => "",
     ),
     array(
       "title" => "Dokuwiki",
@@ -102,6 +114,8 @@
       "local_port" => 85,
       "protocol" => "http://",
       "install" => "post.php?install_dokuwiki",
+      "update" => "post.php?update_dokuwiki",
+      "config" => "",
     ),
     array(
       "title" => "Gitea",
@@ -114,6 +128,8 @@
       "local_port" => 3000,
       "protocol" => "http://",
       "install" => "post.php?install_gitea",
+      "update" => "",
+      "config" => "",
     ),
     array(
       "title" => "Unifi Controller",
@@ -126,6 +142,8 @@
       "local_port" => 8443,
       "protocol" => "https://",
       "install" => "post.php?install_unifi-controller",
+      "update" => "post.php?update_unifi-controller",
+      "config" => "",
     ),
     array(
       "title" => "Unifi Video",
@@ -138,6 +156,8 @@
       "local_port" => 7443,
       "protocol" => "https://",
       "install" => "install_unifi-video.php",
+      "update" => "post.php?update_unifi-video",
+      "config" => "",
     ),
     //array(
       //"title" => "Wireguard VPN Server",
@@ -212,6 +232,13 @@
               if(file_exists("/volumes/$config_docker_volume/docker/$app[container_name]")) {
               ?>
                 <a href="<?php echo $app[protocol]; ?><?php echo $config_primary_ip; ?>:<?php echo $app[local_port]; ?>" target="_blank" class="btn btn-outline-primary"><span data-feather="external-link"></span></a>
+                <?php 
+                if(!empty($app[update])){ ?>
+                  <a href="<?php echo $app[update]; ?>" target="_blank" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+                <?php
+                }
+                ?>
+
                 <a href="post.php?uninstall_<?php echo $app[container_name]; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
                 <a href="docker_logs.php?docker_app=<?php echo $app[container_name]; ?>" class="btn btn-outline-secondary"><span data-feather="clock"></span></a>
 
