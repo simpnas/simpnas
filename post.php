@@ -1033,6 +1033,23 @@ if(isset($_POST['install_daapd'])){
   header("Location: apps.php");
 }
 
+if(isset($_GET['update_daapd'])){
+
+  $group_id = exec("getent group media | cut -d: -f3");
+  $media_path = exec("find /volumes/*/media -name media");
+  $docker_path = exec("find /volumes/*/docker/daapd -name daapd");
+
+  exec("docker pull linuxserver/daapd");
+  exec("docker stop daapd");
+  exec("docker rm daapd");
+  
+  exec("docker run -d --name daapd --net=host --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v $docker_path:/config -v $media_path/music:/music linuxserver/daapd");
+
+  exec("docker image prune");
+  
+  header("Location: apps.php");
+}
+
 if(isset($_GET['uninstall_daapd'])){
   //stop and delete docker container
   exec("docker stop daapd");
@@ -1298,11 +1315,13 @@ if(isset($_GET['install_dokuwiki'])){
 
 if(isset($_GET['update_dokuwiki'])){
 
+  $docker_path = exec("find /volumes/*/docker/dokuwiki -name docuwiki");
+
   exec("docker pull linuxserver/dokuwiki");
   exec("docker stop dokuwiki");
   exec("docker rm dokuwiki");
 
-  exec("docker run -d --name dokuwiki --net=my-network -p 85:80 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/dokuwiki/config:/config linuxserver/dokuwiki");
+  exec("docker run -d --name dokuwiki --net=my-network -p 85:80 --restart=unless-stopped -v $docker_path:/config linuxserver/dokuwiki");
 
   exec("docker image prune");
   
@@ -1353,11 +1372,22 @@ if(isset($_GET['install_bitwarden'])){
 
 if(isset($_GET['update_bitwarden'])){
 
-  exec("docker pull bitwardenrs/server:latest");
+  $docker_path = exec("find /volumes/*/docker/bitwarden -name bitwarden");
+
+  $cpu_arch = exec("dpkg --print-architecture");
+  if($cpu_arch == "amd64"){
+    $tag = "latest";
+  }elseif($cpu_arch == "armhf"){
+    $tag = "armv6";
+  }else{
+    $tag = "aarch64";
+  }
+
+  exec("docker pull bitwardenrs/server:$tag");
   exec("docker stop bitwarden");
   exec("docker rm bitwarden");
 
-  exec("docker run -d --name bitwarden -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
+  exec("docker run -d --name bitwarden -v $docker_path:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:$tag");
 
   exec("docker image prune");
   
@@ -1430,11 +1460,13 @@ if(isset($_GET['install_homeassistant'])){
 
 if(isset($_GET['update_homeassistant'])){
 
-  exec("docker pull homeassistant/home-assistant:stable");
-  exec("docker stop home-assistant");
-  exec("docker rm home-assistant");
+  $docker_path = exec("find /volumes/*/docker/homeassistant -name homeassistant");
 
-  exec("docker run -d --name homeassistant --net=host --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/home-assistant:/config homeassistant/home-assistant:st");
+  exec("docker pull homeassistant/home-assistant:stable");
+  exec("docker stop homeassistant");
+  exec("docker rm homeassistant");
+
+  exec("docker run -d --name homeassistant --net=my-network --restart=unless-stopped -p 8123:8123 -v $docker_path:/config homeassistant/home-assistant:stable");
 
   exec("docker image prune");
   
@@ -1474,11 +1506,13 @@ if(isset($_GET['install_unifi-controller'])){
 
 if(isset($_GET['update_unifi-controller'])){
 
-  exec("docker pull linuxserver/unifi-controller");
-  exec("docker stop unifi");
-  exec("docker rm unifi");
+  $docker_path = exec("find /volumes/*/docker/unifi-controller -name unifi-controller");
 
-  exec("docker run -d --name unifi --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/unifi:/config linuxserver/unifi-controller");
+  exec("docker pull linuxserver/unifi-controller");
+  exec("docker stop unifi-controller");
+  exec("docker rm unifi-controller");
+
+  exec("docker run -d --name unifi-controller --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v $docker_path:/config linuxserver/unifi-controller");
 
   exec("docker image prune");
   
@@ -1544,7 +1578,7 @@ if(isset($_POST['install_unifi-video'])){
 
     }
     
-    exec("docker run -d --name unifi-video --net=my-network --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -e DEBUG=1 -v /volumes/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /volumes/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
+    exec("docker run -d --name unifi-video --net=my-network --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -v /volumes/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /volumes/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
   
   } //End Docker Check
 
@@ -1555,13 +1589,14 @@ if(isset($_POST['install_unifi-video'])){
 if(isset($_GET['update_unifi-video'])){
 
   $group_id = exec("getent group video-surveillance | cut -d: -f3");
-  $volume_path = exec("find /volumes/*/video-surveillance -name 'video-surveillance'");
+  $data_path = exec("find /volumes/*/video-surveillance -name 'video-surveillance'");
+  $docker_path = exec("find /volumes/*/docker/unifi-video -name unifi-video");
 
   exec("docker pull pducharme/unifi-video-controller");
   exec("docker stop unifi-video");
   exec("docker rm unifi-video");
 
-  exec("docker run -d --name unifi-video --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -e DEBUG=1 -v /volumes/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /volumes/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
+  exec("docker run -d --name unifi-video --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -v $docker_path:/var/lib/unifi-video -v $data_path:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
 
   exec("docker image prune");
   
