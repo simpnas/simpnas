@@ -20,6 +20,7 @@
   
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
     <h2>Volume Creation</h2>
+    <a href="setup_volume_raid.php" class="btn btn-outline-secondary">Use RAID Instead</a>
     <a href="setup_volume.php" class="btn btn-outline-secondary">Rescan for new Disks</a>
   </div>
 

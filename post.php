@@ -1948,6 +1948,49 @@ if(isset($_GET['setup_use_system_volume'])){
   header("Location: setup_final.php");
 }
 
+if(isset($_POST['setup_volume_raid'])){
+  $volume_name = trim($_POST['volume_name']);
+  $raid = $_POST['raid'];
+  $disk_array = $_POST['disks'];
+
+  $num_of_disks = count($disk_array);
+  
+  foreach($disk_array as $disk){
+    exec ("wipefs -a /dev/$disk");
+    exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+    exec("lsblk -o PKNAME,KNAME,TYPE,PATH /dev/$disk | grep part | awk '{print $4}'",$diskpart_array);
+  }
+
+  $diskparts = implode(' ',$diskpart_array);
+  
+  //Generate the next /dev/mdX Number
+  //get the last md#
+  $md = exec("ls /dev/md*");
+  //extract the numbers out of md
+  $md_num = preg_replace('/[^0-9]/', '', $md);
+  //add 1 to the num
+  $new_md_num = $md_num + 1;
+
+  exec("yes | mdadm --create /dev/md$new_md_num --level=$raid --raid-devices=$num_of_disks $diskparts");
+
+  exec ("mkdir /volumes/$volume_name");
+
+  exec ("mkfs.ext4 -F /dev/md$new_md_num");
+  
+  exec ("mount /dev/md$new_md_num /volumes/$volume_name");  
+    
+  $uuid = exec("blkid -o value --match-tag UUID /dev/md$new_md_num");
+
+  $myFile = "/etc/fstab";
+  $fh = fopen($myFile, 'a') or die("can't open file");
+  $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 0\n";
+  fwrite($fh, $stringData);
+  fclose($fh);
+
+  header("Location: setup_final.php");
+
+}
+
 if(isset($_POST['setup_final'])){
   $volume_name = exec("ls /volumes");
   $password = $_POST['password'];
