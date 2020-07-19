@@ -73,7 +73,7 @@
 	  </div>
 	  
 	  <button type="submit" name="setup_network" class="btn btn-primary">Next <span data-feather="arrow-right"></span></button>
-	  <a href="setup_volume.php" class="float-right text-muted">Skip</a>
+	  <a href="setup_volume.php" class="float-right text-muted">Skip - Use Existing Network Configuration</a>
 	</form>
 </main>
 
