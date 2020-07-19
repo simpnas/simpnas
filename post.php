@@ -937,14 +937,14 @@ if(isset($_POST['install_jellyfin'])){
 
 if(isset($_GET['update_jellyfin'])){
 
-  $group_id = exec("getent group media | cut -d: -f3");
-  $volume_path = exec("find /volumes/*/media -name 'media'");
+  $media_path = exec("find /volumes/*/media -name media");
+  $docker_path = exec("find /volumes/*/docker/jellyfin -name jellyfin");
 
   exec("docker pull linuxserver/jellyfin");
   exec("docker stop jellyfin");
   exec("docker rm jellyfin");
   
-  exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/jellyfin:/config -v /volumes/$volume/media/tvshows:/tvshows -v /volumes/$volume/media/movies:/movies -v /volumes/$volume/media/music:/music linuxserver/jellyfin");
+  exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -v $docker_path:/config -v $media_path/tvshows:/tvshows -v $media_path/movies:/movies -v $media_path/music:/music linuxserver/jellyfin");
 
   exec("docker image prune");
   
