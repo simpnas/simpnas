@@ -4,6 +4,7 @@
 	
 	//$os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 	$os_disk = exec("lsblk -n -o pkname,MOUNTPOINT | grep -w / | awk '{print $1}'");
+	exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
 
 
 ?>
@@ -46,8 +47,8 @@
 	    <label>Select Disks</label>
 	    
 			  	<?php
-				foreach($not_in_use_disks_array as $disk){
-		        $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Family:' | awk '{print $3,$4,$5}'");
+				foreach($disk_list_array as $disk){
+		      $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Family:' | awk '{print $3,$4,$5}'");
 				  if(empty($disk_vendor)){
 				    $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Device Model:' | awk '{print $3,$4,$5}'");
 				  }

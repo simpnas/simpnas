@@ -4,7 +4,7 @@
 	
 	//$os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 	$os_disk = exec("lsblk -n -o pkname,MOUNTPOINT | grep -w / | awk '{print $1}'");
-
+	exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
 
 ?>
 
@@ -35,7 +35,7 @@
 	    <select class="form-control" name="disk" required>
 		  	<option value=''>--Select Disk--</option>
 		  	<?php
-				exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
+				
 				foreach ($disk_list_array as $disk) {
 	        $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Family:' | awk '{print $3,$4,$5}'");
 				  if(empty($disk_vendor)){
@@ -49,7 +49,9 @@
 				  }
 			    $disk_serial = exec("lsblk -n -o kname,type,serial /dev/$disk | grep disk  | awk '{print $3}'");
 			    $disk_size = exec("lsblk -n -o kname,type,size /dev/$disk | grep disk | awk '{print $3}'");
+				
 				?>
+				
 				<option value="<?php echo $disk; ?>"><?php echo "$disk - $disk_vendor ($disk_size"."B)"; ?></option>
 
 				<?php
