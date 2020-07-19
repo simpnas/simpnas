@@ -1169,7 +1169,7 @@ if(isset($_GET['update_nextcloud'])){
 
   exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v $nextcloud_data_path:/config -v $nextcloud_app_data:/data linuxserver/nextcloud");
 
-  exec("docker exec -it nextcloud updater.phar --no-interaction");
+  exec("docker exec nextcloud updater.phar --no-interaction");
 
   exec("docker image prune");
   
