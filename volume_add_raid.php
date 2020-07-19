@@ -50,7 +50,7 @@
 	</nav>
 
 <?php
-if(count($not_in_use_disks_array) > 0){ 
+if(count($not_in_use_disks_array) > 1){ 
 ?>
 
 	<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
@@ -68,9 +68,19 @@ if(count($not_in_use_disks_array) > 0){
 	  		<option value=''>--Select RAID--</option>
 	  		<option value='0'>RAID 0 (Striping)</option>
 	  		<option value='1'>RAID 1 (Mirroring)</option>
-	  		<option value='5'>RAID 5 (Parity)</option>
-	  		<option value='6'>RAID 6 (Double Parity)</option>
-	  		<option value='10'>RAID 10 (Mirror / Sripe)</option>
+	  		<?php 
+	  		if(count($not_in_use_disks_array) > 2){ ?>
+	  			<option value='5'>RAID 5 (Parity)</option>
+	  		<?php
+	  		}
+	  		?>
+	  		<?php 
+	  		if(count($not_in_use_disks_array) > 3){ ?>
+	  			<option value='6'>RAID 6 (Double Parity)</option>
+	  			<option value='10'>RAID 10 (Mirror / Sripe)</option>
+	  		<?php
+	  		}
+	  		?>
 	  	</select>
 	  </div>
 	  
@@ -117,7 +127,7 @@ if(count($not_in_use_disks_array) > 0){
 <?php
 }else{
 ?>
-<h2 class="text-secondary mt-5 text-center">You must add another disk to create a new volume</h2>
+<h2 class="text-secondary mt-5 text-center">You must have at lease two disks to create a RAID volume.</h2>
 <?php
 } 
 ?>
