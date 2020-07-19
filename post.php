@@ -419,6 +419,9 @@ if(isset($_POST['volume_add_raid'])){
     }
 
     $diskparts = implode(' ',$diskpart_array);
+
+    //WIPE out any superblocks
+    exec("mdadm --zero-superblock $diskparts");
     
     //Generate the next /dev/mdX Number
     //get the last md#
