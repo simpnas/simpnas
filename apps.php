@@ -234,12 +234,12 @@
                 <a href="<?php echo $app[protocol]; ?><?php echo $config_primary_ip; ?>:<?php echo $app[local_port]; ?>" target="_blank" class="btn btn-outline-primary"><span data-feather="external-link"></span></a>
                 <?php 
                 if(!empty($app[update])){ ?>
-                  <a href="<?php echo $app[update]; ?>" target="_blank" class="btn btn-outline-secondary"><span data-feather="download"></span></a>
+                  <a href="<?php echo $app[update]; ?>" class="btn btn-outline-secondary" onclick="$('#cover-spin').show(0)"><span data-feather="download"></span></a>
                 <?php
                 }
                 ?>
 
-                <a href="post.php?uninstall_<?php echo $app[container_name]; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+                <a href="post.php?uninstall_<?php echo $app[container_name]; ?>" class="btn btn-outline-danger" onclick="$('#cover-spin').show(0)"><span data-feather="trash"></span></a>
                 <a href="docker_logs.php?docker_app=<?php echo $app[container_name]; ?>" class="btn btn-outline-secondary"><span data-feather="clock"></span></a>
 
                 <?php 
