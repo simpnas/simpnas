@@ -212,11 +212,9 @@
             <?php } ?>
           </td>
           <td>
-            <?php echo $app[description]; ?>
-            <?php if($app['title'] == 'Transmission'){ ?> 
-              <p class="text-secondary">VPN IP: <strong><?php $vpn_ip = exec("docker exec -i transmission curl ifconfig.co"); echo $vpn_ip; ?></strong></p>
-            <?php } ?>
             <?php 
+              echo $app[description];
+             
               if(file_exists("/volumes/$config_docker_volume/docker/$app[container_name]")) {
             ?>
             <br><br><small class="text-secondary"><?php echo exec("docker inspect -f '{{ index .Config.Labels \"build_version\" }}' $app[container_name]"); ?></small>

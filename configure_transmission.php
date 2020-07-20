@@ -22,6 +22,7 @@
 </nav>
 
   <h2>Configure Transmission</h2>
+  <h4>VPN IP: <small><?php $vpn_ip = exec("docker exec transmission curl ifconfig.co"); echo $vpn_ip; ?></small></h4>
  
   <form method="post" action="post.php">
 
