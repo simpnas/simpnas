@@ -7,6 +7,11 @@
 
 ?>
 
+<?php
+	$vpn_user = exec("docker exec transmission sed -n 1p /config/openvpn-credentials.txt");
+	$vpn_pass = exec("docker exec transmission sed -n 2p /config/openvpn-credentials.txt");
+?>
+
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
   <nav>
   <ol class="breadcrumb">
@@ -22,7 +27,7 @@
 
 	  <div class="form-group">
 	  	<div class="custom-control custom-checkbox">
-			  <input type="checkbox" class="custom-control-input" name="enable_vpn" value="1" id="configVpn">
+			  <input type="checkbox" class="custom-control-input" name="enable_vpn" value="1" id="configVpn" <?php if(!empty($vpn_user)) { echo "checked"; } ?>>
 			  <label class="custom-control-label" for="configVpn">Configure VPN</label>
 			</div>
 	  </div>
@@ -44,12 +49,12 @@
 		  
 		  <div class="form-group">
 		    <label>VPN Username <strong class="text-danger">*</strong></label></label>
-		    <input type="text" class="form-control" name="username" placeholder="Username">
+		    <input type="text" class="form-control" name="username" placeholder="Username" value="<?php echo $vpn_user; ?>">
 		  </div>
 		  
 		  <div class="form-group">
 		    <label>VPN Password <strong class="text-danger">*</strong></label></label>
-		    <input type="password" class="form-control" name="password" placeholder="Password">
+		    <input type="password" class="form-control" name="password" placeholder="Password" value="<?php echo $vpn_pass; ?>">
 		  </div>
 		  
 		  <div class="form-group">
