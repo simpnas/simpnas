@@ -32,7 +32,7 @@
         <?php
         exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | awk '{print $1}'", $disk_list_array);
         foreach ($disk_list_array as $disk) {
-          $hdd_smart = exec("smartctl -i /dev/$disk | grep 'SMART support is' | cut -d' ' -f 8-");
+          $hdd_smart = exec("smartctl -i /dev/$disk | grep 'Unavailable'");
 
           $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Family:' | awk '{print $3,$4,$5,$6}'");
           if(empty($disk_vendor)){
@@ -74,7 +74,9 @@
           <td><?php echo $disk_type; ?></td>
           <td>
             <div class="btn-group mr-2">
-              <a href="hdd_info.php?hdd=<?php echo $disk; ?>" class="btn btn-outline-secondary btn-sm">Health Info</a>
+              <?php if(empty($hdd_smart)){ ?>
+                <a href="hdd_info.php?hdd=<?php echo $disk; ?>" class="btn btn-outline-secondary btn-sm">Health Info</a>
+              <?php } ?>
             </div>
           </td>
         </tr>
