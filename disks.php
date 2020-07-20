@@ -47,7 +47,11 @@
           if(empty($disk_vendor)){
             $disk_vendor = "-";
           }
-          $disk_serial = exec("lsblk -n -o kname,type,serial /dev/$disk | grep disk  | awk '{print $3}'");
+          $disk_serial = exec("smartctl -i /dev/$disk | grep 'Serial Number:' | awk '{print $4}'");
+          if(empty($disk_serial)){
+            $disk_serial = exec("lsblk -n -o kname,type,serial /dev/$disk | grep disk  | awk '{print $3}'");
+          }
+
           $disk_size = exec("lsblk -n -o kname,type,size /dev/$disk | grep disk | awk '{print $3}'");
           
           $disk_type = exec("smartctl -i /dev/$disk | grep 'Rotation Rate:' | awk '{print $3,$4,$5}'");
