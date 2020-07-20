@@ -125,8 +125,11 @@
             <?php } ?>  
           </td>
           <td>
-            <?php if($config_home_volume != $volume){ ?>
             <div class="btn-group mr-2">
+              <?php if(!empty($is_raid)){ ?>
+                <a href="raid_configuration.php?raid=<?php echo $disk; ?>" class="btn btn-outline-secondary"><span data-feather="settings"></span></a>
+              <?php } ?>
+              <?php if($config_home_volume != $volume){ ?>
               <?php
                 if(file_exists("/volumes/$volume/.uuid_map")){
               ?>    
@@ -137,9 +140,6 @@
               ?>
               <?php if(!empty($is_crypt)){ ?>
                 <a href="post.php?lock_volume=<?php echo $volume; ?>" class="btn btn-outline-secondary"><span data-feather="lock"></span></a>
-              <?php } ?>
-              <?php if(!empty($is_raid)){ ?>
-              	<a href="raid_configuration.php?raid=<?php echo $disk; ?>" class="btn btn-outline-secondary"><span data-feather="settings"></span></a>
               <?php } ?>
               <a href="post.php?volume_delete=<?php echo $volume; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
             </div>
