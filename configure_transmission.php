@@ -12,16 +12,11 @@
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
     <li class="breadcrumb-item"><a href="apps.php">Apps</a></li>
-    <li class="breadcrumb-item active">Update Transmission</li>
+    <li class="breadcrumb-item active">Configure Transmission</li>
   </ol>
 </nav>
 
-  <h2>Update Transmission</h2>
-  <ul>
-  	<li>This will NOT Delete you data</li>
-  	<li>This will update your existing container and wipe existing VPN configuration, you must reprogram your VPN</li>
-  	<li> http://<?php echo $config_primary_ip; ?>:9091</li>
-  </ul>
+  <h2>Configure Transmission</h2>
  
   <form method="post" action="post.php">
 

@@ -73,7 +73,7 @@
       "protocol" => "http://",
       "install" => "install_transmission.php",
       "update" => "",
-      "config" => "",
+      "config" => "configure_transmission.php",
     ),
     array(
       "title" => "Bitwarden RS",
@@ -235,6 +235,12 @@
                 <?php 
                 if(!empty($app[update])){ ?>
                   <a href="<?php echo $app[update]; ?>" class="btn btn-outline-secondary" onclick="$('#cover-spin').show(0)"><span data-feather="download"></span></a>
+                <?php
+                }
+                ?>
+                <?php 
+                if(!empty($app[config])){ ?>
+                  <a href="<?php echo $app[config]; ?>" class="btn btn-outline-secondary" onclick="$('#cover-spin').show(0)"><span data-feather="settings"></span></a>
                 <?php
                 }
                 ?>

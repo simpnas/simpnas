@@ -801,9 +801,8 @@ if(isset($_GET['backup_run'])){
 
 }
 
-if(isset($_GET['wipe_hdd'])){
-  $hdd = $_GET['wipe_hdd'];
-  $hdd_short_name = basename($hdd);
+if(isset($_POST['wipe_disk'])){
+  $hdd = $_GET['wipe_disk'];
 
   exec ("sudo shred -v -n 1 $hdd 2> /tmp/shred-$hdd_short_name-progress&");
   
