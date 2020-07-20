@@ -47,7 +47,7 @@
           if(empty($disk_vendor)){
             $disk_vendor = "-";
           }
-          $disk_serial = exec("smartctl -i /dev/$disk | grep 'Serial Number:' | awk '{print $4}'");
+          $disk_serial = exec("smartctl -i /dev/$disk | grep 'Serial Number:' | awk '{print $3}'");
           if(empty($disk_serial)){
             $disk_serial = exec("lsblk -n -o kname,type,serial /dev/$disk | grep disk  | awk '{print $3}'");
           }
