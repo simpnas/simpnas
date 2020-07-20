@@ -154,7 +154,7 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title">Unlock <?php echo $volume; ?></h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
@@ -171,7 +171,7 @@
                 </div>
                 <div class="modal-footer">
                   <button type="submit" name="unlock_volume" class="btn btn-primary">Unlock</button>
-                  <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
                 </div>
               </form>
             </div>
