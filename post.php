@@ -1091,7 +1091,18 @@ if(isset($_POST['install_nextcloud'])){
 
     exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/data:/data -v /volumes/$data_volume/nextcloud_data/appdata:/config linuxserver/nextcloud");
 
-    exec("sleep 80");
+    exec("echo '' > /var/log/nextcloud-counter.log");
+    $var = '';
+    $num = 0;
+    while(empty($var)){
+      sleep(1);
+      $var = exec("docker logs nextcloud | grep 'starting services'");
+      $timestamp = date("h:i:sa");
+      $num = $num + 1;
+      exec("echo '$num - $var - $timestamp' >> /var/log/nextcloud-counter.log");    
+    }
+
+    //exec("sleep 80");
     
     exec("docker exec nextcloud rm -rf /config/www/nextcloud/core/skeleton");
     if($enable_samba_mount == 1){
