@@ -1200,7 +1200,18 @@ if(isset($_GET['update_nextcloud'])){
 
   exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v $nextcloud_data_path:/config -v $nextcloud_app_data:/data linuxserver/nextcloud");
 
-  sleep(5);
+  exec("echo '' > /var/log/nextcloud-update-counter.log");
+  $var = '';
+  $num = 0;
+  while(empty($var)){
+    sleep(1);
+    $var = exec("docker logs nextcloud | grep 'starting services'");
+    $timestamp = date("h:i:sa");
+    $num = $num + 1;
+    exec("echo '$num - $var - $timestamp' >> /var/log/nextcloud-update-counter.log");    
+  }
+
+  //sleep(5);
  
   exec("docker exec nextcloud updater.phar --no-interaction");
 
