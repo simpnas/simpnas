@@ -372,6 +372,8 @@ if(isset($_POST['volume_add'])){
     exec ("wipefs -a /dev/$disk");
     exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
     $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
+    //WIPE out any superblocks
+    exec("mdadm --zero-superblock /dev/$diskpart");
     exec ("e2label /dev/$diskpart $name");
     exec ("mkdir /volumes/$name");
     
@@ -1952,6 +1954,8 @@ if(isset($_POST['setup_volume'])){
   exec ("wipefs -a /dev/$disk");
   exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
   $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
+  //WIPE out any superblocks
+  exec("mdadm --zero-superblock /dev/$diskpart");
   exec ("mkdir /volumes/$volume_name");
   exec ("mkfs.ext4 -F /dev/$diskpart");
   exec ("e2label /dev/$diskpart $volume_name");
