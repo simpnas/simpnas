@@ -67,6 +67,16 @@ echo "Creating Volumes Directory for Volume mounts"
 echo "=================================================================================="
 mkdir /volumes
 echo "=================================================================================="
+echo "Installing and Enabling Filebrowser..."
+echo "=================================================================================="
+cd /usr/local/etc
+curl -fsSL https://filebrowser.org/get.sh | bash
+cp /simpnas/conf/filebrowser.service /etc/systemd/system/
+chmod 755 /etc/systemd/system/filebrowser.service
+systemctl enable filebrowser
+systemctl start filebrowser
+
+echo "=================================================================================="
 echo "Installing and Enabling SimpNAS Service during Startup..."
 echo "=================================================================================="
 cp /simpnas/conf/simpnas.service /etc/systemd/system/
