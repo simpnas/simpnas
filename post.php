@@ -72,6 +72,10 @@ if(isset($_POST['user_add'])){
       exec ("useradd -g users -d /volumes/$config_home_volume/users/$username $username -c $comment -s /bin/false");
       exec ("echo '$password\n$password' | passwd $username");
       exec ("echo '$password\n$password' | smbpasswd -a $username");
+      //Create the user under file browser
+      exec("systemctl stop filebrowser");
+      exec ("filebrowser -d /usr/local/etc/filebrowser.db users add $username $password --scope /volumes/$config_home_volume/users/$username");
+      exec("systemctl start filebrowser");
     }else{
       exec ("samba-tool user create $username $password --home-drive=H --unix-home=/volumes/$config_home_volume/users/$username --home-directory='\\\\$config_hostname\users\\$username\' $email $phone $first_name $last_name $description");
     }
@@ -99,13 +103,16 @@ if(isset($_POST['user_edit'])){
   $comment = escapeshellarg($_POST['comment']);
   $group_array = implode(",", $_POST['group']);
 
-  
   //$group_count = count($group);
   if(!empty($_POST['password'])){
     $password = $_POST['password'];
     if(empty($config_ad_enabled)){
       exec ("echo '$password\n$password' | passwd $username");
       exec ("echo '$password\n$password' | smbpasswd $username"); //May not be needed
+      //Modify user password under file browser
+      exec("systemctl stop filebrowser");
+      exec("filebrowser -d /usr/local/etc/filebrowser.db users update $username -p $password");
+      exec("systemctl start filebrowser");
     }else{
       
     }
@@ -134,6 +141,10 @@ if(isset($_GET['user_delete'])){
   }
   
   exec("deluser --remove-home $username");
+  //Delete the user under file browser
+  exec("systemctl stop filebrowser");
+  exec("filebrowser -d /usr/local/etc/filebrowser.db users rm $username");
+  exec("systemctl start filebrowser");
 
   //exec("systemctl restart smbd");
   //exec("systemctl restart nmbd");
@@ -2165,10 +2176,11 @@ if(isset($_POST['setup_final'])){
     exec ("usermod -a -G admins administrator");
     exec ("echo '$password\n$password' | smbpasswd -a administrator");
     exec ("chown -R administrator /volumes/$volume_name/users/administrator");
+    //Create the user under file browser
+    exec("systemctl stop filebrowser");
+    exec ("filebrowser -d /usr/local/etc/filebrowser.db users add administrator $password --perm.admin=true");
+    exec("systemctl start filebrowser");
   }
-
-  exec("echo 'To manage SimpNAS point your browser to the following URL' >> /etc/issue");
-  exec("echo 'http://$primary_ip:81' >> /etc/issue");
 
   exec("apt install docker-ce docker-ce-cli containerd.io -y");
   exec("apt install docker.io -y");
