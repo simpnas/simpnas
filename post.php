@@ -1379,18 +1379,9 @@ if(isset($_GET['install_bitwarden'])){
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
 
-    $cpu_arch = exec("dpkg --print-architecture");
-    if($cpu_arch == "amd64"){
-      $tag = "latest";
-    }elseif($cpu_arch == "armhf"){
-      $tag = "armv6";
-    }else{
-      $tag = "aarch64";
-    }
-
     mkdir("/volumes/$config_docker_volume/docker/bitwarden/");
 
-    exec("docker run -d --name bitwarden --net=my-network -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:$tag");
+    exec("docker run -d --name bitwarden --net=my-network -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
   }
 
   header("Location: apps.php");
@@ -1400,20 +1391,11 @@ if(isset($_GET['update_bitwarden'])){
 
   $docker_path = exec("find /volumes/*/docker/bitwarden -name bitwarden");
 
-  $cpu_arch = exec("dpkg --print-architecture");
-  if($cpu_arch == "amd64"){
-    $tag = "latest";
-  }elseif($cpu_arch == "armhf"){
-    $tag = "armv6";
-  }else{
-    $tag = "aarch64";
-  }
-
-  exec("docker pull bitwardenrs/server:$tag");
+  exec("docker pull bitwardenrs/server:latest");
   exec("docker stop bitwarden");
   exec("docker rm bitwarden");
 
-  exec("docker run -d --name bitwarden -v $docker_path:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:$tag");
+  exec("docker run -d --name bitwarden -v $docker_path:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
 
   exec("docker image prune");
   

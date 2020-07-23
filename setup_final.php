@@ -61,7 +61,7 @@
 			</div>
 	  </div>
 	  
-	  <button type="submit" name="setup_final" class="btn btn-primary">Complete <span data-feather="check"></span></button>
+	  <button type="submit" name="setup_final" class="btn btn-primary"><span data-feather="check"></span> Complete</button>
 	</form>
 </main>
 
