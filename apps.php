@@ -20,6 +20,20 @@
   
   $apps_array = array(
     array(
+      "title" => "File Browser",
+      "category" => "File Management",
+      "description" => "Web based file manager.",
+      "website" => "https://filebrowser.org",
+      "image" => "filebrowser.png",
+      "container_name" => "filebrowser",
+      "external_hostname" => "files",
+      "local_port" => 82,
+      "protocol" => "http://",
+      "install" => "post.php?install_filebrowser",
+      "update" => "post.php?update_filebrowser",
+      "config" => "",
+    ),
+    array(
       "title" => "Nextcloud",
       "category" => "Groupware",
       "description" => "Groupware, file sharing platform",
