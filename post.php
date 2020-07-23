@@ -869,56 +869,6 @@ if(isset($_POST['settings_notifications'])){
 
 //APP SECTION
 
-if(isset($_GET['install_filebrowser'])){
-
-  // Check to see if docker is running
-  $status_service_docker = exec("systemctl status docker | grep running");
-  if(empty($status_service_docker)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
-  }else{
-
-    mkdir("/volumes/$config_docker_volume/docker/filebrowser/");
-    exec("touch /volumes/$config_docker_volume/docker/filebrowser/filebrowser.db");
-    exec("touch /volumes/$config_docker_volume/docker/filebrowser/.filebrowser.json");
-
-    exec("docker run -d --name filebrowser --net=my-network -v /volumes:/srv -v /volumes/$config_docker_volume/docker/filebrowser/filebrowser.db:/database.db -v /volumes/$config_docker_volume/docker/filebrowser/.filebrowser.json:/.filebrowser.json -p 82:80 --restart=unless-stopped filebrowser/filebrowser");
-  }
-
-  header("Location: apps.php");
-}
-
-if(isset($_GET['update_filebrowser'])){
-
-  $docker_path = exec("find /volumes/*/docker/filebrowser -name filebrowser");
-
-  exec("docker pull filebrowser/filebrowser");
-  exec("docker stop filebrowser");
-  exec("docker rm filebrowser");
-
-  exec("docker run -d --name filebrowser --net=my-network -v /volumes:/srv -v $docker_path/filebrowser.db:/database.db -v $docker_path/.filebrowser.json:/.filebrowser.json -p 82:80 --restart=unless-stopped filebrowser/filebrowser");
-
-  exec("docker image prune");
-  
-  header("Location: apps.php");
-
-}
-
-if(isset($_GET['uninstall_filebrowser'])){
-  //stop and delete docker container
-  exec("docker stop filebrowser");
-  exec("docker rm filebrowser");
-
-  //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/filebrowser");
-
-  //delete images
-  exec("docker image prune");
-
-  //redirect back to packages
-  header("Location: apps.php");
-}
-
 if(isset($_POST['install_jellyfin'])){
   
   // Check to see if docker is running
