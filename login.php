@@ -47,7 +47,7 @@ if(isset($_POST['login'])){
 
   <body class="text-center">
     <form class="form-signin" method="post">
-      <h2><?php echo gethostname(); ?></h2>
+      <h1 class="mb-3"><strong><?php echo gethostname(); ?><strong></h2>
       <div id ="alert">
         <?php 
         if(!empty($response)){
@@ -57,7 +57,7 @@ if(isset($_POST['login'])){
       </div>
       <input type="text" id="inputUsername" name="username" class="form-control" placeholder="Username" required autofocus>
       <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" required>
-      <button type="submit" class="btn btn-primary p-2 btn-block" name="login">Sign In</button>
+      <button type="submit" class="btn btn-primary p-2 btn-block" name="login">Login</button>
     </form>
   
 <?php include("footer.php"); ?>
