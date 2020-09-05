@@ -5,24 +5,20 @@
   include("header.php");
   include("side_nav.php");
 
-  exec("ls /volumes/$config_docker_volume/docker | grep -v mariadb | grep -v letsencrypt | grep -v transmission | grep -v daapd", $apps_array);
+  exec("ls /volumes/$config_docker_volume/docker | grep -v mariadb | grep -v swag | grep -v transmission | grep -v daapd", $apps_array);
   foreach($apps_array as $app){
   	if($app == 'nextcloud'){
   		$sub_domains_array[] = 'cloud';
   	}elseif($app == 'unifi-controller'){
   		$sub_domains_array[] = 'unifi';
-  	}elseif($app == 'gitea'){
-  		$sub_domains_array[] = 'git';
-  	}elseif($app == 'dokuwiki'){
-  		$sub_domains_array[] = 'wiki';
   	}elseif($app == 'bitwarden'){
   		$sub_domains_array[] = 'vault';
   	}else{
   		$sub_domains_array[] = $app;
   	}
   }
-  if(file_exists("/volumes/$config_docker_volume/docker/letsencrypt/")){ 
-  	 $domain = exec("cat /volumes/$config_docker_volume/docker/letsencrypt/donoteditthisfile.conf | awk -F\\\" '{print $2}'");
+  if(file_exists("/volumes/$config_docker_volume/docker/swag/")){ 
+  	$domain = exec("cat /volumes/$config_docker_volume/docker/swag/donoteditthisfile.conf | awk -F\\\" '{print $2}'");
   }
   
 ?>
@@ -64,7 +60,7 @@
 	  	foreach($apps_array as $app){
 	  ?>
 		<div class="form-group form-check">
-	    <input type="checkbox" class="form-check-input" name="app[]" value="<?php echo $app; ?>" <?php if(file_exists("/volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf")) { echo "checked"; } ?> >
+	    <input type="checkbox" class="form-check-input" name="app[]" value="<?php echo $app; ?>" <?php if(file_exists("/volumes/$config_docker_volume/docker/swag/nginx/proxy-confs/$app.subdomain.conf")) { echo "checked"; } ?> >
 	    <label class="form-check-label"><?php echo $app; ?></label>
 		</div>
 	  

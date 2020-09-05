@@ -199,7 +199,7 @@ if(isset($_POST['group_add'])){
   //check if group exists
   exec("awk -F: '$3 > 999 {print $1}' /etc/group", $groups_array);
   exec("awk -F: '$3 < 999 {print $1}' /etc/group", $system_groups_array);
-  $docker_groups_array = array("media", "downloads", "video-surveillance", "docker");
+  $docker_groups_array = array("media", "downloads", "docker");
 
   if(in_array($group, $groups_array)){
     $_SESSION['alert_type'] = "warning";
@@ -209,7 +209,7 @@ if(isset($_POST['group_add'])){
     $_SESSION['alert_message'] = "Can not add group $group because the group is a system group!";
   }elseif(in_array($group, $docker_groups_array)){
     $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not add group $group because the group $group is reserved for an App, the following group names are forbiddon media, downloads and video-surveillance!";
+    $_SESSION['alert_message'] = "Can not add group $group because the group $group is reserved for an App, the following group names are forbiddon media and downloads!";
   }else{
     if(empty($config_ad_enabled)){
       exec("addgroup $group");
@@ -232,7 +232,7 @@ if(isset($_POST['group_edit'])){
   exec("awk -F: '$3 > 999 {print $1}' /etc/group", $groups_array);
   exec("awk -F: '$3 < 999 {print $1}' /etc/group", $system_groups_array);
   exec("find /volumes/*/* -maxdepth 0 -type d -group $group -printf '%f\n'",$group_owned_directories_array);
-  $docker_groups_array = array("media", "downloads", "video-surveillance", "docker");
+  $docker_groups_array = array("media", "downloads", "docker");
 
   if(in_array($group, $groups_array)){
     $_SESSION['alert_type'] = "warning";
@@ -245,7 +245,7 @@ if(isset($_POST['group_edit'])){
     $_SESSION['alert_message'] = "Can not rename group $old_group to $group because the group is a currently being used by a File Share, to rename this group assign the file share a different group and try again!";
   }elseif(in_array($group, $docker_groups_array)){
     $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not rename group $old_group to $group because the group $group is reserved for an App, the following group names are forbiddon media, downloads and video-surveillance!";
+    $_SESSION['alert_message'] = "Can not rename group $old_group to $group because the group $group is reserved for an App, the following group names are forbiddon media and downloads!";
   }else{
     if(empty($config_ad_enabled)){
       exec ("groupmod -n $group $old_group");
@@ -552,7 +552,7 @@ if(isset($_POST['share_add'])){
   //Checks
   exec("ls /etc/samba/shares",$existing_shares_array);
   exec("find /volumes/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
-  $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "users");
+  $docker_shares_array = array("media", "downloads", "docker", "users");
   $mounted = exec("df | grep $volume");
   if($volume == "sys-vol"){
     $mounted = 1;
@@ -566,7 +566,7 @@ if(isset($_POST['share_add'])){
     $_SESSION['alert_message'] = "Directory $name already exists can not add share with the name $name, would you like to share the existing directory instead (Note this will update the permissions to user root with RWX and group to RWX and everyone else to --- or would you like to delete the directory and its contents and create a new directory!";
   }elseif(in_array($name, $docker_shares_array)){
     $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not create the share $name as it shares the same share name as an app. The followng share names are forbiddon media, downloads, video-surveillance, docker and users!";
+    $_SESSION['alert_message'] = "Can not create the share $name as it shares the same share name as an app. The followng share names are forbiddon media, downloads, docker and users!";
   }elseif(empty($mounted)){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not create the share $name because the volume $volume is not mounted";
@@ -619,7 +619,7 @@ if(isset($_POST['share_edit'])){
     //Name Checks
     exec("ls /etc/samba/shares",$existing_shares_array);
     exec("find /volumes/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
-    $docker_shares_array = array("media", "downloads", "video-surveillance", "docker", "users");
+    $docker_shares_array = array("media", "downloads", "docker", "users");
     
     if(in_array($name, $existing_shares_array)){
       $_SESSION['alert_type'] = "warning";
@@ -629,7 +629,7 @@ if(isset($_POST['share_edit'])){
       $_SESSION['alert_message'] = "Directory $name already exists can not rename share $current_name to $name!";
     }elseif(in_array($name, $docker_shares_array)){
       $_SESSION['alert_type'] = "warning";
-      $_SESSION['alert_message'] = "Can not rename share $current_name to $name the share $name shares the same share name as an app. The followng share names are forbiddon media, downloads, video-surveillance, docker and users!";
+      $_SESSION['alert_message'] = "Can not rename share $current_name to $name the share $name shares the same share name as an app. The followng share names are forbiddon media, downloads, docker and users!";
     }else{
       exec("mv $current_share_path $share_path");
       exec("mv /etc/samba/shares/$current_name /etc/samba/shares/$name");
@@ -682,10 +682,6 @@ if(isset($_GET['share_delete'])){
 
   if(file_exists("/volumes/$config_docker_volume/docker/transmission")){
     array_push($docker_shares_array, "downloads");
-  }
-
-  if(file_exists("/volumes/$config_docker_volume/docker/unifi-video")){
-    array_push($docker_shares_array, "video-surveillance");
   }
 
   $system_shares_array = array();
@@ -1265,10 +1261,6 @@ if(isset($_POST['configure_remote_access'])){
       $sub_domains_array[] = 'cloud';
     }elseif($app == 'unifi-controller'){
       $sub_domains_array[] = 'unifi';
-    }elseif($app == 'gitea'){
-      $sub_domains_array[] = 'git';
-    }elseif($app == 'dokuwiki'){
-      $sub_domains_array[] = 'wiki';
     }elseif($app == 'bitwarden'){
       $sub_domains_array[] = 'vault';
     }else{
@@ -1279,100 +1271,47 @@ if(isset($_POST['configure_remote_access'])){
   $sub_domains = implode(',', $sub_domains_array);
 
   //stop and delete docker container
-  exec("docker stop letsencrypt");
-  exec("docker rm letsencrypt");
+  exec("docker stop swag");
+  exec("docker rm swag");
 
   //delete images
   exec("docker image prune");
 
   //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/letsencrypt");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/swag");
 
-  mkdir("/volumes/$config_docker_volume/docker/letsencrypt");
+  mkdir("/volumes/$config_docker_volume/docker/swag");
 
-  exec("docker run -d --name letsencrypt --net=my-network --cap-add=NET_ADMIN -p 443:443 -p 80:80 --restart=unless-stopped -e URL='$domain' -e SUBDOMAINS='$sub_domains' -e VALIDATION=http -v /volumes/$config_docker_volume/docker/letsencrypt:/config linuxserver/letsencrypt");
+  exec("docker run -d --name swag --net=my-network --cap-add=NET_ADMIN -p 443:443 -p 80:80 --restart=unless-stopped -e URL='$domain' -e SUBDOMAINS='$sub_domains' -e VALIDATION=http -v /volumes/$config_docker_volume/docker/swag:/config linuxserver/swag");
 
   exec("sleep 10");
 
   foreach($apps_array as $app){
-    exec("cp /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf.sample /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+    exec("cp /volumes/$config_docker_volume/docker/swag/nginx/proxy-confs/$app.subdomain.conf.sample /volumes/$config_docker_volume/docker/swag/nginx/proxy-confs/$app.subdomain.conf");
 
     if($app == 'nextcloud'){
-      exec("sed -i 's/server_name $app./server_name cloud./g' /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+      exec("sed -i 's/server_name $app./server_name cloud./g' /volumes/$config_docker_volume/docker/swag/nginx/proxy-confs/$app.subdomain.conf");
       exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 4 --value=cloud.$domain");
     }elseif($app == 'bitwarden'){
-      exec("sed -i 's/server_name $app./server_name vault./g' /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
-    }elseif($app == 'dokuwiki'){
-      exec("sed -i 's/server_name $app./server_name wiki./g' /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
-    }elseif($app == 'gitea'){
-      exec("sed -i 's/server_name $app./server_name git./g' /volumes/$config_docker_volume/docker/letsencrypt/nginx/proxy-confs/$app.subdomain.conf");
+      exec("sed -i 's/server_name $app./server_name vault./g' /volumes/$config_docker_volume/docker/swag/nginx/proxy-confs/$app.subdomain.conf");
     }
   }
 
   //Tell Bots to not index our pages
-  exec("sed -i '/all ssl related config/ i add_header X-Robots-Tag \\\"noindex, nofollow, nosnippet, noarchive\\\";' /volumes/$config_docker_volume/docker/letsencrypt/nginx/site-confs/default");
+  exec("sed -i '/all ssl related config/ i add_header X-Robots-Tag \\\"noindex, nofollow, nosnippet, noarchive\\\";' /volumes/$config_docker_volume/docker/swag/nginx/site-confs/default");
 
-  exec("echo 'Nothing!' > /volumes/$config_docker_volume/docker/letsencrypt/www/index.html");
+  exec("echo 'Nothing!' > /volumes/$config_docker_volume/docker/swag/www/index.html");
 
   header("Location: configure_remote_access.php");
 }
 
-if(isset($_GET['uninstall_letsencrypt'])){
+if(isset($_GET['uninstall_swag'])){
   //stop and delete docker container
-  exec("docker stop letsencrypt");
-  exec("docker rm letsencrypt");
+  exec("docker stop swag");
+  exec("docker rm swag");
 
   //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/letsencrypt");
-
-  //delete images
-  exec("docker image prune");
-
-  //redirect back to packages
-  header("Location: apps.php");
-}
-
-if(isset($_GET['install_dokuwiki'])){
-
-  // Check to see if docker is running
-  $status_service_docker = exec("systemctl status docker | grep running");
-  if(empty($status_service_docker)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
-  }else{
-
-    mkdir("/volumes/$config_docker_volume/docker/dokuwiki/");
-
-    exec("docker run -d --name dokuwiki --net=my-network -p 85:80 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/dokuwiki:/config linuxserver/dokuwiki");
-  
-  }
-
-  header("Location: apps.php");
-}
-
-if(isset($_GET['update_dokuwiki'])){
-
-  $docker_path = exec("find /volumes/*/docker/dokuwiki -name docuwiki");
-
-  exec("docker pull linuxserver/dokuwiki");
-  exec("docker stop dokuwiki");
-  exec("docker rm dokuwiki");
-
-  exec("docker run -d --name dokuwiki --net=my-network -p 85:80 --restart=unless-stopped -v $docker_path:/config linuxserver/dokuwiki");
-
-  exec("docker image prune");
-  
-  header("Location: apps.php");
-
-}
-
-if(isset($_GET['uninstall_dokuwiki'])){
-  //stop and delete docker container
-  exec("docker stop dokuwiki");
-  exec("docker rm dokuwiki");
-
-  //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/dokuwiki");
+  exec ("rm -rf /volumes/$config_docker_volume/docker/swag");
 
   //delete images
   exec("docker image prune");
@@ -1421,38 +1360,6 @@ if(isset($_GET['uninstall_bitwarden'])){
 
   //delete docker config
   exec ("rm -rf /volumes/$config_docker_volume/docker/bitwarden");
-
-  //delete images
-  exec("docker image prune");
-
-  //redirect back to packages
-  header("Location: apps.php");
-}
-
-if(isset($_GET['install_gitea'])){
-
-  // Check to see if docker is running
-  $status_service_docker = exec("systemctl status docker | grep running");
-  if(empty($status_service_docker)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
-  }else{
-
-    mkdir("/volumes/$config_docker_volume/docker/gitea");
-
-    exec("docker run -d --name gitea --net=my-network -v /volumes/$config_docker_volume/docker/gitea:/data -p 3000:3000 -p 222:22 --restart=unless-stopped gitea/gitea:latest");
-  }
-  
-  header("Location: apps.php");
-}
-
-if(isset($_GET['uninstall_gitea'])){
-  //stop and delete docker container
-  exec("docker stop gitea");
-  exec("docker rm gitea");
-
-  //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/gitea");
 
   //delete images
   exec("docker image prune");
@@ -1550,102 +1457,6 @@ if(isset($_GET['uninstall_unifi-controller'])){
   //delete images
   exec("docker image prune");
 
-  //redirect back to packages
-  header("Location: apps.php");
-}
-
-if(isset($_POST['install_unifi-video'])){
-  // Check to see if docker is running
-  $status_service_docker = exec("systemctl status docker | grep running");
-  if(empty($status_service_docker)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
-  }else{
-
-    $volume = $_POST['volume'];
-    
-    if(!file_exists("/volumes/$config_docker_volume/unifi-video")) {
-      exec ("addgroup video-surveillance");
-      $group_id = exec("getent group video-surveillance | cut -d: -f3");
-      exec ("usermod -a -G video-surveillance administrator");
-
-      mkdir("/volumes/$volume/video-surveillance");
-      mkdir("/volumes/$config_docker_volume/docker/unifi-video");
-
-      chgrp("/volumes/$volume/video-surveillance","video-surveillance");
-      chgrp("/volumes/$config_docker_volume/docker/unifi-video","video-surveillance");
-      
-      chmod("/volumes/$volume/video-surveillance",0770);
-      chmod("/volumes/$config_docker_volume/docker/unifi-video",0770);
-      
-      $myFile = "/etc/samba/shares/video-surveillance";
-      $fh = fopen($myFile, 'w') or die("not able to write to file");
-      $stringData = "[video-surveillance]\n   comment = Surveillance Videos for Unifi Video\n   path = /volumes/$volume/video-surveillance\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @video-surveillance\n   force group = video-surveillance\n   create mask = 0660\n   directory mask = 0770";
-      fwrite($fh, $stringData);
-      fclose($fh);
-
-      $myFile = "/etc/samba/shares.conf";
-      $fh = fopen($myFile, 'a') or die("not able to write to file");
-      $stringData = "\ninclude = /etc/samba/shares/video-surveillance";
-      fwrite($fh, $stringData);
-      fclose($fh);
-      
-      if(empty($config_ad_enabled)){
-        exec("systemctl restart smbd");
-        exec("systemctl restart nmbd");
-      }
-
-    }
-    
-    exec("docker run -d --name unifi-video --net=my-network --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -v /volumes/$config_docker_volume/docker/unifi-video:/var/lib/unifi-video -v /volumes/$volume/video-surveillance:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
-  
-  } //End Docker Check
-
-  header("Location: apps.php");
-
-}
-
-if(isset($_GET['update_unifi-video'])){
-
-  $group_id = exec("getent group video-surveillance | cut -d: -f3");
-  $data_path = exec("find /volumes/*/video-surveillance -name 'video-surveillance'");
-  $docker_path = exec("find /volumes/*/docker/unifi-video -name unifi-video");
-
-  exec("docker pull pducharme/unifi-video-controller");
-  exec("docker stop unifi-video");
-  exec("docker rm unifi-video");
-
-  exec("docker run -d --name unifi-video --cap-add DAC_READ_SEARCH --restart=unless-stopped -p 10001:10001 -p 1935:1935 -p 6666:6666 -p 7080:7080 -p 7442:7442 -p 7443:7443 -p 7444:7444 -p 7445:7445 -p 7446:7446 -p 7447:7447 -e PGID=$group_id -e PUID=0 -e CREATE_TMPFS=no -v $docker_path:/var/lib/unifi-video -v $data_path:/var/lib/unifi-video/videos --tmpfs /var/cache/unifi-video pducharme/unifi-video-controller");
-
-  exec("docker image prune");
-  
-  header("Location: apps.php");
-}
-
-if(isset($_GET['uninstall_unifi-video'])){
-  //stop and delete docker container
-  exec("docker stop unifi-video");
-  exec("docker rm unifi-video");
-
-  //delete images
-  exec("docker image prune");
-
-  //delete media group
-  exec ("delgroup video-surveillance");
-  //get path to media directory
-  $path = exec("find /volumes/*/video-surveillance -name video-surveillance");
-  //delete media directory
-  exec ("rm -rf $path"); //Delete
-  //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/unifi-video");
-  //delete samba share
-  exec ("rm -f /etc/samba/shares/video-surveillance");
-  deleteLineInFile("/etc/samba/shares.conf","video-surveillance");
-  //restart samba
-  if(empty($config_ad_enabled)){
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
-  }
   //redirect back to packages
   header("Location: apps.php");
 }
