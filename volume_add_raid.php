@@ -94,6 +94,9 @@ if(count($not_in_use_disks_array) > 1){
 				    $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Device Model:' | awk '{print $3,$4,$5}'");
 				  }
 				  if(empty($disk_vendor)){
+            $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Number:' | awk '{print $3,$4,$5,$6}'");
+          }
+				  if(empty($disk_vendor)){
 				    $disk_vendor = exec("lsblk -n -o kname,type,vendor /dev/$disk | grep disk  | awk '{print $3}'");
 				  }
 				  if(empty($disk_vendor)){
