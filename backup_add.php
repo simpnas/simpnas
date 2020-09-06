@@ -21,28 +21,36 @@
 
   <form method="post" action="post.php" autocomplete="off">
 	  <div class="form-group">
-	    <label>Source Volume</label>
-	    <select class="form-control" name="source" required>
-	  		<option value=''>--Select A Source--</option>
+	    <label>Select shares to backup</label>
+	  </div>
+	    
 		  	<?php
 				exec("ls /volumes", $volume_list);
 				foreach ($volume_list as $volume) {
 				$mounted = exec("df | grep $volume");
 				if(!empty($mounted)){
-			?>
-				<option><?php echo "$volume"; ?></option>	
+				?>
+				<label><span data-feather="database"></span> <?php echo "$volume"; ?></label>
+			  <?php
+				exec("ls /volumes/$volume | grep -v 'lost+found'", $dir_list);
+				foreach($dir_list as $dir){
+				?>
+				<div class="form-group form-check ml-4">
+			    <input type="checkbox" class="form-check-input" name="backup_source[]" value="<?php echo "/volumes/$volume/$dir"; ?>" id="check<?php echo $dir; ?>">
+			    <label class="form-check-label" for="check<?php echo $dir; ?>"><?php echo "$dir"; ?></label>
+			  </div>
 				<?php 
 				} 
 				?>
 			<?php
 			unset($volume_list);
+			unset($dir_list);
 			}
+		}
 			?>
 
-	  	</select>
-	  </div>
 	  <div class="form-group">
-	    <label>Destination Backup Volume</label>
+	    <label>Backup Destination</label>
 	    <select class="form-control" name="destination" required>
 	  		<option value=''>--Select A Destination--</option>
   			<?php
