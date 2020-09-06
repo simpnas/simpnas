@@ -72,10 +72,11 @@
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
   <div class="row">
     <div class="col-md-6">
+      <legend>Overview</legend>
+
       <div class="alert alert-success">
         <i class="fa fa-2x fa-check"></i> System is Healthy
       </div>
-      <legend>Overview</legend>
 
       <table class="table mb-5">
         

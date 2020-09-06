@@ -51,7 +51,7 @@
         ?>
         
           <tr>
-            <td><span class="mr-2" data-feather="database"></span>sys-vol</td>
+            <td><strong><span class="mr-2" data-feather="database"></span>sys-vol</strong></td>
             <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?></td>
             <td>
               <div class="progress">
@@ -109,7 +109,7 @@
         ?>
         
         <tr>
-          <td><span class="mr-2" data-feather="database"></span><?php echo $volume; ?></td>
+          <td><span class="mr-2" data-feather="database"></span><strong><?php echo $volume; ?></strong></td>
           <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?>
           	<?php if(isset($disk_part_in_array)){ echo "<br><small class='text-secondary'>$raid_type: $disk_in_array</small>"; } ?>
             <?php if(!empty($is_crypt)){ echo "<br><small class='text-secondary'>Encrypted Volume</small>"; } ?>

@@ -28,7 +28,6 @@
       <thead>
         <tr>
           <th>User</th>
-          <th>Description</th>
           <th>Groups</th>
           <th>Used Space</th>
           <th>Action</th>
@@ -43,8 +42,11 @@
           $user_disabled = exec("cat /etc/shadow | grep $username | grep '!'");
         ?>
           <tr>
-            <td><span class="mr-2" data-feather="user"></span><?php echo $username; ?><?php if(!empty($user_disabled)){ echo "<small class='text-muted'> (Disabled)</small>"; } ?></td>
-            <td><?php echo $comment; ?></td>
+            <td>
+              <strong><span class="mr-2" data-feather="user"></span><?php echo $username; ?></strong><?php if(!empty($user_disabled)){ echo "<small class='text-muted'> (Disabled)</small>"; } ?>
+              <br>
+              <div class="ml-4 text-secondary"><?php echo $comment; ?></div>
+            </td>
             <td><?php echo $groups; ?></td>
             <td><?php echo $home_dir_usage; ?>B</td>
             <td>

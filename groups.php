@@ -52,7 +52,7 @@
         ?>
         
         <tr>    
-          <td><span class="mr-2" data-feather="users"></span><?php echo $group; ?></td>
+          <td><strong><span class="mr-2" data-feather="users"></span><?php echo $group; ?></strong></td>
           <td><?php echo $users; ?></td>
           <td>
             <?php if($group !== "users" AND $group !== "admins" AND $group !== "Domain Users" AND $group !== "Domain Admins" ){ ?>
