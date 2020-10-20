@@ -873,6 +873,8 @@ if(isset($_POST['install_jellyfin'])){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
+    //create my-network if does not exist
+    exec("docker network create my-network");
 
     $volume = $_POST['volume'];
 
@@ -983,6 +985,9 @@ if(isset($_POST['install_daapd'])){
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
 
+    //create my-network if does not exist
+    exec("docker network create my-network");
+
     $volume = $_POST['volume'];
     
     $media_volume_path = exec("find /volumes/*/media -name media");
@@ -1082,6 +1087,9 @@ if(isset($_POST['install_nextcloud'])){
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
 
+    //create my-network if does not exist
+    exec("docker network create my-network");
+
     $password = $_POST['password'];
     $enable_samba_auth = $_POST['enable_samba_auth'];
     $enable_samba_mount = $_POST['enable_samba_mount'];
@@ -1118,7 +1126,7 @@ if(isset($_POST['install_nextcloud'])){
       exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton");
       exec("docker exec nextcloud mkdir /config/www/nextcloud/core/skeleton/Shared-Folders");
     }
-    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='nextcloud_mariadb' --database-user='nextcloud' --database-pass='password' --database-table-prefix='' --admin-user='admin' --admin-pass='$password'");
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='nextcloud_mariadb' --database-user='nextcloud' --database-pass='password' --admin-user='admin' --admin-pass='$password'");
 
     //Add Trusted Hosts
     $docker_gateway = exec("docker network inspect my-network | grep Gateway | awk '{print $2}' | sed 's/\\\"//g'");
@@ -1270,6 +1278,9 @@ if(isset($_POST['configure_remote_access'])){
 
   $sub_domains = implode(',', $sub_domains_array);
 
+  //create my-network if does not exist
+  exec("docker network create my-network");
+
   //stop and delete docker container
   exec("docker stop swag");
   exec("docker rm swag");
@@ -1329,6 +1340,9 @@ if(isset($_GET['install_bitwarden'])){
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
 
+    //create my-network if does not exist
+    exec("docker network create my-network");
+
     mkdir("/volumes/$config_docker_volume/docker/bitwarden/");
 
     exec("docker run -d --name bitwarden --net=my-network -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
@@ -1376,6 +1390,9 @@ if(isset($_GET['install_homeassistant'])){
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
 
+    //create my-network if does not exist
+    exec("docker network create my-network");
+
     mkdir("/volumes/$config_docker_volume/docker/homeassistant");
 
     exec("docker run -d --name homeassistant --net=my-network --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
@@ -1422,6 +1439,9 @@ if(isset($_GET['install_unifi-controller'])){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
+
+    //create my-network if does not exist
+    exec("docker network create my-network");
 
     mkdir("/volumes/$config_docker_volume/docker/unifi-controller/");
 
@@ -1610,6 +1630,9 @@ if(isset($_GET['uninstall_transmission'])){
 }
 
 if(isset($_GET['install_wireguard'])){
+
+  //create my-network if does not exist
+  exec("docker network create my-network");
 
   mkdir("/volumes/$config_docker_volume/docker/wireguard");
 
