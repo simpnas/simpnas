@@ -27,30 +27,15 @@
   <form method="post" action="post.php" autocomplete="off">
 
 	  <div class="form-group">
-	    <label>Administrator Password</label>
-	    <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password" autofocus>
+	    <label>Administrator Username</label>
+	    <input type="text" class="form-control" name="username" required autofocus>
 	    <small class="form-text text-muted">We will create a username called administrator you will be able to login with this user via web UI.</small>
 	  </div>
 
 	  <div class="form-group">
-			<label>Server Type</label>
-			<select class="form-control" name="server_type" id="serverType">
-				<option id="standAlone" value="standalone">File Server</option>
-				<?php
-				if(empty($dhcp_set)){
-				?>
-				<option id="activeDirectory" value="AD">Directory / File Server</option>
-				<?php
-				}
-				?>
-			</select>
-	  </div>
-
-	  <div id="activeDirectorySettings">
-		  <div class="form-group">
-		    <label>Domain Name</label>
-		    <input type="text" class="form-control" name="ad_domain" placeholder="ex. company.int">
-		  </div>
+	    <label>Administrator Password</label>
+	    <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password">
+	    <small class="form-text text-muted">We will create a username called administrator you will be able to login with this user via web UI.</small>
 	  </div>
 
 	  <div class="form-group">
@@ -61,7 +46,7 @@
 			</div>
 	  </div>
 	  
-	  <button type="submit" name="setup_final" class="btn btn-primary"><span data-feather="check"></span> Complete</button>
+	  <button type="submit" name="setup_final" class="btn btn-primary">Finish and Reboot <span data-feather="check"></span></button>
 	</form>
 </main>
 
