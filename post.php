@@ -1783,12 +1783,6 @@ if(isset($_POST['setup_final'])){
   $username = $_POST['username'];
   $password = $_POST['password'];
   
-  $hostname = exec("hostname");
-  $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
-
-  $network_int_file = exec("ls /etc/systemd/network");
-  $network_int = exec("ls /etc/systemd/network | awk -F'.' '{print $1}'");
-
   //Create config.php file
   
   $file = fopen("config.php", "w");
