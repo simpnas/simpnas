@@ -80,7 +80,6 @@
               <?php if(empty($hdd_smart)){ ?>
                 <a href="hdd_info.php?hdd=<?php echo $disk; ?>" class="btn btn-outline-secondary btn-sm">Health Info</a>
               <?php } ?>
-              <a href="post.php?wipe_hdd=<?php echo $disk; ?>" class="btn btn-outline-danger btn-sm"><i class="fa fa-fire"></i></a>
             </div>
           </td>
         </tr>
