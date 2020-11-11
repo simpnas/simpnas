@@ -1699,8 +1699,6 @@ if(isset($_POST['setup_network'])){
     exec("systemctl restart systemd-networkd > /dev/null &");
     echo "<script>window.location = 'http://$address:81/setup_volume.php'</script>";
   }
-
-  //header("Location: reboot.php");
 }
 
 if(isset($_POST['setup_volume'])){
@@ -1724,11 +1722,6 @@ if(isset($_POST['setup_volume'])){
   fwrite($fh, $stringData);
   fclose($fh);
 
-  header("Location: setup_final.php");
-}
-
-if(isset($_GET['setup_use_system_volume'])){
-  exec ("mkdir /volumes/sys-vol");
   header("Location: setup_final.php");
 }
 
