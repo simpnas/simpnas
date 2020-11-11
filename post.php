@@ -1700,13 +1700,11 @@ if(isset($_POST['setup_final'])){
   $stringData = "[share]\n   comment = Shared files\n   path = /volumes/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @users\n   force group = users\n   create mask = 0660\n   directory mask = 0770";
   fwrite($fh, $stringData);
   fclose($fh);
-  }
 
   exec ("mkdir /volumes/$volume_name/docker");
   exec ("mkdir /volumes/$volume_name/users");
   exec ("mkdir /volumes/$volume_name/share");
   exec ("chmod 770 /volumes/$volume_name/share");
-  
 
   $myFile = "/etc/samba/shares/users";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
