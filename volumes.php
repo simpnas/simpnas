@@ -5,6 +5,8 @@
   include("header.php");
   include("side_nav.php");
 
+  exec("ls /volumes", $volume_array);
+
 ?>
 
 <main class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">

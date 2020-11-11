@@ -130,7 +130,7 @@ if(count($not_in_use_disks_array) > 1){
 <?php
 }else{
 ?>
-<h2 class="text-secondary mt-5 text-center">You must have at lease two disks to create a RAID volume.</h2>
+<h2 class="text-secondary mt-5 text-center">You must have at lease 2 disks available<br>to create a RAID volume</h2>
 <?php
 } 
 ?>
