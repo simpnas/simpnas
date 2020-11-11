@@ -29,7 +29,6 @@
   }
   
   //SIMPLE VOLUMES
-
   foreach($volume_array as $volume){
   	exec("lsblk -n -o pkname,mountpoint | grep -w volumes | awk '{print $1}'", $has_volume_disk_array);
   	exec("lsblk -n -o pkname,mountpoint | grep -w / | awk '{print $1}'", $has_volume_disk_array); //adds OS Drive to the array

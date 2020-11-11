@@ -58,15 +58,6 @@
         </a>
       </li>
       
-      <?php if(!empty($config_ad_enabled)){ ?>
-      <li class="nav-item">
-        <a class="nav-link" href="computers.php" onclick="$('#cover-spin').show(0)">
-          <span data-feather="monitor"></span>
-          Computers
-        </a>
-      </li>
-      <?php } ?>
-      
       <li class="nav-item">
         <a class="nav-link" href="shares.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="folder"></span>

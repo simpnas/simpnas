@@ -4,8 +4,6 @@
   include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
-  
-  exec("ls /volumes | grep -v sys-vol", $volume_array);
 
 ?>
 
@@ -37,32 +35,6 @@
         </tr>
       </thead>
       <tbody>
-
-        <?php 
-
-        if(file_exists('/volumes/sys-vol')){
-          $disk = basename(exec("findmnt -n -o SOURCE --target /volumes/sys-vol"));
-          $total_space = exec("df -h | grep -w / | awk '{print $2}'");
-          $used_space = exec("df -h | grep -w / | awk '{print $3}'");
-          $free_space = exec("df -h | grep -w / | awk '{print $4}'");
-          $used_space_percent = exec("df | grep -w / | awk '{print $5}'");
-        
-        ?>
-        
-          <tr>
-            <td><strong><span class="mr-2" data-feather="database"></span>sys-vol</strong></td>
-            <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?></td>
-            <td>
-              <div class="progress">
-                <div class="progress-bar" style="width: <?php echo $used_space_percent; ?>"></div>
-              </div>
-              <small><?php echo $used_space; ?>B used of <?php echo $total_space; ?>B</small>
-            </td>
-            <td><div class="p-3"></div></td>
-          </tr>
-        <?php
-        }
-        ?>
         
         <?php
 

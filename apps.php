@@ -7,10 +7,6 @@
 
   $image_size = 48;
 
-  if(file_exists("/volumes/$config_docker_volume/docker/swag/")){ 
-    $domain = exec("cat /volumes/$config_docker_volume/docker/swag/donoteditthisfile.conf | awk -F\\\" '{print $2}'");
-  }
-
   $status_service_docker = exec("systemctl status docker | grep running");
   if(empty($status_service_docker)){
     $status_service_docker = "<i class='fa fa-circle text-danger'></i>";

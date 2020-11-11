@@ -70,21 +70,6 @@
 				});
 			});
 
-			if($("#standAlone").is(":selected")){
-					$("#activeDirectorySettings").hide();
-				}else{
-					$("#activeDirectorySettings").show();
-				}
-			$(function(){
-				$("#serverType").click(function(){
-				if($("#activeDirectory").is(":selected")){
-					$("#activeDirectorySettings").show();
-				}else{
-					$("#activeDirectorySettings").hide();
-				}
-				});
-			});
-
 			$("#vpnSettings").hide();
 			$(function(){
 				$("#configVpn").click(function(){

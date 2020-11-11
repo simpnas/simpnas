@@ -8,24 +8,9 @@
 		$username = $_GET['username'];
 	}
   
-  if(empty($config_ad_enabled)){
-    exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
-    $group_member_array = explode(' ',exec("groups $username"));
-    $comment = exec("cat /etc/passwd | grep $username | awk -F: '{print $5}'");
-  }else{
-  	$ad_builtin_groups_array = array("Performance Monitor Users", "Remote Desktop Users", "Read-only Domain Controllers", "IIS_IUSRS", "Denied RODC Password Replication Group", "DnsUpdateProxy", "Enterprise Admins", "Replicator", "Windows Authorization Access Group", "Domain Controllers", "Pre-Windows 2000 Compatible Access", "Certificate Service DCOM Access", "Domain Guests", "Enterprise Read-only Domain Controllers", "Schema Admins", "Distributed COM Users", "Domain Computers", "Performance Log Users", "Network Configuration Operators", "Account Operators", "Backup Operators", "Terminal Server License Servers", "DnsAdmins", "Guests", "Cert Publishers", "Incoming Forest Trust Builders", "Print Operators", "Administrators", "Server Operators", "RAS and IAS Servers", "Allowed RODC Password Replication Group", "Cryptographic Operators", "Group Policy Creator Owners", "Event Log Readers");
-
-  	exec("samba-tool group list", $all_groups_array);
-  
-  	$group_array = array_diff($all_groups_array,$ad_builtin_groups_array);
-  	$group_member_array = explode(' ',exec("groups $username"));
-
-  	$first_name = exec("samba-tool user show $username --attributes=givenName | grep given | cut -d\  -f2-");
-	  $last_name = exec("samba-tool user show $username --attributes=sn | grep sn | cut -d\  -f2-");
-	  $description = exec("samba-tool user show $username --attributes=description | grep description | cut -d\  -f2-");
-	  $email = exec("samba-tool user show $username --attributes=mail | grep mail | cut -d\  -f2-");
-	  $phone = exec("samba-tool user show $username --attributes=telephoneNumber | grep telephoneNumber | cut -d\  -f2-");
-  }
+  exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
+  $group_member_array = explode(' ',exec("groups $username"));
+  $comment = exec("cat /etc/passwd | grep $username | awk -F: '{print $5}'");
 
 ?>
 
@@ -63,7 +48,7 @@
 
 	  <div class="form-group form-check">
 	    <input type="checkbox" class="form-check-input" checked disabled>
-	    <label class="form-check-label ml-1"><?php if(empty($config_ad_enabled)){ echo "users"; }else{ echo "Domain Users"; } ?></label>
+	    <label class="form-check-label ml-1">users</label>
 	  </div>
 	  
 	  <?php 
@@ -76,41 +61,6 @@
 		  </div>
 		  
 		<?php } ?>
-
-	  <?php
-	  if(!empty($config_ad_enabled)){
-	  ?>
-	  
-	  <legend>Optional</legend>
-
-	  <div class="form-group">
-	    <label>First Name</label>
-	    <input type="text" class="form-control" name="first_name" value="<?php echo $first_name; ?>" pattern="[a-zA-Z0-9]{1,20}">
-	  </div>
-
-	  <div class="form-group">
-	    <label>Last Name</label>
-	    <input type="text" class="form-control" name="last_name" value="<?php echo $last_name; ?>" pattern="[a-zA-Z0-9]{1,20}">
-	  </div>
-
-	  <div class="form-group">
-	    <label>Description</label>
-	    <input type="text" class="form-control" name="description" value="<?php echo $description; ?>">
-	  </div>
-
-	  <div class="form-group">
-	    <label>Email</label>
-	    <input type="email" class="form-control" name="email" value="<?php echo $email; ?>">
-	  </div>
-
-	  <div class="form-group">
-	    <label>Phone</label>
-	    <input type="text" class="form-control" name="phone" value="<?php echo $phone; ?>">
-	  </div>
-
-	  <?php
-		}
-		?>
 
 	  <button type="submit" name="user_edit" class="btn btn-primary">Submit</button>
    

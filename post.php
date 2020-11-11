@@ -27,28 +27,7 @@ if(isset($_GET['upgrade_simpnas_overwrite_local_changes'])){
 if(isset($_POST['user_add'])){
   $username = $_POST['username'];
   $password = $_POST['password'];
-  $first_name = $_POST['first_name'];
-  $last_name = $_POST['last_name'];
   $comment = escapeshellarg($_POST['comment']);
-  $description = $_POST['description'];
-  $email = $_POST['email'];
-  $phone = $_POST['phone'];
-
-  if(!empty($first_name)){
-    $first_name = "--given-name='$first_name'";
-  }
-  if(!empty($last_name)){
-    $last_name = "--surname='$last_name'";
-  }
-  if(!empty($description)){
-    $description = "--description='$description'";
-  }
-  if(!empty($email)){
-    $email = "--mail-address='$email'";
-  }
-  if(!empty($phone)){
-    $phone = "--telephone-number='$phone'";
-  }
 
   //Check if user exists
   exec("awk -F: '$3 > 999 {print $1}' /etc/passwd", $users_array);
@@ -68,27 +47,21 @@ if(isset($_POST['user_add'])){
     exec ("mkdir /volumes/$config_home_volume/users/$username");
     exec ("chmod -R 700 /volumes/$config_home_volume/users/$username");  
     
-    if(empty($config_ad_enabled)){
-      exec ("useradd -g users -d /volumes/$config_home_volume/users/$username $username -c $comment -s /bin/false");
-      exec ("echo '$password\n$password' | passwd $username");
-      exec ("echo '$password\n$password' | smbpasswd -a $username");
-      //Create the user under file browser
-      exec("systemctl stop filebrowser");
-      exec ("filebrowser -d /usr/local/etc/filebrowser.db users add $username $password --scope /volumes/$config_home_volume/users/$username");
-      exec("systemctl start filebrowser");
-    }else{
-      exec ("samba-tool user create $username $password --home-drive=H --unix-home=/volumes/$config_home_volume/users/$username --home-directory='\\\\$config_hostname\users\\$username\' $email $phone $first_name $last_name $description");
-    }
+    exec ("useradd -g users -d /volumes/$config_home_volume/users/$username $username -c $comment -s /bin/false");
+    exec ("echo '$password\n$password' | passwd $username");
+    exec ("echo '$password\n$password' | smbpasswd -a $username");
+    
+    //Create the user under file browser
+    exec("systemctl stop filebrowser");
+    exec ("filebrowser -d /usr/local/etc/filebrowser.db users add $username $password --scope /volumes/$config_home_volume/users/$username");
+    exec("systemctl start filebrowser");
+  
     exec ("chown -R $username /volumes/$config_home_volume/users/$username");
     
     if(isset($_POST['group'])){
     	$group_array = $_POST['group'];
     	foreach($group_array as $group){
-      	if(empty($config_ad_enabled)){
-          exec ("adduser $username $group");
-        }else{
-          exec("samba-tool group addmembers '$group' $username");
-        }
+        exec ("adduser $username $group");
     	}
     }
 
@@ -106,16 +79,14 @@ if(isset($_POST['user_edit'])){
   //$group_count = count($group);
   if(!empty($_POST['password'])){
     $password = $_POST['password'];
-    if(empty($config_ad_enabled)){
-      exec ("echo '$password\n$password' | passwd $username");
-      exec ("echo '$password\n$password' | smbpasswd $username"); //May not be needed
-      //Modify user password under file browser
-      exec("systemctl stop filebrowser");
-      exec("filebrowser -d /usr/local/etc/filebrowser.db users update $username -p $password");
-      exec("systemctl start filebrowser");
-    }else{
-      
-    }
+    
+    exec ("echo '$password\n$password' | passwd $username");
+    exec ("echo '$password\n$password' | smbpasswd $username"); //May not be needed
+    //Modify user password under file browser
+    exec("systemctl stop filebrowser");
+    exec("filebrowser -d /usr/local/etc/filebrowser.db users update $username -p $password");
+    exec("systemctl start filebrowser");
+    
   }
   if(!empty($group_array)){
     exec ("usermod -G $group_array $username");
@@ -125,29 +96,19 @@ if(isset($_POST['user_edit'])){
 
   exec("usermod -c $comment $username");
   
-  //exec("systemctl restart smbd");
-  //exec("systemctl restart nmbd");
-
   header("Location: users.php");
 }
 
 if(isset($_GET['user_delete'])){
   $username = $_GET['user_delete'];
 
-  if(empty($config_ad_enabled)){
-    exec("smbpasswd -x $username");
-  }else{
-    exec ("samba-tool user delete $username");
-  }
+  exec("smbpasswd -x $username");
   
   exec("deluser --remove-home $username");
   //Delete the user under file browser
   exec("systemctl stop filebrowser");
   exec("filebrowser -d /usr/local/etc/filebrowser.db users rm $username");
   exec("systemctl start filebrowser");
-
-  //exec("systemctl restart smbd");
-  //exec("systemctl restart nmbd");
 
   $_SESSION['alert_type'] = "danger";
   $_SESSION['alert_message'] = "User $username Deleted!";
@@ -158,16 +119,9 @@ if(isset($_GET['user_delete'])){
 if(isset($_GET['disable_user'])){
   $username = $_GET['disable_user'];
 
-  if(empty($config_ad_enabled)){
-    exec("usermod -L $username");
-    exec("smbpasswd -d $username");
-  }else{
-    exec ("samba-tool user disable $username");
-  }
+  exec("usermod -L $username");
+  exec("smbpasswd -d $username");
   
-  //exec("systemctl restart smbd");
-  //exec("systemctl restart nmbd");
-
   $_SESSION['alert_type'] = "warning";
   $_SESSION['alert_message'] = "User $username Disabled!";
   
@@ -177,15 +131,8 @@ if(isset($_GET['disable_user'])){
 if(isset($_GET['enable_user'])){
   $username = $_GET['enable_user'];
 
-  if(empty($config_ad_enabled)){
-    exec("usermod -U $username");
-    exec("smbpasswd -e $username");
-  }else{
-    exec ("samba-tool user enable $username");
-  }
-  
-  //exec("systemctl restart smbd");
-  //exec("systemctl restart nmbd");
+  exec("usermod -U $username");
+  exec("smbpasswd -e $username");
 
   $_SESSION['alert_type'] = "info";
   $_SESSION['alert_message'] = "User $username Enabled!";
@@ -211,12 +158,8 @@ if(isset($_POST['group_add'])){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not add group $group because the group $group is reserved for an App, the following group names are forbiddon media and downloads!";
   }else{
-    if(empty($config_ad_enabled)){
-      exec("addgroup $group");
-      exec ("usermod -a -G $group administrator");
-    }else{
-      exec("samba-tool group add $group");
-    }
+   
+    exec("addgroup $group");
     
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "Group $group successfully added!";
@@ -246,19 +189,9 @@ if(isset($_POST['group_edit'])){
   }elseif(in_array($group, $docker_groups_array)){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Can not rename group $old_group to $group because the group $group is reserved for an App, the following group names are forbiddon media and downloads!";
-  }else{
-    if(empty($config_ad_enabled)){
-      exec ("groupmod -n $group $old_group");
-      exec("systemctl restart smbd");
-      exec("systemctl restart nmbd");
-    }else{
-      exec("samba-tool group delete $old_group");
-      exec("samba-tool group listmembers $old_group",$group_members_array);
-      exec("samba-tool group add $group");
-      foreach ($group_members_array as $user){
-        exec("samba-tool group addmembers $group $user");
-      }
-    }
+  }else{ 
+    exec ("groupmod -n $group $old_group");
+    
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "Group $old_group renamed to $group successfully!";
   }  
@@ -274,15 +207,8 @@ if(isset($_GET['group_delete'])){
     $_SESSION['alert_message'] = "Can not delete group $group as its currently being used by a file share, to delete this group, delete the file share or change the group on the share to another group and try again!";
   }else{
 
-    if(empty($config_ad_enabled)){
-      exec("delgroup $group");
-      exec("systemctl restart smbd");
-      exec("systemctl restart nmbd");
+    exec("delgroup $group");
     
-    }else{
-      exec("samba-tool group delete $group");
-    }
-
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "Group $group deleted!";
   }
@@ -320,10 +246,8 @@ if(isset($_GET['unmount_volume'])){
   $volume = $_GET['unmount_volume'];
   exec ("umount /volumes/$volume");
   
-  if(empty($config_ad_enabled)){
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd"); 
-  }
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd"); 
 
   $_SESSION['alert_type'] = "info";
   $_SESSION['alert_message'] = "Volume $volume has been unmounted!";
@@ -334,10 +258,8 @@ if(isset($_GET['mount_volume'])){
   $volume = $_GET['mount_volume'];
   exec ("mount /volumes/$volume");
   
-  if(empty($config_ad_enabled)){
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
-  }
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
 
   $_SESSION['alert_type'] = "info";
   $_SESSION['alert_message'] = "Mounted volume $volume successfully!";
@@ -384,7 +306,7 @@ if(isset($_POST['volume_add'])){
     exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
     $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
     //WIPE out any superblocks
-    exec("mdadm --zero-superblock /dev/$diskpart");
+    exec ("mdadm --zero-superblock /dev/$diskpart");
     exec ("e2label /dev/$diskpart $name");
     exec ("mkdir /volumes/$name");
     
@@ -468,6 +390,23 @@ if(isset($_POST['volume_add_raid'])){
 
 }
 
+if(isset($_POST['volume_add_backup'])){
+  $name = trim($_POST['name']);
+  $disk = $_POST['disk'];
+  
+  exec ("wipefs -a /dev/$disk");
+  exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+  $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
+  exec ("e2label /dev/$diskpart $name");
+  exec ("mkfs.$filesystem -f /dev/$diskpart");
+
+  $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
+
+  exec ("mkdir /mnt/backup--$name--$uuid");
+
+  header("Location: volumes.php");
+}
+
 if(isset($_GET['volume_delete'])){
   $name = $_GET['volume_delete'];
   //check to make sure no shares are linked to the volume
@@ -490,7 +429,7 @@ if(isset($_GET['volume_delete'])){
     }
 
     exec ("umount -l /volumes/$name");
-    exec("cryptsetup close $name");
+    exec ("cryptsetup close $name");
     exec ("rm -rf /volumes/$name");
     
     //RAID Remove
@@ -515,23 +454,6 @@ if(isset($_GET['volume_delete'])){
 
   }
   
-  header("Location: volumes.php");
-}
-
-if(isset($_POST['volume_add_backup'])){
-  $name = trim($_POST['name']);
-  $disk = $_POST['disk'];
-  
-  exec ("wipefs -a /dev/$disk");
-  exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
-  $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
-  exec ("e2label /dev/$diskpart $name");
-  exec ("mkfs.$filesystem -f /dev/$diskpart");
-
-  $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
-
-  exec ("mkdir /mnt/backup--$name--$uuid");
-
   header("Location: volumes.php");
 }
 
@@ -587,11 +509,10 @@ if(isset($_POST['share_add'])){
     fwrite($fh, $stringData);
     fclose($fh);
 
-    if(empty($config_ad_enabled)){
-      exec("systemctl restart smbd");
-      exec("systemctl restart nmbd");
-    }
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
   }
+
   header("Location: shares.php");
 }
 
@@ -659,10 +580,8 @@ if(isset($_POST['share_edit'])){
   fwrite($fh, $stringData);
   fclose($fh);
 
-  if(empty($config_ad_enabled)){
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
-  }
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
 
   header("Location: shares.php");
 }
@@ -702,10 +621,9 @@ if(isset($_GET['share_delete'])){
 
     deleteLineInFile("/etc/samba/shares.conf","$name");
 
-    if(empty($config_ad_enabled)){
-      exec("systemctl restart smbd");
-      exec("systemctl restart nmbd");
-    }
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+  
   }
   header("Location: shares.php");
 }
@@ -920,10 +838,8 @@ if(isset($_POST['install_jellyfin'])){
       fwrite($fh, $stringData);
       fclose($fh);
       
-      if(empty($config_ad_enabled)){
-        exec("systemctl restart smbd");
-        exec("systemctl restart nmbd");
-      }
+      exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
 
     }
 
@@ -1032,10 +948,8 @@ if(isset($_POST['install_daapd'])){
       fwrite($fh, $stringData);
       fclose($fh);
       
-      if(empty($config_ad_enabled)){
-        exec("systemctl restart smbd");
-        exec("systemctl restart nmbd");
-      }
+      exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
 
     }
 
@@ -1473,11 +1387,9 @@ if(isset($_POST['install_transmission'])){
     fwrite($fh, $stringData);
     fclose($fh);
       
-    if(empty($config_ad_enabled)){
-      exec("systemctl restart smbd");
-      exec("systemctl restart nmbd");
-    }
-
+    exec("systemctl restart smbd");
+    exec("systemctl restart nmbd");
+    
     if($enable_vpn == 1){
       exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e CREATE_TUN_DEVICE=true -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG='$vpn_server' -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /volumes/$config_docker_volume/docker/transmission:/data/transmission-home -v /volumes/$volume/downloads/completed:/data/completed -v /volumes/$volume/downloads/incomplete:/data/incomplete -v /volumes/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn:latest$cpu_arch");
       echo "VPN Docker installed";
@@ -1546,10 +1458,8 @@ if(isset($_GET['uninstall_transmission'])){
   exec ("rm -f /etc/samba/shares/downloads");
   deleteLineInFile("/etc/samba/shares.conf","downloads");
   //restart samba
-  if(empty($config_ad_enabled)){
-    exec("systemctl restart smbd");
-    exec("systemctl restart nmbd");
-  }
+  exec("systemctl restart smbd");
+  exec("systemctl restart nmbd");
 
   //delete images
   exec("docker image prune");
@@ -1845,7 +1755,7 @@ if(isset($_POST['setup_final'])){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
   }
 
-  header("Location: reboot.php");
+  header("Location: restart.php");
 
   //header("Location: login.php");
 

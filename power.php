@@ -15,7 +15,7 @@
   <?php include("alert_message.php"); ?>
 
 	<a href="shutdown.php" class="btn btn-lg btn-outline-danger">Shutdown</a>
-	<a href="reboot.php" class="btn btn-lg btn-outline-secondary">Restart</a>
+	<a href="restart.php" class="btn btn-lg btn-outline-secondary">Restart</a>
 	<a href="reset.php" class="btn btn-lg btn-danger">Reset to Factory Defaults</a>
 
 </main>

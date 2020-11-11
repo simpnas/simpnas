@@ -5,11 +5,8 @@
   include("header.php");
   include("side_nav.php");
   
-  if(empty($config_ad_enabled)){
-    exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);
-  }else{
-    exec("samba-tool user list | grep -v krbtgt | grep -v Guest", $username_array);
-  }
+  exec("awk -F: '$3 > 999 {print $1}' /etc/passwd | grep -v nobody", $username_array);
+  
   asort($username_array);
 
 ?>
@@ -52,15 +49,18 @@
             <td>
               <div class="btn-group mr-2">
                 <a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
-                <?php if($username !== "administrator"){ ?>
-                  <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
-                  <?php if(empty($user_disabled)){ ?>
+                <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+                <?php 
+                if(empty($user_disabled)){ 
+                ?>
                   <a href="post.php?disable_user=<?php echo $username; ?>" class="btn btn-outline-warning"><span data-feather="user-x"></span></a>
-                  <?php }else{ ?>
+                <?php 
+                }else{ 
+                ?>
                   <a href="post.php?enable_user=<?php echo $username; ?>" class="btn btn-outline-success"><span data-feather="user-check"></span></a>
-                  <?php } ?>
-                <?php } ?>
-
+                <?php 
+                } 
+                ?>
               </div>
             </td>
           </tr>

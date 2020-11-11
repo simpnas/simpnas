@@ -21,7 +21,6 @@ exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array)
 exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth", $net_devices_array);
 
 
-
 //get the disk that a volume is attached to
 $disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 

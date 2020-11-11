@@ -226,10 +226,6 @@
 
 
     </div> <!-- /col-6 -->
-
-
-
-
     
     <div class="col-md-6">
 
