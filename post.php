@@ -1780,11 +1780,9 @@ if(isset($_POST['setup_volume_raid'])){
 
 if(isset($_POST['setup_final'])){
   $volume_name = exec("ls /volumes");
+  $username = $_POST['username'];
   $password = $_POST['password'];
-  $server_type = $_POST['server_type'];
-  $ad_domain = $_POST['ad_domain'];
-  $ad_netbios_domain = strtoupper(strtok($ad_domain, '.'));
-
+  
   $hostname = exec("hostname");
   $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
 
@@ -1799,48 +1797,12 @@ if(isset($_POST['setup_final'])){
 
   fwrite($file, $data);
   fclose($file);
-
-  if($server_type == 'AD'){
-    exec("echo '127.0.0.1      localhost' > /etc/hosts");
-    exec("echo '$primary_ip     $hostname $hostname.$ad_domain $ad_domain' >> /etc/hosts");
-    exec("DEBIAN_FRONTEND=noninteractive \apt -y install krb5-user winbind libpam-winbind libnss-winbind smbclient");
-    exec("cp /simpnas/conf/krb5.conf /etc");
-    exec("sed -i 's/NETBIOS/$ad_netbios_domain/g' /etc/krb5.conf");
-    exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
-    exec("rm /etc/samba/smb.conf");
-    exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
-    exec("echo 'nameserver 127.0.0.1' > /etc/resolv.conf");
-    exec("echo 'search $ad_domain' >> /etc/resolv.conf");
-    deleteLineInFile("/etc/systemd/network/$network_int_file","DNS=");
-    exec("echo 'DNS=127.0.0.1' >> /etc/systemd/network/$network_int_file");
-    exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
-    exec("sed -i '/netlogon/ i template shell = /bin/bash' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind use default domain = true' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind offline logon = false' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind nss info = rfc2307' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind enum users = yes' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind enum groups = yes' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i bind interfaces only = yes' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i interfaces = lo $network_int' /etc/samba/smb.conf");
-    exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
-    exec("systemctl stop smbd nmbd winbind");
-    exec("systemctl disable smbd nmbd winbind");
-    exec("systemctl unmask samba-ad-dc");
-    exec("systemctl start samba-ad-dc");
-    exec("systemctl enable samba-ad-dc");
-    exec("mv /etc/nsswitch.conf /etc/nsswitch.conf.ori");
-    exec("cp /simpnas/conf/nsswitch.conf /etc");
-    $myFile = "/etc/samba/shares/share";
-    $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[share]\n   comment = Shared files\n   path = /volumes/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @\"$ad_netbios_domain\domain users\"\n   force group = \"$ad_netbios_domain\domain users\"\n   create mask = 0660\n   directory mask = 0770";
-    fwrite($fh, $stringData);
-    fclose($fh);
-  }else{    
-    $myFile = "/etc/samba/shares/share";
-    $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[share]\n   comment = Shared files\n   path = /volumes/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @users\n   force group = users\n   create mask = 0660\n   directory mask = 0770";
-    fwrite($fh, $stringData);
-    fclose($fh);
+  
+  $myFile = "/etc/samba/shares/share";
+  $fh = fopen($myFile, 'w') or die("not able to write to file");
+  $stringData = "[share]\n   comment = Shared files\n   path = /volumes/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @users\n   force group = users\n   create mask = 0660\n   directory mask = 0770";
+  fwrite($fh, $stringData);
+  fclose($fh);
   }
 
   exec ("mkdir /volumes/$volume_name/docker");
@@ -1873,27 +1835,20 @@ if(isset($_POST['setup_final'])){
     exec("deluser --remove-home $existing_username");
   }
   
-  exec ("mkdir /volumes/$volume_name/users/administrator");
-  exec ("chmod -R 700 /volumes/$volume_name/users/administrator");
-  if($server_type == 'AD'){
-    exec ("chgrp '$ad_netbios_domain\domain users' /volumes/$volume_name/share");
-    //Create the new user AD Style
-    //exec ("samba-tool user create $username $password --home-drive=H --unix-home=/volumes/$volume_name/users/$username --home-directory='\\\\$hostname\users\\$username' --login-shell=/bin/bash");
-    //exec("usermod -aG sudo '$ad_netbios_domain\\$username'");
-    exec ("chown -R '$ad_netbios_domain\administrator' /volumes/$volume_name/users/administrator");
-  }else{
-    exec ("chgrp users /volumes/$volume_name/share");
-    //Create the new user UNIX way
-    exec ("useradd -g users -d /volumes/$volume_name/users/administrator administrator");
-    exec ("echo '$password\n$password' | passwd administrator");
-    exec ("usermod -a -G admins administrator");
-    exec ("echo '$password\n$password' | smbpasswd -a administrator");
-    exec ("chown -R administrator /volumes/$volume_name/users/administrator");
-    //Create the user under file browser
-    exec("systemctl stop filebrowser");
-    exec ("filebrowser -d /usr/local/etc/filebrowser.db users add administrator $password --perm.admin=true");
-    exec("systemctl start filebrowser");
-  }
+  exec ("mkdir /volumes/$volume_name/users/$username");
+  exec ("chmod -R 700 /volumes/$volume_name/users/$username");
+
+  exec ("chgrp users /volumes/$volume_name/share");
+  //Create the new user UNIX way
+  exec ("useradd -g users -d /volumes/$volume_name/users/$username $username");
+  exec ("echo '$password\n$password' | passwd $username");
+  exec ("usermod -a -G admins $username");
+  exec ("echo '$password\n$password' | smbpasswd -a $username");
+  exec ("chown -R $username /volumes/$volume_name/users/$username");
+  //Create the user under file browser
+  exec("systemctl stop filebrowser");
+  exec ("filebrowser -d /usr/local/etc/filebrowser.db users add $username $password --perm.admin=true");
+  exec("systemctl start filebrowser");
 
   exec("apt install docker-ce docker-ce-cli containerd.io -y");
   exec("apt install docker.io -y");

@@ -9,7 +9,7 @@
 <main class="col-md-12 pt-5">
 
   <center>
-  	<h1 class="text-danger">Rebooting!</h1>
+  	<h1 class="text-danger">Restarting...</h1>
   	<h3>Redirecting to the Dashboard after <span id="countdown"></span> seconds</h3>
   </center>
 

@@ -2,7 +2,6 @@
 
 	include("setup_header.php");
 	
-	//$os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 	$os_disk = exec("lsblk -n -o pkname,MOUNTPOINT | grep -w / | awk '{print $1}'");
 	exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
 
@@ -85,7 +84,7 @@
 				?>
 
 	  	</select>
-	  	<small class="form-text text-muted">This volume will house your apps configs and user home directories</small>
+	  	<small class="form-text text-muted">This volume will house your apps configs and user home directories.</small>
 	  </div>
 
 	  <div class="form-group">

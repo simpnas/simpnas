@@ -2,7 +2,6 @@
 
 	include("setup_header.php");
 	
-	//$os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 	$os_disk = exec("lsblk -n -o pkname,MOUNTPOINT | grep -w / | awk '{print $1}'");
 	exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
 
@@ -67,7 +66,7 @@
 				?>
 
 	  	</select>
-	  	<small class="form-text text-muted">This volume will house your docker configs and user home Directories</small>
+	  	<small class="form-text text-muted">This volume will house your docker configs and user home directories.</small>
 	  </div>
 
 	  <div class="form-group">
@@ -76,7 +75,6 @@
 	  </div>
 	  
 	  <button type="submit" name="setup_volume" class="btn btn-primary">Next <span data-feather="arrow-right"></span></button>
-	  <a href="post.php?setup_use_system_volume" class="float-right text-muted">Skip - Use System Volume (NOT RECOMMENDED)</a>
 	</form>
 </main>
 

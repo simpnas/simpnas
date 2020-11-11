@@ -29,20 +29,18 @@
 	  <div class="form-group">
 	    <label>Administrator Username</label>
 	    <input type="text" class="form-control" name="username" required autofocus>
-	    <small class="form-text text-muted">We will create a username called administrator you will be able to login with this user via web UI.</small>
 	  </div>
 
 	  <div class="form-group">
 	    <label>Administrator Password</label>
 	    <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password">
-	    <small class="form-text text-muted">We will create a username called administrator you will be able to login with this user via web UI.</small>
 	  </div>
 
 	  <div class="form-group">
 	  	<div class="custom-control custom-checkbox">
 			  <input type="checkbox" class="custom-control-input" name="collect" value="1" id="collect">
 			  <label class="custom-control-label" for="collect">Yes Collect Statistic Data</label>
-				<small class="form-text text-muted">This will collect a Unique Machine ID used for Unique Installs on our Webpage.</small>
+				<small class="form-text text-muted">This will collect a Unique Machine ID and used as an install count on our website.</small>
 			</div>
 	  </div>
 	  
