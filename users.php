@@ -26,7 +26,7 @@
         <tr>
           <th>User</th>
           <th>Groups</th>
-          <th>Used Space</th>
+          <th>Home Usage</th>
           <th>Action</th>
         </tr>
       </thead>
