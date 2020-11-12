@@ -75,21 +75,22 @@
         <div class="modal fade" id="deleteShare<?php echo $share; ?>" tabindex="-1">
           <div class="modal-dialog">
             <div class="modal-content">
-              <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">Delete <?php echo $share; ?></h5>
+              <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-trash"></i> Delete <?php echo $share; ?></h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
               <div class="modal-body">
                 <center>
-                  <h4>Are you sure you want to delete <strong><?php echo $share; ?></strong>?</h4>
-                  <h5 class="text-secondary">This will delete all content as well!</h5>
+                  <h3 class="text-secondary">Are you sure you want to</h3>
+                  <h1 class="text-danger">Delete <strong><?php echo $share; ?></strong>?</h1>
+                  <h4>This will delete all data within the share</h4>
                 </center>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-                <a href="post.php?share_delete=<?php echo $share; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span> Delete</a>
+                <a href="post.php?share_delete=<?php echo $share; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span> Delete NOW</a>
               </div>
             </div>
           </div>
