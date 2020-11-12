@@ -41,7 +41,7 @@
           <td><strong><span class="mr-2" data-feather="users"></span><?php echo $group; ?></strong></td>
           <td><?php echo $users; ?></td>
           <td>
-            <?php if($group !== "users" AND $group !== "admins"){ ?>
+            <?php if($group !== "admins"){ ?>
             <div class="btn-group mr-2">
               <a href="group_edit.php?group=<?php echo $group; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
               <a href="post.php?group_delete=<?php echo $group; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
