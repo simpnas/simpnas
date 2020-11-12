@@ -85,7 +85,7 @@
                 <center>
                   <h3 class="text-secondary">Are you sure you want to</h3>
                   <h1 class="text-danger">Delete <strong><?php echo $share; ?></strong>?</h1>
-                  <h4>This will delete all data within the share</h4>
+                  <h5>This will delete all data within the share</h5>
                 </center>
               </div>
               <div class="modal-footer">

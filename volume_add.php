@@ -92,6 +92,7 @@ if(count($not_in_use_disks_array) > 0){
 				?>
 
 	  	</select>
+	  	<small class="form-text text-danger"><strong>Warning:</strong> This will <u>Delete</u> all Data on the selected Storage Device.</small>
 	  </div>
 
 	  <div class="form-group">

@@ -66,7 +66,7 @@
 				?>
 
 	  	</select>
-	  	<small class="form-text text-muted">This volume will house your docker configs and user home directories.</small>
+	  	<small class="form-text text-danger"><strong>Warning:</strong> This will <u>Delete</u> all Data on the selected Storage Device.</small>
 	  </div>
 
 	  <div class="form-group">
