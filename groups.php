@@ -6,7 +6,6 @@
   include("side_nav.php");
 
   exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
-  array_push($group_array,"users");
 
 ?>
 
