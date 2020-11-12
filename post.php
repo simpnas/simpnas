@@ -111,7 +111,7 @@ if(isset($_GET['user_delete'])){
   exec("systemctl start filebrowser");
 
   $_SESSION['alert_type'] = "danger";
-  $_SESSION['alert_message'] = "User $username Deleted!";
+  $_SESSION['alert_message'] = "User $username removed and all their data in their home directory has been Deleted!";
   
   header("Location: users.php");
 }

@@ -52,7 +52,7 @@
             <td>
               <div class="btn-group mr-2">
                 <a href="user_edit.php?username=<?php echo $username; ?>" class="btn btn-outline-secondary"><span data-feather="edit"></span></a>
-                <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+                <button class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteUser<?php echo $username; ?>"><span data-feather="trash"></span></button>
                 <?php 
                 if(empty($user_disabled)){ 
                 ?>
@@ -67,6 +67,31 @@
               </div>
             </td>
           </tr>
+
+          <div class="modal fade" id="deleteUser<?php echo $username; ?>" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title"><i class="fa fa-trash"></i> Delete <?php echo $username; ?></h5>
+                  <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <center>
+                    <h3 class="text-secondary">Are you sure you want to</h3>
+                    <h1 class="text-danger">Delete <strong><?php echo $username; ?></strong>?</h1>
+                    <h5>This will delete all the users data in their home Directory</h5>
+                  </center>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                  <a href="post.php?user_delete=<?php echo $username; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span> Delete</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
         <?php 
         } 
         ?>
