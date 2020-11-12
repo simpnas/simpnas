@@ -961,6 +961,94 @@ if(isset($_POST['install_daapd'])){
   header("Location: apps.php");
 }
 
+if(isset($_POST['install_photoprism'])){
+  
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
+  }else{
+
+    $volume = $_POST['volume'];
+
+    $photos_volume_path = exec("find /volumes/*/photos -name photos");
+    
+    $group_id = exec("getent group photos | cut -d: -f3");
+
+    if(empty($group_id)){
+      exec ("addgroup photos");
+      $group_id = exec("getent group photos | cut -d: -f3");
+    }
+
+    if(!file_exists("$photos_volume_path")) {
+
+      mkdir("/volumes/$volume/photos");
+      chgrp("/volumes/$volume/photos","photos");
+      chmod("/volumes/$volume/photos",0770);
+      
+      $myFile = "/etc/samba/shares/photos";
+      $fh = fopen($myFile, 'w') or die("not able to write to file");
+      $stringData = "[photos]\n   comment = Photos\n   path = /volumes/$volume/photos\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @photos\n   force group = photos\n   create mask = 0660\n   directory mask = 0770";
+      fwrite($fh, $stringData);
+      fclose($fh);
+
+      $myFile = "/etc/samba/shares.conf";
+      $fh = fopen($myFile, 'a') or die("not able to write to file");
+      $stringData = "\ninclude = /etc/samba/shares/photos";
+      fwrite($fh, $stringData);
+      fclose($fh);
+      
+      exec("systemctl restart smbd");
+      exec("systemctl restart nmbd");
+
+    }
+
+    mkdir("/volumes/$config_docker_volume/docker/photoprism");
+    mkdir("/volumes/$config_docker_volume/docker/photoprism/storage");
+  
+    chgrp("/volumes/$config_docker_volume/docker/photoprism","photos");
+    chgrp("/volumes/$config_docker_volume/docker/photoprism/storage","photos");
+
+    chmod("/volumes/$config_docker_volume/docker/photoprism",0770);
+    chmod("/volumes/$config_docker_volume/docker/photoprism/storage",0770);
+
+    exec("docker run -d --name photoprism --restart=unless-stopped -p 2342:2342 -e PGID=$group_id -e PUID=0 -e PHOTOPRISM_UPLOAD_NSFW=true -e PHOTOPRISM_ADMIN_PASSWORD=password --security-opt seccomp=unconfined --security-opt apparmor=unconfined -v /volumes/$config_docker_volume/docker/photoprism/storage:/photoprism/storage -v /volumes/$volume/photos:/photoprism/originals photoprism/photoprism");
+
+  }
+  
+  header("Location: apps.php");
+}
+
+if(isset($_GET['update_photoprism'])){
+
+  $group_id = exec("getent group photos | cut -d: -f3");
+  $photos_path = exec("find /volumes/*/photos -name photos");
+  $docker_path = exec("find /volumes/*/docker/photoprism -name photoprism");
+
+  exec("docker pull photoprism/photoprism");
+  exec("docker stop photoprism");
+  exec("docker rm photoprism");
+
+  exec("docker run -d --name photoprism --restart=unless-stopped -p 2342:2342 -e PGID=$group_id -e PUID=0 -e PHOTOPRISM_UPLOAD_NSFW=true -e PHOTOPRISM_ADMIN_PASSWORD=password --security-opt seccomp=unconfined --security-opt apparmor=unconfined -v $docker_path/storage:/photoprism/storage -v $photos_path:/photoprism/originals photoprism/photoprism");
+
+  exec("docker image prune");
+  
+  header("Location: apps.php");
+}
+
+if(isset($_GET['uninstall_photoprism'])){
+  //stop and delete docker container
+  exec("docker stop photoprism");
+  exec("docker rm photoprism");
+  //delete docker config
+  exec ("rm -rf /volumes/$config_docker_volume/docker/photoprism");
+  //Remove unused docker images
+  exec("docker image prune");
+  //redirect back to packages
+  header("Location: apps.php");
+}
+
 if(isset($_GET['update_daapd'])){
 
   $group_id = exec("getent group media | cut -d: -f3");
