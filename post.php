@@ -1181,7 +1181,7 @@ if(isset($_GET['install_bitwarden'])){
 
     mkdir("/volumes/$config_docker_volume/docker/bitwarden/");
 
-    exec("docker run -d --name bitwarden -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
+    exec("docker run -d --name bitwarden -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server");
   }
 
   header("Location: apps.php");
@@ -1191,11 +1191,11 @@ if(isset($_GET['update_bitwarden'])){
 
   $docker_path = exec("find /volumes/*/docker/bitwarden -name bitwarden");
 
-  exec("docker pull bitwardenrs/server:latest");
+  exec("docker pull bitwardenrs/server");
   exec("docker stop bitwarden");
   exec("docker rm bitwarden");
 
-  exec("docker run -d --name bitwarden -v $docker_path:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
+  exec("docker run -d --name bitwarden -v $docker_path:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server");
 
   exec("docker image prune");
   
