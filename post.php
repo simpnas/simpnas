@@ -1311,6 +1311,54 @@ if(isset($_GET['uninstall_bitwarden'])){
   header("Location: apps.php");
 }
 
+if(isset($_GET['install_nginx-proxy-manager'])){
+
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
+  }else{
+
+    mkdir("/volumes/$config_docker_volume/docker/nginx-proxy-manager");
+
+    exec("docker run -d --name nginx-proxy-manager -p 80:8080 -p 83:8181 -p 443:4443 -v /volumes/$config_docker_volume/docker/nginx-proxy-manager:/config --restart=unless-stopped jlesage/nginx-proxy-manager");
+  }
+
+  header("Location: apps.php");
+}
+
+if(isset($_GET['update_nginx-proxy-manager'])){
+
+  $docker_path = exec("find /volumes/*/docker/nginx-proxy-manager -name nginx-proxy-manager");
+
+  exec("docker pull jlesage/nginx-proxy-manager");
+  exec("docker stop nginx-proxy-manager");
+  exec("docker rm nginx-proxy-manager");
+
+  exec("docker run -d --name nginx-proxy-manager -p 80:8080 -p 83:8181 -p 443:4443 -v $docker_path:/config --restart=unless-stopped jlesage/nginx-proxy-manager");
+
+  exec("docker image prune");
+  
+  header("Location: apps.php");
+
+}
+
+if(isset($_GET['uninstall_nginx-proxy-manager'])){
+  //stop and delete docker container
+  exec("docker stop nginx-proxy-manager");
+  exec("docker rm nginx-proxy-manager");
+
+  //delete docker config
+  exec ("rm -rf /volumes/$config_docker_volume/docker/nginx-proxy-manager");
+
+  //delete images
+  exec("docker image prune");
+
+  //redirect back to packages
+  header("Location: apps.php");
+}
+
 if(isset($_GET['install_homeassistant'])){
   // Check to see if docker is running
   $status_service_docker = exec("systemctl status docker | grep running");
