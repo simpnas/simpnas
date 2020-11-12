@@ -46,10 +46,7 @@
 	  
 	  <legend>Groups</legend>
 
-	  <div class="form-group form-check">
-	    <input type="checkbox" class="form-check-input" checked disabled>
-	    <label class="form-check-label ml-1">users</label>
-	  </div>
+	
 	  
 	  <?php 
 	  foreach($group_array as $group){ 
