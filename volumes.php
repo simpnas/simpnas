@@ -114,13 +114,37 @@
               <?php if(!empty($is_crypt)){ ?>
                 <a href="post.php?lock_volume=<?php echo $volume; ?>" class="btn btn-outline-secondary"><span data-feather="lock"></span></a>
               <?php } ?>
-              <a href="post.php?volume_delete=<?php echo $volume; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span></a>
+              <button class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteVolume<?php echo $volume; ?>"><span data-feather="trash"></span></button>
             </div>
             <?php }else{ ?>
             <div class="p-3">
             <?php } ?>
           </td>
         </tr>
+
+        <div class="modal fade" id="deleteVolume<?php echo $volume; ?>" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-trash"></i> Delete <?php echo $volume; ?></h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <center>
+                  <h3 class="text-secondary">Are you sure you want to</h3>
+                  <h1 class="text-danger">Delete <strong><?php echo $volume; ?></strong>?</h1>
+                  <h5>This will delete all data within the Volume</h5>
+                </center>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                <a href="post.php?volume_delete=<?php echo $volume; ?>" class="btn btn-outline-danger"><span data-feather="trash"></span> Delete</a>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="modal fade" id="mountCrypt<?php echo $disk; ?>" tabindex="-1">
           <div class="modal-dialog">
