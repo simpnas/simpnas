@@ -272,11 +272,16 @@ if(isset($_POST['unlock_volume'])){
   $password = $_POST['password'];
 
   exec("echo $password | cryptsetup luksOpen /dev/disk/by-uuid/$disk $volume");
-    
-  exec ("mount /dev/mapper/$volume /volumes/$volume");
-
-  $_SESSION['alert_type'] = "info";
-  $_SESSION['alert_message'] = "Unlocked Encrypted volume $volume successfully!";
+  $crypt_status = exec("cryptsetup status $volume | grep inactive");
+  if(empty($crypt_status)){
+    exec ("mount /dev/mapper/$volume /volumes/$volume");
+    $_SESSION['alert_type'] = "info";
+    $_SESSION['alert_message'] = "Unlocked Encrypted volume $volume successfully!";
+  }else{
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Wrong Secret Key Given!";
+  } 
+  
   header("Location: volumes.php");
 
 }
