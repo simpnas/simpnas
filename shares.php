@@ -40,7 +40,13 @@
             $path = $sambaConfigArray['path'];
             $volume = basename(dirname($path));
             $comment = $sambaConfigArray['comment'];
+            if(empty($comment)){
+              $comment = "-";
+            }
             $group = $sambaConfigArray['force group'];
+            if(empty($group)){
+              $group = "-";
+            }
             $read_only = $sambaConfigArray['read only'];
             $used_space = exec("du -sh $path | awk '{print $1}'");
 
