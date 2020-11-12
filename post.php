@@ -791,8 +791,6 @@ if(isset($_POST['install_jellyfin'])){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
-    //create my-network if does not exist
-    exec("docker network create my-network");
 
     $volume = $_POST['volume'];
 
@@ -803,7 +801,6 @@ if(isset($_POST['install_jellyfin'])){
     if(empty($group_id)){
       exec ("addgroup media");
       $group_id = exec("getent group media | cut -d: -f3");
-      exec ("usermod -a -G media administrator");
     }
 
     if(!file_exists("$media_volume_path")) {
@@ -857,7 +854,7 @@ if(isset($_POST['install_jellyfin'])){
 
 
 
-    exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/jellyfin:/config -v /volumes/$volume/media/tvshows:/tvshows -v /volumes/$volume/media/movies:/movies -v /volumes/$volume/media/music:/music linuxserver/jellyfin");
+    exec("docker run -d --name jellyfin --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/jellyfin:/config -v /volumes/$volume/media/tvshows:/tvshows -v /volumes/$volume/media/movies:/movies -v /volumes/$volume/media/music:/music linuxserver/jellyfin");
 
   }
   
@@ -874,7 +871,7 @@ if(isset($_GET['update_jellyfin'])){
   exec("docker stop jellyfin");
   exec("docker rm jellyfin");
   
-  exec("docker run -d --name jellyfin --net=my-network --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v $docker_path:/config -v $media_path/tvshows:/tvshows -v $media_path/movies:/movies -v $media_path/music:/music linuxserver/jellyfin");
+  exec("docker run -d --name jellyfin --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v $docker_path:/config -v $media_path/tvshows:/tvshows -v $media_path/movies:/movies -v $media_path/music:/music linuxserver/jellyfin");
 
   exec("docker image prune");
   
@@ -901,9 +898,6 @@ if(isset($_POST['install_daapd'])){
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
 
-    //create my-network if does not exist
-    exec("docker network create my-network");
-
     $volume = $_POST['volume'];
     
     $media_volume_path = exec("find /volumes/*/media -name media");
@@ -913,7 +907,6 @@ if(isset($_POST['install_daapd'])){
     if(empty($group_id)){
       exec ("addgroup media");
       $group_id = exec("getent group media | cut -d: -f3");
-      exec ("usermod -a -G media administrator");
     }
 
     if(!file_exists("$media_volume_path")) {
@@ -1002,7 +995,7 @@ if(isset($_POST['install_nextcloud'])){
   }else{
 
     //create my-network if does not exist
-    exec("docker network create my-network");
+    exec("docker network create nextcloud-net");
 
     $password = $_POST['password'];
     $enable_samba_auth = $_POST['enable_samba_auth'];
@@ -1018,9 +1011,9 @@ if(isset($_POST['install_nextcloud'])){
 
     mkdir("/volumes/$config_docker_volume/docker/nextcloud_mariadb");
 
-    exec("docker run -d --name nextcloud_mariadb --net=my-network -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
+    exec("docker run -d --name nextcloud_mariadb --net=nextcloud-net -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
 
-    exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/data:/data -v /volumes/$data_volume/nextcloud_data/appdata:/config linuxserver/nextcloud");
+    exec("docker run -d --name nextcloud --net=nextcloud-net -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/data:/data -v /volumes/$data_volume/nextcloud_data/appdata:/config linuxserver/nextcloud");
 
     exec("echo '' > /var/log/nextcloud-counter.log");
     $var = '';
@@ -1127,9 +1120,9 @@ if(isset($_GET['update_nextcloud'])){
   $nextcloud_data_path = exec("find /volumes/*/nextcloud_data/appdata -name appdata");
   $nextcloud_app_data = exec("find /volumes/*/docker/nextcloud/data -name data");
 
-  exec("docker run -d --name nextcloud_mariadb --net=my-network -p 3306:3306 --restart=unless-stopped -v $nextcloud_mariadb_path:/config linuxserver/mariadb");
+  exec("docker run -d --name nextcloud_mariadb --net=nextcloud-net -p 3306:3306 --restart=unless-stopped -v $nextcloud_mariadb_path:/config linuxserver/mariadb");
 
-  exec("docker run -d --name nextcloud --net=my-network -p 6443:443 --restart=unless-stopped -v $nextcloud_data_path:/config -v $nextcloud_app_data:/data linuxserver/nextcloud");
+  exec("docker run -d --name nextcloud --net=nextcloud-net -p 6443:443 --restart=unless-stopped -v $nextcloud_data_path:/config -v $nextcloud_app_data:/data linuxserver/nextcloud");
 
   exec("echo '' > /var/log/nextcloud-update-counter.log");
   $var = '';
@@ -1159,6 +1152,9 @@ if(isset($_GET['uninstall_nextcloud'])){
   exec("docker stop nextcloud_mariadb");
   exec("docker rm nextcloud_mariadb");
 
+  //Remove nextcloud-net
+  exec("docker network rm nextcloud-net");
+
   $nextcloud_data_volume_path = exec("find /volumes/*/nextcloud_data -name nextcloud_data");
 
   //delete docker config
@@ -1183,12 +1179,9 @@ if(isset($_GET['install_bitwarden'])){
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
 
-    //create my-network if does not exist
-    exec("docker network create my-network");
-
     mkdir("/volumes/$config_docker_volume/docker/bitwarden/");
 
-    exec("docker run -d --name bitwarden --net=my-network -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
+    exec("docker run -d --name bitwarden -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server:latest");
   }
 
   header("Location: apps.php");
@@ -1233,12 +1226,9 @@ if(isset($_GET['install_homeassistant'])){
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
 
-    //create my-network if does not exist
-    exec("docker network create my-network");
-
     mkdir("/volumes/$config_docker_volume/docker/homeassistant");
 
-    exec("docker run -d --name homeassistant --net=my-network --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
+    exec("docker run -d --name homeassistant --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
   }
 
   header("Location: apps.php");
@@ -1252,7 +1242,7 @@ if(isset($_GET['update_homeassistant'])){
   exec("docker stop homeassistant");
   exec("docker rm homeassistant");
 
-  exec("docker run -d --name homeassistant --net=my-network --restart=unless-stopped -p 8123:8123 -v $docker_path:/config homeassistant/home-assistant:stable");
+  exec("docker run -d --name homeassistant --restart=unless-stopped -p 8123:8123 -v $docker_path:/config homeassistant/home-assistant:stable");
 
   exec("docker image prune");
   
@@ -1283,12 +1273,9 @@ if(isset($_GET['install_unifi-controller'])){
     $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
   }else{
 
-    //create my-network if does not exist
-    exec("docker network create my-network");
-
     mkdir("/volumes/$config_docker_volume/docker/unifi-controller/");
 
-    exec("docker run -d --name unifi-controller --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/unifi-controller:/config linuxserver/unifi-controller");
+    exec("docker run -d --name unifi-controller -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/unifi-controller:/config linuxserver/unifi-controller");
   }
   header("Location: apps.php");
 }
@@ -1301,7 +1288,7 @@ if(isset($_GET['update_unifi-controller'])){
   exec("docker stop unifi-controller");
   exec("docker rm unifi-controller");
 
-  exec("docker run -d --name unifi-controller --net=my-network -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v $docker_path:/config linuxserver/unifi-controller");
+  exec("docker run -d --name unifi-controller -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v $docker_path:/config linuxserver/unifi-controller");
 
   exec("docker image prune");
   
@@ -1354,7 +1341,6 @@ if(isset($_POST['install_transmission'])){
       
     exec ("addgroup download");
     $group_id = exec("getent group download | cut -d: -f3");
-    exec ("usermod -a -G download administrator");
 
     mkdir("/volumes/$volume/downloads");
     mkdir("/volumes/$volume/downloads/completed");
@@ -1470,12 +1456,9 @@ if(isset($_GET['uninstall_transmission'])){
 
 if(isset($_GET['install_wireguard'])){
 
-  //create my-network if does not exist
-  exec("docker network create my-network");
-
   mkdir("/volumes/$config_docker_volume/docker/wireguard");
 
-  exec("docker run -d --name wireguard --net=my-network --cap-add=NET_ADMIN --cap-add=SYS_MODULE --restart=unless-stopped -e PEERS=1 -v /volumes/$config_docker_volume/docker/wireguard:/config -v /lib/modules:/lib/modules -p 51820:51820/udp --sysctl='net.ipv4.conf.all.src_valid_mark=1' linuxserver/wireguard");
+  exec("docker run -d --name wireguard --cap-add=NET_ADMIN --cap-add=SYS_MODULE --restart=unless-stopped -e PEERS=1 -v /volumes/$config_docker_volume/docker/wireguard:/config -v /lib/modules:/lib/modules -p 51820:51820/udp --sysctl='net.ipv4.conf.all.src_valid_mark=1' linuxserver/wireguard");
   header("Location: apps.php");
 }
 
@@ -1540,7 +1523,7 @@ if(isset($_GET['install_openvpn'])){
 
   mkdir("/volumes/$config_docker_volume/docker/openvpn");
 
-  exec("docker run -d --name openvpn --net=my-network --restart=unless-stopped -v /volumes/$config_docker_volume/docker/openvpn:/config -p 943:943 -p 9443:9443 -p 1194:1194/udp linuxserver/openvpn-as");
+  exec("docker run -d --name openvpn --restart=unless-stopped -v /volumes/$config_docker_volume/docker/openvpn:/config -p 943:943 -p 9443:9443 -p 1194:1194/udp linuxserver/openvpn-as");
   header("Location: apps.php");
 }
 
@@ -1747,7 +1730,6 @@ if(isset($_POST['setup_final'])){
 
   exec("apt install docker-ce docker-ce-cli containerd.io -y");
   exec("apt install docker.io -y");
-  exec("docker network create my-network");
 
   if($collect = 1){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");

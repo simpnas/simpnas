@@ -15,11 +15,11 @@
 	    <li class="breadcrumb-item"><a href="setup.php">Timezone</a></li>
 	    <li class="breadcrumb-item"><a href="setup_network.php">Network</a></li>
 	    <li class="breadcrumb-item"><a href="setup_volume.php">Volume</a></li>
-	    <li class="breadcrumb-item active">Final</li>
+	    <li class="breadcrumb-item active">User</li>
 	  </ol>
 	</nav>
   
-  <h2>Final Configuration</h2>
+  <h2>Admin User</h2>
   <hr>
 
   <?php include("alert_message.php"); ?>
@@ -27,12 +27,12 @@
   <form method="post" action="post.php" autocomplete="off">
 
 	  <div class="form-group">
-	    <label>Administrator Username</label>
+	    <label>Username</label>
 	    <input type="text" class="form-control" name="username" required autofocus>
 	  </div>
 
 	  <div class="form-group">
-	    <label>Administrator Password</label>
+	    <label>Password</label>
 	    <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password">
 	  </div>
 
