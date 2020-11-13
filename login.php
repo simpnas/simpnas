@@ -40,7 +40,6 @@ if(isset($_POST['login'])){
 
     <!-- Bootstrap core CSS -->
     <link href="plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="css/loader.css">
     <link rel="stylesheet" type="text/css" href="plugins/fontawesome-free/css/all.min.css">
 
     <!-- Custom styles for this template -->
@@ -60,7 +59,7 @@ if(isset($_POST['login'])){
       <input type="text" id="inputUsername" name="username" class="form-control" placeholder="Username" required autofocus>
       <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" required>
       <button type="submit" class="btn btn-primary p-2 btn-block" name="login">Login</button>
-      <a href="http://<?php echo $config_primary_ip; ?>:82" class="btn btn-secondary p-2 btn-block">File Manager</a>
+      <a href="http://<?php echo $config_primary_ip; ?>:82" class="btn btn-secondary p-2 btn-block"><i class="fa fa-folder"></i> File Manager</a>
     </form>
     </form>
   

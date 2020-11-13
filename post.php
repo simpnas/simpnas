@@ -1798,7 +1798,7 @@ if(isset($_POST['setup_final'])){
   
   $file = fopen("config.php", "w");
 
-  $data = "<?php\nreturn array(\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'enable_beta' => '0'\n);\n?>";
+  $data = "<?php\nreturn array(\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'theme' => '',\n'audit_logging' => '0',\n'enable_beta' => '0'\n);\n?>";
 
   fwrite($file, $data);
   fclose($file);
