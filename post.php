@@ -1750,6 +1750,49 @@ if(isset($_POST['setup_volume_raid'])){
 
   $num_of_disks = count($disk_array);
   
+  //find and stop any arrays
+  exec("ls /dev/md*",$md_array)
+
+  foreach($md_array as $md){
+    exec("mdadm --stop $md");
+
+  }
+
+  //Remove Superblocks on selected disks and wipe any partition info
+  foreach($disk_array as $disk){
+    exec("mdadm --zero-superblock /dev/$disk");
+    exec ("wipefs -a /dev/$disk");
+  }
+
+  $disks = implode(' ',$disk_array);
+
+  exec("yes | mdadm --create /dev/md1 --level=$raid --raid-devices=$num_of_disks $disks");
+
+  exec ("mkdir /volumes/$volume_name");
+
+  exec ("mkfs.ext4 -F /dev/md1");
+  
+  exec ("mount /dev/md1 /volumes/$volume_name");  
+    
+  $uuid = exec("blkid -o value --match-tag UUID /dev/md1");
+
+  $myFile = "/etc/fstab";
+  $fh = fopen($myFile, 'a') or die("can't open file");
+  $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 0\n";
+  fwrite($fh, $stringData);
+  fclose($fh);
+
+  header("Location: setup_final.php");
+
+}
+
+if(isset($_POST['setup_volume_raid_old'])){
+  $volume_name = trim($_POST['volume_name']);
+  $raid = $_POST['raid'];
+  $disk_array = $_POST['disks'];
+
+  $num_of_disks = count($disk_array);
+  
   foreach($disk_array as $disk){
     exec ("wipefs -a /dev/$disk");
     exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
