@@ -26,7 +26,7 @@
 	  
 	  <div class="form-group">
 	    <label>Username</label>
-	    <input type="text" class="form-control" name="username" required pattern="[a-zA-Z0-9]{1,20}" autofocus>
+	    <input type="text" class="form-control" name="username" required pattern="[a-z0-9]{1,20}" autofocus>
 	  </div>
 	  
 	  <div class="form-group">
