@@ -40,6 +40,8 @@ if(isset($_POST['login'])){
 
     <!-- Bootstrap core CSS -->
     <link href="plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/loader.css">
+    <link rel="stylesheet" type="text/css" href="plugins/fontawesome-free/css/all.min.css">
 
     <!-- Custom styles for this template -->
     <link href="css/signin.css" rel="stylesheet">
@@ -47,7 +49,7 @@ if(isset($_POST['login'])){
 
   <body class="text-center">
     <form class="form-signin" method="post">
-      <h1 class="mb-3"><strong><?php echo gethostname(); ?><strong></h2>
+      <h1 class="mb-3"><i class="fa fa-cube"></i> SimpNAS<br><small class="text-secondary"><?php echo gethostname(); ?></small></h1>
       <div id ="alert">
         <?php 
         if(!empty($response)){
