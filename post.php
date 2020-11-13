@@ -1322,7 +1322,7 @@ if(isset($_GET['install_nginx-proxy-manager'])){
 
     mkdir("/volumes/$config_docker_volume/docker/nginx-proxy-manager");
 
-    exec("docker run -d --name nginx-proxy-manager -p 80:8080 -p 83:8181 -p 443:4443 -v /volumes/$config_docker_volume/docker/nginx-proxy-manager:/config --restart=unless-stopped jlesage/nginx-proxy-manager");
+    exec("docker run -d --name nginx-proxy-manager -p 80:8080 -p 83:8181 -p 443:4443 -v /volumes/$config_docker_volume/docker/nginx-proxy-manager:/config --restart=unless-stopped jc21/nginx-proxy-manager");
   }
 
   header("Location: apps.php");
@@ -1336,7 +1336,7 @@ if(isset($_GET['update_nginx-proxy-manager'])){
   exec("docker stop nginx-proxy-manager");
   exec("docker rm nginx-proxy-manager");
 
-  exec("docker run -d --name nginx-proxy-manager -p 80:8080 -p 83:8181 -p 443:4443 -v $docker_path:/config --restart=unless-stopped jlesage/nginx-proxy-manager");
+  exec("docker run -d --name nginx-proxy-manager -p 80:8080 -p 83:8181 -p 443:4443 -v $docker_path:/config --restart=unless-stopped jc21/nginx-proxy-manager");
 
   exec("docker image prune");
   
