@@ -1763,7 +1763,10 @@ if(isset($_POST['setup_volume_raid'])){
     exec ("wipefs -a /dev/$disk");
   }
 
-  $disks = implode(' ',$disk_array);
+  //prefix /dev/ to each var in the array so instead of sda it would be /dev/sda
+  $prefixed_array = preg_filter('/^/', '/dev/', $disk_array);
+
+  $disks = implode(' ',$prefixed_array);
 
   exec("yes | mdadm --create /dev/md1 --level=$raid --raid-devices=$num_of_disks $disks");
 
