@@ -1751,11 +1751,10 @@ if(isset($_POST['setup_volume_raid'])){
   $num_of_disks = count($disk_array);
   
   //find and stop any arrays
-  exec("ls /dev/md*",$md_array)
+  exec("ls /dev/md*",$md_array);
 
   foreach($md_array as $md){
     exec("mdadm --stop $md");
-
   }
 
   //Remove Superblocks on selected disks and wipe any partition info
