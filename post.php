@@ -1774,7 +1774,10 @@ if(isset($_POST['setup_volume_raid'])){
 
   exec ("mkfs.ext4 -F /dev/md1");
   
-  exec ("mount /dev/md1 /volumes/$volume_name");  
+  exec ("mount /dev/md1 /volumes/$volume_name");
+
+  //To make sure that the array is reassembled automatically at boot
+  exec ("sudo mdadm --detail --scan | sudo tee -a /etc/mdadm/mdadm.conf");  
     
   $uuid = exec("blkid -o value --match-tag UUID /dev/md1");
 
