@@ -384,7 +384,7 @@ if(isset($_POST['volume_add_raid'])){
   fwrite($fh, $stringData);
   fclose($fh);
 
-  header("Location: setup_final.php");
+  header("Location: volumes.php");
 
 }
 
@@ -1950,8 +1950,8 @@ if(isset($_POST['setup_final'])){
   exec ("filebrowser -d /usr/local/etc/filebrowser.db users add $username $password --perm.admin=true");
   exec("systemctl start filebrowser");
 
-  exec("apt install docker-ce docker-ce-cli containerd.io -y");
-  exec("apt install docker.io -y");
+  //exec("apt install docker-ce docker-ce-cli containerd.io -y");
+  //exec("apt install docker.io -y");
 
   if($collect = 1){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
