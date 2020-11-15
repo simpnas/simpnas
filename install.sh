@@ -75,7 +75,6 @@ cp /simpnas/conf/filebrowser.service /etc/systemd/system/
 chmod 755 /etc/systemd/system/filebrowser.service
 systemctl enable filebrowser
 systemctl start filebrowser
-
 echo "=================================================================================="
 echo "Installing and Enabling SimpNAS Service during Startup..."
 echo "=================================================================================="
@@ -87,5 +86,5 @@ IP="$(ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' |
 HOSTNAME="$(hostname)";
 echo "==============================================================================================================================="
 echo "                                                   Almost There!																                               "
-echo "                    		Visit http://$IP:81 in your web browser to complete installation								 	                     "
+echo "             Visit http://$IP:81 in your web browser to complete installation								 	                                 "
 echo "==============================================================================================================================="
