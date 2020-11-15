@@ -35,8 +35,8 @@ echo "Installing Backport version of SMARTmonTools"
 echo "=================================================================================="
 DEBIAN_FRONTEND=noninteractive \apt -t buster-backports install smartmontools -y
 echo "================================================================================="
-#apt install docker-ce docker-ce-cli containerd.io -y
-#apt install docker.io -y
+apt install docker-ce docker-ce-cli containerd.io -y
+apt install docker.io -y
 #echo "=================================================================================="
 #echo "Creating docker network"
 #echo "=================================================================================="
