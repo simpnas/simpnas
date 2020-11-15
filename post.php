@@ -340,6 +340,55 @@ if(isset($_POST['volume_add'])){
 }
 
 if(isset($_POST['volume_add_raid'])){
+  $volume_name = trim($_POST['volume_name']);
+  $raid = $_POST['raid'];
+  $disk_array = $_POST['disks'];
+
+  $num_of_disks = count($disk_array);
+
+  //Remove Superblocks on selected disks and wipe any partition info
+  foreach($disk_array as $disk){
+    exec("mdadm --zero-superblock /dev/$disk");
+    exec ("wipefs -a /dev/$disk");
+  }
+
+  //prefix /dev/ to each var in the array so instead of sda it would be /dev/sda
+  $prefixed_array = preg_filter('/^/', '/dev/', $disk_array);
+
+  $disks = implode(' ',$prefixed_array);
+
+  //Generate the next /dev/mdX Number
+  //get the last md#
+  $md = exec("ls /dev/md*");
+  //extract the numbers out of md
+  $md_num = preg_replace('/[^0-9]/', '', $md);
+  //add 1 to the num
+  $new_md_num = $md_num + 1;
+
+  exec("yes | mdadm --create --verbose /dev/md$new_md_num --level=$raid --raid-devices=$num_of_disks $disks");
+
+  exec ("mkdir /volumes/$volume_name");
+
+  exec ("mkfs.ext4 -F /dev/md$new_md_num");
+  
+  exec ("mount /dev/md$new_md_num /volumes/$volume_name");
+
+  //To make sure that the array is reassembled automatically at boot
+  //exec ("mdadm --detail --scan | tee -a /etc/mdadm/mdadm.conf");  
+    
+  $uuid = exec("blkid -o value --match-tag UUID /dev/md$new_md_num");
+
+  $myFile = "/etc/fstab";
+  $fh = fopen($myFile, 'a') or die("can't open file");
+  $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 0\n";
+  fwrite($fh, $stringData);
+  fclose($fh);
+
+  header("Location: setup_final.php");
+
+}
+
+if(isset($_POST['volume_add_raid_old'])){
   $name = trim($_POST['name']);
   $raid = $_POST['raid'];
   $disk_array = $_POST['disks'];
@@ -1768,7 +1817,7 @@ if(isset($_POST['setup_volume_raid'])){
 
   $disks = implode(' ',$prefixed_array);
 
-  exec("yes | mdadm --create /dev/md1 --level=$raid --raid-devices=$num_of_disks $disks");
+  exec("yes | mdadm --create --verbose /dev/md1 --level=$raid --raid-devices=$num_of_disks $disks");
 
   exec ("mkdir /volumes/$volume_name");
 
@@ -1777,7 +1826,7 @@ if(isset($_POST['setup_volume_raid'])){
   exec ("mount /dev/md1 /volumes/$volume_name");
 
   //To make sure that the array is reassembled automatically at boot
-  exec ("sudo mdadm --detail --scan | sudo tee -a /etc/mdadm/mdadm.conf");  
+  //exec ("mdadm --detail --scan | tee -a /etc/mdadm/mdadm.conf");  
     
   $uuid = exec("blkid -o value --match-tag UUID /dev/md1");
 
