@@ -121,7 +121,7 @@ if(count($not_in_use_disks_array) > 1){
 
 	  <div class="form-group">
 	    <label>Volume Name</label>
-	    <input type="text" class="form-control" name="name" pattern="[a-zA-Z0-9-_]{1,15}" required>
+	    <input type="text" class="form-control" name="volume_name" pattern="[a-zA-Z0-9-_]{1,15}" required>
 	  </div>
 
 	  <button type="submit" name="volume_add_raid" class="btn btn-primary">Submit</button>
