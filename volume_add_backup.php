@@ -69,7 +69,7 @@
 		  <div class="input-group-prepend">
 		    <span class="input-group-text" id="basic-addon3">backup-</span>
 		  </div>
-		  <input type="text" class="form-control" name="name" required pattern="[a-zA-Z0-9-]{1,15}">
+		  <input type="text" class="form-control" name="volume_name" required pattern="[a-zA-Z0-9-]{1,15}">
 		</div>  
 
 	  <button type="submit" name="volume_add_backup" class="btn btn-primary">Submit</button>

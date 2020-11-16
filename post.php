@@ -298,40 +298,40 @@ if(isset($_GET['lock_volume'])){
 }
 
 if(isset($_POST['volume_add'])){
-  $name = trim($_POST['name']);
+  $volume_name = trim($_POST['volume_name']);
   $disk = $_POST['disk'];
   
   exec ("ls /volumes/",$volumes_array);
 
-  if(in_array($name, $volumes_array)){
+  if(in_array($volume_name, $volumes_array)){
     $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not add volume $name as it already exists!";
+    $_SESSION['alert_message'] = "Can not add volume $volume_name as it already exists!";
   }else{
     exec ("wipefs -a /dev/$disk");
     exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
     $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
     //WIPE out any superblocks
     exec ("mdadm --zero-superblock /dev/$diskpart");
-    exec ("e2label /dev/$diskpart $name");
-    exec ("mkdir /volumes/$name");
+    exec ("e2label /dev/$diskpart $volume_name");
+    exec ("mkdir /volumes/$volume_name");
     
     if(!empty($_POST['encrypt'])){
       $password = $_POST['password'];
       exec ("echo $password | cryptsetup -q luksFormat /dev/$diskpart");
-      exec ("echo $password | cryptsetup open /dev/$diskpart $name");
-      exec ("mkfs.ext4 -F /dev/mapper/$name");
+      exec ("echo $password | cryptsetup open /dev/$diskpart $volume_name");
+      exec ("mkfs.ext4 -F /dev/mapper/$volume_name");
       $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
-      exec("echo $uuid > /volumes/$name/.uuid_map");    
-      exec ("mount /dev/mapper/$name /volumes/$name");
+      exec("echo $uuid > /volumes/$volume_name/.uuid_map");    
+      exec ("mount /dev/mapper/$volume_name /volumes/$volume_name");
     }else{
       exec ("mkfs.ext4 -F /dev/$diskpart");
-      exec ("mount /dev/$diskpart /volumes/$name");  
+      exec ("mount /dev/$diskpart /volumes/$volume_name");  
       
       $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
 
       $myFile = "/etc/fstab";
       $fh = fopen($myFile, 'a') or die("can't open file");
-      $stringData = "UUID=$uuid /volumes/$name ext4 defaults 0 1\n";
+      $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 1\n";
       fwrite($fh, $stringData);
       fclose($fh);
     }
@@ -445,46 +445,46 @@ if(isset($_POST['volume_add_raid_old'])){
 }
 
 if(isset($_POST['volume_add_backup'])){
-  $name = trim($_POST['name']);
+  $volume_name = trim($_POST['volume_name']);
   $disk = $_POST['disk'];
   
   exec ("wipefs -a /dev/$disk");
   exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
   $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
-  exec ("e2label /dev/$diskpart $name");
+  exec ("e2label /dev/$diskpart $volume_name");
   exec ("mkfs.$filesystem -f /dev/$diskpart");
 
   $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
 
-  exec ("mkdir /mnt/backup--$name--$uuid");
+  exec ("mkdir /mnt/backup--$volume_name--$uuid");
 
   header("Location: volumes.php");
 }
 
 if(isset($_GET['volume_delete'])){
-  $name = $_GET['volume_delete'];
+  $volume_name = $_GET['volume_delete'];
   //check to make sure no shares are linked to the volume
   //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
   //the code to do that here
-  $diskpart = exec("findmnt -o SOURCE --target /volumes/$name");
+  $diskpart = exec("findmnt -o SOURCE --target /volumes/$volume_name");
   $disk = exec("lsblk -o pkname $diskpart");
   $uuid = exec("blkid -o value --match-tag UUID $diskpart");
   
-  exec("ls /volumes/$name | grep -v lost+found", $directory_list_array);
+  exec("ls /volumes/$volume_name | grep -v lost+found", $directory_list_array);
   if(!empty($directory_list_array)){
     $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not delete volume $name as there are files shares, please delete the file shares accociated to volume $name and try again!";
+    $_SESSION['alert_message'] = "Can not delete volume $volume_name as there are files shares, please delete the file shares accociated to volume $volume_name and try again!";
   }else{
     //UNMOUNTED CRYPT
     //Check to see if its an unmounted crypt volume if so replace $disk with new $disk
-    if(file_exists("/volumes/$name/ -name .uuid_map")){
-      $disk_part_uuid = exec("cat /volumes/$name/.uuid_map");
+    if(file_exists("/volumes/$volume_name/ -name .uuid_map")){
+      $disk_part_uuid = exec("cat /volumes/$volume_name/.uuid_map");
       $disk = exec("lsblk -o PKNAME,NAME,UUID | grep $disk_part_uuid | awk '{print $1}'");
     }
 
-    exec ("umount -l /volumes/$name");
-    exec ("cryptsetup close $name");
-    exec ("rm -rf /volumes/$name");
+    exec ("umount -l /volumes/$volume_name");
+    exec ("cryptsetup close $volume_name");
+    exec ("rm -rf /volumes/$volume_name");
     
     //RAID Remove
     //Get Disks and Partition number in the array 

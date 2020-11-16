@@ -97,7 +97,7 @@ if(count($not_in_use_disks_array) > 0){
 
 	  <div class="form-group">
 	    <label>Volume Name</label>
-	    <input type="text" class="form-control" name="name" pattern="[a-zA-Z0-9-_]{1,15}" required>
+	    <input type="text" class="form-control" name="volume_name" pattern="[a-zA-Z0-9-_]{1,15}" required>
 	  </div>
 
 	  <div class="form-group">
@@ -108,7 +108,7 @@ if(count($not_in_use_disks_array) > 0){
 	  </div>
 	  
 	  <div class="form-group" id="passwordbox">
-	    <label>Disk Password</label>
+	    <label>Encryption Key</label>
 	    <input type="password" class="form-control" name="password" data-toggle="password" autocomplete="new-password">
 	  </div>
 
