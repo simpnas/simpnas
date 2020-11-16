@@ -1178,7 +1178,7 @@ if(isset($_POST['install_nextcloud'])){
     exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ maintenance:install --database='mysql' --database-name='nextcloud' --database-host='nextcloud_mariadb' --database-user='nextcloud' --database-pass='password' --admin-user='admin' --admin-pass='$password'");
 
     //Add Trusted Hosts
-    $docker_gateway = exec("docker network inspect my-network | grep Gateway | awk '{print $2}' | sed 's/\\\"//g'");
+    $docker_gateway = exec("docker network inspect nextcloud-net | grep Gateway | awk '{print $2}' | sed 's/\\\"//g'");
 
     //Add Hostname and Primary IP to trusted_domains list
     exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ config:system:set trusted_domains 2 --value=$config_hostname");
@@ -1191,6 +1191,43 @@ if(isset($_POST['install_nextcloud'])){
     exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/support");
     exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/survey_client");
     exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/firstrunwizard");
+
+    //Disable and Remove More things
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable dashboard");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/dashboard");
+
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable nextcloud_announcements");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/nextcloud_announcements");
+
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable user_ldap");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/user_ldap");
+
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable user_status");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/user_status");
+
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable weather_status");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/weather_status");
+
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable activity");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/activity");
+
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable comments");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/comments");
+
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable recommendations");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/recommendations");
+
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable privacy");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/privacy");
+
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable accessibility");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/accessibility");
+
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable workflowengine");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/workflowengine");
+
+    exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ app:disable systemtags");
+    exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/systemtags");
 
     if($install_apps == 1){
       //Install Apps
