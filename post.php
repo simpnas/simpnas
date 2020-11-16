@@ -1155,6 +1155,17 @@ if(isset($_POST['install_nextcloud'])){
 
     exec("docker run -d --name nextcloud_mariadb --net=nextcloud-net -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_PASSWORD=password -p 3306:3306 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud_mariadb:/config linuxserver/mariadb");
 
+    exec("echo '' > /var/log/nextcloud_mariadb-counter.log");
+    $var = '';
+    $num = 0;
+    while(empty($var)){
+      sleep(1);
+      $var = exec("docker logs nextcloud_mariadb | grep 'Starting mysqld'");
+      $timestamp = date("h:i:sa");
+      $num = $num + 1;
+      exec("echo '$num - $var - $timestamp' >> /var/log/nextcloud_mariadb-counter.log");    
+    }
+
     exec("docker run -d --name nextcloud --net=nextcloud-net -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/data:/data -v /volumes/$data_volume/nextcloud_data/appdata:/config linuxserver/nextcloud");
 
     exec("echo '' > /var/log/nextcloud-counter.log");
