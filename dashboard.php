@@ -95,7 +95,7 @@
         </tr>
 
         <tr>
-          <td>Version</td>
+          <td>SimpNAS Version</td>
           <td><?php echo $simpnas_version; ?></td>
         </tr>
 
