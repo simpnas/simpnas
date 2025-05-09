@@ -10,9 +10,7 @@ if(isset($_POST['login'])){
   $username = $_POST['username'];
   $password = $_POST['password'];
 
-  $logged_in = exec("bash /simpnas/verify.sh $username $password");
-
-  if($logged_in == 1){
+  if ($password == $simpnas_admin_password) {
     $_SESSION['username'] = $username;
     $_SESSION['logged'] = TRUE;
     header("Location: dashboard.php");
