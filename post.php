@@ -2,7 +2,7 @@
 
 session_start();
 
-$config = include("config.php");
+include("config.php");
 include("simple_vars.php");
 include("functions.php");
 

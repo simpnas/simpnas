@@ -1,5 +1,5 @@
 <?php 
-  $config = include("config.php");
+  include("config.php");
   include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
@@ -27,7 +27,7 @@
   $machine_id = exec("cat /etc/machine-id");
   $cpu_model = exec("lscpu | grep 'Model name:' | sed -r 's/Model name:\s{1,}//g'");
   $cpu_cores = exec("lscpu | grep 'CPU(s):' | awk '{print $3}'");
-  $cpu_speed = round(exec("lscpu | grep 'CPU max MHz:' | awk '{print $4}'"));
+  $cpu_speed = round(floatval(exec("lscpu | grep 'CPU max MHz:' | awk '{print $4}'")));
   $memory_installed = formatSize(exec("free -b | grep 'Mem:' | awk '{print $2}'"));
   $swap_total = formatSize(exec("free -b | grep 'Swap:' | awk '{print $2}'"));
   $OS = exec("hostnamectl | grep 'Operating System:' | awk '{print $3, $4, $5, $6}'");
@@ -336,6 +336,4 @@
 
 </script>
 
-<?php include("footer.php"); 
-
-?>
+<?php include("footer.php");

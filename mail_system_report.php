@@ -1,6 +1,6 @@
 <?php 
   
-  $config = include("config.php");
+  include("config.php");
   include("simple_vars.php");
 
   $date = date("Y-m-d H:i");

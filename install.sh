@@ -39,7 +39,7 @@ echo "==========================================================================
 #sed -i 's/prohibit-password/yes/' /etc/ssh/sshd_config
 cd /
 echo "=================================================================================="
-echo "Downloading the Latest SimpNAS from GIT repo..."
+echo "Downloading the Latest simpNAS from GIT repo..."
 echo "=================================================================================="
 git clone https://github.com/simpnas/simpnas.git
 echo "=================================================================================="

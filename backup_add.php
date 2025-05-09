@@ -1,6 +1,6 @@
 <?php 
   
-  $config = include("config.php");
+  include("config.php");
 	include("simple_vars.php");
   include("header.php");
   include("side_nav.php"); 

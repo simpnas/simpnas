@@ -1,6 +1,6 @@
 <?php 
   
-  $config = include("config.php");
+  include("config.php");
   include("simple_vars.php");
 
   $load_30min = exec("cat /proc/loadavg | awk '{print $3}'");

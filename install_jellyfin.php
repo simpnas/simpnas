@@ -1,6 +1,6 @@
 <?php 
   
-  $config = include("config.php");
+  include("config.php");
   include("simple_vars.php");
   include("header.php");
   include("side_nav.php");
@@ -69,4 +69,4 @@
 
 </main>
 
-<?php include("footer.php"); ?>
+<?php include("footer.php");
