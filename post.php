@@ -856,19 +856,19 @@ if(isset($_POST['install_jellyfin'])){
     if(!file_exists("$media_volume_path")) {
 
       mkdir("/volumes/$volume/media");
-      mkdir("/volumes/$volume/media/tvshows");
+      mkdir("/volumes/$volume/media/shows");
       mkdir("/volumes/$volume/media/movies");
       mkdir("/volumes/$volume/media/music");
       
 
       chgrp("/volumes/$volume/media","media");
-      chgrp("/volumes/$volume/media/tvshows","media");
+      chgrp("/volumes/$volume/media/shows","media");
       chgrp("/volumes/$volume/media/movies","media");
       chgrp("/volumes/$volume/media/music","media");
       
       
       chmod("/volumes/$volume/media",0770);
-      chmod("/volumes/$volume/media/tvshows",0770);
+      chmod("/volumes/$volume/media/shows",0770);
       chmod("/volumes/$volume/media/movies",0770);
       chmod("/volumes/$volume/media/music",0770);
       
