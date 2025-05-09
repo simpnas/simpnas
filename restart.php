@@ -45,5 +45,3 @@ include("footer.php");
 
 //Using && is safer than ; because it ensures that command ... will run only if the sleep timer expires.
 exec("sleep 2 && reboot > /dev/null &");
-
-?>

@@ -527,7 +527,7 @@ if(isset($_POST['share_add'])){
   
   //Checks
   exec("ls /etc/samba/shares",$existing_shares_array);
-  exec("find /volumes/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_diectories_array);
+  exec("find /volumes/*/* -maxdepth 0 -type d -printf '%f\n'",$existing_directories_array);
   $docker_shares_array = array("media", "downloads", "docker", "users");
   $mounted = exec("df | grep $volume");
   if($volume == "sys-vol"){
