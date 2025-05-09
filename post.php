@@ -50,11 +50,6 @@ if(isset($_POST['user_add'])){
     exec ("useradd -g users -d /volumes/$config_home_volume/users/$username $username -c $comment -s /bin/false");
     exec ("echo '$password\n$password' | passwd $username");
     exec ("echo '$password\n$password' | smbpasswd -a $username");
-    
-    //Create the user under file browser
-    exec("systemctl stop filebrowser");
-    exec ("filebrowser -d /usr/local/etc/filebrowser.db users add $username $password --scope /$config_home_volume/users/$username");
-    exec("systemctl start filebrowser");
   
     exec ("chown -R $username /volumes/$config_home_volume/users/$username");
     
@@ -82,10 +77,6 @@ if(isset($_POST['user_edit'])){
     
     exec ("echo '$password\n$password' | passwd $username");
     exec ("echo '$password\n$password' | smbpasswd $username"); //May not be needed
-    //Modify user password under file browser
-    exec("systemctl stop filebrowser");
-    exec("filebrowser -d /usr/local/etc/filebrowser.db users update $username -p $password");
-    exec("systemctl start filebrowser");
     
   }
   if(!empty($group_array)){
@@ -105,10 +96,6 @@ if(isset($_GET['user_delete'])){
   exec("smbpasswd -x $username");
   
   exec("deluser --remove-home $username");
-  //Delete the user under file browser
-  exec("systemctl stop filebrowser");
-  exec("filebrowser -d /usr/local/etc/filebrowser.db users rm $username");
-  exec("systemctl start filebrowser");
 
   $_SESSION['alert_type'] = "danger";
   $_SESSION['alert_message'] = "User $username removed and all their data in their home directory has been Deleted!";
@@ -1573,13 +1560,6 @@ if(isset($_POST['setup_final'])){
   exec ("usermod -a -G admins $username");
   exec ("echo '$password\n$password' | smbpasswd -a $username");
   exec ("chown -R $username /volumes/$volume_name/users/$username");
-  //Create the user under file browser
-  exec("systemctl stop filebrowser");
-  exec ("filebrowser -d /usr/local/etc/filebrowser.db users add $username $password --perm.admin=true");
-  exec("systemctl start filebrowser");
-
-  //exec("apt install docker-ce docker-ce-cli containerd.io -y");
-  //exec("apt install docker.io -y");
 
   if($collect == 1){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");

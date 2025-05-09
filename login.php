@@ -54,7 +54,6 @@ if(isset($_POST['login'])){
       </div>
       <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" autofocus required>
       <button type="submit" class="btn btn-primary p-2 btn-block" name="login">Login</button>
-      <a href="http://<?php echo $config_primary_ip; ?>:82" class="btn btn-secondary p-2 btn-block"><i class="fa fa-folder"></i> File Manager</a>
     </form>
   
 <?php include("footer.php"); ?>

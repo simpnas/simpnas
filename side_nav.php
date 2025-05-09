@@ -8,12 +8,6 @@
           Dashboard
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="http://<?php echo $config_primary_ip; ?>:82" otarget="_blank">
-          <span data-feather="file"></span>
-          File Manager
-        </a>
-      </li>
     </ul>
 
     <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
