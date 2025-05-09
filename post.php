@@ -53,7 +53,7 @@ if(isset($_POST['user_add'])){
     
     //Create the user under file browser
     exec("systemctl stop filebrowser");
-    exec ("filebrowser -d /usr/local/etc/filebrowser.db users add $username $password --scope /volumes/$config_home_volume/users/$username");
+    exec ("filebrowser -d /usr/local/etc/filebrowser.db users add $username $password --scope /$config_home_volume/users/$username");
     exec("systemctl start filebrowser");
   
     exec ("chown -R $username /volumes/$config_home_volume/users/$username");
