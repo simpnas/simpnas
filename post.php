@@ -1523,7 +1523,7 @@ if(isset($_POST['setup_final'])){
   
   $file = fopen("config.php", "w");
 
-  $data = "<?php\nreturn array(\n'simpnas_admin_password' => '$password',\n'smtp_server' => '',\n'smtp_port' => '',\n'smtp_username' => '',\n'smtp_password' => '',\n'mail_from' => '',\n'mail_to' => '',\n'theme' => '',\n'audit_logging' => '0',\n'enable_beta' => '0'\n);\n?>";
+  $data = "<?php\n\n\$config_admin_password = '$password';\n\$config_smtp_server = '';\n\$config_smtp_port = '';\n\$config_smtp_username = '';\n\$config_smtp_password = '';\n\$config_mail_from = '';\n\$config_mail_to = '';\n\$config_theme = '';\n\$config_audit_logging = 0;\n\$config_enable_beta = 0;\n";
 
   fwrite($file, $data);
   fclose($file);

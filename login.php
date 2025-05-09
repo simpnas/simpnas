@@ -1,23 +1,21 @@
 <?php 
   
-$config = include("config.php");
+include("config.php");
 include("simple_vars.php");
 
 session_start();
 
 if(isset($_POST['login'])){
   
-  $username = $_POST['username'];
   $password = $_POST['password'];
 
-  if ($password == $simpnas_admin_password) {
-    $_SESSION['username'] = $username;
+  if ($password == $config_admin_password) {
     $_SESSION['logged'] = TRUE;
     header("Location: dashboard.php");
-  }else{
+  } else {
     $response = "
       <div class='alert alert-danger'>
-        Incorrect username or password.
+        Incorrect Password!
         <button class='close' data-dismiss='alert'>&times;</button>
       </div>
     ";
@@ -54,11 +52,9 @@ if(isset($_POST['login'])){
         }
         ?>
       </div>
-      <input type="text" id="inputUsername" name="username" class="form-control" placeholder="Username" required autofocus>
-      <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" required>
+      <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" autofocus required>
       <button type="submit" class="btn btn-primary p-2 btn-block" name="login">Login</button>
       <a href="http://<?php echo $config_primary_ip; ?>:82" class="btn btn-secondary p-2 btn-block"><i class="fa fa-folder"></i> File Manager</a>
-    </form>
     </form>
   
 <?php include("footer.php"); ?>

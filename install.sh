@@ -19,17 +19,11 @@ echo "==========================================================================
 echo "Installing Additional Required Packages..."
 echo "Samba, PHP, Rsync, mdadm (RAID), cryptsetup (LUKS Encryption) etc"
 echo "=================================================================================="
-DEBIAN_FRONTEND=noninteractive \apt install samba rsync php-cgi git mdadm cryptsetup apt-transport-https curl gnupg-agent software-properties-common dnsutils rclone avahi-daemon-y
+DEBIAN_FRONTEND=noninteractive \apt install samba rsync php-cgi git mdadm cryptsetup apt-transport-https curl gnupg-agent software-properties-common dnsutils rclone avahi-daemon sudo smartmontools -y
 echo "================================================================================="
 echo "Install Docker Repo"
 echo "================================================================================="
 curl -fsSL get.docker.com -o get-docker.sh && sh get-docker.sh
-apt update
-echo "=================================================================================="
-echo "Installing Backport version of SMARTmonTools"
-echo "=================================================================================="
-DEBIAN_FRONTEND=noninteractive \apt install smartmontools -y
-echo "================================================================================="
 #echo "=================================================================================="
 #echo "Creating docker network"
 #echo "=================================================================================="
@@ -42,7 +36,7 @@ echo '%admins   ALL=(ALL:ALL) ALL' > /etc/sudoers.d/admins
 echo "=================================================================================="
 echo "Allowing SSH Root Login..."
 echo "=================================================================================="
-sed -i 's/prohibit-password/yes/' /etc/ssh/sshd_config
+#sed -i 's/prohibit-password/yes/' /etc/ssh/sshd_config
 cd /
 echo "=================================================================================="
 echo "Downloading the Latest SimpNAS from GIT repo..."
@@ -63,7 +57,7 @@ echo "==========================================================================
 echo "Installing and Enabling Filebrowser..."
 echo "=================================================================================="
 cd /usr/local/etc
-curl -fsSL https://filebrowser.org/get.sh | bash
+curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
 cp /simpnas/conf/filebrowser.service /etc/systemd/system/
 chmod 755 /etc/systemd/system/filebrowser.service
 systemctl enable filebrowser
