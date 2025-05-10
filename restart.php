@@ -1,8 +1,8 @@
 <?php 
   
-  include("config.php");
-  include("simple_vars.php");
-  include("header_nologin.php");
+require_once "config.php";
+require_once "includes/simple_vars.php";
+require_once "includes/header_nologin.php";
 
 ?>
 
@@ -41,7 +41,7 @@
 
 <?php 
 
-include("footer.php"); 
+require_once "includes/footer.php"; 
 
 //Using && is safer than ; because it ensures that command ... will run only if the sleep timer expires.
 exec("sleep 2 && reboot > /dev/null &");

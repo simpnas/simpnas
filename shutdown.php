@@ -1,10 +1,10 @@
 <?php 
   
-  include("config.php");
-	include("simple_vars.php");
-  include("header.php");
-  
-  exec("sleep 1 && halt -p > /dev/null &");
+require_once "config.php";
+require_once "includes/simple_vars.php";
+require_once "includes/header.php";
+
+exec("sleep 1 && halt -p > /dev/null &");
 
 ?>
 
@@ -14,6 +14,5 @@
 		<h1 class="text-danger">Shutting Down!</h1>
 	</center>
 
-</main>
 
-<?php include("footer.php"); ?>
+<?php require_once "includes/footer.php";

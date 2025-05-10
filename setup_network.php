@@ -1,8 +1,8 @@
 <?php
 
-	include("setup_header.php");
+include("includes/setup_header.php");
 
-	exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v br-", $net_devices_array);
+exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v br-", $net_devices_array);
 
 ?>
 
@@ -77,4 +77,4 @@
 	</form>
 </main>
 
-<?php include("footer.php"); ?>
+<?php include("includes/footer.php");

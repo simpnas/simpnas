@@ -1,7 +1,7 @@
 <?php 
   
-include("config.php");
-include("simple_vars.php");
+require_once "config.php";
+require_once "includes/simple_vars.php";
 
 session_start();
 
@@ -56,4 +56,4 @@ if(isset($_POST['login'])){
       <button type="submit" class="btn btn-primary p-2 btn-block" name="login">Login</button>
     </form>
   
-<?php include("footer.php"); ?>
+<?php require_once "includes/footer.php";

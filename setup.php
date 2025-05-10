@@ -1,9 +1,9 @@
 <?php
 	
-	include("setup_header.php");
+require_once "setup_header.php";
 
-	$current_time_zone = exec("timedatectl show -p Timezone --value");
-  exec("timedatectl list-timezones", $timezones_array);
+$current_time_zone = exec("timedatectl show -p Timezone --value");
+exec("timedatectl list-timezones", $timezones_array);
 
 ?>
 
@@ -36,6 +36,5 @@
 	  
 	  <button type="submit" name="setup_timezone" class="btn btn-primary">Next <span data-feather="arrow-right"></span></button>
 	</form>
-</main>
 
-<?php include("footer.php"); ?>
+<?php require_once "includes/footer.php";

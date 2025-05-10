@@ -2,9 +2,9 @@
 
 session_start();
 
-include("config.php");
-include("simple_vars.php");
-include("functions.php");
+require_once "config.php";
+require_once "includes/simple_vars.php";
+require_once "includes/functions.php";
 
 if(isset($_GET['upgrade_simpnas'])){
   exec("cd /simpnas");

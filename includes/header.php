@@ -13,8 +13,6 @@ if(!$_SESSION['logged']){
 
 ?>
 
-<?php include("functions.php"); ?>
-
 <!doctype html>
 <html lang="en">
   <head>
