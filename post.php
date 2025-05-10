@@ -297,8 +297,8 @@ if (isset($_POST['volume_add'])) {
     } else {
         exec("wipefs -a /dev/$disk");
         exec("(echo g; echo n; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
-
         sleep(1);
+
         $diskpart = trim(shell_exec("lsblk -ln -o KNAME,TYPE /dev/$disk | awk '$2==\"part\" {print $1}'"));
         $device_path = "/dev/$diskpart";
 
@@ -309,23 +309,29 @@ if (isset($_POST['volume_add'])) {
             exec("echo $password | cryptsetup -q luksFormat $device_path");
             exec("echo $password | cryptsetup open $device_path $volume_name");
             exec("mkfs.btrfs -f -L $volume_name /dev/mapper/$volume_name");
-            $uuid = trim(shell_exec("blkid -o value --match-tag UUID $device_path"));
-            exec("echo $uuid > /volumes/$volume_name/.uuid_map");
             exec("mount -t btrfs /dev/mapper/$volume_name /volumes/$volume_name");
+
+            // Get UUID from the mapper device (not the encrypted block)
+            $uuid = trim(shell_exec("blkid -o value --match-tag UUID /dev/mapper/$volume_name"));
+            file_put_contents("/volumes/$volume_name/.uuid_map", $uuid);
         } else {
             exec("mkfs.btrfs -f -L $volume_name $device_path");
             exec("mount -t btrfs $device_path /volumes/$volume_name");
 
             $uuid = trim(shell_exec("blkid -o value --match-tag UUID $device_path"));
-            $myFile = "/etc/fstab";
-            $fh = fopen($myFile, 'a') or die("can't open file");
-            $stringData = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
-            fwrite($fh, $stringData);
-            fclose($fh);
         }
+
+        // Add to fstab regardless of encryption
+        $myFile = "/etc/fstab";
+        $fh = fopen($myFile, 'a') or die("can't open file");
+        $stringData = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
+        fwrite($fh, $stringData);
+        fclose($fh);
     }
+
     header("Location: volumes.php");
 }
+
 
 if (isset($_POST['volume_add_raid'])) {
     $volume_name = trim($_POST['volume_name']);
@@ -371,6 +377,7 @@ if (isset($_POST['volume_add_raid'])) {
     $_SESSION['alert_message'] = "RAID volume $volume_name created successfully!";
     header("Location: volumes.php");
 }
+
 
 if(isset($_POST['volume_add_backup'])){
   $volume_name = trim($_POST['volume_name']);
@@ -433,7 +440,7 @@ if (isset($_GET['volume_delete'])) {
 
     // Remove from /etc/fstab
     if (!empty($uuid)) {
-        deleteLineInFile("/etc/fstab", "/volumes/$volume_name");
+        deleteLineInFile("/etc/fstab", "$mount_path");
     }
 
     $_SESSION['alert_type'] = "info";
