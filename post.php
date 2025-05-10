@@ -253,182 +253,123 @@ if(isset($_GET['mount_volume'])){
   header("Location: volumes.php");
 }
 
-if(isset($_POST['unlock_volume'])){
-  $disk = $_POST['disk'];
-  $volume = $_POST['volume'];
-  $password = $_POST['password'];
+if (isset($_POST['unlock_volume'])) {
+    $disk = $_POST['disk'];
+    $volume = $_POST['volume'];
+    $password = $_POST['password'];
 
-  exec("echo $password | cryptsetup luksOpen /dev/disk/by-uuid/$disk $volume");
-  $crypt_status = exec("cryptsetup status $volume | grep inactive");
-  if(empty($crypt_status)){
-    exec ("mount /dev/mapper/$volume /volumes/$volume");
+    exec("echo $password | cryptsetup luksOpen /dev/disk/by-uuid/$disk $volume");
+    $crypt_status = exec("cryptsetup status $volume | grep inactive");
+
+    if (empty($crypt_status)) {
+        exec("mount -t btrfs /dev/mapper/$volume /volumes/$volume");
+        $_SESSION['alert_type'] = "info";
+        $_SESSION['alert_message'] = "Unlocked Encrypted volume $volume successfully!";
+    } else {
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "Wrong Secret Key Given!";
+    }
+
+    header("Location: volumes.php");
+}
+
+
+if (isset($_GET['lock_volume'])) {
+    $volume = $_GET['lock_volume'];
+
+    exec("umount -l /dev/mapper/$volume");
+    exec("cryptsetup close $volume");
+
     $_SESSION['alert_type'] = "info";
-    $_SESSION['alert_message'] = "Unlocked Encrypted volume $volume successfully!";
-  }else{
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = "Wrong Secret Key Given!";
-  } 
-  
-  header("Location: volumes.php");
-
+    $_SESSION['alert_message'] = "Volume $volume locked successfully!";
+    header("Location: volumes.php");
 }
 
-if(isset($_GET['lock_volume'])){
-  $volume = $_GET['lock_volume'];
+if (isset($_POST['volume_add'])) {
+    $volume_name = trim($_POST['volume_name']);
+    $disk = $_POST['disk'];
 
-  exec("umount -l /dev/mapper/$volume");
-  exec("cryptsetup close $volume");
-    
-  $_SESSION['alert_type'] = "info";
-  $_SESSION['alert_message'] = "Volume $volume Encrypted successfully!";
-  header("Location: volumes.php");
-}
+    exec("ls /volumes/", $volumes_array);
 
-if(isset($_POST['volume_add'])){
-  $volume_name = trim($_POST['volume_name']);
-  $disk = $_POST['disk'];
-  
-  exec ("ls /volumes/",$volumes_array);
+    if (in_array($volume_name, $volumes_array)) {
+        $_SESSION['alert_type'] = "warning";
+        $_SESSION['alert_message'] = "Cannot add volume $volume_name as it already exists!";
+    } else {
+        exec("wipefs -a /dev/$disk");
+        exec("(echo g; echo n; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
 
-  if(in_array($volume_name, $volumes_array)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not add volume $volume_name as it already exists!";
-  }else{
-    exec ("wipefs -a /dev/$disk");
-    exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
-    $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
-    //WIPE out any superblocks
-    exec ("mdadm --zero-superblock /dev/$diskpart");
-    exec ("e2label /dev/$diskpart $volume_name");
-    exec ("mkdir /volumes/$volume_name");
-    
-    if(!empty($_POST['encrypt'])){
-      $password = $_POST['password'];
-      exec ("echo $password | cryptsetup -q luksFormat /dev/$diskpart");
-      exec ("echo $password | cryptsetup open /dev/$diskpart $volume_name");
-      exec ("mkfs.ext4 -F /dev/mapper/$volume_name");
-      $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
-      exec("echo $uuid > /volumes/$volume_name/.uuid_map");    
-      exec ("mount /dev/mapper/$volume_name /volumes/$volume_name");
-    }else{
-      exec ("mkfs.ext4 -F /dev/$diskpart");
-      exec ("mount /dev/$diskpart /volumes/$volume_name");  
-      
-      $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
+        sleep(1);
+        $diskpart = trim(shell_exec("lsblk -ln -o KNAME,TYPE /dev/$disk | awk '$2==\"part\" {print $1}'"));
+        $device_path = "/dev/$diskpart";
 
-      $myFile = "/etc/fstab";
-      $fh = fopen($myFile, 'a') or die("can't open file");
-      $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 1\n";
-      fwrite($fh, $stringData);
-      fclose($fh);
+        exec("mkdir -p /volumes/$volume_name");
+
+        if (!empty($_POST['encrypt'])) {
+            $password = $_POST['password'];
+            exec("echo $password | cryptsetup -q luksFormat $device_path");
+            exec("echo $password | cryptsetup open $device_path $volume_name");
+            exec("mkfs.btrfs -f -L $volume_name /dev/mapper/$volume_name");
+            $uuid = trim(shell_exec("blkid -o value --match-tag UUID $device_path"));
+            exec("echo $uuid > /volumes/$volume_name/.uuid_map");
+            exec("mount -t btrfs /dev/mapper/$volume_name /volumes/$volume_name");
+        } else {
+            exec("mkfs.btrfs -f -L $volume_name $device_path");
+            exec("mount -t btrfs $device_path /volumes/$volume_name");
+
+            $uuid = trim(shell_exec("blkid -o value --match-tag UUID $device_path"));
+            $myFile = "/etc/fstab";
+            $fh = fopen($myFile, 'a') or die("can't open file");
+            $stringData = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
+            fwrite($fh, $stringData);
+            fclose($fh);
+        }
     }
-  }
-  header("Location: volumes.php");
+    header("Location: volumes.php");
 }
 
-if(isset($_POST['volume_add_raid'])){
-  $volume_name = trim($_POST['volume_name']);
-  $raid = $_POST['raid'];
-  $disk_array = $_POST['disks'];
+if (isset($_POST['volume_add_raid'])) {
+    $volume_name = trim($_POST['volume_name']);
+    $raid = strtolower($_POST['raid']);
+    $disk_array = $_POST['disks'];
 
-  $num_of_disks = count($disk_array);
-
-  //Remove Superblocks on selected disks and wipe any partition info
-  foreach($disk_array as $disk){
-    exec("mdadm --zero-superblock /dev/$disk");
-    exec ("wipefs -a /dev/$disk");
-  }
-
-  //prefix /dev/ to each var in the array so instead of sda it would be /dev/sda
-  $prefixed_array = preg_filter('/^/', '/dev/', $disk_array);
-
-  $disks = implode(' ',$prefixed_array);
-
-  //Generate the next /dev/mdX Number
-  //get the last md#
-  $md = exec("ls /dev/md*");
-  //extract the numbers out of md
-  $md_num = preg_replace('/[^0-9]/', '', $md);
-  //add 1 to the num
-  $new_md_num = $md_num + 1;
-
-  exec("yes | mdadm --create --verbose /dev/md$new_md_num --level=$raid --raid-devices=$num_of_disks $disks");
-
-  exec ("mkdir /volumes/$volume_name");
-
-  exec ("mkfs.ext4 -F /dev/md$new_md_num");
-  
-  exec ("mount /dev/md$new_md_num /volumes/$volume_name");
-
-  //To make sure that the array is reassembled automatically at boot
-  //exec ("mdadm --detail --scan | tee -a /etc/mdadm/mdadm.conf");  
-    
-  $uuid = exec("blkid -o value --match-tag UUID /dev/md$new_md_num");
-
-  $myFile = "/etc/fstab";
-  $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 0\n";
-  fwrite($fh, $stringData);
-  fclose($fh);
-
-  header("Location: volumes.php");
-
-}
-
-if(isset($_POST['volume_add_raid_old'])){
-  $name = trim($_POST['name']);
-  $raid = $_POST['raid'];
-  $disk_array = $_POST['disks'];
-
-  $num_of_disks = count($disk_array);
-  
-  exec ("ls /volumes/",$volumes_array);
-
-  if(in_array($name, $volumes_array)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not add volume $name as it already exists!";
-  }else{
-    foreach($disk_array as $disk){
-      exec ("wipefs -a /dev/$disk");
-      exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
-      exec("lsblk -o PKNAME,KNAME,TYPE,PATH /dev/$disk | grep part | awk '{print $4}'",$diskpart_array);
+    if (!in_array($raid, ['raid1', 'raid10'])) {
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "Invalid RAID type. Only RAID1 and RAID10 are supported for Btrfs.";
+        header("Location: volumes.php");
+        exit;
     }
 
-    $diskparts = implode(' ',$diskpart_array);
+    $partitions = [];
 
-    //WIPE out any superblocks
-    exec("mdadm --zero-superblock $diskparts");
-    
-    //Generate the next /dev/mdX Number
-    //get the last md#
-    $md = exec("ls /dev/md*");
-    //extract the numbers out of md
-    $md_num = preg_replace('/[^0-9]/', '', $md);
-    //add 1 to the num
-    $new_md_num = $md_num + 1;
+    foreach ($disk_array as $disk) {
+        exec("wipefs -a /dev/$disk");
+        exec("(echo g; echo n; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+    }
 
-    exec("yes | mdadm --create /dev/md$new_md_num --level=$raid --raid-devices=$num_of_disks $diskparts");
+    sleep(2);
 
-    exec ("mkdir /volumes/$name");
+    foreach ($disk_array as $disk) {
+        $part = trim(shell_exec("lsblk -ln -o KNAME,TYPE /dev/$disk | awk '$2==\"part\" {print $1}'"));
+        $partitions[] = "/dev/$part";
+    }
 
-    exec ("mkfs.ext4 -F /dev/md$new_md_num");
+    $device_list = implode(' ', $partitions);
+    exec("mkfs.btrfs -f -L $volume_name -d $raid -m $raid $device_list");
 
-    //sleep(10);
-    
-    exec ("mount /dev/md$new_md_num /volumes/$name");  
-      
-    $uuid = exec("blkid -o value --match-tag UUID /dev/md$new_md_num");
+    $first_device = $partitions[0];
+    exec("mkdir -p /volumes/$volume_name");
+    exec("mount -t btrfs $first_device /volumes/$volume_name");
 
+    $uuid = trim(shell_exec("blkid -o value --match-tag UUID $first_device"));
     $myFile = "/etc/fstab";
     $fh = fopen($myFile, 'a') or die("can't open file");
-    $stringData = "UUID=$uuid /volumes/$name ext4 defaults 0 0\n";
+    $stringData = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
     fwrite($fh, $stringData);
     fclose($fh);
-  
-  }
 
-  header("Location: volumes.php");
-
+    $_SESSION['alert_type'] = "info";
+    $_SESSION['alert_message'] = "RAID volume $volume_name created successfully!";
+    header("Location: volumes.php");
 }
 
 if(isset($_POST['volume_add_backup'])){
@@ -1110,52 +1051,6 @@ if(isset($_GET['uninstall_homeassistant'])){
   header("Location: apps.php");
 }
 
-if(isset($_GET['install_unifi-controller'])){
-  // Check to see if docker is running
-  $status_service_docker = exec("systemctl status docker | grep running");
-  if(empty($status_service_docker)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
-  }else{
-
-    mkdir("/volumes/$config_docker_volume/docker/unifi-controller/");
-
-    exec("docker run -d --name unifi-controller -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/unifi-controller:/config linuxserver/unifi-controller");
-  }
-  header("Location: apps.php");
-}
-
-if(isset($_GET['update_unifi-controller'])){
-
-  $docker_path = exec("find /volumes/*/docker/unifi-controller -name unifi-controller");
-
-  exec("docker pull linuxserver/unifi-controller");
-  exec("docker stop unifi-controller");
-  exec("docker rm unifi-controller");
-
-  exec("docker run -d --name unifi-controller -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v $docker_path:/config linuxserver/unifi-controller");
-
-  exec("docker image prune");
-  
-  header("Location: apps.php");
-
-}
-
-if(isset($_GET['uninstall_unifi-controller'])){
-  //stop and delete docker container
-  exec("docker stop unifi-controller");
-  exec("docker rm unifi-controller");
-
-  //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/unifi-controller");
-
-  //delete images
-  exec("docker image prune");
-
-  //redirect back to packages
-  header("Location: apps.php");
-}
-
 if(isset($_POST['install_transmission'])){ 
   // Check to see if docker is running
   $status_service_docker = exec("systemctl status docker | grep running");
@@ -1335,122 +1230,73 @@ if(isset($_POST['setup_network'])){
   }
 }
 
-if(isset($_POST['setup_volume'])){
-  $volume_name = $_POST['volume_name'];
-  $disk = $_POST['disk'];
+if (isset($_POST['setup_volume'])) {
+    $volume_name = $_POST['volume_name'];
+    $disk = $_POST['disk'];
 
-  exec ("wipefs -a /dev/$disk");
-  exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
-  $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
-  //WIPE out any superblocks
-  exec("mdadm --zero-superblock /dev/$diskpart");
-  exec ("mkdir /volumes/$volume_name");
-  exec ("mkfs.ext4 -F /dev/$diskpart");
-  exec ("e2label /dev/$diskpart $volume_name");
-  exec ("mount /dev/$diskpart /volumes/$volume_name"); 
+    // Wipe all filesystem signatures and create GPT partition
+    exec("wipefs -a /dev/$disk");
+    exec("(echo g; echo n; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
 
-  $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
-  $myFile = "/etc/fstab";
-  $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 1\n";
-  fwrite($fh, $stringData);
-  fclose($fh);
+    // Get partition name (e.g. sda1)
+    $diskpart = trim(shell_exec("lsblk -ln -o KNAME,TYPE /dev/$disk | awk '$2==\"part\" {print $1}'"));
+    $device_path = "/dev/$diskpart";
 
-  header("Location: setup_final.php");
+    // Format as Btrfs and label
+    exec("mkfs.btrfs -f -L $volume_name $device_path");
+
+    // Create and mount the volume
+    exec("mkdir -p /volumes/$volume_name");
+    exec("mount -t btrfs $device_path /volumes/$volume_name");
+
+    // Get UUID for fstab
+    $uuid = trim(shell_exec("blkid -o value --match-tag UUID $device_path"));
+    file_put_contents("/etc/fstab", "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n", FILE_APPEND);
+
+    header("Location: setup_final.php");
 }
 
-if(isset($_POST['setup_volume_raid'])){
-  $volume_name = trim($_POST['volume_name']);
-  $raid = $_POST['raid'];
-  $disk_array = $_POST['disks'];
+if (isset($_POST['setup_volume_raid'])) {
+    $volume_name = trim($_POST['volume_name']);
+    $raid_level = strtolower(trim($_POST['raid']));
+    $disk_array = $_POST['disks'];
 
-  $num_of_disks = count($disk_array);
-  
-  //find and stop any arrays
-  exec("ls /dev/md*",$md_array);
+    // Only allow RAID1 or RAID10
+    if (!in_array($raid_level, ['raid1', 'raid10'])) {
+        die("Unsupported RAID level for Btrfs. Only RAID1 and RAID10 are allowed.");
+    }
 
-  foreach($md_array as $md){
-    exec("mdadm --stop $md");
-  }
+    // Partition and wipe disks
+    $partitions = [];
+    foreach ($disk_array as $disk) {
+        exec("wipefs -a /dev/$disk");
+        exec("(echo g; echo n; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+    }
 
-  //Remove Superblocks on selected disks and wipe any partition info
-  foreach($disk_array as $disk){
-    exec("mdadm --zero-superblock /dev/$disk");
-    exec ("wipefs -a /dev/$disk");
-  }
+    // Wait for partitions to show up
+    sleep(2);
 
-  //prefix /dev/ to each var in the array so instead of sda it would be /dev/sda
-  $prefixed_array = preg_filter('/^/', '/dev/', $disk_array);
+    // Get partition paths (e.g. /dev/sda1)
+    foreach ($disk_array as $disk) {
+        $part = trim(shell_exec("lsblk -ln -o KNAME,TYPE /dev/$disk | awk '$2==\"part\" {print $1}'"));
+        $partitions[] = "/dev/$part";
+    }
 
-  $disks = implode(' ',$prefixed_array);
+    $device_list = implode(' ', $partitions);
 
-  exec("yes | mdadm --create --verbose /dev/md1 --level=$raid --raid-devices=$num_of_disks $disks");
+    // Format with Btrfs using specified RAID level
+    exec("mkfs.btrfs -f -L $volume_name -d $raid_level -m $raid_level $device_list");
 
-  exec ("mkdir /volumes/$volume_name");
+    // Mount first device
+    $first_device = $partitions[0];
+    exec("mkdir -p /volumes/$volume_name");
+    exec("mount -t btrfs $first_device /volumes/$volume_name");
 
-  exec ("mkfs.ext4 -F /dev/md1");
-  
-  exec ("mount /dev/md1 /volumes/$volume_name");
+    // Get UUID and update fstab
+    $uuid = trim(shell_exec("blkid -o value --match-tag UUID $first_device"));
+    file_put_contents("/etc/fstab", "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n", FILE_APPEND);
 
-  //To make sure that the array is reassembled automatically at boot
-  //exec ("mdadm --detail --scan | tee -a /etc/mdadm/mdadm.conf");  
-    
-  $uuid = exec("blkid -o value --match-tag UUID /dev/md1");
-
-  $myFile = "/etc/fstab";
-  $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 0\n";
-  fwrite($fh, $stringData);
-  fclose($fh);
-
-  header("Location: setup_final.php");
-
-}
-
-if(isset($_POST['setup_volume_raid_old'])){
-  $volume_name = trim($_POST['volume_name']);
-  $raid = $_POST['raid'];
-  $disk_array = $_POST['disks'];
-
-  $num_of_disks = count($disk_array);
-  
-  foreach($disk_array as $disk){
-    exec ("wipefs -a /dev/$disk");
-    exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
-    exec("lsblk -o PKNAME,KNAME,TYPE,PATH /dev/$disk | grep part | awk '{print $4}'",$diskpart_array);
-  }
-
-  $diskparts = implode(' ',$diskpart_array);
-
-  //WIPE out any superblocks
-  exec("mdadm --zero-superblock $diskparts");
-  
-  //Generate the next /dev/mdX Number
-  //get the last md#
-  $md = exec("ls /dev/md*");
-  //extract the numbers out of md
-  $md_num = preg_replace('/[^0-9]/', '', $md);
-  //add 1 to the num
-  $new_md_num = $md_num + 1;
-
-  exec("yes | mdadm --create /dev/md$new_md_num --level=$raid --raid-devices=$num_of_disks $diskparts");
-
-  exec ("mkdir /volumes/$volume_name");
-
-  exec ("mkfs.ext4 -F /dev/md$new_md_num");
-  
-  exec ("mount /dev/md$new_md_num /volumes/$volume_name");  
-    
-  $uuid = exec("blkid -o value --match-tag UUID /dev/md$new_md_num");
-
-  $myFile = "/etc/fstab";
-  $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 0\n";
-  fwrite($fh, $stringData);
-  fclose($fh);
-
-  header("Location: setup_final.php");
-
+    header("Location: setup_final.php");
 }
 
 if(isset($_POST['setup_final'])){

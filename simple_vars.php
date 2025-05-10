@@ -41,7 +41,7 @@
       "category" => "Proxy",
       "description" => "Proxy services from the outside in using LetsEncrypt Certs",
       "website" => "https://nginxproxymanager.com",
-      "image" => "nginxproxymanager.png",
+      "image" => "nginx-proxy-manager.png",
       "container_name" => "nginx-proxy-manager",
       "external_hostname" => "proxy",
       "local_port" => 83,
@@ -69,7 +69,7 @@
       "category" => "Smart Home",
       "description" => "Home Automation (Control Lights, switches, smart devices etc)",
       "website" => "https://homeassistant.com",
-      "image" => "homeassistant.png",
+      "image" => "home-assistant.png",
       "container_name" => "homeassistant",
       "external_hostname" => "homeassistant",
       "local_port" => 8123,
@@ -78,20 +78,4 @@
       "update" => "post.php?update_homeassistant",
       "config" => "",
     ),
-    array(
-      "title" => "Unifi Controller",
-      "category" => "Unifi Apps",
-      "description" => "Manage Ubiquiti network devices.",
-      "website" => "https://dokuwiki.com",
-      "image" => "unifi.png",
-      "container_name" => "unifi-controller",
-      "external_hostname" => "unifi",
-      "local_port" => 8443,
-      "protocol" => "https://",
-      "install" => "post.php?install_unifi-controller",
-      "update" => "post.php?update_unifi-controller",
-      "config" => "",
-    ),
 	);
-  
-?>
