@@ -1015,54 +1015,6 @@ if(isset($_GET['uninstall_photoprism'])){
   header("Location: apps.php");
 }
 
-if(isset($_GET['install_bitwarden'])){
-
-  // Check to see if docker is running
-  $status_service_docker = exec("systemctl status docker | grep running");
-  if(empty($status_service_docker)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
-  }else{
-
-    mkdir("/volumes/$config_docker_volume/docker/bitwarden/");
-
-    exec("docker run -d --name bitwarden -v /volumes/$config_docker_volume/docker/bitwarden:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server");
-  }
-
-  header("Location: apps.php");
-}
-
-if(isset($_GET['update_bitwarden'])){
-
-  $docker_path = exec("find /volumes/*/docker/bitwarden -name bitwarden");
-
-  exec("docker pull bitwardenrs/server");
-  exec("docker stop bitwarden");
-  exec("docker rm bitwarden");
-
-  exec("docker run -d --name bitwarden -v $docker_path:/data/ -p 88:80 --restart=unless-stopped bitwardenrs/server");
-
-  exec("docker image prune");
-  
-  header("Location: apps.php");
-
-}
-
-if(isset($_GET['uninstall_bitwarden'])){
-  //stop and delete docker container
-  exec("docker stop bitwarden");
-  exec("docker rm bitwarden");
-
-  //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/bitwarden");
-
-  //delete images
-  exec("docker image prune");
-
-  //redirect back to packages
-  header("Location: apps.php");
-}
-
 if(isset($_GET['install_nginx-proxy-manager'])){
 
   // Check to see if docker is running
