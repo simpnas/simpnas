@@ -389,54 +389,56 @@ if(isset($_POST['volume_add_backup'])){
   header("Location: volumes.php");
 }
 
-if(isset($_GET['volume_delete'])){
-  $volume_name = $_GET['volume_delete'];
-  //check to make sure no shares are linked to the volume
-  //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
-  //the code to do that here
-  $diskpart = exec("findmnt -o SOURCE --target /volumes/$volume_name");
-  $disk = exec("lsblk -o pkname $diskpart");
-  $uuid = exec("blkid -o value --match-tag UUID $diskpart");
-  
-  exec("ls /volumes/$volume_name | grep -v lost+found", $directory_list_array);
-  if(!empty($directory_list_array)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not delete volume $volume_name as there are files shares, please delete the file shares accociated to volume $volume_name and try again!";
-  }else{
-    //UNMOUNTED CRYPT
-    //Check to see if its an unmounted crypt volume if so replace $disk with new $disk
-    if(file_exists("/volumes/$volume_name/ -name .uuid_map")){
-      $disk_part_uuid = exec("cat /volumes/$volume_name/.uuid_map");
-      $disk = exec("lsblk -o PKNAME,NAME,UUID | grep $disk_part_uuid | awk '{print $1}'");
+if (isset($_GET['volume_delete'])) {
+    $volume_name = $_GET['volume_delete'];
+
+    $mount_path = "/volumes/$volume_name";
+    $uuid = "";
+    $diskpart = trim(shell_exec("findmnt -o SOURCE --target $mount_path"));
+
+    // Check if the volume contains any data
+    exec("ls $mount_path | grep -v lost+found", $directory_list_array);
+    if (!empty($directory_list_array)) {
+        $_SESSION['alert_type'] = "warning";
+        $_SESSION['alert_message'] = "Cannot delete volume $volume_name: it contains files or shares. Please move or remove them first.";
+        header("Location: volumes.php");
+        exit;
     }
 
-    exec ("umount -l /volumes/$volume_name");
-    exec ("cryptsetup close $volume_name");
-    exec ("rm -rf /volumes/$volume_name");
-    
-    //RAID Remove
-    //Get Disks and Partition number in the array 
-    exec("lsblk -o PKNAME,PATH,TYPE | grep $diskpart | awk '{print \"/dev/\"$1}'",$array_disk_part_array);
-    $disk_part_in_array  = implode(' ', $array_disk_part_array);
-    
-    exec("mdadm --stop $diskpart");
-
-    exec("mdadm --zero-superblock $disk_part_in_array");
-
-    foreach($array_disk_part_array as $array_disk_part){
-      $disk_in_array = exec("lsblk -n -o PKNAME,PATH | grep $array_disk_part | awk '{print $1}'");
-      exec ("wipefs -a /dev/$disk_in_array");
+    // Check for encrypted volume
+    $uuid_map_file = "$mount_path/.uuid_map";
+    if (file_exists($uuid_map_file)) {
+        $uuid = trim(file_get_contents($uuid_map_file));
+        // Find disk part using UUID
+        $diskpart = trim(shell_exec("blkid -U $uuid"));
+        $crypt_name = $volume_name;
+        // Attempt to close crypt device
+        exec("umount -l $mount_path");
+        exec("cryptsetup close $crypt_name");
+    } else {
+        // Unmount plain volume and extract UUID
+        exec("umount -l $mount_path");
+        $uuid = trim(shell_exec("blkid -o value --match-tag UUID $diskpart"));
     }
-    
-    //END RAID Remove
 
-    exec ("wipefs -a /dev/$disk");
+    // Clean up Btrfs RAID (if multi-device)
+    $devices = [];
+    exec("btrfs filesystem show $mount_path | grep 'devid' | awk '{print \$NF}'", $devices);
+    foreach ($devices as $dev) {
+        exec("wipefs -a $dev");
+    }
 
-    deleteLineInFile("/etc/fstab","$uuid");
+    // Remove mount directory
+    exec("rm -rf $mount_path");
 
-  }
-  
-  header("Location: volumes.php");
+    // Remove from /etc/fstab
+    if (!empty($uuid)) {
+        deleteLineInFile("/etc/fstab", "UUID=$uuid");
+    }
+
+    $_SESSION['alert_type'] = "info";
+    $_SESSION['alert_message'] = "Volume $volume_name deleted successfully!";
+    header("Location: volumes.php");
 }
 
 if(isset($_POST['share_add'])){
@@ -832,7 +834,7 @@ if(isset($_POST['install_jellyfin'])){
 
 
 
-    exec("docker run -d --name jellyfin --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/jellyfin:/config -v /volumes/$volume/media/tvshows:/tvshows -v /volumes/$volume/media/movies:/movies -v /volumes/$volume/media/music:/music linuxserver/jellyfin");
+    exec("docker run -d --name jellyfin --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/jellyfin:/config -v /volumes/$volume/media/shows:/shows -v /volumes/$volume/media/movies:/movies -v /volumes/$volume/media/music:/music linuxserver/jellyfin");
 
   }
   
@@ -849,7 +851,7 @@ if(isset($_GET['update_jellyfin'])){
   exec("docker stop jellyfin");
   exec("docker rm jellyfin");
   
-  exec("docker run -d --name jellyfin --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v $docker_path:/config -v $media_path/tvshows:/tvshows -v $media_path/movies:/movies -v $media_path/music:/music linuxserver/jellyfin");
+  exec("docker run -d --name jellyfin --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v $docker_path:/config -v $media_path/shows:/shows -v $media_path/movies:/movies -v $media_path/music:/music linuxserver/jellyfin");
 
   exec("docker image prune");
   
