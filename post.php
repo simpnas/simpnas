@@ -439,9 +439,7 @@ if (isset($_GET['volume_delete'])) {
     exec("rm -rf $mount_path");
 
     // Remove from /etc/fstab
-    if (!empty($uuid)) {
-        deleteLineInFile("/etc/fstab", "$mount_path");
-    }
+    deleteLineInFile("/etc/fstab", "$mount_path");
 
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "Volume $volume_name deleted successfully!";
