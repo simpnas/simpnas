@@ -254,20 +254,23 @@ if(isset($_GET['mount_volume'])){
 }
 
 if (isset($_POST['unlock_volume'])) {
-    $disk = $_POST['disk'];
+    $disk = $_POST['disk']; // This should be a UUID or device name
     $volume = $_POST['volume'];
     $password = $_POST['password'];
 
+    // Try unlocking the device
     exec("echo $password | cryptsetup luksOpen /dev/disk/by-uuid/$disk $volume");
-    $crypt_status = exec("cryptsetup status $volume | grep inactive");
 
-    if (empty($crypt_status)) {
+    // Verify if it's active
+    $crypt_status = shell_exec("cryptsetup status $volume");
+    if (strpos($crypt_status, 'inactive') === false) {
         exec("mount -t btrfs /dev/mapper/$volume /volumes/$volume");
+
         $_SESSION['alert_type'] = "info";
-        $_SESSION['alert_message'] = "Unlocked Encrypted volume $volume successfully!";
+        $_SESSION['alert_message'] = "Unlocked encrypted volume $volume successfully!";
     } else {
         $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Wrong Secret Key Given!";
+        $_SESSION['alert_message'] = "Wrong passphrase or device unlock failed!";
     }
 
     header("Location: volumes.php");
@@ -277,6 +280,7 @@ if (isset($_POST['unlock_volume'])) {
 if (isset($_GET['lock_volume'])) {
     $volume = $_GET['lock_volume'];
 
+    // Unmount and close encrypted volume
     exec("umount -l /dev/mapper/$volume");
     exec("cryptsetup close $volume");
 
@@ -311,9 +315,7 @@ if (isset($_POST['volume_add'])) {
             exec("mkfs.btrfs -f -L $volume_name /dev/mapper/$volume_name");
             exec("mount -t btrfs /dev/mapper/$volume_name /volumes/$volume_name");
 
-            // Get UUID from the mapper device (not the encrypted block)
             $uuid = trim(shell_exec("blkid -o value --match-tag UUID /dev/mapper/$volume_name"));
-            file_put_contents("/volumes/$volume_name/.uuid_map", $uuid);
         } else {
             exec("mkfs.btrfs -f -L $volume_name $device_path");
             exec("mount -t btrfs $device_path /volumes/$volume_name");
@@ -321,12 +323,7 @@ if (isset($_POST['volume_add'])) {
             $uuid = trim(shell_exec("blkid -o value --match-tag UUID $device_path"));
         }
 
-        // Add to fstab regardless of encryption
-        $myFile = "/etc/fstab";
-        $fh = fopen($myFile, 'a') or die("can't open file");
-        $stringData = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
-        fwrite($fh, $stringData);
-        fclose($fh);
+        file_put_contents("/etc/fstab", "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n", FILE_APPEND);
     }
 
     header("Location: volumes.php");
@@ -338,6 +335,7 @@ if (isset($_POST['volume_add_raid'])) {
     $raid = strtolower($_POST['raid']);
     $disk_array = $_POST['disks'];
 
+    // Enforce supported RAID levels
     if (!in_array($raid, ['raid1', 'raid10'])) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = "Invalid RAID type. Only RAID1 and RAID10 are supported for Btrfs.";
@@ -347,26 +345,35 @@ if (isset($_POST['volume_add_raid'])) {
 
     $partitions = [];
 
+    // Wipe and partition each disk
     foreach ($disk_array as $disk) {
         exec("wipefs -a /dev/$disk");
         exec("(echo g; echo n; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
     }
 
+    // Allow time for kernel to create partitions
     sleep(2);
 
+    // Collect partition paths
     foreach ($disk_array as $disk) {
         $part = trim(shell_exec("lsblk -ln -o KNAME,TYPE /dev/$disk | awk '$2==\"part\" {print $1}'"));
         $partitions[] = "/dev/$part";
     }
 
     $device_list = implode(' ', $partitions);
+
+    // Format with Btrfs and specified RAID level
     exec("mkfs.btrfs -f -L $volume_name -d $raid -m $raid $device_list");
 
+    // Mount using the first device
     $first_device = $partitions[0];
     exec("mkdir -p /volumes/$volume_name");
     exec("mount -t btrfs $first_device /volumes/$volume_name");
 
+    // Retrieve UUID from mounted Btrfs volume
     $uuid = trim(shell_exec("blkid -o value --match-tag UUID $first_device"));
+
+    // Append to /etc/fstab
     $myFile = "/etc/fstab";
     $fh = fopen($myFile, 'a') or die("can't open file");
     $stringData = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
@@ -377,7 +384,6 @@ if (isset($_POST['volume_add_raid'])) {
     $_SESSION['alert_message'] = "RAID volume $volume_name created successfully!";
     header("Location: volumes.php");
 }
-
 
 if(isset($_POST['volume_add_backup'])){
   $volume_name = trim($_POST['volume_name']);
@@ -398,48 +404,32 @@ if(isset($_POST['volume_add_backup'])){
 
 if (isset($_GET['volume_delete'])) {
     $volume_name = $_GET['volume_delete'];
-
     $mount_path = "/volumes/$volume_name";
-    $uuid = "";
-    $diskpart = trim(shell_exec("findmnt -o SOURCE --target $mount_path"));
 
-    // Check if the volume contains any data
-    exec("ls $mount_path | grep -v lost+found", $directory_list_array);
-    if (!empty($directory_list_array)) {
+    // Check if any files exist (other than lost+found)
+    exec("ls $mount_path | grep -v lost+found", $files);
+    if (!empty($files)) {
         $_SESSION['alert_type'] = "warning";
-        $_SESSION['alert_message'] = "Cannot delete volume $volume_name: it contains files or shares. Please move or remove them first.";
+        $_SESSION['alert_message'] = "Cannot delete volume $volume_name: it contains files.";
         header("Location: volumes.php");
         exit;
     }
 
-    // Check for encrypted volume
-    $uuid_map_file = "$mount_path/.uuid_map";
-    if (file_exists($uuid_map_file)) {
-        $uuid = trim(file_get_contents($uuid_map_file));
-        // Find disk part using UUID
-        $diskpart = trim(shell_exec("blkid -U $uuid"));
-        $crypt_name = $volume_name;
-        // Attempt to close crypt device
-        exec("umount -l $mount_path");
+    $device = trim(shell_exec("findmnt -o SOURCE --target $mount_path"));
+    $uuid = trim(shell_exec("blkid -o value --match-tag UUID $device"));
+
+    exec("umount -l $device");
+
+    // If encrypted, close it
+    if (strpos($device, "/dev/mapper/") === 0) {
+        $crypt_name = basename($device);
         exec("cryptsetup close $crypt_name");
-    } else {
-        // Unmount plain volume and extract UUID
-        exec("umount -l $mount_path");
-        $uuid = trim(shell_exec("blkid -o value --match-tag UUID $diskpart"));
     }
 
-    // Clean up Btrfs RAID (if multi-device)
-    $devices = [];
-    exec("btrfs filesystem show $mount_path | grep 'devid' | awk '{print \$NF}'", $devices);
-    foreach ($devices as $dev) {
-        exec("wipefs -a $dev");
-    }
-
-    // Remove mount directory
     exec("rm -rf $mount_path");
 
-    // Remove from /etc/fstab
-    deleteLineInFile("/etc/fstab", "$mount_path");
+    // Remove from fstab by matching mount path
+    deleteLineInFile("/etc/fstab", $mount_path);
 
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "Volume $volume_name deleted successfully!";
