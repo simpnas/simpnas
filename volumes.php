@@ -40,46 +40,43 @@
         
         <?php
 
-        foreach ($volume_array as $volume) {
+        foreach ($volume_array as $volume){   
 
-          $mount_path = "/volumes/$volume";
-          $device = trim(shell_exec("findmnt -n -o SOURCE --target $mount_path"));
-          $mounted = !empty($device);
-          $disk = $used_space = $total_space = $free_space = $used_space_percent = '';
-          $raid_type = $disk_in_array = '';
-          $disk_part_in_array = $array_disk_part_array = [];
-          $is_crypt = false;
-
-          if ($mounted) {
-            $disk = basename($device);
-
-            // Disk usage stats
-            $total_space = trim(shell_exec("df -h --output=size $mount_path | tail -n1"));
-            $used_space = trim(shell_exec("df -h --output=used $mount_path | tail -n1"));
-            $free_space = trim(shell_exec("df -h --output=avail $mount_path | tail -n1"));
-            $used_space_percent = trim(shell_exec("df --output=pcent $mount_path | tail -n1"));
-
-            // Encrypted volume detection (if mounted via /dev/mapper/)
-            if (strpos($device, '/dev/mapper/') === 0) {
-              $is_crypt = true;
+          $mounted = exec("df | grep $volume");
+          if(empty($mounted)){
+            if(file_exists("/volumes/$volume/.uuid_map")){
+              $disk = exec("cat /volumes/$volume/.uuid_map");
+            }else{
+              $disk = basename(exec("cat /etc/fstab | grep $volume | awk '{print $1}'"));
             }
+          }else{
+            $disk = basename(exec("findmnt -n -o SOURCE --target /volumes/$volume"));
+            $total_space = exec("df -h | grep -w /volumes/$volume | awk '{print $2}'");
+            $used_space = exec("df -h | grep -w /volumes/$volume | awk '{print $3}'");
+            $free_space = exec("df -h | grep -w /volumes/$volume | awk '{print $4}'");
+            $used_space_percent = exec("df | grep -w /volumes/$volume | awk '{print $5}'");
+            $is_raid = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid");
+            $is_crypt = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep crypt");
+            if(!empty($is_raid)){
+	          	$raid_type = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid | awk '{print $3}'");
+	          	if($raid_type == 'raid0'){
+	          		$raid_type = 'RAID 0 (Striping)';
+	          	}elseif($raid_type == 'raid1'){
+	          		$raid_type = 'RAID 1 (Mirroring)';
+	          	}elseif($raid_type == 'raid5'){
+	          		$raid_type = 'RAID 5 (Parity)';
+	          	}elseif($raid_type == 'raid6'){
+	          		$raid_type = 'RAID 6 (Double Parity)';
+	          	}elseif($raid_type == 'raid10'){
+	          		$raid_type = 'RAID 10 (Mirror/Stripe)';
+	          	}
+	          	exec("lsblk -o PKNAME,PATH,TYPE | grep /dev/$disk | awk '{print $1}'",$array_disk_part_array);
+	    				$disk_part_in_array  = implode(', ', $array_disk_part_array);
 
-            // Btrfs RAID detection
-            exec("btrfs filesystem show $mount_path | grep 'devid' | awk '{print \$NF}'", $btrfs_devices);
-            if (count($btrfs_devices) > 1) {
-              $raid_type_raw = trim(shell_exec("btrfs filesystem df $mount_path | grep -m1 'Data' | awk '{print \$NF}'"));
-              $raid_type = match ($raid_type_raw) {
-                'RAID0' => 'RAID 0 (Striping)',
-                'RAID1' => 'RAID 1 (Mirroring)',
-                'RAID10' => 'RAID 10 (Mirror/Stripe)',
-                default => strtoupper($raid_type_raw)
-              };
-              $disk_in_array = implode(', ', array_map('basename', $btrfs_devices));
-            }
-          } else {
-            // Not mounted: try to find disk from /etc/fstab
-            $fstab_entry = trim(shell_exec("grep '/volumes/$volume' /etc/fstab | awk '{print \$1}'"));
-            $disk = basename($fstab_entry);
+	    				foreach($array_disk_part_array as $array_disk_part){
+					      $disk_in_array .= " " . exec("lsblk -n -o PKNAME,PATH | grep /dev/$array_disk_part | awk '{print $1}'");
+					    }
+	          }
           }
           
         ?>

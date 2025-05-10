@@ -19,7 +19,7 @@ echo "==========================================================================
 echo "Installing Additional Required Packages..."
 echo "Samba, PHP, Rsync, mdadm (RAID), cryptsetup (LUKS Encryption) etc"
 echo "=================================================================================="
-DEBIAN_FRONTEND=noninteractive \apt install samba rsync php-cgi git cryptsetup apt-transport-https curl gnupg-agent software-properties-common dnsutils rclone avahi-daemon sudo smartmontools btrfs-progs -y
+DEBIAN_FRONTEND=noninteractive \apt install samba rsync php-cgi git mdadm cryptsetup apt-transport-https curl gnupg-agent software-properties-common dnsutils rclone avahi-daemon sudo smartmontools btrfs-progs-y
 echo "================================================================================="
 echo "Install Docker Repo"
 echo "================================================================================="
