@@ -1495,6 +1495,12 @@ if(isset($_POST['setup_final'])){
   fwrite($fh, $stringData);
   fclose($fh);
 
+  //Check to see if theres already a user added and delete that user
+  $existing_username = exec("cat /etc/passwd | grep 1000 | awk -F: '{print $1}'");
+  if(!empty($existing_username)){
+    exec("deluser --remove-home $existing_username");
+  }
+
   if($collect = 1){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
   }
