@@ -1503,7 +1503,6 @@ if(isset($_POST['setup_volume_raid_old'])){
 
 if(isset($_POST['setup_final'])){
   $volume_name = exec("ls /volumes");
-  $username = $_POST['username'];
   $password = $_POST['password'];
   
   //Create config.php file
@@ -1544,30 +1543,11 @@ if(isset($_POST['setup_final'])){
   fwrite($fh, $stringData);
   fclose($fh);
 
-  //Check to see if theres already a user added and delete that user
-  $existing_username = exec("cat /etc/passwd | grep 1000 | awk -F: '{print $1}'");
-  if(!empty($existing_username)){
-    exec("deluser --remove-home $existing_username");
-  }
-  
-  exec ("mkdir /volumes/$volume_name/users/$username");
-  exec ("chmod -R 700 /volumes/$volume_name/users/$username");
-
-  exec ("chgrp users /volumes/$volume_name/share");
-  //Create the new user UNIX way
-  exec ("useradd -g users -d /volumes/$volume_name/users/$username $username");
-  exec ("echo '$password\n$password' | passwd $username");
-  exec ("usermod -a -G admins $username");
-  exec ("echo '$password\n$password' | smbpasswd -a $username");
-  exec ("chown -R $username /volumes/$volume_name/users/$username");
-
-  if($collect == 1){
+  if($collect = 1){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
   }
 
   header("Location: restart.php");
-
-  //header("Location: login.php");
 
 }
 

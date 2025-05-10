@@ -15,21 +15,16 @@
 	    <li class="breadcrumb-item"><a href="setup.php">Timezone</a></li>
 	    <li class="breadcrumb-item"><a href="setup_network.php">Network</a></li>
 	    <li class="breadcrumb-item"><a href="setup_volume.php">Volume</a></li>
-	    <li class="breadcrumb-item active">User</li>
+	    <li class="breadcrumb-item active">Admin User</li>
 	  </ol>
 	</nav>
   
-  <h2>Admin User</h2>
+  <h2>Admin Password</h2>
   <hr>
 
   <?php include("alert_message.php"); ?>
   
   <form method="post" action="post.php" autocomplete="off">
-
-	  <div class="form-group">
-	    <label>Username</label>
-	    <input type="text" class="form-control" name="username" required pattern="[a-z0-9]{1,20}" autofocus>
-	  </div>
 
 	  <div class="form-group">
 	    <label>Password</label>
