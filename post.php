@@ -433,7 +433,7 @@ if (isset($_GET['volume_delete'])) {
 
     // Remove from /etc/fstab
     if (!empty($uuid)) {
-        deleteLineInFile("/etc/fstab", "$volume_name");
+        deleteLineInFile("/etc/fstab", "/volumes/$volume_name");
     }
 
     $_SESSION['alert_type'] = "info";
