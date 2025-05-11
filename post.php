@@ -1186,7 +1186,7 @@ if(isset($_POST['setup_timezone'])){
   
   exec("timedatectl set-timezone '$timezone'");
 
-  header("Location: setup_network.php");
+  header("Location: setup/setup_network.php");
 }
 
 if(isset($_POST['setup_network'])){
