@@ -1,9 +1,9 @@
 <?php
 
-	include("includes/setup_header.php");
+require_once "includes/setup_header.php";
 	
-	$os_disk = exec("lsblk -n -o pkname,MOUNTPOINT | grep -w / | awk '{print $1}'");
-	exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
+$os_disk = exec("lsblk -n -o pkname,MOUNTPOINT | grep -w / | awk '{print $1}'");
+exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
 
 ?>
 
@@ -78,4 +78,4 @@
 	</form>
 </main>
 
-<?php include("includes/footer.php");
+<?php require_once "includes/footer.php";

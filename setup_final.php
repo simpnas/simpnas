@@ -1,6 +1,6 @@
 <?php
 
-require_once "setup_header.php";
+require_once "includes/setup_header.php";
 	
 $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 $network_int_file = exec("ls /etc/systemd/network");

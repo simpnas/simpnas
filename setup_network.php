@@ -1,6 +1,6 @@
 <?php
 
-include("includes/setup_header.php");
+require_once "includes/setup_header.php";
 
 exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v br-", $net_devices_array);
 
@@ -77,4 +77,4 @@ exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v b
 	</form>
 </main>
 
-<?php include("includes/footer.php");
+<?php require_once "includes/footer.php";

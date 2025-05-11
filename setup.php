@@ -1,6 +1,6 @@
 <?php
 	
-require_once "setup_header.php";
+require_once "includes/setup_header.php";
 
 $current_time_zone = exec("timedatectl show -p Timezone --value");
 exec("timedatectl list-timezones", $timezones_array);
