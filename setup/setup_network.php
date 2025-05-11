@@ -1,6 +1,6 @@
 <?php
 
-require_once "includes/setup_header.php";
+require_once "setup_header.php";
 
 exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v br-", $net_devices_array);
 
@@ -18,9 +18,9 @@ exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v b
   <h2>Network Configuration</h2>
   <hr>
 
-  <?php include("alert_message.php"); ?>
+  <?php include("../alert_message.php"); ?>
 
-  <form method="post" action="post.php" autocomplete="off">
+  <form method="post" action="../post.php" autocomplete="off">
 
 	  <div class="form-group">
 	    <label>Server Name</label>
@@ -77,4 +77,4 @@ exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v b
 	</form>
 </main>
 
-<?php require_once "includes/footer.php";
+<?php require_once "../includes/footer.php";

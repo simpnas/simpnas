@@ -1,6 +1,6 @@
 <?php
 
-require_once "includes/setup_header.php";
+require_once "setup_header.php";
 	
 $os_disk = exec("lsblk -n -o pkname,MOUNTPOINT | grep -w / | awk '{print $1}'");
 exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
@@ -30,9 +30,9 @@ exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk
 
   <hr>
 
-  <?php include("alert_message.php"); ?>
+  <?php include("../alert_message.php"); ?>
 
-  <form method="post" action="post.php" autocomplete="off">
+  <form method="post" action="../post.php" autocomplete="off">
 
 	  <div class="form-group">
 	    <label>Select Disk</label>
@@ -78,4 +78,4 @@ exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk
 	</form>
 </main>
 
-<?php require_once "includes/footer.php";
+<?php require_once "../includes/footer.php";

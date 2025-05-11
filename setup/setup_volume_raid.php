@@ -1,6 +1,6 @@
 <?php
 
-require_once "includes/setup_header.php";
+require_once "setup_header.php";
 	
 $os_disk = exec("lsblk -n -o pkname,MOUNTPOINT | grep -w / | awk '{print $1}'");
 exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk '{print $1}'", $disk_list_array);
@@ -25,25 +25,17 @@ exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk
 
   <hr>
 
-  <?php include("alert_message.php"); ?>
+  <?php include("../alert_message.php"); ?>
 
-  <form method="post" action="post.php" autocomplete="off">
+  <form method="post" action="../post.php" autocomplete="off">
 
 	 	<div class="form-group">
 	    <label>RAID Type</label>
 	    <select class="form-control" name="raid" required>
 	  		<option value=''>--Select RAID--</option>
-	  		<option value='0'>RAID 0 (Striping)</option>
 	  		<option value='1'>RAID 1 (Mirroring)</option>
 	  		<?php 
-	  		if(count($disk_list_array) > 2){ ?>
-	  			<option value='5'>RAID 5 (Parity)</option>
-	  		<?php
-	  		}
-	  		?>
-	  		<?php 
 	  		if(count($disk_list_array) > 3){ ?>
-	  			<option value='6'>RAID 6 (Double Parity)</option>
 	  			<option value='10'>RAID 10 (Mirror / Sripe)</option>
 	  		<?php
 	  		}
@@ -95,4 +87,4 @@ exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk
 	</form>
 </main>
 
-<?php require_once "includes/footer.php";
+<?php require_once "../includes/footer.php";

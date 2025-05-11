@@ -1,6 +1,6 @@
 <?php
 	
-require_once "includes/setup_header.php";
+require_once "setup_header.php";
 
 $current_time_zone = exec("timedatectl show -p Timezone --value");
 exec("timedatectl list-timezones", $timezones_array);
@@ -18,9 +18,9 @@ exec("timedatectl list-timezones", $timezones_array);
   <h2>Timezone Configuration</h2>
   <hr>
 
-  <?php include("alert_message.php"); ?>
+  <?php include("../alert_message.php"); ?>
   
-  <form method="post" action="post.php" autocomplete="off">
+  <form method="post" action="../post.php" autocomplete="off">
 
 	  <div class="form-group">
 	    <select class="form-control" name="timezone" required>
@@ -37,4 +37,4 @@ exec("timedatectl list-timezones", $timezones_array);
 	  <button type="submit" name="setup_timezone" class="btn btn-primary">Next <span data-feather="arrow-right"></span></button>
 	</form>
 
-<?php require_once "includes/footer.php";
+<?php require_once "../includes/footer.php";

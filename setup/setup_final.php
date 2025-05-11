@@ -1,6 +1,6 @@
 <?php
 
-require_once "includes/setup_header.php";
+require_once "setup_header.php";
 	
 $os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 $network_int_file = exec("ls /etc/systemd/network");
@@ -22,9 +22,9 @@ $dhcp_set = exec("cat /etc/systemd/network/$network_int_file | grep DHCP");
   <h2>Admin Password</h2>
   <hr>
 
-  <?php include("alert_message.php"); ?>
+  <?php include("../alert_message.php"); ?>
   
-  <form method="post" action="post.php" autocomplete="off">
+  <form method="post" action="../post.php" autocomplete="off">
 
 	  <div class="form-group">
 	    <label>Password</label>
@@ -42,4 +42,4 @@ $dhcp_set = exec("cat /etc/systemd/network/$network_int_file | grep DHCP");
 	  <button type="submit" name="setup_final" class="btn btn-primary">Finish and Reboot <span data-feather="check"></span></button>
 	</form>
 
-<?php require_once "includes/footer.php";
+<?php require_once "../includes/footer.php";

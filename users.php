@@ -10,7 +10,7 @@ asort($username_array);
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
   <h2>Users</h2>
-  <a href="user_add.php" class="btn btn-outline-primary">Add User</a>
+  <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#addUser">Add User</button>
 </div>
 
 <?php include("alert_message.php"); ?>
@@ -94,4 +94,7 @@ asort($username_array);
   </table>
 </div>
 
-<?php require_once "includes/footer.php";
+<?php 
+
+require_once "user_add.php";
+require_once "includes/footer.php";

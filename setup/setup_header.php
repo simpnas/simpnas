@@ -1,10 +1,10 @@
 <?php
 
-	if(file_exists('config.php')){
-	  header("Location: login.php");
+	if(file_exists('../config.php')){
+	  header("Location: ../login.php");
 	}
 
-	require_once "functions.php";
+	require_once "../includes/functions.php";
 
 ?>
 
@@ -19,12 +19,12 @@
     <title>SimpNAS | Setup</title>
 
     <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" type="text/css" href="plugins/bootstrap/css/bootstrap.min.css" >
-    <link rel="stylesheet" type="text/css" href="css/loader.css">
-    <link rel="stylesheet" type="text/css" href="plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="../plugins/bootstrap/css/bootstrap.min.css" >
+    <link rel="stylesheet" type="text/css" href="../css/loader.css">
+    <link rel="stylesheet" type="text/css" href="../plugins/fontawesome-free/css/all.min.css">
 
     <!-- Custom styles for this template -->
-    <link href="css/dashboard.css" rel="stylesheet">
+    <link href="../css/dashboard.css" rel="stylesheet">
   </head>
 
   <body>
