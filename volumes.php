@@ -1,9 +1,10 @@
 <?php 
-  
 require_once "includes/include_all.php";
 
-exec("ls /volumes", $volume_array);
+// Fetch the volume data using the getVolumes function
+$volumes = getVolumes('volume', 'disk', 'total_space', 'used_space', 'free_space', 'use_percent');
 
+// The dropdown and header remain the same
 ?>
   
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
@@ -34,53 +35,47 @@ exec("ls /volumes", $volume_array);
     <tbody>
       
       <?php
-
-      foreach ($volume_array as $volume){   
-
-        $mounted = exec("df | grep $volume");
-        if(empty($mounted)){
-          if(file_exists("/volumes/$volume/.uuid_map")){
-            $disk = exec("cat /volumes/$volume/.uuid_map");
-          }else{
-            $disk = basename(exec("cat /etc/fstab | grep $volume | awk '{print $1}'"));
-          }
-        }else{
-          $disk = basename(exec("findmnt -n -o SOURCE --target /volumes/$volume"));
-          $total_space = exec("df -h | grep -w /volumes/$volume | awk '{print $2}'");
-          $used_space = exec("df -h | grep -w /volumes/$volume | awk '{print $3}'");
-          $free_space = exec("df -h | grep -w /volumes/$volume | awk '{print $4}'");
-          $used_space_percent = exec("df | grep -w /volumes/$volume | awk '{print $5}'");
-          $is_raid = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid");
-          $is_crypt = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep crypt");
-          if(!empty($is_raid)){
-          	$raid_type = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid | awk '{print $3}'");
-          	if($raid_type == 'raid0'){
-          		$raid_type = 'RAID 0 (Striping)';
-          	}elseif($raid_type == 'raid1'){
-          		$raid_type = 'RAID 1 (Mirroring)';
-          	}elseif($raid_type == 'raid5'){
-          		$raid_type = 'RAID 5 (Parity)';
-          	}elseif($raid_type == 'raid6'){
-          		$raid_type = 'RAID 6 (Double Parity)';
-          	}elseif($raid_type == 'raid10'){
-          		$raid_type = 'RAID 10 (Mirror/Stripe)';
-          	}
-          	exec("lsblk -o PKNAME,PATH,TYPE | grep /dev/$disk | awk '{print $1}'",$array_disk_part_array);
-    				$disk_part_in_array  = implode(', ', $array_disk_part_array);
-
-    				foreach($array_disk_part_array as $array_disk_part){
-				      $disk_in_array .= " " . exec("lsblk -n -o PKNAME,PATH | grep /dev/$array_disk_part | awk '{print $1}'");
-				    }
-          }
-        }
+      foreach ($volumes as $volume_data) {   
         
+        // Get the details from the volume data array
+        $volume = $volume_data['volume'];
+        $disk = $volume_data['disk'];
+        $total_space = $volume_data['total_space'];
+        $used_space = $volume_data['used_space'];
+        $free_space = $volume_data['free_space'];
+        $used_space_percent = $volume_data['use_percent'];
+
+        // Check if the volume is RAID or encrypted (you can add custom logic for RAID/encryption if needed)
+        $is_raid = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid");
+        $is_crypt = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep crypt");
+        if(!empty($is_raid)){
+            // Check RAID type if needed, like RAID0, RAID1, etc.
+            $raid_type = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid | awk '{print $3}'");
+            if($raid_type == 'raid0'){
+                $raid_type = 'RAID 0 (Striping)';
+            } elseif($raid_type == 'raid1') {
+                $raid_type = 'RAID 1 (Mirroring)';
+            } elseif($raid_type == 'raid5') {
+                $raid_type = 'RAID 5 (Parity)';
+            } elseif($raid_type == 'raid6') {
+                $raid_type = 'RAID 6 (Double Parity)';
+            } elseif($raid_type == 'raid10') {
+                $raid_type = 'RAID 10 (Mirror/Stripe)';
+            }
+            exec("lsblk -o PKNAME,PATH,TYPE | grep /dev/$disk | awk '{print $1}'",$array_disk_part_array);
+            $disk_part_in_array = implode(', ', $array_disk_part_array);
+
+            foreach($array_disk_part_array as $array_disk_part){
+                $disk_in_array .= " " . exec("lsblk -n -o PKNAME,PATH | grep /dev/$array_disk_part | awk '{print $1}'");
+            }
+        }
       ?>
       
       <tr>
         <td><span class="mr-2" data-feather="database"></span><strong><?php echo $volume; ?></strong></td>
         <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?>
-        	<?php if(isset($disk_part_in_array)){ echo "<br><small class='text-secondary'>$raid_type: $disk_in_array</small>"; } ?>
-          <?php if(!empty($is_crypt)){ echo "<br><small class='text-secondary'>Encrypted Volume</small>"; } ?>
+            <?php if(isset($disk_part_in_array)){ echo "<br><small class='text-secondary'>$raid_type: $disk_in_array</small>"; } ?>
+            <?php if(!empty($is_crypt)){ echo "<br><small class='text-secondary'>Encrypted Volume</small>"; } ?>
         </td>
         <td>
           <?php if(empty($mounted)){ ?>
