@@ -17,7 +17,6 @@ $media_volume = exec("find /volumes/*/media -name media | awk -F/ '{print $3}'")
 
         <div class="modal-body">
 
-          <h2>Install Jellyfin</h2>
           <ul>
             <li>A group called media will be created.</li>
             <li>We will create a share called media based on the volume you select with the following subdirectories: movies, tvshow and music</li>

@@ -8,7 +8,7 @@ $photos_volume = exec("find /volumes/*/photos -name photos | awk -F/ '{print $3}
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Install PhotoPrism</h5>
+        <h5 class="modal-title">Install Photoprism</h5>
         <button type="button" class="close" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -17,7 +17,6 @@ $photos_volume = exec("find /volumes/*/photos -name photos | awk -F/ '{print $3}
 
         <div class="modal-body">
 
-          <h2>Install Photoprism</h2>
           <ul>
             <li>A group called photos will be created.</li>
             <li>We will create a share called photos based on the volume you select.</li>

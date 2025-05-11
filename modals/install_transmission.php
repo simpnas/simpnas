@@ -10,15 +10,14 @@
       <form method="post" action="post.php" autocomplete="off">
 
         <div class="modal-body">
-
-          <h2>Install Transmission</h2>
+        	
 					<ul>
-						<li>A group called download will be created.</li>
-						<li>We will create a share called downloads based on the volume you select.</li>
-						<li>You will need to assign users to the download group if you want users to access and write to the downloads share over the network.</li>
-						<li>You may also configure Transmission to connect to a VPN to hide your public IP from torrent users</li>
-						<li>When Installation is complete you can access Transmission by visiting http://<?php echo $config_primary_ip; ?>:9091</li>
-					</ul>
+            <li>A group called photos will be created.</li>
+            <li>We will create a share called photos based on the volume you select.</li>
+            <li>You will need to assign users to the photos group if you want users to be able access and write to the photos share over the network.</li>
+            <li>We will also create a directory called photoprism under the docker directory.</li>
+            <li>When Installation is complete you can access photoprism by visiting http://<?php echo $config_primary_ip; ?>:2342</li>
+          </ul>
           
           <div class="form-group">
 				    <label>Volume to create downloads share <strong class="text-danger">*</strong></label>
