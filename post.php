@@ -1217,7 +1217,7 @@ if(isset($_POST['setup_network'])){
     exec("echo '127.0.0.1      localhost' > /etc/hosts");
     exec("echo '127.0.0.2     $hostname' >> /etc/hosts");
     //exec("systemctl restart systemd-networkd > /dev/null &");
-    echo "<script>window.location = 'http://$primary_ip:81/setup_volume.php'</script>";
+    echo "<script>window.location = 'http://$primary_ip:81/setup/setup_volume.php'</script>";
   }
   
   if($method == 'Static'){
@@ -1229,7 +1229,7 @@ if(isset($_POST['setup_network'])){
     exec("echo '127.0.0.1      localhost' > /etc/hosts");
     exec("echo '$address     $hostname' >> /etc/hosts");
     exec("systemctl restart systemd-networkd > /dev/null &");
-    echo "<script>window.location = 'http://$address:81/setup_volume.php'</script>";
+    echo "<script>window.location = 'http://$address:81/setup/setup_volume.php'</script>";
   }
 }
 
@@ -1254,7 +1254,7 @@ if(isset($_POST['setup_volume'])){
   fwrite($fh, $stringData);
   fclose($fh);
 
-  header("Location: setup_final.php");
+  header("Location: setup/setup_final.php");
 }
 
 if(isset($_POST['setup_volume_raid'])){
@@ -1301,7 +1301,7 @@ if(isset($_POST['setup_volume_raid'])){
   fwrite($fh, $stringData);
   fclose($fh);
 
-  header("Location: setup_final.php");
+  header("Location: setup/setup_final.php");
 
 }
 
