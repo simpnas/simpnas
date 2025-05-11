@@ -73,4 +73,4 @@ require_once "includes/include_all.php";
   </table>
 </div>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";
