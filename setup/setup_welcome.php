@@ -21,4 +21,4 @@ require_once "setup_header.php";
   <a href="setup.php" class="btn btn-primary">Continue</a>
 </main>
 
-<?php require_once "../includes/footer.php";
+<?php require_once "setup_footer.php";

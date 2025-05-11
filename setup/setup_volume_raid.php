@@ -87,4 +87,4 @@ exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk
 	</form>
 </main>
 
-<?php require_once "../includes/footer.php";
+<?php require_once "setup_footer.php";

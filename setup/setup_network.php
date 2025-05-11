@@ -77,4 +77,4 @@ exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v b
 	</form>
 </main>
 
-<?php require_once "../includes/footer.php";
+<?php require_once "setup_footer.php";

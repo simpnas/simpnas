@@ -37,4 +37,4 @@ exec("timedatectl list-timezones", $timezones_array);
 	  <button type="submit" name="setup_timezone" class="btn btn-primary">Next <span data-feather="arrow-right"></span></button>
 	</form>
 
-<?php require_once "../includes/footer.php";
+<?php require_once "setup_footer.php";
