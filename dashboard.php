@@ -67,13 +67,25 @@ if(empty($status_service_ssh)){
 
 <div class="row">
   <div class="col-md-6">
-    <legend>Overview</legend>
+    <legend>Overview
+      <div class="dropdown float-right">
+          <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+              <span data-feather="power"></span>
+          </button>
+          <div class="dropdown-menu">
+            <a href="restart.php" class="dropdown-item">Restart</a>
+            <a href="shutdown.php" class="dropdown-item">Shutdown</a>
+            <div class="dropdown-divider"></div>
+            <a href="reset.php" class="dropdown-item text-danger">Reset to Factory Defaults</a>
+          </div>
+      </div>
+    </legend>
 
     <div class="alert alert-success">
       <i class="fa fa-2x fa-check"></i> System is Healthy
     </div>
 
-    <table class="table mb-5">
+    <table class="table table-sm mb-5">
       
       <tr>
         <td>Hostname</td>

@@ -86,7 +86,7 @@ if (empty($status_service_docker)) {
                             <?php } ?>
 
                         <?php } else { ?>
-                            <a href="<?php echo $app['install']; ?>" class="btn btn-outline-success" data-toggle="modal" onclick="$('#cover-spin').show(0)">
+                            <a href="<?php echo $app['install']; ?>" class="btn btn-outline-success" data-toggle="modal">
                                 Install
                             </a>
                         <?php } ?>

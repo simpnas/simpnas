@@ -14,7 +14,7 @@ exec("ls /volumes", $volume_array);
     </button>
     <div class="dropdown-menu dropdown-menu-right">
       <a class="dropdown-item" href="#addVolumeModal" data-toggle="modal">Simple</a>
-      <a class="dropdown-item" href="volume_add_raid.php">RAID</a>
+      <a class="dropdown-item" href="#addRaidVolumeModal" data-toggle="modal">RAID</a>
     </div>
   </div>
 </div>
