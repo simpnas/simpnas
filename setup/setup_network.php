@@ -3,6 +3,7 @@
 require_once "setup_header.php";
 
 exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v br-", $net_devices_array);
+$existing_hostname = gethostname();
 
 ?>
 
@@ -24,7 +25,7 @@ exec("ls /sys/class/net | grep -v docker | grep -v lo | grep -v veth | grep -v b
 
 	  <div class="form-group">
 	    <label>Server Name</label>
-	    <input type="text" class="form-control" name="hostname" required autofocus>
+	    <input type="text" class="form-control" name="hostname" value="<?php echo $existing_hostname; ?>" required autofocus>
 	  </div>
 
 	  <div class="form-group">
