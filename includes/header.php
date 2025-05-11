@@ -41,7 +41,7 @@ if(!$_SESSION['logged']){
       </button>
       <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
-          <a class="nav-link" href="logout.php"><strong>Logout</strong> <span data-feather="log-out"></span></a>
+          <a class="nav-link" href="logout.php"><strong>Logout</strong></a>
         </li>
       </ul>
     </nav>

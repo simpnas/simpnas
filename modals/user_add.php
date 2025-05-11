@@ -1,7 +1,5 @@
 <?php 
   
-require_once "includes/include_all.php";
-  
 exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
  
 ?>
@@ -10,7 +8,7 @@ exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array)
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add User</h5>
+        <h5 class="modal-title">New User</h5>
         <button type="button" class="close" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -46,12 +44,10 @@ exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array)
 
          
         <div class="modal-footer">
-           <button type="submit" name="user_add" class="btn btn-primary">Submit</button>
-          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+           <button type="submit" name="user_add" class="btn btn-primary">Create</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
         </div>
       </form>
     </div>
   </div>
 </div>
-
-<?php require_once "includes/footer.php";

@@ -13,7 +13,7 @@ exec("ls /volumes", $volume_array);
       Create
     </button>
     <div class="dropdown-menu dropdown-menu-right">
-      <a class="dropdown-item" href="volume_add.php">Simple</a>
+      <a class="dropdown-item" href="#addVolumeModal" data-toggle="modal">Simple</a>
       <a class="dropdown-item" href="volume_add_raid.php">RAID</a>
     </div>
   </div>
@@ -182,4 +182,6 @@ exec("ls /volumes", $volume_array);
 
 </div>
 
-<?php require_once "includes/footer.php";
+<?php 
+require_once "modals/volume_add.php";
+require_once "includes/footer.php";
