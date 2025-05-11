@@ -1,77 +1,73 @@
-<?php 
-  
-require_once "includes/include_all.php";
+<div class="modal fade" id="addShareModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New Share</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <form method="post" action="post.php" autocomplete="off">
 
-?>
+        <div class="modal-body">
+          
+          <div class="form-group">
+			    <label>Share Name</label>
+			    <input type="text" class="form-control" name="name" required pattern="[a-zA-Z0-9-]{1,25}" autofocus>
+			  </div>
 
-<nav>
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-    <li class="breadcrumb-item"><a href="shares.php">Shares</a></li>
-    <li class="breadcrumb-item active">Add Share</li>
-  </ol>
-</nav>
+			  <div class="form-group">
+			    <label>Volume</label>
+			    <select class="form-control" name="volume">
+			  		<?php
+						exec("ls /volumes", $volume_list);
+						foreach ($volume_list as $volume) {
+							$mounted = exec("df | grep $volume");
+							if(!empty($mounted) OR file_exists('/volumes/sys-vol')){
+						?>
+							<option><?php echo "$volume"; ?></option>	
+							<?php 
+							} 
+							?>
+						<?php
+						}
+						?>
 
-<h2>Add Share</h2>
+				  </select>
+			  </div>
+			  
+			  <div class="form-group">
+			    <label>Description</label>
+			    <textarea class="form-control" name="description" rows=3></textarea>
+			  </div>
 
-<?php include("alert_message.php"); ?>
+			  <div class="form-group form-check">
+			    <input type="checkbox" class="form-check-input" name="read_only" value=1>
+			    <label class="form-check-label ml-1">Read Only</label>
+				</div>
+			  
+			  <div class="form-group">
+					<label>Group Access</label>
+					<select class="form-control" name="group" required>
+				  	<option>users</option>
+				  	<?php
+						exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
+						foreach ($group_array as $group) {
+						?>
+						<option><?php echo "$group"; ?></option>	
 
-<form method="post" action="post.php" autocomplete="off">
+						<?php
+						}
+						?>
 
-  <div class="form-group">
-    <label>Share Name</label>
-    <input type="text" class="form-control" name="name" required pattern="[a-zA-Z0-9-]{1,25}" autofocus>
+				  </select>  
+				</div>
+
+        <div class="modal-footer">
+          <button type="submit" name="share_add" class="btn btn-primary">Create</button> 
+          <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
   </div>
-
-  <div class="form-group">
-    <label>Volume</label>
-    <select class="form-control" name="volume">
-  		<?php
-			exec("ls /volumes", $volume_list);
-			foreach ($volume_list as $volume) {
-				$mounted = exec("df | grep $volume");
-				if(!empty($mounted) OR file_exists('/volumes/sys-vol')){
-			?>
-				<option><?php echo "$volume"; ?></option>	
-				<?php 
-				} 
-				?>
-			<?php
-			}
-			?>
-
-	  </select>
-  </div>
-  
-  <div class="form-group">
-    <label>Description</label>
-    <textarea class="form-control" name="description" rows=3></textarea>
-  </div>
-
-  <div class="form-group form-check">
-    <input type="checkbox" class="form-check-input" name="read_only" value=1>
-    <label class="form-check-label ml-1">Read Only</label>
-	</div>
-  
-  <div class="form-group">
-		<label>Group Access</label>
-		<select class="form-control" name="group" required>
-	  	<option>users</option>
-	  	<?php
-			exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array);
-			foreach ($group_array as $group) {
-			?>
-			<option><?php echo "$group"; ?></option>	
-
-			<?php
-			}
-			?>
-
-	  </select>  
-	</div>
-		
-		<button type="submit" name="share_add" class="btn btn-primary">Submit</button> 
-
-</form>
-
-<?php require_once "includes/footer.php";
+</div>

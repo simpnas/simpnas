@@ -184,4 +184,5 @@ exec("ls /volumes", $volume_array);
 
 <?php 
 require_once "modals/volume_add.php";
+require_once "modals/volume_add_raid.php";
 require_once "includes/footer.php";

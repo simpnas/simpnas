@@ -43,6 +43,17 @@ if(!$_SESSION['logged']){
         <li class="nav-item text-nowrap">
           <a class="nav-link" href="logout.php"><strong>Logout</strong></a>
         </li>
+        <li class="nav-item dropdown">
+            <a href="#" class="nav-link" data-toggle="dropdown">
+                <span data-feather="power"></span>
+            </a>
+            <div class="dropdown-menu">
+              <a href="restart.php" class="dropdown-item">Restart</a>
+              <a href="shutdown.php" class="dropdown-item">Shutdown</a>
+              <div class="dropdown-divider"></div>
+              <a href="reset.php" class="dropdown-item text-danger">Reset to Factory Defaults</a>
+            </div>
+        </li>
       </ul>
     </nav>
 

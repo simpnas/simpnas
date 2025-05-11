@@ -86,7 +86,7 @@ if (empty($status_service_docker)) {
                             <?php } ?>
 
                         <?php } else { ?>
-                            <a href="<?php echo $app['install']; ?>" class="btn btn-outline-success" onclick="$('#cover-spin').show(0)">
+                            <a href="<?php echo $app['install']; ?>" class="btn btn-outline-success" data-toggle="modal" onclick="$('#cover-spin').show(0)">
                                 Install
                             </a>
                         <?php } ?>
@@ -102,4 +102,9 @@ if (empty($status_service_docker)) {
     </table>
 </div>
 
-<?php require_once "includes/footer.php";
+<?php 
+
+require_once "modals/install_jellyfin.php";
+require_once "modals/install_transmission.php";
+require_once "modals/install_photoprism.php";
+require_once "includes/footer.php";

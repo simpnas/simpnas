@@ -109,13 +109,6 @@
           Logs
         </a>
       </li>
-      
-      <li class="nav-item">
-        <a class="nav-link" href="power.php" onclick="$('#cover-spin').show(0)">
-          <span data-feather="power"></span>
-          Power
-        </a>
-      </li>
     
     </ul>                      
   </div>

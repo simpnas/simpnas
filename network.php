@@ -6,7 +6,7 @@ require_once "includes/include_all.php";
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
   <h2>Network Settings</h2>
-  <a href="network_add.php" class="btn btn-outline-primary">Create Network</a>
+  <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#addNetworkModal">Create Network</button>
 </div>
 
 <?php include("alert_message.php"); ?>
@@ -73,4 +73,6 @@ require_once "includes/include_all.php";
   </table>
 </div>
 
-<?php require_once "includes/footer.php";
+<?php 
+require_once "modals/network_add.php";
+require_once "includes/footer.php";
