@@ -2,7 +2,7 @@
 
 session_start();
 
-require_once "config.php";
+include "config.php";
 require_once "includes/simple_vars.php";
 require_once "includes/functions.php";
 
@@ -370,62 +370,6 @@ if(isset($_POST['volume_add_raid'])){
   $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 0\n";
   fwrite($fh, $stringData);
   fclose($fh);
-
-  header("Location: volumes.php");
-
-}
-
-if(isset($_POST['volume_add_raid_old'])){
-  $name = trim($_POST['name']);
-  $raid = $_POST['raid'];
-  $disk_array = $_POST['disks'];
-
-  $num_of_disks = count($disk_array);
-  
-  exec ("ls /volumes/",$volumes_array);
-
-  if(in_array($name, $volumes_array)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not add volume $name as it already exists!";
-  }else{
-    foreach($disk_array as $disk){
-      exec ("wipefs -a /dev/$disk");
-      exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
-      exec("lsblk -o PKNAME,KNAME,TYPE,PATH /dev/$disk | grep part | awk '{print $4}'",$diskpart_array);
-    }
-
-    $diskparts = implode(' ',$diskpart_array);
-
-    //WIPE out any superblocks
-    exec("mdadm --zero-superblock $diskparts");
-    
-    //Generate the next /dev/mdX Number
-    //get the last md#
-    $md = exec("ls /dev/md*");
-    //extract the numbers out of md
-    $md_num = preg_replace('/[^0-9]/', '', $md);
-    //add 1 to the num
-    $new_md_num = $md_num + 1;
-
-    exec("yes | mdadm --create /dev/md$new_md_num --level=$raid --raid-devices=$num_of_disks $diskparts");
-
-    exec ("mkdir /volumes/$name");
-
-    exec ("mkfs.ext4 -F /dev/md$new_md_num");
-
-    //sleep(10);
-    
-    exec ("mount /dev/md$new_md_num /volumes/$name");  
-      
-    $uuid = exec("blkid -o value --match-tag UUID /dev/md$new_md_num");
-
-    $myFile = "/etc/fstab";
-    $fh = fopen($myFile, 'a') or die("can't open file");
-    $stringData = "UUID=$uuid /volumes/$name ext4 defaults 0 0\n";
-    fwrite($fh, $stringData);
-    fclose($fh);
-  
-  }
 
   header("Location: volumes.php");
 
@@ -891,7 +835,7 @@ if(isset($_POST['install_jellyfin'])){
 
 
 
-    exec("docker run -d --name jellyfin --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/jellyfin:/config -v /volumes/$volume/media/tvshows:/tvshows -v /volumes/$volume/media/movies:/movies -v /volumes/$volume/media/music:/music linuxserver/jellyfin");
+    exec("docker run -d --name jellyfin --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/jellyfin:/config -v /volumes/$volume/media/shows:/shows -v /volumes/$volume/media/movies:/movies -v /volumes/$volume/media/music:/music linuxserver/jellyfin");
 
   }
   
@@ -908,7 +852,7 @@ if(isset($_GET['update_jellyfin'])){
   exec("docker stop jellyfin");
   exec("docker rm jellyfin");
   
-  exec("docker run -d --name jellyfin --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v $docker_path:/config -v $media_path/tvshows:/tvshows -v $media_path/movies:/movies -v $media_path/music:/music linuxserver/jellyfin");
+  exec("docker run -d --name jellyfin --restart=unless-stopped -p 8096:8096 -e PGID=$group_id -e PUID=0 -v $docker_path:/config -v $media_path/shows:/shows -v $media_path/movies:/movies -v $media_path/music:/music linuxserver/jellyfin");
 
   exec("docker image prune");
   
@@ -1102,52 +1046,6 @@ if(isset($_GET['uninstall_homeassistant'])){
 
   //delete docker config
   exec ("rm -rf /volumes/$config_docker_volume/docker/homeassistant");
-
-  //delete images
-  exec("docker image prune");
-
-  //redirect back to packages
-  header("Location: apps.php");
-}
-
-if(isset($_GET['install_unifi-controller'])){
-  // Check to see if docker is running
-  $status_service_docker = exec("systemctl status docker | grep running");
-  if(empty($status_service_docker)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
-  }else{
-
-    mkdir("/volumes/$config_docker_volume/docker/unifi-controller/");
-
-    exec("docker run -d --name unifi-controller -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/unifi-controller:/config linuxserver/unifi-controller");
-  }
-  header("Location: apps.php");
-}
-
-if(isset($_GET['update_unifi-controller'])){
-
-  $docker_path = exec("find /volumes/*/docker/unifi-controller -name unifi-controller");
-
-  exec("docker pull linuxserver/unifi-controller");
-  exec("docker stop unifi-controller");
-  exec("docker rm unifi-controller");
-
-  exec("docker run -d --name unifi-controller -p 3478:3478/udp -p 10001:10001/udp -p 8080:8080 -p 8081:8081 -p 8443:8443 -p 8843:8843 -p 8880:8880 -p 6789:6789 --restart=unless-stopped -v $docker_path:/config linuxserver/unifi-controller");
-
-  exec("docker image prune");
-  
-  header("Location: apps.php");
-
-}
-
-if(isset($_GET['uninstall_unifi-controller'])){
-  //stop and delete docker container
-  exec("docker stop unifi-controller");
-  exec("docker rm unifi-controller");
-
-  //delete docker config
-  exec ("rm -rf /volumes/$config_docker_volume/docker/unifi-controller");
 
   //delete images
   exec("docker image prune");
@@ -1407,52 +1305,6 @@ if(isset($_POST['setup_volume_raid'])){
 
 }
 
-if(isset($_POST['setup_volume_raid_old'])){
-  $volume_name = trim($_POST['volume_name']);
-  $raid = $_POST['raid'];
-  $disk_array = $_POST['disks'];
-
-  $num_of_disks = count($disk_array);
-  
-  foreach($disk_array as $disk){
-    exec ("wipefs -a /dev/$disk");
-    exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
-    exec("lsblk -o PKNAME,KNAME,TYPE,PATH /dev/$disk | grep part | awk '{print $4}'",$diskpart_array);
-  }
-
-  $diskparts = implode(' ',$diskpart_array);
-
-  //WIPE out any superblocks
-  exec("mdadm --zero-superblock $diskparts");
-  
-  //Generate the next /dev/mdX Number
-  //get the last md#
-  $md = exec("ls /dev/md*");
-  //extract the numbers out of md
-  $md_num = preg_replace('/[^0-9]/', '', $md);
-  //add 1 to the num
-  $new_md_num = $md_num + 1;
-
-  exec("yes | mdadm --create /dev/md$new_md_num --level=$raid --raid-devices=$num_of_disks $diskparts");
-
-  exec ("mkdir /volumes/$volume_name");
-
-  exec ("mkfs.ext4 -F /dev/md$new_md_num");
-  
-  exec ("mount /dev/md$new_md_num /volumes/$volume_name");  
-    
-  $uuid = exec("blkid -o value --match-tag UUID /dev/md$new_md_num");
-
-  $myFile = "/etc/fstab";
-  $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 0\n";
-  fwrite($fh, $stringData);
-  fclose($fh);
-
-  header("Location: setup_final.php");
-
-}
-
 if(isset($_POST['setup_final'])){
   $volume_name = exec("ls /volumes");
   $password = $_POST['password'];
@@ -1508,5 +1360,3 @@ if(isset($_POST['setup_final'])){
   header("Location: restart.php");
 
 }
-
-?>
