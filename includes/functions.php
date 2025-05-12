@@ -51,70 +51,53 @@ function get_server_cpu_usage(){
 
 function getVolumes(...$fields) {
     $scriptPath = '/simpnas/scripts/list_volumes.sh';
-    
-    // If no fields are provided, execute the script without arguments (get all data)
-    if (empty($fields)) {
-        $output = shell_exec("$scriptPath");
-    } else {
-        // Prepare an array of arguments for the shell script based on requested fields
-        $validFields = [
-            'volume', 'disk', 'model', 'serial', 'health', 'temp', 'size', 
-            'use_percent', 'total_space', 'used_space', 'free_space'
-        ];
-        
-        // Filter valid fields and create the shell command arguments
-        $arguments = [];
-        foreach ($fields as $field) {
-            if (in_array($field, $validFields)) {
-                $arguments[] = $field;
-            }
-        }
-        
-        // Run the shell script with the relevant arguments
-        $command = $scriptPath . ' ' . implode(' ', $arguments);
-        $output = shell_exec("$command 2>&1");
+
+    // Fixed field output order from shell script
+    $allFields = [
+        'volume', 'disk', 'model', 'serial', 'health', 'temp', 'size',
+        'use_percent', 'total_space', 'used_space', 'free_space',
+        'partuuid', 'filesystem', 'is_raid', 'is_crypt', 'is_mounted', 'type'
+    ];
+
+    // Default to all fields if none are provided
+    $requestedFields = empty($fields) ? $allFields : $fields;
+
+    // Filter valid fields
+    $validRequested = array_values(array_filter($requestedFields, fn($f) => in_array($f, $allFields)));
+
+    // Exit early if no valid fields
+    if (empty($validRequested)) {
+        return [];
     }
 
-    // If the script has no output, return an empty array
+    // Call the shell script with all fields (in fixed order)
+    $command = escapeshellcmd($scriptPath) . ' ' . implode(' ', array_map('escapeshellarg', $allFields));
+    $output = shell_exec("$command 2>&1");
+
     if (!$output) {
         return [];
     }
 
-    // Process the output from the shell script
+    // Parse each line
     $lines = explode("\n", trim($output));
     $volumes = [];
 
-    // Process each line (volume info)
     foreach ($lines as $line) {
         $parts = explode('|', $line);
-        if (count($parts) >= 1) {
-            $entry = [];
-            $map = [
-                'volume' => 0,
-                'disk' => 1,
-                'model' => 2,
-                'serial' => 3,
-                'health' => 4,
-                'temp' => 5,
-                'size' => 6,
-                'total_space' => 7,
-                'used_space' => 8,
-                'free_space' => 9,
-                'use_percent' => 10,
-            ];
+        $entry = [];
 
-            // Only return requested fields
-            foreach ($fields as $field) {
-                if (isset($map[$field])) {
-                    $entry[$field] = $parts[$map[$field]] ?? null;
-                }
-            }
-
-            $volumes[] = $entry;
+        foreach ($validRequested as $field) {
+            $index = array_search($field, $allFields);
+            $entry[$field] = $parts[$index] ?? null;
         }
+
+        $volumes[] = $entry;
     }
 
     return $volumes;
 }
+
+
+
 
 ?>

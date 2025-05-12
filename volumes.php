@@ -2,9 +2,8 @@
 require_once "includes/include_all.php";
 
 // Fetch the volume data using the getVolumes function
-$volumes = getVolumes('volume', 'disk', 'total_space', 'used_space', 'free_space', 'use_percent');
+$volumes = getVolumes();
 
-// The dropdown and header remain the same
 ?>
   
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
@@ -44,71 +43,29 @@ $volumes = getVolumes('volume', 'disk', 'total_space', 'used_space', 'free_space
         $used_space = $volume_data['used_space'];
         $free_space = $volume_data['free_space'];
         $used_space_percent = $volume_data['use_percent'];
-
-        // Check if the volume is RAID or encrypted (you can add custom logic for RAID/encryption if needed)
-        $is_raid = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid");
-        $is_crypt = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep crypt");
-        if(!empty($is_raid)){
-            // Check RAID type if needed, like RAID0, RAID1, etc.
-            $raid_type = exec("lsblk -o PKNAME,PATH,TYPE | grep $disk | grep raid | awk '{print $3}'");
-            if($raid_type == 'raid0'){
-                $raid_type = 'RAID 0 (Striping)';
-            } elseif($raid_type == 'raid1') {
-                $raid_type = 'RAID 1 (Mirroring)';
-            } elseif($raid_type == 'raid5') {
-                $raid_type = 'RAID 5 (Parity)';
-            } elseif($raid_type == 'raid6') {
-                $raid_type = 'RAID 6 (Double Parity)';
-            } elseif($raid_type == 'raid10') {
-                $raid_type = 'RAID 10 (Mirror/Stripe)';
-            }
-            exec("lsblk -o PKNAME,PATH,TYPE | grep /dev/$disk | awk '{print $1}'",$array_disk_part_array);
-            $disk_part_in_array = implode(', ', $array_disk_part_array);
-
-            foreach($array_disk_part_array as $array_disk_part){
-                $disk_in_array .= " " . exec("lsblk -n -o PKNAME,PATH | grep /dev/$array_disk_part | awk '{print $1}'");
-            }
-        }
+        $is_mounted = $volume_data['is_mounted'];
       ?>
       
       <tr>
         <td><span class="mr-2" data-feather="database"></span><strong><?php echo $volume; ?></strong></td>
-        <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?>
-            <?php if(isset($disk_part_in_array)){ echo "<br><small class='text-secondary'>$raid_type: $disk_in_array</small>"; } ?>
-            <?php if(!empty($is_crypt)){ echo "<br><small class='text-secondary'>Encrypted Volume</small>"; } ?>
-        </td>
+        <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?></td>
         <td>
-          <?php if(empty($mounted)){ ?>
-          <div class="text-danger">Not Mounted</div>
-          <?php }else{ ?>
+          <?php if ($is_mounted === 'yes') { ?>
           <div class="progress">
             <div class="progress-bar" style="width: <?php echo $used_space_percent; ?>"></div>
           </div>
           <small><?php echo $used_space; ?>B used of <?php echo $total_space; ?>B</small>
-          <?php } ?>  
+          <?php } else { ?>
+          <p class="text-danger">Not Mounted</p>
+          <?php } ?>
         </td>
         <td>
           <div class="btn-group mr-2">
-            <?php if(!empty($is_raid)){ ?>
-              <a href="raid_configuration.php?raid=<?php echo $disk; ?>" class="btn btn-outline-secondary"><span data-feather="settings"></span></a>
-            <?php } ?>
-            <?php if($config_home_volume != $volume){ ?>
-            <?php
-              if(file_exists("/volumes/$volume/.uuid_map")){
-            ?>    
-              <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#mountCrypt<?php echo $disk; ?>"><span data-feather="unlock"></span></button>
-              
-            <?php   
-              }
-            ?>
-            <?php if(!empty($is_crypt)){ ?>
-              <a href="post.php?lock_volume=<?php echo $volume; ?>" class="btn btn-outline-secondary"><span data-feather="lock"></span></a>
-            <?php } ?>
+            <?php if($config_home_volume != $volume && $is_mounted === 'yes') { ?>
             <button class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteVolume<?php echo $volume; ?>"><span data-feather="trash"></span></button>
+             <?php } ?>
           </div>
-          <?php }else{ ?>
-          <div class="p-3">
-          <?php } ?>
+         
         </td>
       </tr>
 
@@ -166,10 +123,6 @@ $volumes = getVolumes('volume', 'disk', 'total_space', 'used_space', 'free_space
       </div>
 
       <?php 
-      unset($disk_part_in_array);
-      unset($array_disk_part_array);
-      unset($disk_in_array);
-      unset($is_crypt);
       } 
       ?>
     </tbody>
