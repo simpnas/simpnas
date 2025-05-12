@@ -49,6 +49,60 @@ function get_server_cpu_usage(){
 
 }
 
+function getDisks(...$fields) {
+    $scriptPath = '/simpnas/scripts/list_disks.sh';
+
+    // All supported fields, in fixed order as returned by the script
+    $allFields = [
+        'name',
+        'vendor',
+        'serial',
+        'size',
+        'type',
+        'has_smart',
+        'health',
+        'temp',
+        'bad_blocks',
+        'power_on',
+        'power_cycle'
+    ];
+
+    // Default to all fields if none specified
+    $requestedFields = empty($fields) ? $allFields : $fields;
+
+    // Validate requested fields
+    $validRequested = array_values(array_filter($requestedFields, fn($f) => in_array($f, $allFields)));
+    if (empty($validRequested)) return [];
+
+    // Build and run the shell command
+    $cmd = escapeshellcmd($scriptPath) . ' ' . implode(' ', array_map('escapeshellarg', $validRequested));
+    $output = shell_exec("$cmd 2>&1");
+
+    if (!$output) return [];
+
+    $lines = explode("\n", trim($output));
+    $disks = [];
+
+    foreach ($lines as $line) {
+        $parts = explode('|', $line);
+
+        // Guard: skip malformed rows
+        if (count($parts) < count($allFields)) {
+            continue;
+        }
+
+        $entry = [];
+        foreach ($validRequested as $field) {
+            $index = array_search($field, $allFields);
+            $entry[$field] = $parts[$index] ?? null;
+        }
+
+        $disks[] = $entry;
+    }
+
+    return $disks;
+}
+
 function getVolumes(...$fields) {
     $scriptPath = '/simpnas/scripts/list_volumes.sh';
 
@@ -95,6 +149,62 @@ function getVolumes(...$fields) {
     }
 
     return $volumes;
+}
+
+function getUsers(...$fields) {
+    $scriptPath = '/simpnas/scripts/list_users.sh';
+
+    $allFields = [
+        'username',
+        'groups',
+        'home_directory',
+        'shell',
+        'space_used',
+        'comment',
+        'user_enabled'
+    ];
+
+    $requestedFields = empty($fields) ? $allFields : $fields;
+
+    $validRequested = array_values(array_filter($requestedFields, fn($f) => in_array($f, $allFields)));
+    if (empty($validRequested)) {
+        return [];
+    }
+
+    $cmd = escapeshellcmd($scriptPath) . ' ' . implode(' ', array_map('escapeshellarg', $validRequested));
+    $output = shell_exec("$cmd 2>&1");
+
+    if (!$output) {
+        return [];
+    }
+
+    $lines = explode("\n", trim($output));
+    $users = [];
+
+    foreach ($lines as $line) {
+        $parts = explode('|', $line);
+
+        // Ensure we have the right number of fields
+        if (count($parts) !== count($allFields)) {
+            continue;
+        }
+
+        // Build user entry from requested fields
+        $entry = [];
+        foreach ($validRequested as $field) {
+            $index = array_search($field, $allFields);
+            $value = $parts[$index] ?? null;
+            if ($field === 'groups') {
+                $entry[$field] = explode(',', $value);
+            } else {
+                $entry[$field] = $value;
+            }
+        }
+
+        $users[] = $entry;
+    }
+
+    return $users;
 }
 
 

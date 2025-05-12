@@ -1,3 +1,7 @@
+<?php
+$volumes = getVolumes();
+?>
+
 <div class="modal fade" id="addShareModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -18,17 +22,22 @@
 
 			  <div class="form-group">
 			    <label>Volume</label>
-			    <select class="form-control" name="volume">
+			    <select class="form-control" name="volume" required>
+			    	<option value="">- Select Volume -</option>
 			  		<?php
-						exec("ls /volumes", $volume_list);
-						foreach ($volume_list as $volume) {
-							$mounted = exec("df | grep $volume");
-							if(!empty($mounted) OR file_exists('/volumes/sys-vol')){
+						foreach ($volumes as $volume_data) {
+			        $volume = $volume_data['volume'];
+			        $disk = $volume_data['disk'];
+			        $total_space = $volume_data['total_space'];
+			        $used_space = $volume_data['used_space'];
+			        $free_space = $volume_data['free_space'];
+			        $used_space_percent = $volume_data['use_percent'];
+			        $is_mounted = $volume_data['is_mounted'];
+							
 						?>
-							<option><?php echo "$volume"; ?></option>	
-							<?php 
-							} 
-							?>
+							<?php if ($is_mounted === 'yes') { ?>
+ 							<option><?php echo $volume; ?></option>	
+							<?php } ?>
 						<?php
 						}
 						?>

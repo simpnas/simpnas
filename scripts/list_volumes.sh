@@ -70,18 +70,33 @@ for volume in "$VOLUMES_DIR"/*; do
     if [ -d "$volume" ]; then
         NAME=$(basename "$volume")
         IS_MOUNTED="no"
+        DISK=""
+        USEP=""; TOTAL=""; USED=""; AVAIL=""
+        MODEL=""; SERIAL=""; HEALTH=""; TEMP=""
+        DU_SIZE=""; PARTUUID=""; FSTYPE=""
+        IS_RAID=""; IS_CRYPT=""; DISK_TYPE=""
+
+        # Check if mounted
         if mountpoint -q "$volume"; then
             IS_MOUNTED="yes"
+            DISK=$(df "$volume" 2>/dev/null | awk 'NR==2 {print $1}')
+        else
+            # Lookup device from /etc/fstab
+            FSTAB_ENTRY=$(awk -v vol="$volume" '$2 == vol {print $1}' /etc/fstab)
+            if [[ "$FSTAB_ENTRY" =~ ^UUID= || "$FSTAB_ENTRY" =~ ^PARTUUID= ]]; then
+                DISK=$(blkid -U "${FSTAB_ENTRY#*=}")
+            elif [[ "$FSTAB_ENTRY" =~ ^/dev/ ]]; then
+                DISK="$FSTAB_ENTRY"
+            fi
         fi
 
-        DISK=$(df "$volume" 2>/dev/null | awk 'NR==2 {print $1}')
+        # Extract base disk
         BASE_DISK=$(basename "$DISK" | sed 's/[0-9]*$//' | sed 's/p[0-9]*$//')
 
-        # Gather values based on flags
+        # SMART info
         if $MODEL_FLAG || $SERIAL_FLAG; then
             SMART_INFO=$(smartctl -i "$DISK" 2>/dev/null)
         fi
-
         MODEL=$($MODEL_FLAG && echo "$SMART_INFO" | grep -i "Device Model" | awk -F': ' '{print $2}' || echo "")
         SERIAL=$($SERIAL_FLAG && echo "$SMART_INFO" | grep -i "Serial Number" | awk -F': ' '{print $2}' || echo "")
 
@@ -129,14 +144,15 @@ for volume in "$VOLUMES_DIR"/*; do
             else
                 ROTATIONAL="/sys/block/$BASE_DISK/queue/rotational"
                 if [ -f "$ROTATIONAL" ]; then
-                    DISK_TYPE=$(cat "$ROTATIONAL") && [[ "$DISK_TYPE" == "0" ]] && DISK_TYPE="ssd" || DISK_TYPE="hdd"
+                    DISK_TYPE=$(cat "$ROTATIONAL")
+                    [[ "$DISK_TYPE" == "0" ]] && DISK_TYPE="ssd" || DISK_TYPE="hdd"
                 else
                     DISK_TYPE="unknown"
                 fi
             fi
         fi
 
-        # Construct output in fixed order
+        # Construct fixed field output
         OUTPUT=()
         OUTPUT+=("$NAME")             # volume
         OUTPUT+=("$DISK")             # disk
@@ -156,7 +172,6 @@ for volume in "$VOLUMES_DIR"/*; do
         OUTPUT+=("${IS_MOUNTED:-}")   # is_mounted
         OUTPUT+=("${DISK_TYPE:-}")    # type
 
-        # Print as pipe-delimited line
         echo "${OUTPUT[*]}" | sed 's/ /|/g'
     fi
 done
