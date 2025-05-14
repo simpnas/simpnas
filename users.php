@@ -5,6 +5,8 @@ require_once "includes/include_all.php";
 // Get user data using new shell script wrapper
 $users = getUsers();
 
+print_r($users);
+
 // Sort alphabetically by username
 usort($users, fn($a, $b) => strcmp($a['username'], $b['username']));
 

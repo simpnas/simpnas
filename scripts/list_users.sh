@@ -1,79 +1,52 @@
 #!/bin/bash
 
-# Flags for requested fields
-USERNAME_FLAG=false
-GROUPS_FLAG=false
-HOME_FLAG=false
-SHELL_FLAG=false
-SPACE_FLAG=false
-COMMENT_FLAG=false
-ENABLED_FLAG=false
+# Define flags for each field (default: false)
+declare -A FLAGS=(
+    [username]=false
+    [groups]=false
+    [home_directory]=false
+    [shell]=false
+    [space_used]=false
+    [comment]=false
+    [user_enabled]=false
+)
 
-# Enable all if no args
+# Enable all flags if no arguments were provided
 if [ "$#" -eq 0 ]; then
-    USERNAME_FLAG=true
-    GROUPS_FLAG=true
-    HOME_FLAG=true
-    SHELL_FLAG=true
-    SPACE_FLAG=true
-    COMMENT_FLAG=true
-    ENABLED_FLAG=true
+    for key in "${!FLAGS[@]}"; do FLAGS[$key]=true; done
+else
+    for arg in "$@"; do
+        [[ -v FLAGS[$arg] ]] && FLAGS[$arg]=true
+    done
 fi
 
-# Parse CLI args
-for arg in "$@"; do
-    case "$arg" in
-        username) USERNAME_FLAG=true ;;
-        groups) GROUPS_FLAG=true ;;
-        home_directory) HOME_FLAG=true ;;
-        shell) SHELL_FLAG=true ;;
-        space_used) SPACE_FLAG=true ;;
-        comment) COMMENT_FLAG=true ;;
-        user_enabled) ENABLED_FLAG=true ;;
-    esac
-done
-
-# Process users from /etc/passwd
+# Read users from /etc/passwd
 while IFS=: read -r USERNAME _ USER_ID GROUP_ID COMMENT HOME SHELL; do
-    # Skip system users and nobody
-    if [ "$USER_ID" -lt 1000 ] || [ "$USERNAME" = "nobody" ]; then
-        continue
-    fi
+    [ "$USER_ID" -lt 1000 ] || [ "$USERNAME" = "nobody" ] && continue
 
-    # Initialize output variables
-    GROUPS=""
+
+    # Initialize all fields to empty
+    GROUP_LIST=""
     SPACE=""
     ENABLED="yes"
 
-    echo "DEBUG id -Gn $USERNAME: $(id -Gn "$USERNAME" 2>&1)" >&2
-
-    # Get groups using id -Gn (space-separated)
-    if $GROUPS_FLAG; then
-        GROUP_LIST=$(id -Gn "$USERNAME" 2>/dev/null | sed 's/ /, /g')
+    # Groups (comma-separated)
+    if ${FLAGS[groups]}; then
+        GROUP_LIST=$(id -Gn "$USERNAME" 2>/dev/null | tr ' ' ',' | xargs)
     fi
 
-    # Get home usage
-    if $SPACE_FLAG && [ -d "$HOME" ]; then
+    # Space used in home directory
+    if ${FLAGS[space_used]} && [ -d "$HOME" ]; then
         SPACE=$(du -sh "$HOME" 2>/dev/null | cut -f1)
     fi
 
-    # Get enabled status from passwd -S
-    if $ENABLED_FLAG; then
+    # Enabled status
+    if ${FLAGS[user_enabled]}; then
         STATUS=$(passwd -S "$USERNAME" 2>/dev/null | awk '{print $2}')
-        if [[ "$STATUS" == "L" || "$STATUS" == "LK" ]]; then
-            ENABLED="no"
-        fi
+        [[ "$STATUS" == "L" || "$STATUS" == "LK" ]] && ENABLED="no"
     fi
 
-    # Construct fixed-order output
-    OUT=()
-    OUT+=("$USERNAME")          # username
-    OUT+=("${GROUP_LIST}")      # groups (was GROUPS — renamed!)
-    OUT+=("${HOME}")
-    OUT+=("${SHELL}")
-    OUT+=("${SPACE:-}")
-    OUT+=("${COMMENT}")
-    OUT+=("${ENABLED}")
+    # Output all 7 fields in fixed order (regardless of which were requested)
+    echo "$USERNAME|$GROUP_LIST|$HOME|$SHELL|$SPACE|$COMMENT|$ENABLED"
 
-    IFS='|'; echo "${OUT[*]}"; unset IFS
 done < /etc/passwd
