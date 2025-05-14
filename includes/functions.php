@@ -105,34 +105,21 @@ function getDisks(...$fields) {
 
 function getVolumes(...$fields) {
     $scriptPath = '/simpnas/scripts/list_volumes.sh';
-
-    // Fixed field output order from shell script
     $allFields = [
         'volume', 'disk', 'model', 'serial', 'health', 'temp', 'size',
         'use_percent', 'total_space', 'used_space', 'free_space',
         'partuuid', 'filesystem', 'is_raid', 'is_crypt', 'is_mounted', 'type'
     ];
-
-    // Default to all fields if none are provided
     $requestedFields = empty($fields) ? $allFields : $fields;
-
-    // Filter valid fields
     $validRequested = array_values(array_filter($requestedFields, fn($f) => in_array($f, $allFields)));
 
-    // Exit early if no valid fields
-    if (empty($validRequested)) {
-        return [];
-    }
+    if (empty($validRequested)) return [];
 
-    // Call the shell script with all fields (in fixed order)
-    $command = escapeshellcmd($scriptPath) . ' ' . implode(' ', array_map('escapeshellarg', $allFields));
+    $command = escapeshellcmd($scriptPath) . ' ' . implode(' ', array_map('escapeshellarg', $validRequested));
     $output = shell_exec("$command 2>&1");
 
-    if (!$output) {
-        return [];
-    }
+    if (!$output) return [];
 
-    // Parse each line
     $lines = explode("\n", trim($output));
     $volumes = [];
 
