@@ -16,16 +16,10 @@ $usb_devices = "ConbeeII";
       <form method="post" action="post.php" autocomplete="off">
 
         <div class="modal-body">
-        
-
-            <div class="form-group">
-              <label>Select Optional USB Device</label>
-              <select class="form-control" name="usb_device">
-                  <option value="">-None-</option>
-                  <option><?php echo "$usb_devices"; ?></option>
-              </select>
-            </div>
-
+          <div class="form-group">
+            <label>Optional USB Device</label>
+            <input type="text" class="form-control" name="device" placeholder="eg. /dev/ttyUSB0">
+          </div>
         </div>
          
         <div class="modal-footer">

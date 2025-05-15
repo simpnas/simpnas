@@ -1007,7 +1007,13 @@ if(isset($_GET['uninstall_nginx-proxy-manager'])){
   header("Location: apps.php");
 }
 
-if(isset($_GET['install_homeassistant'])){
+if(isset($_POST['install_homeassistant'])) {
+  if (!empty($_POST['device'])) {
+    $device = $_POST['device'];
+    $container_config = "--device=$device:$device";
+  } else {
+    $container_config = '';
+  } 
   // Check to see if docker is running
   $status_service_docker = exec("systemctl status docker | grep running");
   if(empty($status_service_docker)){
@@ -1017,7 +1023,7 @@ if(isset($_GET['install_homeassistant'])){
 
     mkdir("/volumes/$config_docker_volume/docker/homeassistant");
 
-    exec("docker run -d --name homeassistant --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/homeassistant:/config homeassistant/home-assistant:stable");
+    exec("docker run -d --name homeassistant --restart=unless-stopped -p 8123:8123 -v /volumes/$config_docker_volume/docker/homeassistant:/config $container_config homeassistant/home-assistant:stable");
   }
 
   header("Location: apps.php");
@@ -1032,7 +1038,6 @@ if(isset($_GET['update_homeassistant'])){
   exec("docker rm homeassistant");
 
   exec("docker run -d --name homeassistant --restart=unless-stopped -p 8123:8123 -v $docker_path:/config homeassistant/home-assistant:stable");
-
   exec("docker image prune");
   
   header("Location: apps.php");
