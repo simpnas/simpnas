@@ -4,7 +4,6 @@ require_once "includes/include_all.php";
 // Fetch the volume data using the getVolumes function
 
 $volumes = getVolumes();
-print_r($volumes);
 ?>
   
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
@@ -64,7 +63,7 @@ print_r($volumes);
           <div class="btn-group mr-2">
             <?php if($config_home_volume != $volume && $is_mounted === 'yes') { ?>
             <button class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteVolume<?php echo $volume; ?>"><span data-feather="trash"></span></button>
-            <a class="btn btn-warning" href="post.php?unmount_volume=<?php echo $volume; ?>">Unmount</a>
+            <a class="btn btn-outline-dark" href="post.php?unmount_volume=<?php echo $volume; ?>">Unmount</a>
              <?php } elseif($config_home_volume != $volume && $is_mounted === 'no') { ?>
             <a class="btn btn-dark" href="post.php?mount_volume=<?php echo $volume; ?>">Mount</a>
             <?php } ?>

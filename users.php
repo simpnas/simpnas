@@ -5,8 +5,6 @@ require_once "includes/include_all.php";
 // Get user data using new shell script wrapper
 $users = getUsers();
 
-print_r($users);
-
 // Sort alphabetically by username
 usort($users, fn($a, $b) => strcmp($a['username'], $b['username']));
 
@@ -50,18 +48,18 @@ usort($users, fn($a, $b) => strcmp($a['username'], $b['username']));
           <td><?= htmlspecialchars($home_usage) ?>B</td>
           <td>
             <div class="btn-group mr-2">
-              <a href="user_edit.php?username=<?= urlencode($username) ?>" class="btn btn-outline-secondary">
+              <a href="user_edit.php?username=<?= urlencode($username) ?>" class="btn btn-outline-secondary" title="Edit User">
                 <span data-feather="edit"></span>
               </a>
-              <button class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteUser<?= htmlspecialchars($username) ?>">
+              <button class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteUser<?= htmlspecialchars($username) ?>" title="Delete User">
                 <span data-feather="trash"></span>
               </button>
               <?php if (!$user_disabled): ?>
-                <a href="post.php?disable_user=<?= urlencode($username) ?>" class="btn btn-outline-warning">
+                <a href="post.php?disable_user=<?= urlencode($username) ?>" class="btn btn-outline-dark" title="Disable User">
                   <span data-feather="user-x"></span>
                 </a>
               <?php else: ?>
-                <a href="post.php?enable_user=<?= urlencode($username) ?>" class="btn btn-outline-success">
+                <a href="post.php?enable_user=<?= urlencode($username) ?>" class="btn btn-outline-success" title="Enable User">
                   <span data-feather="user-check"></span>
                 </a>
               <?php endif; ?>

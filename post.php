@@ -1079,20 +1079,20 @@ if(isset($_POST['install_transmission'])){
     $group_id = exec("getent group download | cut -d: -f3");
 
     mkdir("/volumes/$volume/downloads");
-    mkdir("/volumes/$volume/downloads/completed");
+    mkdir("/volumes/$volume/downloads/complete");
     mkdir("/volumes/$volume/downloads/incomplete");
     mkdir("/volumes/$volume/downloads/watch");
     mkdir("/volumes/$config_docker_volume/docker/transmission");
 
     chgrp("/volumes/$volume/downloads","download");
     chgrp("/volumes/$volume/downloads/watch","download");
-    chgrp("/volumes/$volume/downloads/completed","download");
+    chgrp("/volumes/$volume/downloads/complete","download");
     chgrp("/volumes/$volume/downloads/incomplete","download");
     chgrp("/volumes/$volume/downloads/watch","download");
     chgrp("/volumes/$config_docker_volume/docker/transmission","download");
 
     chmod("/volumes/$volume/downloads",0770);
-    chmod("/volumes/$volume/downloads/completed",0770);
+    chmod("/volumes/$volume/downloads/complete",0770);
     chmod("/volumes/$volume/downloads/incomplete",0770);
     chmod("/volumes/$volume/downloads/watch",0770);
     chmod("/volumes/$config_docker_volume/docker/transmission",0770);
@@ -1113,9 +1113,9 @@ if(isset($_POST['install_transmission'])){
     exec("systemctl restart nmbd");
     
     if($enable_vpn == 1){
-      exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG='$vpn_server' -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /volumes/$config_docker_volume/docker/transmission:/data/transmission-home -v /volumes/$volume/downloads/completed:/data/completed -v /volumes/$volume/downloads/incomplete:/data/incomplete -v /volumes/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn");
+      exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG='$vpn_server' -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /volumes/$config_docker_volume/docker/transmission:/data/transmission-home -v /volumes/$volume/downloads/complete:/data/complete -v /volumes/$volume/downloads/incomplete:/data/incomplete -v /volumes/$volume/downloads/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn");
     }else{
-      exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/transmission:/config -v /volumes/$volume/downloads/watch:/watch -v /volumes/$volume/downloads:/downloads -v /volumes/$volume/downloads/completed:/downloads/complete -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
+      exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/transmission:/config -v /volumes/$volume/downloads/watch:/watch -v /volumes/$volume/downloads:/downloads -v /volumes/$volume/downloads/complete:/downloads/complete -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
     }
   } //End Docker Check
   
@@ -1144,9 +1144,9 @@ if(isset($_POST['transmission_update'])){
   exec("docker image prune");
 
   if($enable_vpn == 1){
-    exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG='$vpn_server' -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /volumes/$config_docker_volume/docker/transmission:/data/transmission-home -v $volume_path/completed:/data/completed -v $volume_path/incomplete:/data/incomplete -v $volume_path/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn");
+    exec("docker run --cap-add=NET_ADMIN -d --name transmission --restart=unless-stopped -e OPENVPN_PROVIDER=$vpn_provider -e OPENVPN_CONFIG='$vpn_server' -e OPENVPN_USERNAME=$username -e OPENVPN_PASSWORD=$password -e WEBPROXY_ENABLED=false -e LOCAL_NETWORK=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e PGID=$group_id -e PUID=0 -e TRANSMISSION_UMASK=0 --log-driver json-file --log-opt max-size=10m $dns -v /etc/localtime:/etc/localtime:ro -v /volumes/$config_docker_volume/docker/transmission:/data/transmission-home -v $volume_path/completed:/data/complete -v $volume_path/incomplete:/data/incomplete -v $volume_path/watch:/data/watch -p 9091:9091 haugene/transmission-openvpn");
   }else{
-    exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/transmission:/config -v $volume_path/watch:/watch -v $volume_path:/downloads -v $volume_path/completed:/downloads/complete -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
+    exec("docker run -d --name transmission --restart=unless-stopped -e PGID=$group_id -e PUID=0 -v /volumes/$config_docker_volume/docker/transmission:/config -v $volume_path/watch:/watch -v $volume_path:/downloads -v $volume_path/complete:/downloads/complete -p 9091:9091 -p 51413:51413 -p 51413:51413/udp linuxserver/transmission");
   }
 
   exec("docker image prune");

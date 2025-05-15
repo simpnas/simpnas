@@ -68,7 +68,7 @@ lsblk -dn -o KNAME,TYPE | awk '$2 == "disk" {print $1}' | while read -r DISK; do
             TYPE="NVMe"
         else
             ROTATION=$(smartctl -i "$DEV" 2>/dev/null | grep -i 'Rotation Rate' | awk -F: '{print $2}' | xargs)
-            if [[ "$ROTATION" =~ ([57]200 rpm) ]]; then
+            if [[ "$ROTATION" == *rpm* ]]; then
                 TYPE="HDD"
             elif [[ "$ROTATION" == "Solid State Device" ]]; then
                 TYPE="SSD"
