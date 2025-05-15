@@ -59,7 +59,7 @@ lsblk -dn -o KNAME,TYPE | awk '$2 == "disk" {print $1}' | while read -r DISK; do
         SMART_INFO=$(smartctl -a "$DEV" 2>/dev/null)
     fi
 
-    ${FLAGS[vendor]} && VENDOR=$(echo "$SMART_INFO" | grep -E 'Model Family|Device Model|Model Number' | head -n1 | cut -d: -f2- | xargs)
+    ${FLAGS[vendor]} && VENDOR=$(echo "$SMART_INFO" | grep -E 'Model Family|Device Model|Model Number|Vendor' | head -n1 | cut -d: -f2- | xargs)
     ${FLAGS[serial]} && SERIAL=$(echo "$SMART_INFO" | grep -i 'Serial Number' | cut -d: -f2- | xargs)
     ${FLAGS[size]} && SIZE=$(lsblk -dn -o size "$DEV" 2>/dev/null | xargs)
 
