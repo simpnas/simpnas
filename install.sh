@@ -58,7 +58,46 @@ systemctl enable simpnas
 systemctl start simpnas
 IP="$(ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||')";
 HOSTNAME="$(hostname)";
+echo "=================================================================================="
+echo "Removing any additonal users"
+echo "=================================================================================="
+# Check if a user with UID 1000 exists (typically the first user created on Linux systems)
+existing_username=$(cat /etc/passwd | grep ':1000:' | awk -F: '{print $1}')
+# If the username exists, delete the user and remove their home directory
+if [ ! -z "$existing_username" ]; then
+    echo "User $existing_username found. Deleting user and home directory..."
+    sudo deluser --remove-home "$existing_username"
+else
+    echo "No user with UID 1000 found."
+fi
+echo "=================================================================================="
+echo "Creating Config File"
+echo "================================================================================="
+# Define the password
+password="helloSimp"
+# Use PHP to hash the password and store the result in a variable
+hashed_password=$(php -r "echo password_hash('$password', PASSWORD_DEFAULT);")
+# Create the PHP config file
+cat <<EOF > /simpnas/config.php
+<?php
+
+\$config_admin_password = '$hashed_password';
+\$config_smtp_server = '';
+\$config_smtp_port = '';
+\$config_smtp_username = '';
+\$config_smtp_password = '';
+\$config_mail_from = '';
+\$config_mail_to = '';
+\$config_theme = '';
+\$config_audit_logging = 0;
+\$config_enable_beta = 0;
+
+EOF
+# Get Instance Count
+machine_id=$(cat /etc/machine-id)
+# Send the GET request using curl
+curl "https://simpnas.com/collect.php?collect&machine_id=$machine_id"
 echo "==============================================================================================================================="
 echo "                                                   Almost There!																                               "
-echo "             Visit http://$IP:81 in your web browser to complete installation								 	                                 "
+echo "               Visit http://$IP in your web browser to complete installation								 	                                 "
 echo "==============================================================================================================================="

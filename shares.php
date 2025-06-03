@@ -18,7 +18,7 @@ exec("awk -F: '$3 > 999 {print $1}' /etc/passwd", $username_array);
     <thead>
       <tr>
         <th>Share</th>
-        <th>Description</th>
+        <th>Volume</th>
         <th>Group</th>
         <th>Size</th>
         <th>Action</th>
@@ -52,9 +52,9 @@ exec("awk -F: '$3 > 999 {print $1}' /etc/passwd", $username_array);
           <span class="mr-2" data-feather="folder"></span><strong><?php echo $share; ?></strong>
           <?php if($read_only == 1){ echo "<small class='text-danger'>Read Only</small>"; } ?>
           <br>
-          <div class="ml-4 text-secondary"><?php echo $volume; ?></div>
+          <div class="ml-4 text-secondary"><?php echo $comment; ?></div>
         </td>
-        <td><?php echo $comment; ?></td>
+        <td><?php echo $volume; ?></td>
         <td>
           <?php echo $group; ?>
         </td>

@@ -69,7 +69,7 @@ if(empty($status_service_ssh)){
   <div class="col-md-6">
     <legend>Overview
       <div class="dropdown float-right">
-          <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+          <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle" data-toggle="dropdown">
               <span data-feather="power"></span>
           </button>
           <div class="dropdown-menu">
@@ -90,16 +90,6 @@ if(empty($status_service_ssh)){
       <tr>
         <td>Hostname</td>
         <th><?php echo $config_hostname; ?></th>
-      </tr>
-
-       <tr>
-        <td>OS</td>
-        <td><?php echo $OS; ?></td>
-      </tr>
-
-      <tr>
-        <td>Kernel</td>
-        <td><?php echo $kernel; ?></td>
       </tr>
 
       <tr>

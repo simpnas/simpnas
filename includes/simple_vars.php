@@ -6,7 +6,7 @@
 	$config_home_volume = exec("find /volumes/*/users -name users | awk -F/ '{print $3}'");
 	$config_os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
-  //APPs VARS
+  // APPs
   $apps_array = array(
     array(
       "title" => "Jellyfin",

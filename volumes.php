@@ -26,6 +26,7 @@ $volumes = getVolumes();
     <thead>
       <tr>
         <th>Name</th>
+        <th>Type</th>
         <th>Disk(s)</th>
         <th>Usage</th>
         <th>Action</th>
@@ -48,13 +49,14 @@ $volumes = getVolumes();
       
       <tr>
         <td><span class="mr-2" data-feather="database"></span><strong><?php echo $volume; ?></strong></td>
+        <td>Simple</td>
         <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?></td>
         <td>
           <?php if ($is_mounted === 'yes') { ?>
           <div class="progress">
             <div class="progress-bar" style="width: <?php echo $used_space_percent; ?>"></div>
           </div>
-          <small><?php echo $used_space; ?>B used of <?php echo $total_space; ?>B</small>
+          <small><span class="text-primary"><?php echo $used_space; ?>B</span> <span class="text-secondary">| <?php echo $total_space; ?>B</span></small>
           <?php } else { ?>
           <p class="text-danger">Not Mounted</p>
           <?php } ?>

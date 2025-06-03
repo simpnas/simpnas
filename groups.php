@@ -18,7 +18,7 @@ exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array)
     <thead>
       <tr>
         <th>Group</th>
-        <th>Users</span>
+        <th>Members</span>
         <th>Action</th>
       </tr>
     </thead>

@@ -9,9 +9,10 @@ if(isset($_POST['login'])){
   
   $password = $_POST['password'];
 
-  if ($password == $config_admin_password) {
+  if (password_verify($password, $config_admin_password)) {
     $_SESSION['logged'] = TRUE;
     header("Location: dashboard.php");
+    exit();
   } else {
     $response = "
       <div class='alert alert-danger'>

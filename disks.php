@@ -15,12 +15,10 @@ $disks = getDisks();
     <thead>
       <tr>
         <th>Disk</th>
-        <th>Vendor</th>
         <th>Serial</th>
         <th>Capacity</th>
         <th>Type</th>
         <th>Health</th>
-        <th>Action</th>
       </tr>
     </thead>
     <tbody>
@@ -71,10 +69,10 @@ $disks = getDisks();
       ?>
         <tr>
           <td>
-            <span class="mr-2" data-feather="hard-drive"></span>
-            <?php echo htmlspecialchars($name); ?>
+            <span class="mr-2" data-feather="hard-drive"></span><strong><?php echo htmlspecialchars($vendor); ?></strong>
+            <br>
+            <div class="ml-4 text-secondary"><?php echo htmlspecialchars($name); ?></div>
           </td>
-          <td><?php echo htmlspecialchars($vendor); ?></td>
           <td><?php echo htmlspecialchars($serial); ?></td>
           <td><?php echo htmlspecialchars($size); ?></td>
           <td><?php echo htmlspecialchars($type); ?></td>
@@ -82,24 +80,13 @@ $disks = getDisks();
             <?php
             $health_lower = strtolower($health);
             if ($health_lower === 'passed') {
-              echo '<span class="text-success">' . htmlspecialchars($health) . '</span>';
+              echo '<a href="hdd_info.php?hdd=' . urlencode($name) . '"><span class="badge badge-pill p-2 badge-success">' . htmlspecialchars($health) . '</span></a>';
             } elseif ($health_lower === 'failed') {
-              echo '<span class="text-danger">' . htmlspecialchars($health) . '</span>';
+              echo '<a href="hdd_info.php?hdd=' . urlencode($name) . '"><span class="badge badge-pill p-2 badge-danger">' . htmlspecialchars($health) . '</span></a>';
             } else {
               echo '<span class="text-muted">' . htmlspecialchars($health) . '</span>';
             }
             ?>
-          </td>
-          <td>
-            <div class="btn-group">
-              <?php
-              if ($has_smart) {
-                echo '<a href="hdd_info.php?hdd=' . urlencode($name) . '" class="btn btn-outline-secondary btn-sm">Health Info</a>';
-              } else {
-                echo '<span class="btn btn-sm btn-light disabled">No SMART</span>';
-              }
-              ?>
-            </div>
           </td>
         </tr>
       <?php } ?>

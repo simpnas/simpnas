@@ -1,14 +1,10 @@
 <?php
 
-if(!file_exists('config.php')){
-  header("Location: setup.php");
-}
-
 session_start();
 
 if(!$_SESSION['logged']){
   header("Location: logout.php");
-  die;
+  exit();
 }
 
 ?>

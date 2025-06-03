@@ -442,6 +442,23 @@ if(isset($_GET['volume_delete'])){
   header("Location: volumes.php");
 }
 
+if (isset($_POST['create_home'])) {
+  $volume_name = $_POST['volume_name'];
+  exec ("mkdir /volumes/$volume_name/users");
+
+  $myFile = "/etc/samba/shares/users";
+  $fh = fopen($myFile, 'w') or die("not able to write to file");
+  $stringData = "[users]\n   comment = Users Home Folders\n   path = /volumes/$volume_name/users\n   read only = no\n   create mask = 0600\n   directory mask = 0700\n";
+  fwrite($fh, $stringData);
+  fclose($fh);
+
+  $myFile = "/etc/samba/shares.conf";
+  $fh = fopen($myFile, 'a') or die("not able to write to file");
+  $stringData = "\ninclude = /etc/samba/shares/users";
+  fwrite($fh, $stringData);
+  fclose($fh);
+}
+
 if(isset($_POST['share_add'])){
   $volume = $_POST['volume'];
   $name = $_POST['name'];
