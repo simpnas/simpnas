@@ -75,6 +75,7 @@ if(empty($status_service_ssh)){
           <div class="dropdown-menu">
             <a href="restart.php" class="dropdown-item">Restart</a>
             <a href="shutdown.php" class="dropdown-item">Shutdown</a>
+            <a href="#" class="dropdown-item" data-toggle="modal" data-target="#resetAdminPasswordModal">Reset Admin Password</a>
             <div class="dropdown-divider"></div>
             <a href="reset.php" class="dropdown-item text-danger">Reset to Factory Defaults</a>
           </div>
@@ -331,4 +332,6 @@ if(empty($status_service_ssh)){
 
 </script>
 
-<?php require_once "includes/footer.php";
+<?php 
+require_once "modals/reset_admin_password.php";
+require_once "includes/footer.php";

@@ -22,8 +22,6 @@ $comment = exec("cat /etc/passwd | grep $username | awk -F: '{print $5}'");
 
 <h2>Edit User</h2>
 
-<?php include("alert_message.php"); ?>
-
 <form method="post" action="post.php" autocomplete="off">
   
   <div class="form-group">

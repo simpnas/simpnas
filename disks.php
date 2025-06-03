@@ -8,8 +8,6 @@ $disks = getDisks();
   <a href="disks.php" class="btn btn-outline-secondary">Rescan</a>
 </div>
 
-<?php include("alert_message.php"); ?>
-
 <div class="table-responsive">
   <table class="table table-striped">
     <thead>

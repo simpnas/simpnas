@@ -6,8 +6,6 @@ require_once "includes/include_all.php";
 
 <h2>General Settings</h2>
 
-<?php include("alert_message.php"); ?>
-
 <form method="post" action="post.php" autocomplete="off">
   <div class="form-group">
   		<label>Hostname</label>

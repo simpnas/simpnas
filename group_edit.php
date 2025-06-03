@@ -18,8 +18,6 @@ if(isset($_GET['group'])){
 
 <h2>Edit Group</h2>
 
-<?php include("alert_message.php"); ?>
-
 <form method="post" action="post.php" autocomplete="off">
   <input type="hidden" name="old_group" value="<?php echo $group; ?>">
   <div class="form-group">

@@ -11,8 +11,6 @@ exec("awk -F: '$3 > 999 {print $1}' /etc/passwd", $username_array);
   <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#addShareModal">New Share</button>
 </div>
 
-<?php include("alert_message.php"); ?>
-
 <div class="table-responsive">
   <table class="table table-striped">
     <thead>

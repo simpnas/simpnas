@@ -17,8 +17,6 @@ if (empty($status_service_docker)) {
     <h2>Apps</h2>
 </div>
 
-<?php include("alert_message.php"); ?>
-
 <div class="table-responsive">
     <table class="table">
         <tbody>

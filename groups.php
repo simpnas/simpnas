@@ -11,8 +11,6 @@ exec("awk -F: '$3 > 999 {print $1}' /etc/group | grep -v nogroup", $group_array)
   <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#addGroupModal">New Group</button>
 </div>
 
-<?php include("alert_message.php"); ?>
-
 <div class="table-responsive">
   <table class="table table-striped">
     <thead>

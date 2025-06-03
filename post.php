@@ -2,6 +2,10 @@
 
 session_start();
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 include "config.php";
 require_once "includes/simple_vars.php";
 require_once "includes/functions.php";
@@ -23,6 +27,34 @@ if(isset($_GET['upgrade_simpnas_overwrite_local_changes'])){
 
   header("Location: index.php");
 }
+
+if (isset($_POST['reset_admin_password'])) {
+
+    $newPassword = $_POST['password'];
+    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+    $configFile = 'config.php';
+
+    // Read current configuration
+    $configContent = file_get_contents($configFile);
+
+     $updatedContent = preg_replace_callback(
+        "/(\\\$config_admin_password\s*=\s*)['\"].*?['\"];/",
+        function($matches) use ($hashedPassword) {
+            return $matches[1] . "'" . $hashedPassword . "';";
+        },
+        $configContent
+    );
+
+    file_put_contents($configFile, $updatedContent);
+
+    $_SESSION['alert_type'] = "info";
+    $_SESSION['alert_message'] = "Admin Password Changed!";
+
+    header("Location: dashboard.php");
+    
+}
+
 
 if(isset($_POST['user_add'])){
   $username = $_POST['username'];

@@ -25,8 +25,6 @@ $read_only = $shareConfigArray['read only'];
 
 <h2>Edit Share</h2>
 
-<?php include("alert_message.php"); ?>
-
 <form method="post" action="post.php" autocomplete="off">
 
 	<input type="hidden" name="current_name" value="<?php echo $share; ?>">

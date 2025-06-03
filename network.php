@@ -9,8 +9,6 @@ require_once "includes/include_all.php";
   <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#addNetworkModal">Create Network</button>
 </div>
 
-<?php include("alert_message.php"); ?>
-
 <form method="post" action="post.php" autocomplete="off">
 
   <div class="form-group">

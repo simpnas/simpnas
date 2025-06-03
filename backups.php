@@ -10,8 +10,6 @@
   <a href="backup_add.php" class="btn btn-outline-primary">Add Backup</a>
 </div>
 
-<?php include("alert_message.php"); ?>
-
 <div class="table-responsive">
   <table class="table table-striped">
     <thead>

@@ -15,8 +15,6 @@ usort($users, fn($a, $b) => strcmp($a['username'], $b['username']));
   <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#addUserModal">New User</button>
 </div>
 
-<?php include("alert_message.php"); ?>
-
 <div class="table-responsive">
   <table class="table table-striped">
     <thead>

@@ -26,8 +26,6 @@ $dhcp = $networkConfigArray['DHCP'];
 
 <h2>Edit Network</h2>
 
-<?php include("alert_message.php"); ?>
-
 <form method="post" action="post.php" autocomplete="off">
 	
 	<input type="hidden" name="interface" value="<?php echo $name; ?>">

@@ -11,8 +11,6 @@ exec("timedatectl list-timezones", $timezones_array);
   
 <h2>Date and Time</h2>
 
-<?php include("alert_message.php"); ?>
-
 <form method="post" action="post.php" autocomplete="off">
   <div class="form-group">
     <label>Timezone:</label>
