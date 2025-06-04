@@ -2,10 +2,6 @@
 
 session_start();
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 include "config.php";
 require_once "includes/simple_vars.php";
 require_once "includes/functions.php";
@@ -286,11 +282,12 @@ if(isset($_GET['mount_volume'])){
 }
 
 if(isset($_POST['unlock_volume'])){
-  $disk = $_POST['disk'];
   $volume = $_POST['volume'];
   $password = $_POST['password'];
 
-  exec("echo $password | cryptsetup luksOpen /dev/disk/by-uuid/$disk $volume");
+  $uuid = trim(file_get_contents("/volumes/$volume/.uuid_map"));
+
+  exec("echo $password | cryptsetup luksOpen /dev/disk/by-uuid/$uuid $volume");
   $crypt_status = exec("cryptsetup status $volume | grep inactive");
   if(empty($crypt_status)){
     exec ("mount /dev/mapper/$volume /volumes/$volume");
@@ -308,54 +305,68 @@ if(isset($_POST['unlock_volume'])){
 if(isset($_GET['lock_volume'])){
   $volume = $_GET['lock_volume'];
 
-  exec("umount -l /dev/mapper/$volume");
+  exec("umount -l /volumes/$volume");
   exec("cryptsetup close $volume");
-    
+
   $_SESSION['alert_type'] = "info";
   $_SESSION['alert_message'] = "Volume $volume Encrypted successfully!";
   header("Location: volumes.php");
 }
 
-if(isset($_POST['volume_add'])){
-  $volume_name = trim($_POST['volume_name']);
-  $disk = $_POST['disk'];
-  
-  exec ("ls /volumes/",$volumes_array);
+if (isset($_POST['volume_add'])) {
+    $volume_name = trim($_POST['volume_name']);
+    $disk = $_POST['disk'];
 
-  if(in_array($volume_name, $volumes_array)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not add volume $volume_name as it already exists!";
-  }else{
-    exec ("wipefs -a /dev/$disk");
-    exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
-    $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
-    //WIPE out any superblocks
-    exec ("mdadm --zero-superblock /dev/$diskpart");
-    exec ("e2label /dev/$diskpart $volume_name");
-    exec ("mkdir /volumes/$volume_name");
-    
-    if(!empty($_POST['encrypt'])){
-      $password = $_POST['password'];
-      exec ("echo $password | cryptsetup -q luksFormat /dev/$diskpart");
-      exec ("echo $password | cryptsetup open /dev/$diskpart $volume_name");
-      exec ("mkfs.ext4 -F /dev/mapper/$volume_name");
-      $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
-      exec("echo $uuid > /volumes/$volume_name/.uuid_map");    
-      exec ("mount /dev/mapper/$volume_name /volumes/$volume_name");
-    }else{
-      exec ("mkfs.ext4 -F /dev/$diskpart");
-      exec ("mount /dev/$diskpart /volumes/$volume_name");  
-      
-      $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
+    // Check if the volume already exists
+    exec("ls /volumes/", $volumes_array);
 
-      $myFile = "/etc/fstab";
-      $fh = fopen($myFile, 'a') or die("can't open file");
-      $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 1\n";
-      fwrite($fh, $stringData);
-      fclose($fh);
+    if (in_array($volume_name, $volumes_array)) {
+        $_SESSION['alert_type'] = "warning";
+        $_SESSION['alert_message'] = "Cannot add volume $volume_name as it already exists!";
+    } else {
+        // Wipe existing filesystem signatures
+        exec("wipefs -a /dev/$disk");
+
+        // Partition disk
+        exec("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+
+        // Get newly created partition name
+        $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print \$2}'");
+
+        // Zero out any previous mdadm superblocks
+        exec("mdadm --zero-superblock /dev/$diskpart");
+
+        // Create mount directory
+        exec("mkdir -p /volumes/$volume_name");
+
+        if (!empty($_POST['encrypt'])) {
+            $password = $_POST['password'];
+            exec("echo $password | cryptsetup -q luksFormat /dev/$diskpart");
+            exec("echo $password | cryptsetup open /dev/$diskpart $volume_name");
+            exec("mkfs.btrfs -f /dev/mapper/$volume_name");
+            $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
+            exec("echo $uuid > /volumes/$volume_name/.uuid_map");
+            exec("mount /dev/mapper/$volume_name /volumes/$volume_name");
+        } else {
+            // Format partition as Btrfs
+            exec("mkfs.btrfs -f -L $volume_name /dev/$diskpart");
+
+            // Mount the new Btrfs partition
+            exec("mount /dev/$diskpart /volumes/$volume_name");
+
+            // Get UUID for fstab
+            $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
+
+            // Update fstab correctly with new line appended
+            $fstab_entry = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
+            $myFile = "/etc/fstab";
+            $fh = fopen($myFile, 'a') or die("can't open file");
+            fwrite($fh, $fstab_entry);
+            fclose($fh);
+        }
     }
-  }
-  header("Location: volumes.php");
+    header("Location: volumes.php");
+    exit;
 }
 
 if(isset($_POST['volume_add_raid'])){
@@ -1287,28 +1298,41 @@ if(isset($_POST['setup_network'])){
   }
 }
 
-if(isset($_POST['setup_volume'])){
-  $volume_name = $_POST['volume_name'];
-  $disk = $_POST['disk'];
+if (isset($_POST['setup_volume'])) {
+    $volume_name = $_POST['volume_name'];
+    $disk = $_POST['disk'];
 
-  exec ("wipefs -a /dev/$disk");
-  exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
-  $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
-  //WIPE out any superblocks
-  exec("mdadm --zero-superblock /dev/$diskpart");
-  exec ("mkdir /volumes/$volume_name");
-  exec ("mkfs.ext4 -F /dev/$diskpart");
-  exec ("e2label /dev/$diskpart $volume_name");
-  exec ("mount /dev/$diskpart /volumes/$volume_name"); 
+    // Wipe existing filesystem signatures
+    exec("wipefs -a /dev/$disk");
 
-  $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
-  $myFile = "/etc/fstab";
-  $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 1\n";
-  fwrite($fh, $stringData);
-  fclose($fh);
+    // Partition disk
+    exec("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
 
-  header("Location: setup/setup_final.php");
+    // Get newly created partition name
+    $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print \$2}'");
+
+    // Zero out any previous mdadm superblocks
+    exec("mdadm --zero-superblock /dev/$diskpart");
+
+    // Create mount directory
+    exec("mkdir -p /volumes/$volume_name");
+
+    // Format partition as Btrfs
+    exec("mkfs.btrfs -f -L $volume_name /dev/$diskpart");
+
+    // Mount the new Btrfs partition
+    exec("mount /dev/$diskpart /volumes/$volume_name");
+
+    // Get UUID for fstab
+    $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
+
+    // Update fstab
+    $fstab_entry = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
+    file_put_contents("/etc/fstab", $fstab_entry, FILE_APPEND | LOCK_EX);
+
+    // Redirect after setup
+    header("Location: setup/setup_final.php");
+    exit;
 }
 
 if(isset($_POST['setup_volume_raid'])){

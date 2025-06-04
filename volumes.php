@@ -67,6 +67,17 @@ $volumes = getVolumes();
              <?php } elseif($config_home_volume != $volume && $is_mounted === 'no') { ?>
             <a class="btn btn-dark" href="post.php?mount_volume=<?php echo $volume; ?>">Mount</a>
             <?php } ?>
+            <?php
+              if(file_exists("/volumes/$volume/.uuid_map")){
+            ?>    
+              <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#mountCrypt<?php echo $disk; ?>"><span data-feather="unlock"></span></button>
+              
+            <?php   
+              }
+            ?>
+           
+              <a href="post.php?lock_volume=<?php echo $volume; ?>" class="btn btn-outline-secondary"><span data-feather="lock"></span></a>
+           
           </div>
          
         </td>
@@ -106,7 +117,6 @@ $volumes = getVolumes();
               </button>
             </div>
             <form method="post" action="post.php" autocomplete="off">
-              <input type="hidden" name="disk" value="<?php echo $disk; ?>">
               <input type="hidden" name="volume" value="<?php echo $volume; ?>">
               <div class="modal-body">
 
