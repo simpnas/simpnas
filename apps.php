@@ -102,6 +102,7 @@ if (empty($status_service_docker)) {
 
 <?php 
 
+require_once "modals/install_nextcloud.php";
 require_once "modals/install_jellyfin.php";
 require_once "modals/install_home_assistant.php";
 require_once "modals/install_nginx_proxy_manager.php";

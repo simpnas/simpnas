@@ -824,6 +824,170 @@ if(isset($_POST['settings_notifications'])){
 
 //APP SECTION
 
+// Nextcloud
+if(isset($_POST['install_nextcloud'])){
+
+  // Check to see if docker is running
+  $status_service_docker = exec("systemctl status docker | grep running");
+  if(empty($status_service_docker)){
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "Docker is not running therefore we cannot install!";
+  }else{
+
+    //create my-network if does not exist
+    exec("docker network create nextcloud-net");
+
+    $password = $_POST['password'];
+    $enable_samba_auth = $_POST['enable_samba_auth'];
+    $enable_samba_mount = $_POST['enable_samba_mount'];
+    $install_apps = $_POST['install_apps'];
+    $data_volume = $_POST['data_volume'];
+
+    mkdir("/volumes/$config_docker_volume/docker/nextcloud");
+    mkdir("/volumes/$config_docker_volume/docker/nextcloud/data");
+    mkdir("/volumes/$data_volume/nextcloud_data");
+    mkdir("/volumes/$data_volume/nextcloud_data/appdata");
+
+    exec("docker run -d --name nextcloud --net=nextcloud-net -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/data:/data -v /volumes/$data_volume/nextcloud_data/appdata:/config linuxserver/nextcloud");
+
+    exec("sleep 10");
+  
+    exec("docker exec nextcloud occ maintenance:install --database='sqlite' --admin-user='admin' --admin-pass='$password'");
+
+    //Add Trusted Hosts
+    $docker_gateway = exec("docker network inspect nextcloud-net | grep Gateway | awk '{print $2}' | sed 's/\\\"//g'");
+
+    //Add Hostname and Primary IP to trusted_domains list
+    exec("docker exec nextcloud occ config:system:set trusted_domains 2 --value=$config_hostname");
+    exec("docker exec nextcloud occ config:system:set trusted_domains 3 --value=$config_primary_ip");
+
+    // Disable copying skeleton files over
+    exec("docker exec nextcloud occ config:system:set skeletondirectory --value=''");
+
+    $appsToDisable = [
+      "support",
+      "survey_client",
+      "firstrunwizard",
+      "dashboard",
+      "nextcloud_announcements",
+      "user_ldap",
+      "user_status",
+      "weather_status",
+      "activity",
+      "comments",
+      "recommendations",
+      "privacy",
+      "accessibility",
+      "workflowengine",
+      "systemtags",
+      "circles",
+      "files_trashbin",
+      "files_versions",
+      "files_reminders",
+      "photos",
+      "profile",
+      "sharebymail",
+      "twofactor_backupcodes",
+      "updatenotification",
+      "notifications",
+      "federation",
+      "federatedfilesharing",
+      "cloud_federation_api",
+      "app_api",
+      "bruteforcesettings",
+      "webhook_listeners",
+      "related_resources"
+    ];
+
+    foreach ($appsToDisable as $appid) {
+        // Disable the app
+        exec("docker exec nextcloud occ app:disable $appid");
+
+        // Uncomment below to also remove app files
+        /*
+        exec("docker exec nextcloud rm -rf /config/www/nextcloud/apps/$appid");
+        */
+    }
+
+    //Set Auth Backend to SAMBA - Install External User Auth Support (For SAMBA Auth)
+    exec("docker exec nextcloud occ app:install user_external");
+    exec("docker exec nextcloud occ app:enable user_external --force");
+    exec("docker exec nextcloud occ config:system:set user_backends 0 arguments 0 --value=$docker_gateway");
+    exec('docker exec nextcloud occ config:system:set user_backends 0 class --value="\\\\\OCA\\\\\UserExternal\\\\\SMB"');
+    
+    //Fix Setup DB Errors This may be able to removed in the future
+    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:add-missing-indices");
+    //exec("docker exec nextcloud sudo -u abc php /config/www/nextcloud/occ db:convert-filecache-bigint");
+
+    //Enable External Files Support for Samba mounts
+    exec("docker exec nextcloud occ app:enable files_external");
+    //Add Network Shares
+    //Add Users Home folder
+    exec("docker exec nextcloud occ files_external:create Home 'smb' password::logincredentials -c host=$docker_gateway -c share='users/\$user' -c domain=WORKGROUP");
+    //Add All Other Shares
+    exec("ls /etc/samba/shares", $share_list);
+    foreach ($share_list as $share) {
+      exec("docker exec nextcloud occ files_external:create $share 'smb' password::logincredentials -c host=$docker_gateway -c share='$share' -c domain=WORKGROUP");
+    }
+    //Enable Nextcloud Sharing on all external shares
+    // Get the list of mount IDs by parsing the output of files_external:list
+    exec("docker exec nextcloud occ files_external:list | grep '^| [0-9]' | awk '{print \$2}'", $mountIds);
+
+    foreach ($mountIds as $id) {
+      // Run the command to enable sharing on each mount ID
+      exec("docker exec nextcloud occ files_external:option $id enable_sharing true");
+    }
+    
+  } //End Docker Check
+
+  header("Location: apps.php");
+}
+
+if(isset($_GET['update_nextcloud'])){
+
+  exec("docker pull linuxserver/nextcloud");
+  exec("docker stop nextcloud");
+  exec("docker rm nextcloud");
+
+  $nextcloud_data_path = exec("find /volumes/*/nextcloud_data/appdata -name appdata");
+  $nextcloud_app_data = exec("find /volumes/*/docker/nextcloud/data -name data");
+
+  exec("docker run -d --name nextcloud --net=nextcloud-net -p 6443:443 --restart=unless-stopped -v $nextcloud_data_path:/config -v $nextcloud_app_data:/data linuxserver/nextcloud");
+
+  sleep(5);
+ 
+  exec("docker exec nextcloud updater.phar --no-interaction");
+
+  exec("docker image prune");
+  
+  header("Location: apps.php");
+
+}
+
+if(isset($_GET['uninstall_nextcloud'])){
+  //stop and delete docker container
+  exec("docker stop nextcloud");
+  exec("docker rm nextcloud");
+
+  //Remove nextcloud-net
+  exec("docker network rm nextcloud-net");
+
+  $nextcloud_data_volume_path = exec("find /volumes/*/nextcloud_data -name nextcloud_data");
+
+  //delete docker config
+  exec ("rm -rf /volumes/$config_docker_volume/docker/nextcloud");
+  exec ("rm -rf $nextcloud_data_volume_path");
+  
+  //delete images
+  exec("docker image prune");
+
+  //redirect back to packages
+  header("Location: apps.php");
+
+}
+// End Nextcloud
+
+// Jellyfin
 if(isset($_POST['install_jellyfin'])){
   
   // Check to see if docker is running

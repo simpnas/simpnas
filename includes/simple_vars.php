@@ -7,7 +7,21 @@
 	$config_os_disk = exec("findmnt -n -o SOURCE --target / | cut -c -8");
 
   // APPs
-  $apps_array = array(
+    $apps_array = array(
+      array(
+      "title" => "Nextcloud",
+      "category" => "Groupware",
+      "description" => "Groupware, File mangement and sharing platform",
+      "website" => "https://nextcloud.com",
+      "image" => "nextcloud.png",
+      "container_name" => "nextcloud",
+      "external_hostname" => "cloud",
+      "local_port" => 6443,
+      "protocol" => "https://",
+      "install" => "#installNextcloudModal",
+      "update" => "post.php?update_nextcloud",
+      "config" => "",
+    ),
     array(
       "title" => "Jellyfin",
       "category" => "Media",
