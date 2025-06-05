@@ -43,6 +43,8 @@ $volumes = getVolumes();
         $free_space = $volume_data['free_space'];
         $used_space_percent = $volume_data['use_percent'];
         $is_mounted = $volume_data['is_mounted'];
+        $crypt_status = exec("cryptsetup status $volume | grep inactive");
+
       ?>
       
       <tr>
@@ -55,6 +57,8 @@ $volumes = getVolumes();
             <div class="progress-bar" style="width: <?php echo $used_space_percent; ?>"></div>
           </div>
           <small><span class="text-primary"><?php echo $used_space; ?>B</span> <span class="text-secondary">| <?php echo $total_space; ?>B</span></small>
+          <?php } elseif(file_exists("/volumes/$volume/.uuid_map")) { ?>
+            <p class="text-danger">Encrypted</p>
           <?php } else { ?>
           <p class="text-danger">Not Mounted</p>
           <?php } ?>
@@ -63,8 +67,10 @@ $volumes = getVolumes();
           <div class="btn-group mr-2">
             <?php if($config_home_volume != $volume && $is_mounted === 'yes') { ?>
             <button class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteVolume<?php echo $volume; ?>"><span data-feather="trash"></span></button>
+            <?php if($crypt_status){ ?>
             <a class="btn btn-outline-dark" href="post.php?unmount_volume=<?php echo $volume; ?>">Unmount</a>
-             <?php } elseif($config_home_volume != $volume && $is_mounted === 'no') { ?>
+            <?php } ?>
+             <?php } elseif($config_home_volume != $volume && $is_mounted === 'no' && !file_exists("/volumes/$volume/.uuid_map")) { ?>
             <a class="btn btn-dark" href="post.php?mount_volume=<?php echo $volume; ?>">Mount</a>
             <?php } ?>
             <?php
@@ -75,8 +81,10 @@ $volumes = getVolumes();
             <?php   
               }
             ?>
-           
+            <?php
+            if(empty($crypt_status)){ ?>
               <a href="post.php?lock_volume=<?php echo $volume; ?>" class="btn btn-outline-secondary"><span data-feather="lock"></span></a>
+            <?php } ?>
            
           </div>
          

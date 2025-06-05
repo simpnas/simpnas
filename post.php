@@ -369,54 +369,62 @@ if (isset($_POST['volume_add'])) {
     exit;
 }
 
-if(isset($_POST['volume_add_raid'])){
-  $volume_name = trim($_POST['volume_name']);
-  $raid = $_POST['raid'];
-  $disk_array = $_POST['disks'];
+if (isset($_POST['volume_add_raid'])) {
+    $volume_name = trim($_POST['volume_name']);
+    $raid = $_POST['raid']; // Accepts: raid0, raid1, raid10, etc.
+    $disk_array = $_POST['disks'];
+    $num_of_disks = count($disk_array);
 
-  $num_of_disks = count($disk_array);
+    // Clean disks: remove all filesystems/partitions
+    foreach($disk_array as $disk){
+        exec("wipefs -a /dev/$disk");
+    }
 
-  //Remove Superblocks on selected disks and wipe any partition info
-  foreach($disk_array as $disk){
-    exec("mdadm --zero-superblock /dev/$disk");
-    exec ("wipefs -a /dev/$disk");
-  }
+    // Prepare disk device paths
+    $prefixed_array = preg_filter('/^/', '/dev/', $disk_array);
+    $disks = implode(' ', array_map('escapeshellarg', $prefixed_array)); // Safe quoting
 
-  //prefix /dev/ to each var in the array so instead of sda it would be /dev/sda
-  $prefixed_array = preg_filter('/^/', '/dev/', $disk_array);
+    // Create mount point
+    exec("mkdir -p /volumes/" . escapeshellarg($volume_name));
 
-  $disks = implode(' ',$prefixed_array);
+    // Format as Btrfs RAID
+    // -d: data profile (RAID level), -m: metadata profile (RAID level)
+    $cmd = "mkfs.btrfs -f -L " . escapeshellarg($volume_name)
+         . " -d " . escapeshellarg($raid)
+         . " -m " . escapeshellarg($raid)
+         . " $disks";
+    exec($cmd);
 
-  //Generate the next /dev/mdX Number
-  //get the last md#
-  $md = exec("ls /dev/md*");
-  //extract the numbers out of md
-  $md_num = preg_replace('/[^0-9]/', '', $md);
-  //add 1 to the num
-  $new_md_num = $md_num + 1;
+    // Mount the Btrfs volume using the first disk
+    $first_disk = escapeshellarg($prefixed_array[0]);
+    exec("mount $first_disk /volumes/" . escapeshellarg($volume_name));
 
-  exec("yes | mdadm --create --verbose /dev/md$new_md_num --level=$raid --raid-devices=$num_of_disks $disks");
+    // Wait a moment to ensure system updates device info
+    usleep(250000);
 
-  exec ("mkdir /volumes/$volume_name");
+    // Get UUID from the mounted filesystem
+    $uuid = trim(shell_exec(
+        "btrfs filesystem show /volumes/" . escapeshellarg($volume_name) . " | grep 'uuid:' | awk '{print \$4}'"
+    ));
 
-  exec ("mkfs.ext4 -F /dev/md$new_md_num");
-  
-  exec ("mount /dev/md$new_md_num /volumes/$volume_name");
+    // Fallback: Try getting UUID using the first disk if above fails
+    if (empty($uuid)) {
+        $uuid = trim(shell_exec(
+            "btrfs filesystem show $first_disk | grep 'uuid:' | awk '{print \$4}'"
+        ));
+    }
 
-  //To make sure that the array is reassembled automatically at boot
-  //exec ("mdadm --detail --scan | tee -a /etc/mdadm/mdadm.conf");  
-    
-  $uuid = exec("blkid -o value --match-tag UUID /dev/md$new_md_num");
+    // Write to /etc/fstab
+    $fstab_entry = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
+    $myFile = "/etc/fstab";
+    $fh = fopen($myFile, 'a') or die("can't open file");
+    fwrite($fh, $fstab_entry);
+    fclose($fh);
 
-  $myFile = "/etc/fstab";
-  $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 0\n";
-  fwrite($fh, $stringData);
-  fclose($fh);
-
-  header("Location: volumes.php");
-
+    header("Location: volumes.php");
+    exit;
 }
+
 
 if(isset($_POST['volume_add_backup'])){
   $volume_name = trim($_POST['volume_name']);
@@ -489,15 +497,15 @@ if (isset($_POST['create_home'])) {
   $volume_name = $_POST['volume_name'];
   exec ("mkdir /volumes/$volume_name/users");
 
-  $myFile = "/etc/samba/shares/users";
+  $myFile = "/etc/samba/shares/homes";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[users]\n   comment = Users Home Folders\n   path = /volumes/$volume_name/users\n   read only = no\n   create mask = 0600\n   directory mask = 0700\n";
+  $stringData = "[homes]\n   comment = Users Home Folders\n  writable = yes\n valid users = %S\n";
   fwrite($fh, $stringData);
   fclose($fh);
 
   $myFile = "/etc/samba/shares.conf";
   $fh = fopen($myFile, 'a') or die("not able to write to file");
-  $stringData = "\ninclude = /etc/samba/shares/users";
+  $stringData = "\ninclude = /etc/samba/shares/homes";
   fwrite($fh, $stringData);
   fclose($fh);
 }
@@ -677,6 +685,9 @@ if(isset($_POST['network_add'])){
   $gateway = $_POST['gateway'];
   $dns = $_POST['dns'];
 
+  exec ("mv /etc/network/interfaces /etc/network/interfaces.save");
+  exec ("systemctl enable systemd-networkd");
+
   if($method == 'DHCP'){
     $myFile = "/etc/systemd/network/$interface.network";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
@@ -697,6 +708,52 @@ if(isset($_POST['network_add'])){
   }
   
 }
+
+
+if(isset($_POST['setup_network'])){
+  
+  $hostname = $_POST['hostname'];
+  $interface = $_POST['interface'];
+  $method = $_POST['method'];
+  $address = $_POST['address'];
+  $netmask = $_POST['netmask'];
+  $gateway = $_POST['gateway'];
+  $dns = $_POST['dns'];
+
+  $current_hostname = exec("hostname");
+
+  exec("sed -i 's/$current_hostname/$hostname/g' /etc/hosts");
+  exec("hostnamectl set-hostname $hostname");
+  $primary_ip = exec("ip addr show | grep -E '^\s*inet' | grep -m1 global | awk '{ print $2 }' | sed 's|/.*||'");
+
+  exec ("mv /etc/network/interfaces /etc/network/interfaces.save");
+  exec ("systemctl enable systemd-networkd");
+
+  if($method == 'DHCP'){
+    $myFile = "/etc/systemd/network/$interface.network";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[Match]\nName=$interface\n\n[Network]\nDHCP=ipv4\n";
+    fwrite($fh, $stringData);
+    fclose($fh);
+    exec("echo '127.0.0.1      localhost' > /etc/hosts");
+    exec("echo '127.0.0.2     $hostname' >> /etc/hosts");
+    //exec("systemctl restart systemd-networkd > /dev/null &");
+    echo "<script>window.location = 'http://$primary_ip:81/setup/setup_volume.php'</script>";
+  }
+  
+  if($method == 'Static'){
+    $myFile = "/etc/systemd/network/$interface.network";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[Match]\nName=$interface\n\n[Network]\nAddress=$address$netmask\nGateway=$gateway\nDNS=$dns\n";
+    fwrite($fh, $stringData);
+    fclose($fh);
+    exec("echo '127.0.0.1      localhost' > /etc/hosts");
+    exec("echo '$address     $hostname' >> /etc/hosts");
+    exec("systemctl restart systemd-networkd > /dev/null &");
+    echo "<script>window.location = 'http://$address:81/setup/setup_volume.php'</script>";
+  }
+}
+
 
 if(isset($_GET['network_delete'])){
   $interface = $_GET['network_delete'];
@@ -838,21 +895,16 @@ if(isset($_POST['install_nextcloud'])){
     exec("docker network create nextcloud-net");
 
     $password = $_POST['password'];
-    $enable_samba_auth = $_POST['enable_samba_auth'];
-    $enable_samba_mount = $_POST['enable_samba_mount'];
-    $install_apps = $_POST['install_apps'];
-    $data_volume = $_POST['data_volume'];
 
     mkdir("/volumes/$config_docker_volume/docker/nextcloud");
     mkdir("/volumes/$config_docker_volume/docker/nextcloud/data");
-    mkdir("/volumes/$data_volume/nextcloud_data");
-    mkdir("/volumes/$data_volume/nextcloud_data/appdata");
+    mkdir("/volumes/$config_docker_volume/docker/nextcloud/config");
 
-    exec("docker run -d --name nextcloud --net=nextcloud-net -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/data:/data -v /volumes/$data_volume/nextcloud_data/appdata:/config linuxserver/nextcloud");
+    exec("docker run -d --name nextcloud --net=nextcloud-net -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/data:/data -v /volumes/$config_docker_volume/docker/nextcloud/config:/config linuxserver/nextcloud");
 
     exec("sleep 10");
   
-    exec("docker exec nextcloud occ maintenance:install --database='sqlite' --admin-user='admin' --admin-pass='$password'");
+    exec("docker exec nextcloud occ maintenance:install --database='sqlite' --admin-user='admin' --admin-pass='$password' --data-dir='/data'");
 
     //Add Trusted Hosts
     $docker_gateway = exec("docker network inspect nextcloud-net | grep Gateway | awk '{print $2}' | sed 's/\\\"//g'");
@@ -949,14 +1001,7 @@ if(isset($_GET['update_nextcloud'])){
   exec("docker stop nextcloud");
   exec("docker rm nextcloud");
 
-  $nextcloud_data_path = exec("find /volumes/*/nextcloud_data/appdata -name appdata");
-  $nextcloud_app_data = exec("find /volumes/*/docker/nextcloud/data -name data");
-
-  exec("docker run -d --name nextcloud --net=nextcloud-net -p 6443:443 --restart=unless-stopped -v $nextcloud_data_path:/config -v $nextcloud_app_data:/data linuxserver/nextcloud");
-
-  sleep(5);
- 
-  exec("docker exec nextcloud updater.phar --no-interaction");
+  exec("docker run -d --name nextcloud --net=nextcloud-net -p 6443:443 --restart=unless-stopped -v /volumes/$config_docker_volume/docker/nextcloud/data:/data -v /volumes/$config_docker_volume/docker/nextcloud/config:/config linuxserver/nextcloud");
 
   exec("docker image prune");
   
@@ -972,11 +1017,8 @@ if(isset($_GET['uninstall_nextcloud'])){
   //Remove nextcloud-net
   exec("docker network rm nextcloud-net");
 
-  $nextcloud_data_volume_path = exec("find /volumes/*/nextcloud_data -name nextcloud_data");
-
   //delete docker config
   exec ("rm -rf /volumes/$config_docker_volume/docker/nextcloud");
-  exec ("rm -rf $nextcloud_data_volume_path");
   
   //delete images
   exec("docker image prune");

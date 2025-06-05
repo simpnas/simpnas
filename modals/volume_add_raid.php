@@ -56,10 +56,16 @@ $not_in_use_disks_array = array_diff($disk_list_array, $has_volume_disk_array);
 				    <label>RAID Type</label>
 				    <select class="form-control" name="raid" required>
 				  		<option value=''>--Select RAID--</option>
-				  		<option value='1'>RAID 1 (Mirroring)</option>
+				  		<option value='raid1'>RAID 1 (Mirroring)</option>
+				  		<?php 
+				  		if(count($not_in_use_disks_array) > 2){ ?>
+				  			<option value='raid5'>RAID 5 (Parity)</option>
+				  		<?php
+				  		}
+				  		?>
 				  		<?php 
 				  		if(count($not_in_use_disks_array) > 3){ ?>
-				  			<option value='10'>RAID 10 (Mirror / Sripe)</option>
+				  			<option value='raid10'>RAID 10 (Mirror / Sripe)</option>
 				  		<?php
 				  		}
 				  		?>
