@@ -57,13 +57,10 @@ $not_in_use_disks_array = array_diff($disk_list_array, $has_volume_disk_array);
           </div>
 
           <div class="form-group">
-            <label>Disk Selection</label>
+            <label>Select Disks</label>
             <?php
 							foreach($not_in_use_disks_array as $disk){
-					        $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Family:' | awk '{print $3,$4,$5}'");
-							  if(empty($disk_vendor)){
-							    $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Device Model:' | awk '{print $3,$4,$5}'");
-							  }
+					       $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Device Model:' | awk '{print $3,$4,$5}'");
 							  if(empty($disk_vendor)){
 				          $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Number:' | awk '{print $3,$4,$5,$6}'");
 				        }
@@ -76,10 +73,10 @@ $not_in_use_disks_array = array_diff($disk_list_array, $has_volume_disk_array);
 						    $disk_serial = exec("lsblk -n -o kname,type,serial /dev/$disk | grep disk  | awk '{print $3}'");
 						    $disk_size = exec("lsblk -n -o kname,type,size /dev/$disk | grep disk | awk '{print $3}'");
 							?>
-              <div class="custom-control custom-checkbox">
+              <div class="custom-control custom-checkbox mb-3">
                 <input type="checkbox" class="custom-control-input disk-checkbox" name="disks[]" value="<?php echo $disk; ?>" id="disk_<?php echo $disk; ?>">
                 <label class="custom-control-label" for="disk_<?php echo $disk; ?>"> 
-                  <?php echo "$disk - $disk_vendor ($disk_size"."B)"; ?>
+                  <span class="mr-2" data-feather="hard-drive"></span><?php echo "$disk_vendor ($disk_size"."B)<div class='text-secondary ml-4'>$disk_serial</div><small class='ml-4'>$disk</small>"; ?>
                 </label>
               </div>
             <?php } ?>
@@ -108,7 +105,7 @@ $not_in_use_disks_array = array_diff($disk_list_array, $has_volume_disk_array);
 
           <div class="form-group" id="passwordbox">
             <label>Encryption Key</label>
-            <input type="password" class="form-control" name="password" autocomplete="new-password">
+            <input type="password" class="form-control" name="password" data-toggle="password" autocomplete="new-password">
           </div>
         </div>
 

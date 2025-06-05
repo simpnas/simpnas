@@ -58,6 +58,13 @@
           Shares
         </a>
       </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="apps.php" onclick="$('#cover-spin').show(0)">
+          <span data-feather="package"></span>
+          Apps
+        </a>
+      </li>
     
     </ul>
 
@@ -96,12 +103,7 @@
         </a>
       </li>
 
-      <li class="nav-item">
-        <a class="nav-link" href="apps.php" onclick="$('#cover-spin').show(0)">
-          <span data-feather="package"></span>
-          Apps
-        </a>
-      </li>
+      
       
       <li class="nav-item">
         <a class="nav-link" href="logs.php?daemon" onclick="$('#cover-spin').show(0)">

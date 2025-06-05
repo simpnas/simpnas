@@ -45,7 +45,7 @@ if(isset($_POST['login'])){
 
   <body class="text-center">
     <form class="form-signin" method="post">
-      <h1 class="mb-3"><i class="fa fa-cube"></i> SimpNAS<br><small class="text-secondary"><?php echo gethostname(); ?></small></h1>
+      <h1 class="mb-3"><i class="fa fa-cube mr-2"></i>Simp</span><strong>NAS</strong><br><small class="text-secondary">[<?php echo gethostname(); ?>]</small></h1>
       <div id ="alert">
         <?php 
         if(!empty($response)){
@@ -54,7 +54,7 @@ if(isset($_POST['login'])){
         ?>
       </div>
       <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" autofocus required>
-      <button type="submit" class="btn btn-primary p-2 btn-block" name="login">Login</button>
+      <button type="submit" class="btn btn-primary p-2 btn-block" name="login"><strong>Login</strong></button>
       <a href="/file-manager" class="btn btn-secondary p-2 btn-block"><i class="fa fa-folder"></i> File Manager</a>
     </form>
   

@@ -86,7 +86,7 @@ if(empty($status_service_ssh)){
       <i class="fa fa-2x fa-check"></i> System is Healthy
     </div>
 
-    <table class="table table-sm mb-5">
+    <table class="table mb-5">
       
       <tr>
         <td>Hostname</td>
@@ -135,7 +135,7 @@ if(empty($status_service_ssh)){
       </tr>
       
       <tr>
-        <td>Load</td>
+        <td>Load Average</td>
         <td><?php echo $load; ?></td>
       </tr>
       
