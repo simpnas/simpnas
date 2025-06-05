@@ -315,31 +315,64 @@ if(isset($_GET['lock_volume'])){
 
 if (isset($_POST['volume_add'])) {
     $volume_name = trim($_POST['volume_name']);
-    $disk = $_POST['disk'];
+    $raid = $_POST['raid'] ?? '';
+    $disk_array = $_POST['disks'] ?? [];
+    $encrypt = isset($_POST['encrypt']);
 
-    // Check if the volume already exists
-    exec("ls /volumes/", $volumes_array);
+    $num_of_disks = count($disk_array);
 
-    if (in_array($volume_name, $volumes_array)) {
-        $_SESSION['alert_type'] = "warning";
-        $_SESSION['alert_message'] = "Cannot add volume $volume_name as it already exists!";
-    } else {
-        // Wipe existing filesystem signatures
-        exec("wipefs -a /dev/$disk");
+    if ($raid && $num_of_disks >= 2) {
+        // RAID logic
+        foreach ($disk_array as $rdisk) {
+            exec("mdadm --stop --scan");
+            exec("mdadm --zero-superblock --force /dev/$rdisk");
+            exec("wipefs -a --force /dev/$rdisk");
+        }
 
-        // Partition disk
-        exec("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+        $prefixed_array = preg_filter('/^/', '/dev/', $disk_array);
+        $disks = implode(' ', $prefixed_array);
 
-        // Get newly created partition name
-        $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print \$2}'");
+        // Find the lowest unused md number
+        $new_md_num = 0;
+        while (file_exists("/dev/md$new_md_num")) {
+            $new_md_num++;
+        }
 
-        // Zero out any previous mdadm superblocks
-        exec("mdadm --zero-superblock /dev/$diskpart");
+        exec("yes | mdadm --create --verbose /dev/md$new_md_num --level=$raid --raid-devices=$num_of_disks --metadata=1.2 --force $disks");
 
-        // Create mount directory
         exec("mkdir -p /volumes/$volume_name");
 
-        if (!empty($_POST['encrypt'])) {
+        if ($encrypt) {
+            $password = $_POST['password'];
+            exec("echo $password | cryptsetup -q luksFormat /dev/md$new_md_num");
+            exec("echo $password | cryptsetup open /dev/md$new_md_num $volume_name");
+            exec("mkfs.btrfs -f /dev/mapper/$volume_name");
+            $uuid = exec("blkid -o value --match-tag UUID /dev/md$new_md_num");
+            exec("echo $uuid > /volumes/$volume_name/.uuid_map");
+            exec("mount /dev/mapper/$volume_name /volumes/$volume_name");
+        } else {
+            exec("mkfs.btrfs -f -L $volume_name /dev/md$new_md_num");
+            exec("mount /dev/md$new_md_num /volumes/$volume_name");
+            $uuid = exec("blkid -o value --match-tag UUID /dev/md$new_md_num");
+            $fstab_entry = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
+            file_put_contents("/etc/fstab", $fstab_entry, FILE_APPEND);
+        }
+
+        exec("mdadm --detail --scan | tee -a /etc/mdadm/mdadm.conf");
+
+    } elseif ($num_of_disks === 1) {
+        // Single disk logic
+        $disk = $disk_array[0];
+
+        exec("wipefs -a /dev/$disk");
+        exec("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+
+        $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print \$2}'");
+        exec("mdadm --zero-superblock /dev/$diskpart");
+
+        exec("mkdir -p /volumes/$volume_name");
+
+        if ($encrypt) {
             $password = $_POST['password'];
             exec("echo $password | cryptsetup -q luksFormat /dev/$diskpart");
             exec("echo $password | cryptsetup open /dev/$diskpart $volume_name");
@@ -348,150 +381,72 @@ if (isset($_POST['volume_add'])) {
             exec("echo $uuid > /volumes/$volume_name/.uuid_map");
             exec("mount /dev/mapper/$volume_name /volumes/$volume_name");
         } else {
-            // Format partition as Btrfs
             exec("mkfs.btrfs -f -L $volume_name /dev/$diskpart");
-
-            // Mount the new Btrfs partition
             exec("mount /dev/$diskpart /volumes/$volume_name");
-
-            // Get UUID for fstab
             $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
-
-            // Update fstab correctly with new line appended
             $fstab_entry = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
-            $myFile = "/etc/fstab";
-            $fh = fopen($myFile, 'a') or die("can't open file");
-            fwrite($fh, $fstab_entry);
-            fclose($fh);
+            file_put_contents("/etc/fstab", $fstab_entry, FILE_APPEND);
         }
     }
-    header("Location: volumes.php");
-    exit;
-}
-
-if (isset($_POST['volume_add_raid'])) {
-    $volume_name = trim($_POST['volume_name']);
-    $raid = $_POST['raid']; // Accepts: raid0, raid1, raid10, etc.
-    $disk_array = $_POST['disks'];
-    $num_of_disks = count($disk_array);
-
-    // Clean disks: remove all filesystems/partitions
-    foreach($disk_array as $disk){
-        exec("wipefs -a /dev/$disk");
-    }
-
-    // Prepare disk device paths
-    $prefixed_array = preg_filter('/^/', '/dev/', $disk_array);
-    $disks = implode(' ', array_map('escapeshellarg', $prefixed_array)); // Safe quoting
-
-    // Create mount point
-    exec("mkdir -p /volumes/" . escapeshellarg($volume_name));
-
-    // Format as Btrfs RAID
-    // -d: data profile (RAID level), -m: metadata profile (RAID level)
-    $cmd = "mkfs.btrfs -f -L " . escapeshellarg($volume_name)
-         . " -d " . escapeshellarg($raid)
-         . " -m " . escapeshellarg($raid)
-         . " $disks";
-    exec($cmd);
-
-    // Mount the Btrfs volume using the first disk
-    $first_disk = escapeshellarg($prefixed_array[0]);
-    exec("mount $first_disk /volumes/" . escapeshellarg($volume_name));
-
-    // Wait a moment to ensure system updates device info
-    usleep(250000);
-
-    // Get UUID from the mounted filesystem
-    $uuid = trim(shell_exec(
-        "btrfs filesystem show /volumes/" . escapeshellarg($volume_name) . " | grep 'uuid:' | awk '{print \$4}'"
-    ));
-
-    // Fallback: Try getting UUID using the first disk if above fails
-    if (empty($uuid)) {
-        $uuid = trim(shell_exec(
-            "btrfs filesystem show $first_disk | grep 'uuid:' | awk '{print \$4}'"
-        ));
-    }
-
-    // Write to /etc/fstab
-    $fstab_entry = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
-    $myFile = "/etc/fstab";
-    $fh = fopen($myFile, 'a') or die("can't open file");
-    fwrite($fh, $fstab_entry);
-    fclose($fh);
 
     header("Location: volumes.php");
     exit;
-}
-
-
-if(isset($_POST['volume_add_backup'])){
-  $volume_name = trim($_POST['volume_name']);
-  $disk = $_POST['disk'];
-  
-  exec ("wipefs -a /dev/$disk");
-  exec ("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
-  $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print $2}'");
-  exec ("e2label /dev/$diskpart $volume_name");
-  exec ("mkfs.$filesystem -f /dev/$diskpart");
-
-  $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
-
-  exec ("mkdir /mnt/backup--$volume_name--$uuid");
-
-  header("Location: volumes.php");
 }
 
 if(isset($_GET['volume_delete'])){
-  $volume_name = $_GET['volume_delete'];
-  //check to make sure no shares are linked to the volume
-  //if so then choose cancel or give the option to move them to a different volume if another one exists and it will fit onto the new volume
-  //the code to do that here
-  $diskpart = exec("findmnt -o SOURCE --target /volumes/$volume_name");
-  $disk = exec("lsblk -o pkname $diskpart");
-  $uuid = exec("blkid -o value --match-tag UUID $diskpart");
-  
-  exec("ls /volumes/$volume_name | grep -v lost+found", $directory_list_array);
-  if(!empty($directory_list_array)){
-    $_SESSION['alert_type'] = "warning";
-    $_SESSION['alert_message'] = "Can not delete volume $volume_name as there are files shares, please delete the file shares accociated to volume $volume_name and try again!";
-  }else{
-    //UNMOUNTED CRYPT
-    //Check to see if its an unmounted crypt volume if so replace $disk with new $disk
-    if(file_exists("/volumes/$volume_name/ -name .uuid_map")){
-      $disk_part_uuid = exec("cat /volumes/$volume_name/.uuid_map");
-      $disk = exec("lsblk -o PKNAME,NAME,UUID | grep $disk_part_uuid | awk '{print $1}'");
+    $volume_name = $_GET['volume_delete'];
+
+    $diskpart = exec("findmnt -o SOURCE -n --target /volumes/$volume_name");
+    $disk = exec("lsblk -o pkname -n $diskpart");
+    $uuid = exec("blkid -o value --match-tag UUID $diskpart");
+    
+    exec("ls /volumes/$volume_name | grep -v lost+found", $directory_list_array);
+    if(!empty($directory_list_array)){
+        $_SESSION['alert_type'] = "warning";
+        $_SESSION['alert_message'] = "Cannot delete volume $volume_name as it contains files. Please remove these files first.";
+    } else {
+        // Unmount if mounted
+        exec("findmnt -n /volumes/$volume_name", $mount_status);
+        if (!empty($mount_status)) {
+            exec("umount -l /volumes/$volume_name");
+        }
+
+        // Handle encrypted volume
+        if(file_exists("/volumes/$volume_name/.uuid_map")){
+            $disk_part_uuid = trim(file_get_contents("/volumes/$volume_name/.uuid_map"));
+            $disk = exec("lsblk -o PKNAME,UUID | grep $disk_part_uuid | awk '{print $1}'");
+            exec("cryptsetup close $volume_name");
+        }
+
+        // Stop RAID and clear metadata
+        exec("mdadm --stop $diskpart");
+        exec("lsblk -o PKNAME,PATH,TYPE | grep $diskpart | awk '{print \"/dev/\"$1}'",$array_disk_part_array);
+        $disk_part_in_array  = implode(' ', $array_disk_part_array);
+        exec("mdadm --zero-superblock --force $disk_part_in_array");
+
+        // Clear RAID disks explicitly
+        foreach($array_disk_part_array as $array_disk_part){
+            $disk_in_array = exec("lsblk -n -o PKNAME,PATH | grep $array_disk_part | awk '{print $1}'");
+            exec ("wipefs -a /dev/$disk_in_array");
+        }
+
+        exec("wipefs -a /dev/$disk");
+
+        exec("rm -rf /volumes/$volume_name");
+
+        // Update mdadm.conf
+        exec("mdadm --detail --scan | sed '/$diskpart/d' > /etc/mdadm/mdadm.conf");
+
+        deleteLineInFile("/etc/fstab","$uuid");
+
+        // Simple logging
+        file_put_contents('/var/log/volume_delete.log', date("Y-m-d H:i:s")." Deleted volume $volume_name\n", FILE_APPEND);
     }
 
-    exec ("umount -l /volumes/$volume_name");
-    exec ("cryptsetup close $volume_name");
-    exec ("rm -rf /volumes/$volume_name");
-    
-    //RAID Remove
-    //Get Disks and Partition number in the array 
-    exec("lsblk -o PKNAME,PATH,TYPE | grep $diskpart | awk '{print \"/dev/\"$1}'",$array_disk_part_array);
-    $disk_part_in_array  = implode(' ', $array_disk_part_array);
-    
-    exec("mdadm --stop $diskpart");
-
-    exec("mdadm --zero-superblock $disk_part_in_array");
-
-    foreach($array_disk_part_array as $array_disk_part){
-      $disk_in_array = exec("lsblk -n -o PKNAME,PATH | grep $array_disk_part | awk '{print $1}'");
-      exec ("wipefs -a /dev/$disk_in_array");
-    }
-    
-    //END RAID Remove
-
-    exec ("wipefs -a /dev/$disk");
-
-    deleteLineInFile("/etc/fstab","$uuid");
-
-  }
-  
-  header("Location: volumes.php");
+    header("Location: volumes.php");
+    exit;
 }
+
 
 if (isset($_POST['create_home'])) {
   $volume_name = $_POST['volume_name'];
@@ -499,7 +454,7 @@ if (isset($_POST['create_home'])) {
 
   $myFile = "/etc/samba/shares/homes";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[homes]\n   comment = Users Home Folders\n  writable = yes\n valid users = %S\n";
+  $stringData = "[homes]\n   comment = Users Home Folders\n  writable = yes\n valid users = %S @admins\n";
   fwrite($fh, $stringData);
   fclose($fh);
 
@@ -552,7 +507,7 @@ if(isset($_POST['share_add'])){
 
     $myFile = "/etc/samba/shares/$name";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = $read_only_value\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
+    $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = $read_only_value\n   valid users = @$group @admins\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
     fwrite($fh, $stringData);
     fclose($fh);
 
@@ -629,7 +584,7 @@ if(isset($_POST['share_edit'])){
 
   $myFile = "/etc/samba/shares/$name";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = $read_only_value\n   valid users = @$group\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
+  $stringData = "[$name]\n   comment = $description\n   path = $share_path\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = $read_only_value\n   valid users = @$group @admins\n   force group = $group\n   create mask = 0660\n   directory mask = 0770";
   fwrite($fh, $stringData);
   fclose($fh);
 
@@ -974,9 +929,6 @@ if(isset($_POST['install_nextcloud'])){
     //Enable External Files Support for Samba mounts
     exec("docker exec nextcloud occ app:enable files_external");
     //Add Network Shares
-    //Add Users Home folder
-    exec("docker exec nextcloud occ files_external:create Home 'smb' password::logincredentials -c host=$docker_gateway -c share='users/\$user' -c domain=WORKGROUP");
-    //Add All Other Shares
     exec("ls /etc/samba/shares", $share_list);
     foreach ($share_list as $share) {
       exec("docker exec nextcloud occ files_external:create $share 'smb' password::logincredentials -c host=$docker_gateway -c share='$share' -c domain=WORKGROUP");
@@ -1072,7 +1024,7 @@ if(isset($_POST['install_jellyfin'])){
       
       $myFile = "/etc/samba/shares/media";
       $fh = fopen($myFile, 'w') or die("not able to write to file");
-      $stringData = "[media]\n   comment = Video and Audio Media\n   path = /volumes/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
+      $stringData = "[media]\n   comment = Video and Audio Media\n   path = /volumes/$volume/media\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @media @admins\n   force group = media\n   create mask = 0660\n   directory mask = 0770";
       fwrite($fh, $stringData);
       fclose($fh);
 
@@ -1165,7 +1117,7 @@ if(isset($_POST['install_photoprism'])){
       
       $myFile = "/etc/samba/shares/photos";
       $fh = fopen($myFile, 'w') or die("not able to write to file");
-      $stringData = "[photos]\n   comment = Photos\n   path = /volumes/$volume/photos\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @photos\n   force group = photos\n   create mask = 0660\n   directory mask = 0770";
+      $stringData = "[photos]\n   comment = Photos\n   path = /volumes/$volume/photos\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @photos @admins\n   force group = photos\n   create mask = 0660\n   directory mask = 0770";
       fwrite($fh, $stringData);
       fclose($fh);
 
@@ -1370,7 +1322,7 @@ if(isset($_POST['install_transmission'])){
     
     $myFile = "/etc/samba/shares/downloads";
     $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /volumes/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
+    $stringData = "[downloads]\n   comment = Torrent Downloads used by Transmission\n   path = /volumes/$volume/downloads\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @download @admins\n   force group = download\n   create mask = 0660\n   directory mask = 0770";
     fwrite($fh, $stringData);
     fclose($fh);
 
@@ -1604,7 +1556,7 @@ if(isset($_POST['setup_final'])){
   
   $myFile = "/etc/samba/shares/share";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
-  $stringData = "[share]\n   comment = Shared files\n   path = /volumes/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @users\n   force group = users\n   create mask = 0660\n   directory mask = 0770";
+  $stringData = "[share]\n   comment = Shared files\n   path = /volumes/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @users @admins\n   force group = users\n   create mask = 0660\n   directory mask = 0770";
   fwrite($fh, $stringData);
   fclose($fh);
 

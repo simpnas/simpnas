@@ -8,15 +8,9 @@ $volumes = getVolumes();
   
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-2">
   <h2>Volumes</h2>
-  <div class="dropdown">
-    <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-      Create
+    <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#addVolumeModal">
+      Create Volume
     </button>
-    <div class="dropdown-menu dropdown-menu-right">
-      <a class="dropdown-item" href="#addVolumeModal" data-toggle="modal">Simple</a>
-      <a class="dropdown-item" href="#addRaidVolumeModal" data-toggle="modal">RAID</a>
-    </div>
-  </div>
 </div>
 
 <div class="table-responsive">

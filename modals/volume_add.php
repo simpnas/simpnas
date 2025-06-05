@@ -44,19 +44,21 @@ $not_in_use_disks_array = array_diff($disk_list_array, $has_volume_disk_array);
           <span>&times;</span>
         </button>
       </div>
+
       <?php
-			if(count($not_in_use_disks_array) > 0){ 
-			?>
+      if(count($not_in_use_disks_array) > 0){
+      ?>
 
       <form method="post" action="post.php" autocomplete="off">
-
         <div class="modal-body">
-          
           <div class="form-group">
-				    <label>Disk</label>
-				    <select class="form-control" name="disk" required>
-				  		<option value=''>--Select Disk--</option>
-						  	<?php
+            <label>Volume Name</label>
+            <input type="text" class="form-control" name="volume_name" pattern="[a-zA-Z0-9-_]{1,15}" required>
+          </div>
+
+          <div class="form-group">
+            <label>Disk Selection</label>
+            <?php
 							foreach($not_in_use_disks_array as $disk){
 					        $disk_vendor = exec("smartctl -i /dev/$disk | grep 'Model Family:' | awk '{print $3,$4,$5}'");
 							  if(empty($disk_vendor)){
@@ -74,47 +76,66 @@ $not_in_use_disks_array = array_diff($disk_list_array, $has_volume_disk_array);
 						    $disk_serial = exec("lsblk -n -o kname,type,serial /dev/$disk | grep disk  | awk '{print $3}'");
 						    $disk_size = exec("lsblk -n -o kname,type,size /dev/$disk | grep disk | awk '{print $3}'");
 							?>
-							<option value="<?php echo $disk; ?>"><?php echo "$disk - $disk_vendor ($disk_size"."B)"; ?></option>
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input disk-checkbox" name="disks[]" value="<?php echo $disk; ?>" id="disk_<?php echo $disk; ?>">
+                <label class="custom-control-label" for="disk_<?php echo $disk; ?>"> 
+                  <?php echo "$disk - $disk_vendor ($disk_size"."B)"; ?>
+                </label>
+              </div>
+            <?php } ?>
+            <small class="form-text text-danger">
+              <strong>Warning:</strong> This will <u>Delete</u> all Data on the selected Storage Devices.
+            </small>
+          </div>
 
-							<?php
-							}
-							?>
+          <div class="form-group raid-options" style="display:none;">
+            <label>RAID Type</label>
+            <select class="form-control" name="raid">
+              <option value="">--No RAID--</option>
+              <option value="1" data-min="2">RAID 1 (Mirroring)</option>
+              <option value="5" data-min="3">RAID 5 (Parity)</option>
+              <option value="6" data-min="4">RAID 6 (Double Parity)</option>
+              <option value="10" data-min="4">RAID 10 (Mirror/Stripe)</option>
+            </select>
+          </div>
 
-				  	</select>
-				  	<small class="form-text text-danger"><strong>Warning:</strong> This will <u>Delete</u> all Data on the selected Storage Device.</small>
-				  </div>
+          <div class="form-group">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" name="encrypt" value="1" id="encrypt">
+              <label class="custom-control-label" for="encrypt">Encrypt</label>
+            </div>
+          </div>
 
-				  <div class="form-group">
-				    <label>Volume Name</label>
-				    <input type="text" class="form-control" name="volume_name" pattern="[a-zA-Z0-9-_]{1,15}" required>
-				  </div>
+          <div class="form-group" id="passwordbox">
+            <label>Encryption Key</label>
+            <input type="password" class="form-control" name="password" autocomplete="new-password">
+          </div>
+        </div>
 
-				  <div class="form-group">
-				  	<div class="custom-control custom-checkbox">
-						  <input type="checkbox" class="custom-control-input" name="encrypt" value="1" id="encrypt">
-						  <label class="custom-control-label" for="encrypt">Encrypt</label>
-						</div>
-				  </div>
-				  
-				  <div class="form-group" id="passwordbox">
-				    <label>Encryption Key</label>
-				    <input type="password" class="form-control" name="password" data-toggle="password" autocomplete="new-password">
-				  </div>
-
-				</div>         
         <div class="modal-footer">
-           <button type="submit" name="volume_add" class="btn btn-primary">Create</button>
+          <button type="submit" name="volume_add" class="btn btn-primary">Create</button>
           <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
         </div>
       </form>
-      <?php
-			} else {
-			?>
-			<div class="modal-body"><h2 class="text-secondary mt-5 text-center">You must add another disk to create a new volume</h2></div>
-			<?php
-			} 
-			?>
-   
+
+      <script>
+        document.querySelectorAll('.disk-checkbox').forEach(cb => cb.addEventListener('change', () => {
+          const selectedDisks = document.querySelectorAll('.disk-checkbox:checked').length;
+          document.querySelector('.raid-options').style.display = selectedDisks > 1 ? 'block' : 'none';
+          document.querySelectorAll('.raid-options option').forEach(option => {
+            option.disabled = selectedDisks < parseInt(option.getAttribute('data-min'));
+          });
+        }));
+      </script>
+
+      <?php } else { ?>
+        <div class="modal-body">
+          <h2 class="text-secondary mt-5 text-center">You must add more disks to create a volume.</h2>
+        </div>
+      <?php } ?>
+
     </div>
   </div>
 </div>
+
+<?php UNSET($disk_list_array); ?>
