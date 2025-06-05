@@ -18,8 +18,8 @@ $media_volume = exec("find /volumes/*/media -name media | awk -F/ '{print $3}'")
         <div class="modal-body">
 
         <ul>
-          <li>Samba Auth allow you to use nas logins instead of recreating new logins for nextcloud</li>
-          <li>Mount Home and Shares will automatically mount shares on nextcloud</li>
+          <li>Nextcloud comes preconfigured to allow login with your SimpNAS users</li>
+          <li>Nextcloud will automatically Mount home folders of users and Shares</li>
           <li>When Installation is complete you can access Nextcloud by visiting https://<?php echo $config_primary_ip; ?>:6443</li>
         </ul>
        
@@ -27,26 +27,6 @@ $media_volume = exec("find /volumes/*/media -name media | awk -F/ '{print $3}'")
           <div class="form-group">
             <label>Nextcloud Admin Password</label>
             <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password">
-          </div>
-
-          <div class="form-group">
-            <label>Choose a volume for your Nextcloud Data</label>
-            <select class="form-control" name="data_volume" required>
-              <?php
-              exec("ls /volumes", $volume_list);
-              foreach ($volume_list as $volume) {
-                $mounted = exec("df | grep $volume");
-                if(!empty($mounted) OR file_exists('/volumes/sys-vol')){
-              ?>
-                <option><?php echo "$volume"; ?></option> 
-                <?php 
-                } 
-                ?>
-              <?php
-              }
-              ?>
-
-            </select>
           </div>
 
         </div>
