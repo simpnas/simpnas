@@ -69,3 +69,5 @@ $media_volume = exec("find /volumes/*/media -name media | awk -F/ '{print $3}'")
     </div>
   </div>
 </div>
+
+<?php UNSET($volume_list); ?>
