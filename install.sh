@@ -67,7 +67,7 @@ systemctl enable simpnas
 systemctl start simpnas
 
 # Get network IP address
-IP="$(ip -4 addr show | grep -m1 inet | awk '{ print $2 }' | cut -d/ -f1)"
+IP="$(ip -o -4 addr show scope global | grep -v docker | grep -v br- | awk '{print $4}' | cut -d/ -f1 | head -n1)"
 HOSTNAME="$(hostname)"
 
 echo "=================================================================================="
@@ -107,8 +107,8 @@ EOF
 machine_id=$(cat /etc/machine-id)
 curl -s "https://simpnas.com/collect.php?collect&machine_id=$machine_id" >/dev/null
 
-echo "==============================================================================================================================="
+echo "=================================================================================="
 echo "Installation Complete!"
 echo "Access simpNAS at: http://$IP"
 echo "Login password: helloSimp"
-echo "==============================================================================================================================="
+echo "=================================================================================="

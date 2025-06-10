@@ -1526,26 +1526,50 @@ if(isset($_POST['setup_final'])){
 
   $network_int_file = exec("ls /etc/systemd/network");
   $network_int = exec("ls /etc/systemd/network | awk -F'.' '{print $1}'");
-  
-  //Create config.php file
-  
-  $file = fopen("config.php", "w");
 
-  $data = "<?php\n\n\$config_admin_password = '$password';\n\$config_smtp_server = '';\n\$config_smtp_port = '';\n\$config_smtp_username = '';\n\$config_smtp_password = '';\n\$config_mail_from = '';\n\$config_mail_to = '';\n\$config_theme = '';\n\$config_audit_logging = 0;\n\$config_enable_beta = 0;\n";
+  if($server_type == 'AD'){
+    exec("echo '127.0.0.1      localhost' > /etc/hosts");
+    exec("echo '$config_primary_ip     $config_hostname.$ad_domain $config_hostname' >> /etc/hosts");
+    exec("systemctl stop smbd nmbd winbind");
+    exec("systemctl disable smbd nmbd winbind");
+    exec("rm -f /etc/samba/smb.conf")
+    exec("rm -rf /var/lib/samba/*");
+    exec("rm -rf /var/cache/samba/*");
+    exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$domain_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
+    exec("cp /simpnas/conf/krb5.conf /etc");
+    exec("sed -i 's/NETBIOS/$ad_netbios_domain/g' /etc/krb5.conf");
+    exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
+    exec("echo 'nameserver 127.0.0.1' > /etc/resolv.conf");
+    exec("echo 'search $ad_domain' >> /etc/resolv.conf");
+    deleteLineInFile("/etc/systemd/network/$network_int_file","DNS=");
+    exec("echo 'DNS=127.0.0.1' >> /etc/systemd/network/$network_int_file");
+    exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
+    exec("sed -i '/netlogon/ i template shell = /bin/bash' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind use default domain = true' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind offline logon = false' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind nss info = rfc2307' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind enum users = yes' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind enum groups = yes' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i bind interfaces only = yes' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i interfaces = lo $network_int' /etc/samba/smb.conf");
+    exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
+    exec("systemctl unmask samba-ad-dc");
+    exec("systemctl enable samba-ad-dc");
+    exec("systemctl start samba-ad-dc");
+    exec("mv /etc/nsswitch.conf /etc/nsswitch.conf.ori");
+    exec("cp /simpnas/conf/nsswitch.conf /etc");
+  }
 
-  fwrite($file, $data);
-  fclose($file);
+  exec ("mkdir /volumes/$volume_name/docker");
+  exec ("mkdir /volumes/$volume_name/users");
+  exec ("mkdir /volumes/$volume_name/share");
+  exec ("chmod 770 /volumes/$volume_name/share");
   
   $myFile = "/etc/samba/shares/share";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
   $stringData = "[share]\n   comment = Shared files\n   path = /volumes/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @users @admins\n   force group = users\n   create mask = 0660\n   directory mask = 0770";
   fwrite($fh, $stringData);
   fclose($fh);
-
-  exec ("mkdir /volumes/$volume_name/docker");
-  exec ("mkdir /volumes/$volume_name/users");
-  exec ("mkdir /volumes/$volume_name/share");
-  exec ("chmod 770 /volumes/$volume_name/share");
 
   $myFile = "/etc/samba/shares/users";
   $fh = fopen($myFile, 'w') or die("not able to write to file");
@@ -1564,48 +1588,6 @@ if(isset($_POST['setup_final'])){
   $stringData = "\ninclude = /etc/samba/shares/share";
   fwrite($fh, $stringData);
   fclose($fh);
-
-  //Check to see if theres already a user added and delete that user
-  $existing_username = exec("cat /etc/passwd | grep 1000 | awk -F: '{print $1}'");
-  if(!empty($existing_username)){
-    exec("deluser --remove-home $existing_username");
-  }
-
-  if($server_type == 'AD'){
-    exec("echo '127.0.0.1      localhost' > /etc/hosts");
-    exec("echo '$config_primary_ip     $config_hostname $config_hostname.$ad_domain $ad_domain' >> /etc/hosts");
-    exec("cp /simpnas/conf/krb5.conf /etc");
-    exec("sed -i 's/NETBIOS/$ad_netbios_domain/g' /etc/krb5.conf");
-    exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
-    exec("rm /etc/samba/smb.conf");
-    exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$domain_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
-    exec("echo 'nameserver 127.0.0.1' > /etc/resolv.conf");
-    exec("echo 'search $ad_domain' >> /etc/resolv.conf");
-    deleteLineInFile("/etc/systemd/network/$network_int_file","DNS=");
-    exec("echo 'DNS=127.0.0.1' >> /etc/systemd/network/$network_int_file");
-    exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
-    exec("sed -i '/netlogon/ i template shell = /bin/bash' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind use default domain = true' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind offline logon = false' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind nss info = rfc2307' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind enum users = yes' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind enum groups = yes' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i bind interfaces only = yes' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i interfaces = lo $network_int' /etc/samba/smb.conf");
-    exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
-    exec("systemctl stop smbd nmbd winbind");
-    exec("systemctl disable smbd nmbd winbind");
-    exec("systemctl unmask samba-ad-dc");
-    exec("systemctl start samba-ad-dc");
-    exec("systemctl enable samba-ad-dc");
-    exec("mv /etc/nsswitch.conf /etc/nsswitch.conf.ori");
-    exec("cp /simpnas/conf/nsswitch.conf /etc");
-    $myFile = "/etc/samba/shares/share";
-    $fh = fopen($myFile, 'w') or die("not able to write to file");
-    $stringData = "[domain-share]\n   comment = Shared files under Domain\n   path = /volumes/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @\"$ad_netbios_domain\domain users\"\n   force group = \"$ad_netbios_domain\domain users\"\n   create mask = 0660\n   directory mask = 0770";
-    fwrite($fh, $stringData);
-    fclose($fh);
-  }
 
   if($collect = 1){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
