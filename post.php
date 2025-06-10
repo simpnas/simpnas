@@ -1544,14 +1544,16 @@ if(isset($_POST['setup_final'])){
     deleteLineInFile("/etc/systemd/network/$network_int_file","DNS=");
     exec("echo 'DNS=127.0.0.1' >> /etc/systemd/network/$network_int_file");
     exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
-    exec("sed -i '/netlogon/ i template shell = /bin/bash' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind use default domain = true' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind offline logon = false' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind nss info = rfc2307' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind enum users = yes' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i winbind enum groups = yes' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i bind interfaces only = yes' /etc/samba/smb.conf");
-    exec("sed -i '/netlogon/ i interfaces = lo $network_int' /etc/samba/smb.conf");
+    exec("sed -i '/^\[global\]/a\\
+        template shell = /bin/bash\\
+        winbind use default domain = true\\
+        winbind offline logon = false\\
+        winbind nss info = rfc2307\\
+        winbind enum users = yes\\
+        winbind enum groups = yes\\
+        bind interfaces only = yes\\
+        interfaces = lo $network_int
+    ' /etc/samba/smb.conf");
     exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
     exec("systemctl unmask samba-ad-dc");
     exec("systemctl enable samba-ad-dc");
