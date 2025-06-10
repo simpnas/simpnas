@@ -48,4 +48,4 @@ exec("samba-tool computer list", $computers_array);
   </div>
 </main>
 
-<?php include("footer.php"); ?>
+<?php require_once "includes/footer.php";
