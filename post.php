@@ -1546,7 +1546,7 @@ if(isset($_POST['setup_final'])){
     exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
     exec("sed -i '/^\[global\]/a\\
         template shell = /bin/bash\\
-        winbind use default domain = true\\
+        winbind use default domain = no\\
         winbind offline logon = false\\
         winbind nss info = rfc2307\\
         winbind enum users = yes\\
