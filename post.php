@@ -1458,92 +1458,74 @@ if(isset($_POST['setup_network'])){
 
 if (isset($_POST['setup_volume'])) {
     $volume_name = $_POST['volume_name'];
-    $disk = $_POST['disk'];
+    $raid = $_POST['raid'] ?? '';
+    $disk_array = $_POST['disks'] ?? [];
 
-    // Wipe existing filesystem signatures
-    exec("wipefs -a /dev/$disk");
+    $num_of_disks = count($disk_array);
 
-    // Partition disk
-    exec("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+    if ($raid && $num_of_disks >= 2) {
+        // RAID logic
+        foreach ($disk_array as $rdisk) {
+            exec("mdadm --stop --scan");
+            exec("mdadm --zero-superblock --force /dev/$rdisk");
+            exec("wipefs -a --force /dev/$rdisk");
+        }
 
-    // Get newly created partition name
-    $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print \$2}'");
+        $prefixed_array = preg_filter('/^/', '/dev/', $disk_array);
+        $disks = implode(' ', $prefixed_array);
 
-    // Zero out any previous mdadm superblocks
-    exec("mdadm --zero-superblock /dev/$diskpart");
+        // Find the lowest unused md number
+        $new_md_num = 0;
+        while (file_exists("/dev/md$new_md_num")) {
+            $new_md_num++;
+        }
 
-    // Create mount directory
-    exec("mkdir -p /volumes/$volume_name");
+        exec("yes | mdadm --create --verbose /dev/md$new_md_num --level=$raid --raid-devices=$num_of_disks --metadata=1.2 --force $disks");
 
-    // Format partition as Btrfs
-    exec("mkfs.btrfs -f -L $volume_name /dev/$diskpart");
+        exec("mkdir -p /volumes/$volume_name");
 
-    // Mount the new Btrfs partition
-    exec("mount /dev/$diskpart /volumes/$volume_name");
+        exec("mkfs.btrfs -f -L $volume_name /dev/md$new_md_num");
+        exec("mount /dev/md$new_md_num /volumes/$volume_name");
+        $uuid = exec("blkid -o value --match-tag UUID /dev/md$new_md_num");
+        $fstab_entry = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
+        file_put_contents("/etc/fstab", $fstab_entry, FILE_APPEND);
 
-    // Get UUID for fstab
-    $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
+        exec("mdadm --detail --scan | tee -a /etc/mdadm/mdadm.conf");
 
-    // Update fstab
-    $fstab_entry = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
-    file_put_contents("/etc/fstab", $fstab_entry, FILE_APPEND | LOCK_EX);
+    } elseif ($num_of_disks === 1) {
+        // Single disk logic
+        $disk = $disk_array[0];
+
+        exec("wipefs -a /dev/$disk");
+        exec("(echo g; echo n; echo p; echo 1; echo; echo; echo w) | fdisk /dev/$disk");
+
+        $diskpart = exec("lsblk -o PKNAME,KNAME,TYPE /dev/$disk | grep part | awk '{print \$2}'");
+        exec("mdadm --zero-superblock /dev/$diskpart");
+
+        exec("mkdir -p /volumes/$volume_name");
+
+        exec("mkfs.btrfs -f -L $volume_name /dev/$diskpart");
+        exec("mount /dev/$diskpart /volumes/$volume_name");
+        $uuid = exec("blkid -o value --match-tag UUID /dev/$diskpart");
+        $fstab_entry = "UUID=$uuid /volumes/$volume_name btrfs defaults 0 0\n";
+        file_put_contents("/etc/fstab", $fstab_entry, FILE_APPEND);
+    }
 
     // Redirect after setup
     header("Location: setup/setup_final.php");
     exit;
 }
 
-if(isset($_POST['setup_volume_raid'])){
-  $volume_name = trim($_POST['volume_name']);
-  $raid = $_POST['raid'];
-  $disk_array = $_POST['disks'];
-
-  $num_of_disks = count($disk_array);
-  
-  //find and stop any arrays
-  exec("ls /dev/md*",$md_array);
-
-  foreach($md_array as $md){
-    exec("mdadm --stop $md");
-  }
-
-  //Remove Superblocks on selected disks and wipe any partition info
-  foreach($disk_array as $disk){
-    exec("mdadm --zero-superblock /dev/$disk");
-    exec ("wipefs -a /dev/$disk");
-  }
-
-  //prefix /dev/ to each var in the array so instead of sda it would be /dev/sda
-  $prefixed_array = preg_filter('/^/', '/dev/', $disk_array);
-
-  $disks = implode(' ',$prefixed_array);
-
-  exec("yes | mdadm --create --verbose /dev/md1 --level=$raid --raid-devices=$num_of_disks $disks");
-
-  exec ("mkdir /volumes/$volume_name");
-
-  exec ("mkfs.ext4 -F /dev/md1");
-  
-  exec ("mount /dev/md1 /volumes/$volume_name");
-
-  //To make sure that the array is reassembled automatically at boot
-  //exec ("mdadm --detail --scan | tee -a /etc/mdadm/mdadm.conf");  
-    
-  $uuid = exec("blkid -o value --match-tag UUID /dev/md1");
-
-  $myFile = "/etc/fstab";
-  $fh = fopen($myFile, 'a') or die("can't open file");
-  $stringData = "UUID=$uuid /volumes/$volume_name ext4 defaults 0 0\n";
-  fwrite($fh, $stringData);
-  fclose($fh);
-
-  header("Location: setup/setup_final.php");
-
-}
-
 if(isset($_POST['setup_final'])){
   $volume_name = exec("ls /volumes");
   $password = $_POST['password'];
+  $server_type = $_POST['server_type'];
+  $ad_domain = $_POST['ad_domain'];
+  $ad_netbios_domain = strtoupper(strtok($ad_domain, '.'));
+  $domain_admin_password = $_POST['domain_admin_password'];
+
+  $network_int_file = exec("ls /etc/systemd/network");
+  $network_int = exec("ls /etc/systemd/network | awk -F'.' '{print $1}'");
   
   //Create config.php file
   
@@ -1589,10 +1571,100 @@ if(isset($_POST['setup_final'])){
     exec("deluser --remove-home $existing_username");
   }
 
+  if($server_type == 'AD'){
+    exec("echo '127.0.0.1      localhost' > /etc/hosts");
+    exec("echo '$config_primary_ip     $config_hostname $config_hostname.$ad_domain $ad_domain' >> /etc/hosts");
+    exec("cp /simpnas/conf/krb5.conf /etc");
+    exec("sed -i 's/NETBIOS/$ad_netbios_domain/g' /etc/krb5.conf");
+    exec("sed -i 's/DOMAIN/$ad_domain/g' /etc/krb5.conf");
+    exec("rm /etc/samba/smb.conf");
+    exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$domain_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
+    exec("echo 'nameserver 127.0.0.1' > /etc/resolv.conf");
+    exec("echo 'search $ad_domain' >> /etc/resolv.conf");
+    deleteLineInFile("/etc/systemd/network/$network_int_file","DNS=");
+    exec("echo 'DNS=127.0.0.1' >> /etc/systemd/network/$network_int_file");
+    exec("echo 'Domains=$ad_domain' >> /etc/systemd/network/$network_int_file");
+    exec("sed -i '/netlogon/ i template shell = /bin/bash' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind use default domain = true' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind offline logon = false' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind nss info = rfc2307' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind enum users = yes' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i winbind enum groups = yes' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i bind interfaces only = yes' /etc/samba/smb.conf");
+    exec("sed -i '/netlogon/ i interfaces = lo $network_int' /etc/samba/smb.conf");
+    exec("echo 'include = /etc/samba/shares.conf' >> /etc/samba/smb.conf");
+    exec("systemctl stop smbd nmbd winbind");
+    exec("systemctl disable smbd nmbd winbind");
+    exec("systemctl unmask samba-ad-dc");
+    exec("systemctl start samba-ad-dc");
+    exec("systemctl enable samba-ad-dc");
+    exec("mv /etc/nsswitch.conf /etc/nsswitch.conf.ori");
+    exec("cp /simpnas/conf/nsswitch.conf /etc");
+    $myFile = "/etc/samba/shares/share";
+    $fh = fopen($myFile, 'w') or die("not able to write to file");
+    $stringData = "[domain-share]\n   comment = Shared files under Domain\n   path = /volumes/$volume_name/share\n   browsable = yes\n   writable = yes\n   guest ok = yes\n   read only = no\n   valid users = @\"$ad_netbios_domain\domain users\"\n   force group = \"$ad_netbios_domain\domain users\"\n   create mask = 0660\n   directory mask = 0770";
+    fwrite($fh, $stringData);
+    fclose($fh);
+  }
+
   if($collect = 1){
     exec("curl https://simpnas.com/collect.php?'collect&machine_id='$(cat /etc/machine-id)''");
   }
 
   header("Location: login.php");
+
+}
+
+if(isset($_POST['ups_add'])){
+    $device = json_decode(base64_decode($_POST['ups_id']), true);
+
+    if (!$device || !isset($device['driver'], $device['port'])) {
+        die("Invalid UPS data.");
+    }
+
+    $upsName = "myups"; // or make this dynamic based on serial or user input
+    $upsConfPath = "/etc/nut/ups.conf";
+
+    // Create UPS block
+    $upsBlock = "\n[$upsName]\n";
+    $upsBlock .= "    driver = " . $device['driver'] . "\n";
+    $upsBlock .= "    port = " . $device['port'] . "\n";
+
+    if (!empty($device['vendorid'])) {
+        $upsBlock .= "    vendorid = " . $device['vendorid'] . "\n";
+    }
+    if (!empty($device['productid'])) {
+        $upsBlock .= "    productid = " . $device['productid'] . "\n";
+    }
+    if (!empty($device['serial'])) {
+        $upsBlock .= "    serial = \"" . $device['serial'] . "\"\n";
+    }
+    if (!empty($device['product'])) {
+        $upsBlock .= "    desc = \"" . $device['product'] . "\"\n";
+    }
+
+    // Backup existing ups.conf
+    if (!copy($upsConfPath, $upsConfPath . ".bak")) {
+        die("Failed to back up ups.conf");
+    }
+
+    // Remove existing block with same name
+    $conf = file_get_contents($upsConfPath);
+    $conf = preg_replace("/\[$upsName\][^\[]*/", "", $conf); // crude but works
+    $conf = trim($conf) . "\n" . $upsBlock;
+
+    // Save updated config
+    if (file_put_contents($upsConfPath, $conf) === false) {
+        die("Failed to write to ups.conf");
+    }
+
+    // Restart NUT services (optional, requires root)
+    exec("systemctl restart nut-server 2>&1");
+
+    echo "<pre>";
+    echo "Saved UPS block:\n" . htmlspecialchars($upsBlock);
+    echo "</pre>";
+
+    header("Location: ups.php");
 
 }

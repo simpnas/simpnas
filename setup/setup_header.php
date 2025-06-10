@@ -1,7 +1,7 @@
 <?php
 
 	if(file_exists('../config.php')){
-	  header("Location: ../login.php");
+	  //header("Location: ../login.php");
 	}
 
 	require_once "../includes/functions.php";

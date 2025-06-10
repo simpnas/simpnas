@@ -15,7 +15,7 @@ $dhcp_set = exec("cat /etc/systemd/network/$network_int_file | grep DHCP");
 	    <li class="breadcrumb-item"><a href="setup.php">Timezone</a></li>
 	    <li class="breadcrumb-item"><a href="setup_network.php">Network</a></li>
 	    <li class="breadcrumb-item"><a href="setup_volume.php">Volume</a></li>
-	    <li class="breadcrumb-item active">Admin User</li>
+	    <li class="breadcrumb-item active">Final</li>
 	  </ol>
 	</nav>
   
@@ -27,8 +27,34 @@ $dhcp_set = exec("cat /etc/systemd/network/$network_int_file | grep DHCP");
   <form method="post" action="../post.php" autocomplete="off">
 
 	  <div class="form-group">
-	    <label>Password</label>
+	    <label>WebUI Password</label>
 	    <input type="password" class="form-control" name="password" data-toggle="password" required autocomplete="new-password">
+	  </div>
+
+	  <div class="form-group">
+			<label>Server Type</label>
+			<select class="form-control" name="server_type" id="serverType">
+				<option id="standAlone" value="standalone">File Server</option>
+				<?php
+				if(empty($dhcp_set)){
+				?>
+				<option id="activeDirectory" value="AD">Directory / File Server</option>
+				<?php
+				}
+				?>
+			</select>
+	  </div>
+
+	  <div id="activeDirectorySettings">
+		  <div class="form-group">
+		    <label>Domain Name</label>
+		    <input type="text" class="form-control" name="ad_domain" placeholder="ex. company.int">
+		  </div>
+	  </div>
+
+	  <div class="form-group">
+	    <label>Domain Administrator Password</label>
+	    <input type="password" class="form-control" name="domain_admin_password" data-toggle="password" required autocomplete="new-password">
 	  </div>
 
 	  <div class="form-group">

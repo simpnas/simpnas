@@ -25,7 +25,7 @@ echo "==========================================================================
 DEBIAN_FRONTEND=noninteractive apt install -y \
     samba smbclient rsync php-cgi git mdadm cryptsetup apt-transport-https \
     curl gnupg-agent software-properties-common dnsutils rclone avahi-daemon \
-    sudo smartmontools btrfs-progs
+    sudo smartmontools btrfs-progs nut krb5-user winbind libpam-winbind libnss-winbind
 
 echo "=================================================================================="
 echo "Installing Docker using official script..."

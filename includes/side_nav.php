@@ -51,6 +51,15 @@
           Groups
         </a>
       </li>
+
+      <?php if(!empty($config_ad_enabled)){ ?>
+      <li class="nav-item">
+        <a class="nav-link" href="computers.php" onclick="$('#cover-spin').show(0)">
+          <span data-feather="monitor"></span>
+          Computers
+        </a>
+      </li>
+      <?php } ?>
       
       <li class="nav-item">
         <a class="nav-link" href="shares.php" onclick="$('#cover-spin').show(0)">
@@ -87,6 +96,13 @@
           Network
         </a>
       </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="ups.php" onclick="$('#cover-spin').show(0)">
+          <span data-feather="zap"></span>
+          UPS
+        </a>
+      </li>
       
     </ul>
 
@@ -95,6 +111,20 @@
     </h6>
     
     <ul class="nav flex-column mb-2">
+
+      <li class="nav-item">
+        <a class="nav-link" href="backups.php" onclick="$('#cover-spin').show(0)">
+          <span data-feather="archive"></span>
+          Backups
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="tasks.php" onclick="$('#cover-spin').show(0)">
+          <span data-feather="clipboard"></span>
+          Tasks
+        </a>
+      </li>
       
       <li class="nav-item">
         <a class="nav-link" href="updates.php" onclick="$('#cover-spin').show(0)">
@@ -102,8 +132,6 @@
           Updates
         </a>
       </li>
-
-      
       
       <li class="nav-item">
         <a class="nav-link" href="logs.php?daemon" onclick="$('#cover-spin').show(0)">
