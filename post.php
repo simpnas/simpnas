@@ -1532,7 +1532,7 @@ if(isset($_POST['setup_final'])){
     exec("echo '$config_primary_ip     $config_hostname.$ad_domain $config_hostname' >> /etc/hosts");
     exec("systemctl stop smbd nmbd winbind");
     exec("systemctl disable smbd nmbd winbind");
-    exec("rm -f /etc/samba/smb.conf")
+    exec("rm -f /etc/samba/smb.conf");
     exec("rm -rf /var/lib/samba/*");
     exec("rm -rf /var/cache/samba/*");
     exec("samba-tool domain provision --realm=$ad_domain --domain=$ad_netbios_domain --adminpass='$domain_admin_password' --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307");
