@@ -100,6 +100,7 @@ cat <<EOF > /simpnas/config.php
 \$config_theme = '';
 \$config_audit_logging = 0;
 \$config_enable_beta = 0;
+\$config_enable_setup = 1;
 
 EOF
 
@@ -108,7 +109,6 @@ machine_id=$(cat /etc/machine-id)
 curl -s "https://simpnas.com/collect.php?collect&machine_id=$machine_id" >/dev/null
 
 echo "=================================================================================="
-echo "Installation Complete!"
-echo "Access simpNAS at: http://$IP"
-echo "Login password: helloSimp"
+echo "Installation Almost Complete..."
+echo "Finish Setup at: http://$IP:81"
 echo "=================================================================================="

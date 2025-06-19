@@ -1536,7 +1536,15 @@ if(isset($_POST['setup_final'])){
 
   file_put_contents($configFile, $updatedContent);
 
-  file_put_contents($configFile, "\n\$config_enable_setup = 0;", FILE_APPEND);
+  // Replace $config_enable_setup if it already exists (set it to 0)
+    $updatedContent = preg_replace(
+        "/(\\\$config_enable_setup\s*=\s*)\d+;/",
+        "$1 0;",
+        $updatedContent
+    );
+
+    // Write the updated content back to config.php
+    file_put_contents($configFile, $updatedContent);
 
   $network_int_file = exec("ls /etc/systemd/network");
   $network_int = exec("ls /etc/systemd/network | awk -F'.' '{print $1}'");
