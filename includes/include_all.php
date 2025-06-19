@@ -3,7 +3,7 @@
 include "config.php";
 // Check to see if setup is enabled
 if (!isset($config_enable_setup) || $config_enable_setup == 1) {
-    header("Location: setup.php");
+    header("Location: setup/setup.php");
     exit;
 }
 require_once "simple_vars.php";
