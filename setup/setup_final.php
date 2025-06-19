@@ -39,7 +39,7 @@ $dhcp_set = exec("cat /etc/systemd/network/$network_int_file | grep DHCP");
 			</div>
 	  </div>
 	  
-	  <button type="submit" name="setup_final" class="btn btn-primary">Finish and Reboot <span data-feather="check"></span></button>
+	  <button type="submit" name="setup_final" class="btn btn-primary">Finish and Login <span data-feather="check"></span></button>
 	</form>
 
 <?php require_once "setup_footer.php";
