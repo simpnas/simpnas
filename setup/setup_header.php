@@ -1,8 +1,11 @@
 <?php
 
-	if(file_exists('../config.php')){
-	  //header("Location: ../login.php");
-	}
+	require_once = "config.php";
+  // Check to see if setup is enabled
+  if (!isset($config_enable_setup) || $config_enable_setup == 0) {
+      header("Location: login.php");
+      exit;
+  }
 
 	require_once "../includes/functions.php";
 

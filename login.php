@@ -1,6 +1,11 @@
 <?php 
   
 require_once "config.php";
+// Check to see if setup is enabled
+if (!isset($config_enable_setup) || $config_enable_setup == 1) {
+    header("Location: setup.php");
+    exit;
+}
 require_once "includes/simple_vars.php";
 
 session_start();
