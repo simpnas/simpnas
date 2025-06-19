@@ -1,9 +1,9 @@
 <?php
 
-	require_once = "config.php";
+	require_once = "../config.php";
   // Check to see if setup is enabled
   if (!isset($config_enable_setup) || $config_enable_setup == 0) {
-      header("Location: login.php");
+      header("Location: ../login.php");
       exit;
   }
 
