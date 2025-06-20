@@ -32,6 +32,9 @@ if (isset($_GET['systemd'])) {
 } elseif (isset($_GET['php'])) {
     $title = 'PHP Logs';
     $log = shell_exec("journalctl _COMM=php -n 500 --no-pager -r 2>&1");
+} elseif (isset($_GET['disk'])) {
+    $title = 'Disk & SMART Logs';
+    $log = shell_exec("(journalctl -u smartd.service -n 250; echo ''; journalctl -k | grep -Ei 'smart|fail|ata|nvme|sd[a-z]' ) --no-pager -r 2>&1");
 } else {
     $log = shell_exec("journalctl -n 500 --no-pager -r 2>&1");
     $title = 'System Logs';
@@ -65,6 +68,9 @@ if (isset($_GET['systemd'])) {
     </li>
     <li class="nav-item">
       <a class="nav-link <?php if(isset($_GET['php'])) echo "active"; ?>" href="?php">PHP</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <?php if(isset($_GET['disk'])) echo "active"; ?>" href="?disk">Disk & SMART Logs</a>
     </li>
     <li class="nav-item">
       <a class="nav-link <?php if(isset($_GET['web'])) echo "active"; ?>" href="?web">Web Server</a>
