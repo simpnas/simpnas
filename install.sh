@@ -109,6 +109,6 @@ machine_id=$(cat /etc/machine-id)
 curl -s "https://simpnas.com/collect.php?collect&machine_id=$machine_id" >/dev/null
 
 echo "=================================================================================="
-echo "Installation Almost Complete..."
-echo "Finish Setup at: http://$IP:81"
+echo "     ALMOST THERE! Finish the setup proicess by pointing your web browser to:     "
+echo "                     http://$IP:81                                                "
 echo "=================================================================================="
