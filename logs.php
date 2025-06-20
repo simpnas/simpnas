@@ -1,15 +1,17 @@
-<?php 
-  
+<?php
+
 require_once "includes/include_all.php";
 
-if(isset($_GET['daemon'])){
-  $log = shell_exec("tac /var/log/daemon.log");
-}elseif(isset($_GET['auth'])){
-  $log = shell_exec("tac /var/log/auth.log");
-}elseif(isset($_GET['messages'])){
-  $log = shell_exec("tac /var/log/messages");
-}elseif(isset($_GET['kernel'])){
-  $log = shell_exec("tac /var/log/kern.log");
+$log = '';
+
+if (isset($_GET['daemon'])) {
+    $log = shell_exec("journalctl -u cron.service -n 500 --no-pager -r 2>&1");
+} elseif (isset($_GET['auth'])) {
+    $log = shell_exec("journalctl SYSLOG_IDENTIFIER=sshd -n 500 --no-pager -r 2>&1");
+} elseif (isset($_GET['messages'])) {
+    $log = shell_exec("journalctl -n 500 --no-pager -r 2>&1");
+} elseif (isset($_GET['kernel'])) {
+    $log = shell_exec("journalctl -k -n 500 --no-pager -r 2>&1");
 }
 
 ?>
@@ -35,7 +37,7 @@ if(isset($_GET['daemon'])){
 <hr>
 
 <?php
-echo "<pre>$log</pre>";
+echo "<pre>" . htmlentities($log) . "</pre>";
 ?>
 
-<?php require_once "includes/footer.php";
+<?php require_once "includes/footer.php"; ?>

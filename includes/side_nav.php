@@ -102,7 +102,7 @@
     </h6>
     
     <ul class="nav flex-column mb-2">
-
+      <?php if ($config_enable_beta) { ?>
       <li class="nav-item">
         <a class="nav-link" href="backups.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="archive"></span>
@@ -116,7 +116,7 @@
           Tasks
         </a>
       </li>
-      
+      <?php } ?>
       <li class="nav-item">
         <a class="nav-link" href="updates.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="download"></span>
