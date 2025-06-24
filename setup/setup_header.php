@@ -32,7 +32,7 @@
 
   <body>
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-      <div class="navbar-brand col-sm-3 col-md-2 mr-0"><span data-feather="box"></span> SimpNAS Setup</div>
+      <div class="navbar-brand col-sm-3 col-md-2 mr-0"><span class="mr-1" data-feather="box"></span>Simp<strong>NAS</strong> Setup</div>
     </nav>
 
     <div class="container-fluid">

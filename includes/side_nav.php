@@ -87,13 +87,14 @@
           Network
         </a>
       </li>
-
+      <?php if ($config_enable_beta) { ?>
       <li class="nav-item">
         <a class="nav-link" href="ups.php" onclick="$('#cover-spin').show(0)">
           <span data-feather="zap"></span>
           UPS
         </a>
       </li>
+      <?php } ?>
       
     </ul>
 

@@ -10,8 +10,8 @@ exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk
 <main class="col-md-12 ml-sm-auto col-lg-12 pt-3 px-4">
   <nav>
 	  <ol class="breadcrumb">
-	    <li class="breadcrumb-item"><a href="setup.php">Setup</a></li>
-	    <li class="breadcrumb-item"><a href="setup.php">Timezone</a></li>
+	    <li class="breadcrumb-item"><a href="index.php">Welcome</a></li>
+	    <li class="breadcrumb-item"><a href="setup_timezone.php">Timezone</a></li>
 	    <li class="breadcrumb-item"><a href="setup_network.php">Network</a></li>
 	    <li class="breadcrumb-item active">Volume</li>
 	  </ol>
@@ -26,7 +26,7 @@ exec("lsblk -n -o KNAME,TYPE | grep disk | grep -v zram | grep -v $os_disk | awk
 
   <?php include("../alert_message.php"); ?>
 
-  <form method="post" action="../post.php" autocomplete="off">
+  <form method="post" action="setup_post.php" autocomplete="off">
         <div class="modal-body">
           <div class="form-group">
             <label>Volume Name</label>

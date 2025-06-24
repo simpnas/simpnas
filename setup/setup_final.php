@@ -11,8 +11,8 @@ $dhcp_set = exec("cat /etc/systemd/network/$network_int_file | grep DHCP");
 <main class="col-md-12 ml-sm-auto col-lg-12 pt-3 px-4">
   <nav>
 	  <ol class="breadcrumb">
-	    <li class="breadcrumb-item"><a href="setup.php">Setup</a></li>
-	    <li class="breadcrumb-item"><a href="setup.php">Timezone</a></li>
+	    <li class="breadcrumb-item"><a href="index.php">Welcome</a></li>
+	    <li class="breadcrumb-item"><a href="setup_timezone.php">Timezone</a></li>
 	    <li class="breadcrumb-item"><a href="setup_network.php">Network</a></li>
 	    <li class="breadcrumb-item"><a href="setup_volume.php">Volume</a></li>
 	    <li class="breadcrumb-item active">Admin Password</li>
@@ -24,7 +24,7 @@ $dhcp_set = exec("cat /etc/systemd/network/$network_int_file | grep DHCP");
 
   <?php include("../alert_message.php"); ?>
   
-  <form method="post" action="../post.php" autocomplete="off">
+  <form method="post" action="setup_post.php" autocomplete="off">
 
 	  <div class="form-group">
 	    <label>WebUI Password</label>
