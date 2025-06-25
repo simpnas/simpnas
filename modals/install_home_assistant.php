@@ -16,12 +16,25 @@ $usb_devices = "ConbeeII";
       <form method="post" action="post.php" autocomplete="off">
 
         <div class="modal-body">
+
           <div class="form-group">
-            <label>Optional USB Device</label>
-            <input type="text" class="form-control" name="device" placeholder="eg. /dev/ttyUSB0">
+            <label>Optional Zigbee USB Device</label>
+            <select class="form-control" name="device">
+              <option value="">None</option>
+              <?php
+              exec("ls /dev/serial/by-id/", $devices);
+              foreach ($devices as $device) {
+                $device_real_path = exec("readlink -f /dev/serial/by-id/$device");
+              ?>
+                <option value="<?php echo $device; ?>"><?php echo truncate($device, 40); ?></option>
+              <?php
+              }
+              ?>
+            </select>
           </div>
+
         </div>
-         
+
         <div class="modal-footer">
            <button type="submit" name="install_homeassistant" class="btn btn-primary">Install</button>
           <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>

@@ -32,18 +32,42 @@ $volumes = getVolumes();
         // Get the details from the volume data array
         $volume = $volume_data['volume'];
         $disk = $volume_data['disk'];
+        $disk_base_name = basename($disk);
         $total_space = $volume_data['total_space'];
         $used_space = $volume_data['used_space'];
         $free_space = $volume_data['free_space'];
         $used_space_percent = $volume_data['use_percent'];
         $is_mounted = $volume_data['is_mounted'];
         $crypt_status = exec("cryptsetup status $volume | grep inactive");
+        if (str_contains($disk, 'md')) {
+          $is_raid = TRUE;
+          $raid_level = strtoupper(preg_replace('/raid(\d+)/i', 'raid $1', exec("mdadm --detail $disk | grep 'Raid Level' | awk '{print \$4}'")));
+        } else {
+          $is_raid = FALSE;
+        }
+
+        // Error Check BTRFS error counts
+        $volume_error = false;
+        foreach (explode("\n", shell_exec("btrfs device stats /volumes/$volume/")) as $line) {
+            if (preg_match('/\s(\d+)$/', $line, $m) && $m[1] > 0) {
+                $volume_error = true;
+                break;
+            }
+        }
+
+
 
       ?>
       
-      <tr>
-        <td><span class="mr-2" data-feather="database"></span><strong><?php echo $volume; ?></strong></td>
-        <td>Simple</td>
+      <tr class="<?php if ($volume_error) { echo "table-danger"; } ?>">
+        <td><span class="mr-2" data-feather="database"></span><strong><?php echo $volume; ?><?php if ($volume_error) { echo " <span data-feather='alert-triangle'></span>"; } ?></strong></td>
+        <td>
+          <?php if ($is_raid) { ?>
+            <a href="raid_configuration.php?raid=<?php echo $disk_base_name; ?>"><?php echo $raid_level; ?></a>
+          <?php } else { ?>
+            Simple
+          <?php } ?>
+        </td>
         <td><span class="mr-2" data-feather="hard-drive"></span><?php echo $disk; ?></td>
         <td>
           <?php if ($is_mounted === 'yes') { ?>
@@ -79,7 +103,7 @@ $volumes = getVolumes();
             if(empty($crypt_status)){ ?>
               <a href="post.php?lock_volume=<?php echo $volume; ?>" class="btn btn-outline-secondary"><span data-feather="lock"></span></a>
             <?php } ?>
-           
+            <a class="btn btn-outline-dark" href="file_system_stats.php?volume_name=<?php echo $volume; ?>" title="File System Stats"><span data-feather="activity"></span></a>
           </div>
          
         </td>

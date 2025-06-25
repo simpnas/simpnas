@@ -194,7 +194,15 @@ function getUsers(...$fields) {
     return $users;
 }
 
-
-
-
-?>
+function truncate($text, $chars) {
+    if (strlen($text) <= $chars) {
+        return $text;
+    }
+    $text = $text . " ";
+    $text = substr($text, 0, $chars);
+    $lastSpacePos = strrpos($text, ' ');
+    if ($lastSpacePos !== false) {
+        $text = substr($text, 0, $lastSpacePos);
+    }
+    return $text . "...";
+}

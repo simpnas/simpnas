@@ -1228,7 +1228,7 @@ if(isset($_GET['uninstall_nginx-proxy-manager'])){
 if(isset($_POST['install_homeassistant'])) {
   if (!empty($_POST['device'])) {
     $device = $_POST['device'];
-    $container_config = "--device=$device:$device";
+    $container_config = "--device=/dev/serial/by-id/$device:/dev/ttyUSB0";
   } else {
     $container_config = '';
   } 
