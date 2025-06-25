@@ -24,7 +24,7 @@ echo "Installing required packages: Samba, PHP, Rsync, mdadm, cryptsetup, Docker
 echo "=================================================================================="
 DEBIAN_FRONTEND=noninteractive apt install -y \
     samba smbclient rsync php-cgi git mdadm cryptsetup apt-transport-https \
-    curl gnupg-agent software-properties-common dnsutils rclone avahi-daemon \
+    curl gnupg-agent dnsutils rclone avahi-daemon \
     sudo smartmontools btrfs-progs nut
 
 echo "=================================================================================="
