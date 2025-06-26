@@ -8,8 +8,6 @@ exec("smartctl --scan | awk '{print $1}'", $drive_list);
 
 exec("ls /volumes", $volume_array);
 
-$simpnas_version = exec("git rev-parse --short HEAD");
-
 $free_memory = exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
 $free_memory = floor($free_memory);
 //$cpu_usage = exec("top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\([0-9.]*\)%* id.*/\1/' | awk '{print 100 - $1'%'}'");
@@ -84,19 +82,14 @@ if(empty($status_service_ssh)){
     </legend>
 
     <div class="alert alert-success">
-      <i class="fa fa-2x fa-check"></i> System is Healthy
+      <div class="mb-2"><i class="fa fa-2x fa-check mr-2"></i><strong>System is Healthy</strong></div>
     </div>
 
-    <table class="table mb-5">
+    <table class="table table-borderless mb-3">
       
       <tr>
         <td>Hostname</td>
         <th><?php echo $config_hostname; ?></th>
-      </tr>
-
-      <tr>
-        <td>SimpNAS Version</td>
-        <td><?php echo $simpnas_version; ?></td>
       </tr>
 
       <tr>
@@ -228,7 +221,7 @@ if(empty($status_service_ssh)){
   
   <div class="col-md-6">
 
-    <legend class="text-center mb-3">Volumes</legend>
+    <legend class="text-center">Volumes</legend>
 
     <?php
     foreach($volume_array as $volume){
@@ -252,7 +245,7 @@ if(empty($status_service_ssh)){
         $hdd_label_size = exec("smartctl -i $hdd | grep 'User Capacity:' | cut -d '[' -f2 | cut -d ']' -f1");
       
     ?>
-        <div class="col-md-12 mb-4">
+        <div class="col-md-12 mb-3">
           <h4 class="text-center"><?php echo $volume; ?></h4>
           <canvas id="doughnutChart<?php echo $volume; ?>"></canvas>
         </div>
