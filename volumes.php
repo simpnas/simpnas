@@ -55,8 +55,6 @@ $volumes = getVolumes();
             }
         }
 
-
-
       ?>
       
       <tr class="<?php if ($volume_error) { echo "table-danger"; } ?>">

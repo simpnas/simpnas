@@ -13,7 +13,8 @@ $simpnas_version = exec("git rev-parse --short HEAD");
 $free_memory = exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
 $free_memory = floor($free_memory);
 //$cpu_usage = exec("top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\([0-9.]*\)%* id.*/\1/' | awk '{print 100 - $1'%'}'");
-$free_swap = exec("free | grep Swap | awk '{print $3/$2 * 100.0}'");
+
+$free_swap = intval(exec("free | grep Swap | awk '{print $3/$2 * 100.0}'"));
 $free_swap = floor($free_swap);
 
 $load = exec("cat /proc/loadavg | awk '{print $1}'");
